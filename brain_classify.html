@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>body{margin:0;background:#1a2332;}#info{position:fixed;top:4px;left:6px;color:#fff;font:11px monospace;white-space:pre;z-index:9;}</style>
+</head>
+<body>
+<div id="info">loading...</div>
+<script type="importmap">
+{ "imports": { "three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from '/node_modules/three/build/three.module.js';
+import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from '/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js';
+
+const info = document.getElementById('info');
+const lines = [];
+const out = (s) => { lines.push(s); info.textContent = lines.join('\n'); console.log(s); };
+
+await MeshoptDecoder.ready;
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
+const gltf = await loader.loadAsync('/models_backup/organ-brain.orig.glb');
+const root = gltf.scene;
+
+// 收集第一个 primitive 的几何与贴图
+let mesh = null;
+root.traverse((o) => { if (!mesh && o.isMesh) mesh = o; });
+const geo = mesh.geometry;
+const pos = geo.getAttribute('position');
+const uv = geo.getAttribute('uv');
+out(`verts=${pos.count} uv=${uv ? uv.count : 'none'}`);
+
+const mat = mesh.material;
+const tex = mat.map;
+const img = tex.image;
+const cv = document.createElement('canvas');
+cv.width = img.width; cv.height = img.height;
+const ctx = cv.getContext('2d', { willReadFrequently: true });
+ctx.drawImage(img, 0, 0);
+const idata = ctx.getImageData(0, 0, cv.width, cv.height);
+out(`texture ${img.width}x${img.height} sampled`);
+
+// 注意：position 是量化 SHORT(norm) 已被 three 解为 float；uv 是 USHORT(norm) 已解为 float
+// 但 three 的 GLTFMeshQuantization 是空实现！position/uv 可能还是原始整数 → 检查范围
+let pmin = [1e9,1e9,1e9], pmax = [-1e9,-1e9,-1e9];
+for (let i = 0; i < pos.count; i++) for (let k = 0; k < 3; k++) {
+  const v = pos.array[i*3+k];
+  if (v < pmin[k]) pmin[k] = v; if (v > pmax[k]) pmax[k] = v;
+}
+out(`pos range: [${pmin.map(v=>v.toFixed(2)).join(',')}] ~ [${pmax.map(v=>v.toFixed(2)).join(',')}]`);
+let umin = 1e9, umax = -1e9;
+for (let i = 0; i < uv.count; i++) { const v = uv.array[i*2]; if (v<umin)umin=v; if(v>umax)umax=v; }
+out(`u range: ${umin.toFixed(2)} ~ ${umax.toFixed(2)}`);
+// 若量化未解，手动归一化
+const needPosNorm = Math.abs(pmin[1]) > 4 || Math.abs(pmax[1]) > 4;
+const needUvNorm = umax > 4;
+out(`needPosNorm=${needPosNorm} needUvNorm=${needUvNorm}`);
+
+const N = pos.count;
+const P = new Float32Array(N*3), U = new Float32Array(N*2);
+for (let i = 0; i < N; i++) for (let k = 0; k < 3; k++) P[i*3+k] = needPosNorm ? pos.array[i*3+k]/32767 : pos.array[i*3+k];
+for (let i = 0; i < N; i++) for (let k = 0; k < 2; k++) U[i*2+k] = needUvNorm ? uv.array[i*2+k]/65535 : uv.array[i*2+k];
+
+// 采样贴图颜色（每顶点）
+const W = cv.width, H = cv.height;
+const C = new Float32Array(N*3);
+for (let i = 0; i < N; i++) {
+  let x = Math.min(W-1, Math.max(0, Math.round(U[i*2]*(W-1))));
+  let y = Math.min(H-1, Math.max(0, Math.round((1-U[i*2+1])*(H-1))));
+  const o = (y*W+x)*4;
+  C[i*3] = idata.data[o]/255; C[i*3+1] = idata.data[o+1]/255; C[i*3+2] = idata.data[o+2]/255;
+}
+// 参考点颜色：小脑区 (x>0.15,y<-0.6) vs 大脑顶 (y>0.5)
+function avgColor(f){ let r=0,g=0,b=0,c=0; for(let i=0;i<N;i++){ if(!f(P[i*3],P[i*3+1],P[i*3+2]))continue; r+=C[i*3];g+=C[i*3+1];b+=C[i*3+2];c++; } return c? `rgb(${(r/c).toFixed(2)},${(g/c).toFixed(2)},${(b/c).toFixed(2)}) n=${c}` : 'n=0'; }
+out(`小脑参考色: ${avgColor((x,y)=>x>0.15&&y<-0.6)}`);
+out(`大脑参考色: ${avgColor((x,y)=>y>0.5)}`);
+
+// k-means k=3（RGB 子采样）
+const K = 3, SUB = 20000;
+const step = Math.max(1, Math.floor(N/SUB));
+const cent = [];
+for (let k = 0; k < K; k++) { const i = Math.floor(N * (k+0.5)/K); cent.push([C[i*3], C[i*3+1], C[i*3+2]]); }
+const lab = new Uint8Array(N);
+for (let it = 0; it < 12; it++) {
+  for (let i = 0; i < N; i++) {
+    let best = 0, bd = 1e9;
+    for (let k = 0; k < K; k++) {
+      const dr = C[i*3]-cent[k][0], dg = C[i*3+1]-cent[k][1], db = C[i*3+2]-cent[k][2];
+      const d = dr*dr+dg*dg+db*db; if (d < bd) { bd = d; best = k; }
+    }
+    lab[i] = best;
+  }
+  const acc = Array.from({length:K},()=>[0,0,0,0]);
+  for (let i = 0; i < N; i++) { const a = acc[lab[i]]; a[0]+=C[i*3]; a[1]+=C[i*3+1]; a[2]+=C[i*3+2]; a[3]++; }
+  for (let k = 0; k < K; k++) if (acc[k][3]) cent[k] = [acc[k][0]/acc[k][3], acc[k][1]/acc[k][3], acc[k][2]/acc[k][3]];
+}
+for (let k = 0; k < K; k++) {
+  let c = 0, sx=0,sy=0,sz=0, low=0, back=0;
+  for (let i = 0; i < N; i++) if (lab[i]===k) { c++; sx+=P[i*3]; sy+=P[i*3+1]; sz+=P[i*3+2]; if(P[i*3+1]<-0.35)low++; if(P[i*3]>0.1)back++; }
+  out(`cluster${k}: rgb(${cent[k].map(v=>v.toFixed(2)).join(',')}) n=${c} (${(c/N*100).toFixed(1)}%) 质心(${(sx/c).toFixed(2)},${(sy/c).toFixed(2)},${(sz/c).toFixed(2)}) Y<-0.35占${(low/c*100).toFixed(0)}% X>0.1占${(back/c*100).toFixed(0)}%`);
+}
+
+// 小脑 = Y<-0.35 与 X>0.1 占比最高的 cluster（若并列取 Y<-0.35 最高者）
+let cb = 0, bestScore = -1;
+for (let k = 0; k < K; k++) {
+  let low=0,c=0; for (let i=0;i<N;i++) if(lab[i]===k){c++; if(P[i*3+1]<-0.35)low++;}
+  const score = low/c; if (score > bestScore) { bestScore = score; cb = k; }
+}
+out(`小脑 cluster = cluster${cb}`);
+
+// 边界点：小脑顶点附近 0.07 内存在非小脑顶点
+const CELL = 0.07;
+const grid = new Map();
+const keyOf = (x,y,z) => Math.floor(x/CELL)+'_'+Math.floor(y/CELL)+'_'+Math.floor(z/CELL);
+for (let i = 0; i < N; i++) {
+  const k = keyOf(P[i*3],P[i*3+1],P[i*3+2]);
+  let arr = grid.get(k); if (!arr) { arr = []; grid.set(k, arr); }
+  arr.push(i);
+}
+const bpts = [];
+for (let i = 0; i < N; i++) {
+  if (lab[i] !== cb) continue;
+  const xi = Math.floor(P[i*3]/CELL), yi = Math.floor(P[i*3+1]/CELL), zi = Math.floor(P[i*3+2]/CELL);
+  let near = false;
+  outer:
+  for (let dx=-1;dx<=1;dx++) for (let dy=-1;dy<=1;dy++) for (let dz=-1;dz<=1;dz++) {
+    const arr = grid.get((xi+dx)+'_'+(yi+dy)+'_'+(zi+dz)); if (!arr) continue;
+    for (const j of arr) if (lab[j] !== cb) { near = true; break outer; }
+  }
+  if (near) bpts.push([P[i*3],P[i*3+1],P[i*3+2]]);
+}
+out(`边界点: ${bpts.length}`);
+
+// PCA 拟合平面
+let cx=0,cy=0,cz=0; for (const p of bpts){cx+=p[0];cy+=p[1];cz+=p[2];}
+cx/=bpts.length; cy/=bpts.length; cz/=bpts.length;
+let sxx=0,syy=0,szz=0,sxy=0,sxz=0,syz=0;
+for (const p of bpts){ const dx=p[0]-cx,dy=p[1]-cy,dz=p[2]-cz;
+  sxx+=dx*dx; syy+=dy*dy; szz+=dz*dz; sxy+=dx*dy; sxz+=dx*dz; syz+=dy*dz; }
+// Jacobi 特征分解 3x3
+const A=[[sxx/bpts.length,sxy/bpts.length,sxz/bpts.length],[sxy/bpts.length,syy/bpts.length,syz/bpts.length],[sxz/bpts.length,syz/bpts.length,szz/bpts.length]];
+let V=[[1,0,0],[0,1,0],[0,0,1]];
+for (let sweep=0; sweep<30; sweep++) {
+  for (let p=0;p<2;p++) for (let q=p+1;q<3;q++) {
+    if (Math.abs(A[p][q])<1e-9) continue;
+    const th = 0.5*Math.atan2(2*A[p][q], A[q][q]-A[p][p]);
+    const c2=Math.cos(th), s2=Math.sin(th);
+    for (let r=0;r<3;r++){ const ar=p>=0?A[p][r]:0, aq=A[q][r];
+      // rotate rows/cols
+    }
+    // 简化：直接旋转
+    const Ap=[...A[p]], Aq=[...A[q]];
+    for (let r=0;r<3;r++){ A[p][r]=c2*Ap[r]+s2*Aq[r]; A[q][r]=-s2*Ap[r]+c2*Aq[r]; }
+    for (let r=0;r<3;r++){ const a0=A[r][p], a1=A[r][q]; A[r][p]=c2*a0+s2*a1; A[r][q]=-s2*a0+c2*a1; }
+    for (let r=0;r<3;r++){ const v0=V[r][p], v1=V[r][q]; V[r][p]=c2*v0+s2*v1; V[r][q]=-s2*v0+c2*v1; }
+  }
+}
+const eig=[A[0][0],A[1][1],A[2][2]];
+let small=0; if(eig[1]<eig[small])small=1; if(eig[2]<eig[small])small=2;
+let n=[V[0][small],V[1][small],V[2][small]];
+const d = n[0]*cx+n[1]*cy+n[2]*cz;
+// 方向统一：小脑(下方 Y<-0.5 的边界点)应在负侧
+let negCount=0,tot=0;
+for (const p of bpts){ if(p[1]<-0.5){tot++; if(n[0]*p[0]+n[1]*p[1]+n[2]*p[2]<d)negCount++;} }
+if (negCount/tot < 0.5){ n=[-n[0],-n[1],-n[2]]; d=-d; }
+out(`平面: n=(${n.map(v=>v.toFixed(3)).join(',')}) d=${d.toFixed(3)}  (小脑侧: n·p<d)`);
+// 一致性
+let cbOk=0,cbTot=0,brOk=0,brTot=0;
+for (let i=0;i<N;i++){ const s=n[0]*P[i*3]+n[1]*P[i*3+1]+n[2]*P[i*3+2];
+  if(lab[i]===cb){cbTot++; if(s<d)cbOk++;} else {brTot++; if(s>=d)brOk++;} }
+out(`一致性: 小脑点落在负侧 ${(cbOk/cbTot*100).toFixed(1)}%  其他点落在正侧 ${(brOk/brTot*100).toFixed(1)}%`);
+for (const x of [-0.8,-0.4,0,0.4,0.8]) {
+  // 平面与竖直线 x=const 交点 Y（n=(nx,ny,nz), 忽略 z 项取 z=0 处）: Y = (d - nx*x - nz*0)/ny
+  const yy = (d - n[0]*x)/n[1];
+  out(`  X=${x.toFixed(1)}(z=0): 切面Y=${yy.toFixed(3)}`);
+}
+out('DONE');
+</script>
+</body>
+</html>

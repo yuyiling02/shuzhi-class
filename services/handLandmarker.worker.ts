@@ -113,9 +113,9 @@ const createHandLandmarker = async (
     },
     runningMode: 'VIDEO',
     numHands,
-    minHandDetectionConfidence: 0.55,
-    minHandPresenceConfidence: 0.5,
-    minTrackingConfidence: 0.55,
+    minHandDetectionConfidence: 0.45,
+    minHandPresenceConfidence: 0.4,
+    minTrackingConfidence: 0.45,
   });
 };
 

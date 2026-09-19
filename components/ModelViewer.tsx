@@ -690,6 +690,11 @@ const preparePubchem6233Model = (root: THREE.Object3D): GrabbablePart[] => {
   return [groups['left-methyl'], groups['right-methyl'], groups.core];
 };
 
+// 本次接入的 3 个解剖模型（心脏解剖 / 大脑 / 肺部）：
+//  - 单向拆解：展开后不再归位（无复位）
+//  - 复用心脏布局参数，与原有心脏拆解观感一致
+export const ONE_WAY_ANATOMY_KEYS = ['organ-heart', 'organ-brain', 'organ-lungs'];
+
 const isDisassemblablePart = (part: GrabbablePart): boolean => part.userData?.disassemblable !== false;
 
 const getOriginalPosition = (part: GrabbablePart): THREE.Vector3 => {
@@ -1214,6 +1219,8 @@ const LayeredModel: React.FC<{ url: string; modelType: ModelType; assetUrls?: Re
   const wasCameraGestureActiveRef = useRef(false);
   const disassemblyTargetsRef = useRef<Map<string, THREE.Vector3>>(new Map());
   const lastDisassemblyActionRef = useRef(-1);
+  // 解剖模型单向拆解：一旦展开就锁存，收到复位指令也不归还部件
+  const oneWayLatchRef = useRef(false);
   // Load model and detect whether the file contains detachable internal layers.
   useEffect(() => {
     let disposed = false;
@@ -1239,6 +1246,7 @@ const LayeredModel: React.FC<{ url: string; modelType: ModelType; assetUrls?: Re
     wasCameraGestureActiveRef.current = false;
     disassemblyTargetsRef.current.clear();
     lastDisassemblyActionRef.current = -1;
+    oneWayLatchRef.current = false;
 
     const handleLoadedModel = (root: THREE.Object3D) => {
       if (disposed) return;
@@ -1623,29 +1631,38 @@ const LayeredModel: React.FC<{ url: string; modelType: ModelType; assetUrls?: Re
       grabbableParts.forEach((part) => {
         delete part.userData.manualTargetPosition;
       });
-      disassemblyTargetsRef.current = disassembly.enabled
-        ? calculateDisassemblyTargets(
-            modelParts,
-            disassembly.strength,
-            disassembly.spacing,
-            url.toLowerCase().includes('heart')
+      const isOneWayAnatomy = ONE_WAY_ANATOMY_KEYS.some((key) => url.toLowerCase().includes(key));
+      if (disassembly.enabled) {
+        disassemblyTargetsRef.current = calculateDisassemblyTargets(
+          modelParts,
+          disassembly.strength,
+          disassembly.spacing,
+          url.toLowerCase().includes('earth-layers')
+            ? 'earth'
+            : /heart|organ-brain|organ-lungs/.test(url.toLowerCase())
               ? 'heart'
-              : url.toLowerCase().includes('earth-layers')
-                ? 'earth'
-                : 'default',
-          )
-        : new Map();
+              : 'default',
+        );
+        // 解剖模型：锁存，后续复位指令不再生效
+        if (isOneWayAnatomy) oneWayLatchRef.current = true;
+      } else if (!(isOneWayAnatomy && oneWayLatchRef.current)) {
+        // 其余模型保持原有复位逻辑
+        disassemblyTargetsRef.current = new Map();
+      }
       lastDisassemblyActionRef.current = disassembly.actionId;
     }
 
     if (modelParts.length > 0 && !isGrabbingRef.current) {
+      const isOneWayAnatomy = ONE_WAY_ANATOMY_KEYS.some((key) => url.toLowerCase().includes(key));
+      // 单向拆解模型锁存后即使收到 enabled=false 也保持展开状态
+      const disassemblyActive = Boolean(disassembly?.enabled) || (isOneWayAnatomy && oneWayLatchRef.current);
       modelParts.forEach((part) => {
         if (part === grabbedPartRef.current) return;
         const manualTarget = getManualTargetPosition(part);
-        const target = manualTarget ?? (disassembly?.enabled
+        const target = manualTarget ?? (disassemblyActive
           ? disassemblyTargetsRef.current.get(part.uuid) || getOriginalPosition(part)
           : getOriginalPosition(part));
-        part.position.lerp(target, disassembly?.enabled ? 0.075 : 0.09);
+        part.position.lerp(target, disassemblyActive ? 0.075 : 0.09);
       });
     }
 

@@ -48,9 +48,9 @@ export interface HandTargetTrackerOptions {
 const DEFAULT_CONFIRMATION_MS = 600;
 // Keep a missed camera/inference frame continuous without allowing stale input
 // to drive the model indefinitely. This is separate from the UI lock phase.
-const DEFAULT_RELEASE_MS = 120;
+const DEFAULT_RELEASE_MS = 300;
 const DEFAULT_COOLDOWN_MS = 300;
-const MAX_PREDICTION_MS = 120;
+const MAX_PREDICTION_MS = 300;
 const MAX_CENTER_SPEED_PER_MS = 0.006;
 const HANDEDNESS_MISMATCH_PENALTY = 0.5;
 const PALM_POINTS = [0, 5, 9, 13, 17];
@@ -162,17 +162,17 @@ function matchCost(track: HandTrack, candidate: HandCandidate, now: number, stri
   const centerDistance = distance(predicted, candidate.center);
   const handScale = Math.sqrt(Math.max(track.area, candidate.area));
   const positionGate = strict
-    ? Math.min(0.2, Math.max(0.09, handScale * 1.1))
-    : Math.min(0.28, Math.max(0.13, handScale * 1.45));
+    ? Math.min(0.22, Math.max(0.15, handScale * 1.25))
+    : Math.min(0.3, Math.max(0.14, handScale * 1.5));
   if (centerDistance > positionGate) return Number.POSITIVE_INFINITY;
 
   const areaRatio = candidate.area / Math.max(track.area, 0.0001);
-  const minRatio = strict ? 0.55 : 0.42;
-  const maxRatio = strict ? 1.8 : 2.4;
+  const minRatio = strict ? 0.45 : 0.35;
+  const maxRatio = strict ? 2.2 : 2.8;
   if (areaRatio < minRatio || areaRatio > maxRatio) return Number.POSITIVE_INFINITY;
 
   const handShapeDistance = shapeDistance(track.shape, candidate.shape);
-  const shapeGate = strict ? 0.95 : 1.35;
+  const shapeGate = strict ? 1.1 : 1.5;
   if (handShapeDistance > shapeGate) return Number.POSITIVE_INFINITY;
 
   return (

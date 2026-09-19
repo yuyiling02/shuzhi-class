@@ -54,6 +54,14 @@ const BUILT_IN_MODELS = {
   lanjingling: '/models/lanjingling.glb',
 } as const;
 
+// 本次接入的 3 个解剖模型（心脏解剖 / 大脑 / 肺部）
+// 规则：单向拆解，不做部件归位；拆解参数复用心脏那套
+const ONE_WAY_ANATOMY_KEYS = ['organ-heart', 'organ-brain', 'organ-lungs'] as const;
+const isOneWayAnatomyModel = (url?: string, id?: string): boolean => {
+  if (url && ONE_WAY_ANATOMY_KEYS.some((key) => url.includes(key))) return true;
+  return !!id && (id === 'organHeart' || id === 'brain' || id === 'organLungs');
+};
+
 type StaticModel = {
   id: string;
   name: string;
@@ -1692,7 +1700,8 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
             contextModelId,
             call.args,
           );
-          const isHeartModel = contextModelId === 'heart';
+          // 解剖模型（心脏解剖/大脑/肺）沿用心脏的拆解参数
+          const isHeartModel = contextModelId === 'heart' || isOneWayAnatomyModel(contextModelUrl, contextModelId);
           controlRef.current.agentDisassembly = {
             enabled: true,
             strength: Math.max(0, Math.min(1.4, Number(disassemblyArgs.strength ?? 0.95))),
@@ -1707,6 +1716,9 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
         case 'reset_model_layout': {
           if (contextModelId === 'earth_layers' || contextModelUrl?.includes('earth-layers')) {
             setAiAnalysis('地球内部结构保持四层拆解展示，便于观众观察。');
+          } else if (isOneWayAnatomyModel(contextModelUrl, contextModelId)) {
+            // 单向拆解：解剖模型展开后不做部件归位
+            setAiAnalysis('解剖模型为单向拆解展示，不做部件归位。');
           } else {
             controlRef.current.agentDisassembly = {
               enabled: false,

@@ -260,12 +260,12 @@ const HandController: React.FC<HandControllerProps> = ({
   const FINGER_CONTACT_EXIT_RATIO = 0.54;
   const CONTACT_THRESHOLD = 0.12;
   const OPEN_STOP_HOLD_MS = 700;
-  const TRACKING_CONTINUITY_MS = 120;
+  const TRACKING_CONTINUITY_MS = 300;
   // A result can legitimately be delayed by a busy CPU/GPU, but once this
   // window expires an old gesture must not keep driving the scene forever.
   // This watchdog is independent from the tracker because it also covers a
   // worker that stops responding altogether (where no empty result arrives).
-  const RESULT_STALE_TIMEOUT_MS = 160;
+  const RESULT_STALE_TIMEOUT_MS = 400;
 
   // ControlRefs now carries rates in units per second. The 0.35 legacy
   // per-render value is converted to an equivalent rate for existing feel;
@@ -278,14 +278,14 @@ const HandController: React.FC<HandControllerProps> = ({
   const ROTATION_SENSITIVITY = 4.6;
 
   const POSITION_FILTER_TIME_CONSTANT_MS = 32;
-  const ZOOM_FILTER_TIME_CONSTANT_MS = 55;
+  const ZOOM_FILTER_TIME_CONSTANT_MS = 35;
   const ROTATION_RATE_DEADZONE = 0.0015 * 1000 / 33;
-  const ROTATION_MAX_RATE = 3.8;
-  const ROTATION_MAX_ACCELERATION = 30;
-  const ROTATION_OUTPUT_FILTER_TIME_CONSTANT_MS = 42;
-  const ROTATION_RELEASE_GRACE_MS = 120;
+  const ROTATION_MAX_RATE = 7.5;
+  const ROTATION_MAX_ACCELERATION = 45;
+  const ROTATION_OUTPUT_FILTER_TIME_CONSTANT_MS = 22;
+  const ROTATION_RELEASE_GRACE_MS = 80;
   const ROTATION_RELEASE_AFTER_MISSES = 2;
-  const ROTATION_GRACE_DECAY_TIME_CONSTANT_MS = 90;
+  const ROTATION_GRACE_DECAY_TIME_CONSTANT_MS = 45;
 
   /**
    * Publish the filtered pinch center in the coordinate space consumed by
@@ -840,10 +840,11 @@ const HandController: React.FC<HandControllerProps> = ({
         leftHandCandidate?.ageMs ?? 0,
         rightHandCandidate?.ageMs ?? 0,
       );
-      const staleAttenuation = Math.max(
-        0,
-        1 - activeHandAgeMs / TRACKING_CONTINUITY_MS,
-      );
+      // Exponential decay instead of linear ramp — smoother continuity across
+      // dropped MediaPipe frames without a sudden cut-off.
+      const staleAttenuation = activeHandAgeMs > 0
+        ? decayRate(1, activeHandAgeMs, TRACKING_CONTINUITY_MS / 3)
+        : 1;
 
       if (trackingPhaseRef.current !== trackedHands.phase) {
         trackingPhaseRef.current = trackedHands.phase;

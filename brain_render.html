@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>body{margin:0;background:#1a2332;}#info{position:fixed;top:4px;left:6px;color:#fff;font:11px monospace;white-space:pre;z-index:9;text-shadow:0 1px 2px #000;}</style>
+</head>
+<body>
+<div id="info">loading...</div>
+<script type="importmap">
+{ "imports": { "three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from '/node_modules/three/build/three.module.js';
+import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from '/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js';
+
+const qs = new URLSearchParams(location.search);
+const mode = qs.get('mode') || 'assembled';
+const MODEL = qs.get('model') || '/public/models/organ-brain.glb';
+
+const isDisassemblablePart = (p) => p.userData?.disassemblable !== false;
+const getOriginalPosition = (part) => part.userData.originalPosition?.isVector3 ? part.userData.originalPosition.clone() : part.position.clone();
+
+function calcTargets(parts, strength, spacing, layout){
+  const targets = new Map();
+  const ds = parts.filter(isDisassemblablePart);
+  const rootBox = new THREE.Box3();
+  ds.forEach((p)=>rootBox.expandByObject(p));
+  const rootCenter = rootBox.getCenter(new THREE.Vector3());
+  const rootSize = rootBox.getSize(new THREE.Vector3());
+  const maxDim = Math.max(rootSize.x, rootSize.y, rootSize.z, 0.001);
+  const placed = [];
+  const spreadDistance = layout === 'heart'
+    ? maxDim * (0.06 + Math.min(strength,1) * 0.12)
+    : maxDim * (0.15 + Math.min(strength,1) * 0.25);
+  const maxHeartOffset = maxDim * 0.17;
+  const dbg = [];
+  ds.forEach((part, index) => {
+    const original = getOriginalPosition(part);
+    const partBox = new THREE.Box3().setFromObject(part);
+    const partCenter = partBox.getCenter(new THREE.Vector3());
+    const angle = (index / Math.max(1, ds.length)) * Math.PI * 2;
+    const fallbackDirection = new THREE.Vector3(Math.cos(angle), ((index % 3) - 1) * 0.32, Math.sin(angle)).normalize();
+    const direction = partCenter.sub(rootCenter);
+    if (direction.lengthSq() < 0.0001) { direction.copy(fallbackDirection); }
+    else { direction.normalize(); direction.addScaledVector(fallbackDirection, 0.35).normalize(); }
+    const target = original.clone().addScaledVector(direction, spreadDistance + index * spacing * 0.08);
+    let guard = 0;
+    while (placed.some((pt) => pt.distanceTo(target) < spacing) && guard < 10) {
+      const aa = angle + guard * 0.77;
+      target.add(new THREE.Vector3(Math.cos(aa), 0.18, Math.sin(aa)).multiplyScalar(spacing * 0.45));
+      guard++;
+    }
+    if (layout === 'heart') {
+      const offset = target.clone().sub(original);
+      if (offset.length() > maxHeartOffset) target.copy(original).add(offset.setLength(maxHeartOffset));
+    }
+    placed.push(target.clone());
+    targets.set(part.uuid, target);
+    dbg.push(`${part.name}: off=(${(target.x-original.x).toFixed(3)},${(target.y-original.y).toFixed(3)},${(target.z-original.z).toFixed(3)}) len=${target.distanceTo(original).toFixed(3)}`);
+  });
+  return { targets, dbg, maxDim, spreadDistance, maxHeartOffset };
+}
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true });
+renderer.setSize(880, 660);
+renderer.setClearColor(0x1a2332);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 880/660, 0.01, 100);
+camera.position.set(0, 0.55, 2.6);
+camera.lookAt(0, 0.45, 0);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.1));
+const dl = new THREE.DirectionalLight(0xffffff, 1.6); dl.position.set(2, 3, 4); scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0xffffff, 0.7); dl2.position.set(-3, 1, -2); scene.add(dl2);
+
+const info = document.getElementById('info');
+await MeshoptDecoder.ready;
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
+const gltf = await loader.loadAsync(MODEL);
+const root = gltf.scene;
+scene.add(root);
+
+// collect top-level mesh parts (same as findLayerRoots: scene-root mesh nodes)
+const parts = [];
+root.children.forEach((n) => { if (n.isMesh || n.children.some(c=>c.isMesh)) parts.push(n); });
+const meshParts = parts.filter(p => p.isMesh);
+
+let lines = [`mode=${mode} parts=${meshParts.length}`];
+for (const p of meshParts) {
+  const b = new THREE.Box3().setFromObject(p);
+  const c = b.getCenter(new THREE.Vector3());
+  lines.push(`${p.name}  role=${JSON.stringify(p.userData?.teachingRole)}  cen=(${c.x.toFixed(2)},${c.y.toFixed(2)},${c.z.toFixed(2)})`);
+}
+lines.push(`teachingRole(root scene children): ${meshParts.map(p=>p.name).join(',')}`);
+
+if (mode === 'split') {
+  const { targets, dbg, maxDim, spreadDistance, maxHeartOffset } = calcTargets(meshParts, 0.95, 0.17, 'heart');
+  lines.push(`maxDim=${maxDim.toFixed(3)} spread=${spreadDistance.toFixed(3)} clamp=${maxHeartOffset.toFixed(3)}`);
+  lines.push(...dbg);
+  meshParts.forEach((p) => { const t = targets.get(p.uuid); if (t) p.position.copy(t); });
+  // bbox helpers for readability
+  const colors = [0xff4444, 0x44ff44, 0xffdd44, 0x44aaff];
+  meshParts.forEach((p, i) => {
+    const h = new THREE.Box3Helper(new THREE.Box3().setFromObject(p), colors[i % 4]);
+    scene.add(h);
+  });
+}
+info.textContent = lines.join('\n');
+renderer.render(scene, camera);
+window.__done = true;
+</script>
+</body>
+</html>

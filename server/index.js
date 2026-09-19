@@ -1787,6 +1787,27 @@ attachVolcTtsWebSocketServer({
   allowedOrigin: CLIENT_ORIGIN,
 });
 
+// --- 静态资源（放在所有 API 路由之后、error handler 之前） ---
+const PUBLIC_DIR = path.resolve(path.join(SERVER_DIRECTORY, '..', 'public'));
+const FRONTEND_DIST = path.resolve(path.join(SERVER_DIRECTORY, '..', 'dist'));
+app.use('/mediapipe', express.static(path.join(PUBLIC_DIR, 'mediapipe'), { maxAge: '7d' }));
+app.use('/brand', express.static(path.join(PUBLIC_DIR, 'brand'), { maxAge: '7d' }));
+app.use('/draco', express.static(path.join(PUBLIC_DIR, 'draco'), { maxAge: '7d' }));
+app.use('/fonts', express.static(path.join(PUBLIC_DIR, 'fonts'), { maxAge: '7d' }));
+app.use('/images', express.static(path.join(PUBLIC_DIR, 'images'), { maxAge: '7d' }));
+app.use('/models', (_req, res, next) => {
+  res.set({ 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+  express.static(path.join(PUBLIC_DIR, 'models'), { maxAge: 0 })(_req, res, next);
+});
+app.use('/assets', express.static(path.join(FRONTEND_DIST, 'assets'), { maxAge: '1h' }));
+// dist 根目录的静态文件（sw.js, manifest.webmanifest, favicon.ico 等）
+app.use(express.static(FRONTEND_DIST, { maxAge: '1h', fallthrough: true }));
+// SPA 兜底：非 /api/ 且非静态文件 → index.html
+app.use((_req, res, next) => {
+  if (_req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(FRONTEND_DIST, 'index.html'), (err) => { if (err) next(err); });
+});
+
 app.use((error, _req, res, _next) => {
   console.error('Unhandled API error:', error);
   if (res.headersSent) return _next(error);
