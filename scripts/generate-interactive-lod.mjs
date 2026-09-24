@@ -61,6 +61,9 @@ function parseArgs(argv) {
   }
   args['target-triangles'] = Number(args['target-triangles'] ?? 225000);
   args['target-error'] = Number(args['target-error'] ?? 0.02);
+  args['draco-tolerance'] = Number(args['draco-tolerance'] ?? 0.02);
+  args['node-prefix'] = args['node-prefix'] ?? '';
+  args['material-colors'] = args['material-colors'] ?? '';
   if (!Number.isInteger(args['target-triangles']) || args['target-triangles'] <= 0) {
     throw new Error('--target-triangles must be a positive integer');
   }
@@ -68,6 +71,28 @@ function parseArgs(argv) {
     throw new Error('--target-error must be a non-negative number');
   }
   return args;
+}
+
+function parseMaterialColors(spec) {
+  const map = new Map();
+  if (!spec) return map;
+  for (const token of spec.split(',')) {
+    const trim = token.trim();
+    if (!trim) continue;
+    const eq = trim.indexOf('=');
+    if (eq <= 0) throw new Error(`Invalid --material-colors entry: ${trim}`);
+    const meshIndex = Number(trim.slice(0, eq).trim());
+    const hex = trim.slice(eq + 1).trim().replace(/^#/, '');
+    if (!/^[0-9a-fA-F]{6}$/.test(hex) || !Number.isInteger(meshIndex) || meshIndex < 0) {
+      throw new Error(`Invalid --material-colors entry: ${trim} (expected <meshIndex>=#rrggbb)`);
+    }
+    map.set(meshIndex, [
+      parseInt(hex.slice(0, 2), 16) / 255,
+      parseInt(hex.slice(2, 4), 16) / 255,
+      parseInt(hex.slice(4, 6), 16) / 255,
+    ]);
+  }
+  return map;
 }
 
 function align4(value) {
@@ -216,6 +241,80 @@ function decodeDraco(module, encoded) {
   module.destroy(mesh);
   module.destroy(decoder);
   return { indices, points, positions, normals, texcoords };
+}
+
+function accessorStride(type) {
+  switch (type) {
+    case 'SCALAR': return 1;
+    case 'VEC2': return 2;
+    case 'VEC3': return 3;
+    case 'VEC4': return 4;
+    default: throw new Error(`Unknown accessor type ${type}`);
+  }
+}
+
+function readFloatAccessor(json, bin, accessorIndex) {
+  const accessor = json.accessors?.[accessorIndex];
+  if (!accessor) return null;
+  const stride = accessorStride(accessor.type);
+  if (accessor.componentType !== 5126 || !Number.isFinite(accessor.count) || accessor.count <= 0) return null;
+  const view = json.bufferViews?.[accessor.bufferView];
+  if (!view) return null;
+  const bytes = getBufferViewBytes(bin, json, accessor.bufferView);
+  const byteOffset = accessor.byteOffset ?? 0;
+  const byteStride = view.byteStride || 0;
+  const out = new Float32Array(accessor.count * stride);
+  if (byteStride && byteStride !== 4 * stride) {
+    const dataView = new DataView(bytes.buffer, bytes.byteOffset + byteOffset);
+    for (let i = 0; i < accessor.count; i += 1) {
+      const base = i * byteStride;
+      for (let c = 0; c < stride; c += 1) out[i * stride + c] = dataView.getFloat32(base + c * 4, true);
+    }
+  } else {
+    out.set(new Float32Array(bytes.buffer, bytes.byteOffset + byteOffset, accessor.count * stride));
+  }
+  return out;
+}
+
+function readIndexAccessor(json, bin, accessorIndex) {
+  const accessor = json.accessors?.[accessorIndex];
+  if (!accessor) return null;
+  const bytes = getBufferViewBytes(bin, json, accessor.bufferView);
+  const byteOffset = accessor.byteOffset ?? 0;
+  if (accessor.componentType === 5123) {
+    return Uint32Array.from(new Uint16Array(bytes.buffer, bytes.byteOffset + byteOffset, accessor.count));
+  }
+  if (accessor.componentType === 5125) {
+    return new Uint32Array(bytes.buffer, bytes.byteOffset + byteOffset, accessor.count);
+  }
+  throw new Error(`Unsupported index componentType ${accessor.componentType}`);
+}
+
+function decodePlain(json, bin, primitive) {
+  const positions = readFloatAccessor(json, bin, primitive.attributes?.POSITION);
+  if (!positions) throw new Error('Plain primitive missing float POSITION accessor');
+  const indexed = primitive.indices !== undefined;
+  const indices = indexed
+    ? readIndexAccessor(json, bin, primitive.indices)
+    : new Uint32Array(positions.length);
+  if (!indexed) {
+    for (let i = 0; i < positions.length; i += 1) indices[i] = i;
+  }
+  return {
+    indices,
+    points: positions.length / 3,
+    positions,
+    normals: readFloatAccessor(json, bin, primitive.attributes?.NORMAL),
+    texcoords: readFloatAccessor(json, bin, primitive.attributes?.TEXCOORD_0),
+  };
+}
+
+function decodeSource(json, bin, module, primitive) {
+  if (primitive.extensions?.KHR_draco_mesh_compression) {
+    const extension = primitive.extensions.KHR_draco_mesh_compression;
+    return decodeDraco(module, getBufferViewBytes(bin, json, extension.bufferView));
+  }
+  return decodePlain(json, bin, primitive);
 }
 
 function minMax(values, stride) {
@@ -446,6 +545,54 @@ function verifyGeneratedGlb(bytes, decoderModule, expectedTriangles) {
   return { json, bin, triangles: totalTriangles };
 }
 
+function stripDracoAccessorBufferViews(json) {
+  (json.meshes || []).forEach((mesh) => {
+    (mesh.primitives || []).forEach((prim) => {
+      if (!prim.extensions?.KHR_draco_mesh_compression) return;
+      const refs = [];
+      for (const key in prim.attributes || {}) refs.push(prim.attributes[key]);
+      if (prim.indices !== undefined) refs.push(prim.indices);
+      refs.forEach((index) => {
+        const accessor = json.accessors?.[index];
+        if (accessor) delete accessor.bufferView;
+      });
+    });
+  });
+}
+
+function renameMeshNodes(json, prefix) {
+  if (!prefix) return;
+  let n = 0;
+  (json.nodes || []).forEach((node) => {
+    if (node.mesh !== undefined && n < (json.meshes?.length ?? 0)) {
+      node.name = `${prefix}${n}`;
+      n += 1;
+    }
+  });
+  (json.meshes || []).forEach((mesh, i) => { mesh.name = `${prefix}${i}_mesh`; });
+  (json.materials || []).forEach((material, i) => { material.name = `${prefix}${i}_mat`; });
+}
+
+function applyMaterialColors(json, colors) {
+  if (colors.size === 0) return;
+  (json.meshes || []).forEach((mesh, meshIndex) => {
+    const rgb = colors.get(meshIndex);
+    if (!rgb) return;
+    const materialIndex = mesh.primitives?.[0]?.material;
+    if (materialIndex === undefined || !json.materials?.[materialIndex]) return;
+    const material = json.materials[materialIndex];
+    const pmr = material.pbrMetallicRoughness = material.pbrMetallicRoughness || {};
+    pmr.baseColorFactor = [rgb[0], rgb[1], rgb[2], 1];
+    pmr.metallicFactor = 0;
+    pmr.roughnessFactor = 0.55;
+    delete material.emissiveFactor;
+    delete material.emissiveTexture;
+    delete material.normalTexture;
+    delete material.extensions;
+    material.doubleSided = true;
+  });
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
@@ -459,13 +606,13 @@ async function main() {
   const primitives = collectPrimitives(json);
   if (primitives.length === 0) throw new Error('GLB has no mesh primitives');
 
-  const unsupported = primitives.filter(({ primitive }) => !primitive.extensions?.KHR_draco_mesh_compression);
+  const unsupported = primitives.filter(({ primitive }) => (
+    !primitive.extensions?.KHR_draco_mesh_compression
+    && primitive.attributes?.POSITION == null
+  ));
   if (unsupported.length > 0) {
-    const labels = unsupported.map(({ meshIndex, primitiveIndex, primitive }) => {
-      const ext = Object.keys(primitive.extensions ?? {}).join(', ') || 'none';
-      return `mesh ${meshIndex} primitive ${primitiveIndex} (${ext})`;
-    });
-    throw new Error(`Input contains non-Draco primitives; refusing lossy rewrite: ${labels.join('; ')}`);
+    const labels = unsupported.map(({ meshIndex, primitiveIndex }) => `mesh ${meshIndex} primitive ${primitiveIndex}`);
+    throw new Error(`Plain primitives without POSITION are unsupported: ${labels.join('; ')}`);
   }
 
   await MeshoptSimplifier.ready;
@@ -480,9 +627,7 @@ async function main() {
 
   try {
     for (const item of primitives) {
-      const extension = item.primitive.extensions.KHR_draco_mesh_compression;
-      const encodedSource = getBufferViewBytes(bin, json, extension.bufferView);
-      const decoded = decodeDraco(decoderModule, encodedSource);
+      const decoded = decodeSource(json, bin, decoderModule, item.primitive);
       const primitiveOriginalTriangles = Math.floor(decoded.indices.length / 3);
       const primitiveTarget = Math.max(1, Math.floor(primitiveOriginalTriangles * ratio));
       const simplified = simplifyGeometry(decoded, primitiveTarget, args['target-error']);
@@ -493,7 +638,7 @@ async function main() {
       // loader will receive, while retaining the simplifier statistics below.
       const roundTrip = decodeDraco(decoderModule, encoded);
       const roundTripTriangles = roundTrip.indices.length / 3;
-      if (roundTripTriangles < Math.max(1, simplified.triangles * 0.98)) {
+      if (roundTripTriangles < Math.max(1, simplified.triangles * (1 - (args['draco-tolerance'] ?? 0.02)))) {
         throw new Error(`Draco round-trip dropped too many triangles for mesh ${item.meshIndex} (${simplified.triangles} -> ${roundTripTriangles})`);
       }
       updateAccessorDescriptor(json, item.primitive, roundTrip);
@@ -508,6 +653,19 @@ async function main() {
           simplificationError: simplified.simplificationError,
         },
       };
+      // Plain sources carry no Draco extension; mint one (with the runtime
+      // attribute->id map three requires) before rewriteImageViews touches it.
+      if (!item.primitive.extensions?.KHR_draco_mesh_compression) {
+        const attributeMap = {};
+        let dracoAttributeId = 0;
+        for (const name of ['POSITION', 'NORMAL', 'TEXCOORD_0']) {
+          if (item.primitive.attributes?.[name] !== undefined) {
+            attributeMap[name] = dracoAttributeId;
+            dracoAttributeId += 1;
+          }
+        }
+        item.primitive.extensions = { ...(item.primitive.extensions ?? {}), KHR_draco_mesh_compression: { attributes: attributeMap } };
+      }
       chunks.push({ bytes: encoded, primitive: item.primitive });
       outputTriangles += roundTripTriangles;
       console.log(JSON.stringify({
@@ -542,6 +700,13 @@ async function main() {
     },
   };
   const outputBin = rewriteImageViews(json, bin, chunks);
+  json.extensionsUsed = Array.from(new Set([
+    ...(json.extensionsUsed ?? []),
+    'KHR_draco_mesh_compression',
+  ]));
+  renameMeshNodes(json, args['node-prefix']);
+  applyMaterialColors(json, parseMaterialColors(args['material-colors']));
+  stripDracoAccessorBufferViews(json);
   const outputBytes = encodeGlb(json, outputBin);
   verifyGeneratedGlb(outputBytes, decoderModule, outputTriangles);
   if (!args['dry-run']) {

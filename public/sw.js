@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'huishi-public-assets-';
-const CACHE_NAME = `${CACHE_PREFIX}v1`;
+const CACHE_NAME = `${CACHE_PREFIX}v2`;
 const LEGACY_CACHE_PREFIX = '3d-assets-cache-';
 
 const isManagedCache = (cacheName) => (
@@ -41,13 +41,24 @@ self.addEventListener('fetch', (event) => {
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(event.request);
-    if (cachedResponse) return cachedResponse;
 
-    const networkResponse = await fetch(event.request);
-    if (networkResponse && networkResponse.status === 200) {
-      // Cache the clone in the background so the first model render is not delayed.
-      event.waitUntil(cache.put(event.request, networkResponse.clone()));
+    // Revalidate against the network in the background and refresh the cache
+    // so model updates propagate without manual cache clearing. On a network
+    // failure, fall back to the cached copy.
+    const revalidate = () =>
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            event.waitUntil(cache.put(event.request, networkResponse.clone()));
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+
+    if (cachedResponse) {
+      event.waitUntil(revalidate());
+      return cachedResponse;
     }
-    return networkResponse;
+    return revalidate();
   })());
 });

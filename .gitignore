@@ -37,3 +37,17 @@ update_theme.py
 
 # .env.example 的冗余副本（模板以 .env.example 为准，真实配置走 .env.local）
 .env - 副本.example
+
+# 调试与中间产物（精简上传，不进入仓库）
+scripts/_skin_render/
+scripts/_skin_src/
+scripts/_skin_verts/
+scripts/_*.raw
+scripts/_*.png
+scripts/_*.jpg
+scripts/_*.json
+scripts/_dbg_*.py
+scripts/_probe_*.mjs
+scripts/_render_*.mjs
+output/
+public/models/*.original.glb

@@ -82,12 +82,12 @@ const INTERACTIVE_LOD_URL_BY_KEY: Record<string, string> = {
   'organ-brain.glb': '/models/organ-brain-interactive-lod.glb',
   'organ-eyeball.glb': '/models/organ-eyeball-interactive-lod.glb',
   'organ-heart.glb': '/models/organ-heart-interactive-lod.glb',
-  'organ-intestine.glb': '/models/organ-intestine-interactive-lod.glb',
+  'organ-intestine.glb': '/models/organ-intestine-disassemblable.glb',
   'organ-kidneys.glb': '/models/organ-kidneys-interactive-lod.glb',
   'organ-liver.glb': '/models/organ-liver-interactive-lod.glb',
   'organ-lungs.glb': '/models/organ-lungs-interactive-lod.glb',
-  'organ-pancreas.glb': '/models/organ-pancreas-interactive-lod.glb',
-  'organ-skin.glb': '/models/organ-skin-interactive-lod.glb',
+  'organ-pancreas.glb': '/models/organ-pancreas-disassemblable.glb',
+  'organ-skin.glb': '/models/organ-skin-disassemblable.glb',
 };
 const PUBCHEM_6233_MODEL_KEY = 'pubchem-6233-bas-color-print_nih3d.glb';
 const NITROBENZENE_MODEL_KEY = '7416-bas-color-print_nih3d.glb';
