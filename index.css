@@ -2063,6 +2063,60 @@ html, body {
   transform: translateY(0) scale(0.97);
 }
 
+/* Result-page next-question gesture progress */
+.quiz-next-gesture {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 60;
+}
+.quiz-next-gesture-bar {
+  width: 180px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.quiz-next-gesture-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #34d399, #22d3ee);
+  transition: width 80ms linear;
+}
+.quiz-next-gesture span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Answer-area camera small box (mirrored self-view, like a mirror) */
+/* 屏幕右侧偏上：bottom 由 14px 抬到 92px（用户反馈"太右下角了，上一点点"）；
+   right 由 14px 加到 52px、尺寸 120x90 -> 168x126（用户反馈"往左一点、大一点"：
+   手指要覆盖整屏时手会跑出摄像头画面，预览大一点更好判断手的位置）。
+   用 portal 挂到 body（见 QuizOverlay），故 fixed 真正相对视口，不被祖先 transform 影响。 */
+.quiz-camera-pip {
+  position: fixed;
+  right: 52px;
+  bottom: 92px;
+  width: 168px;
+  height: 126px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  transform: scaleX(-1);
+  background: rgba(15, 23, 42, 0.6);
+  z-index: 40;
+  pointer-events: none;
+}
+
 /* Generic fade-in */
 .quiz-fade-in {
   animation: quiz-fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;

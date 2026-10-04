@@ -160,7 +160,7 @@ for (let sweep=0; sweep<30; sweep++) {
 const eig=[A[0][0],A[1][1],A[2][2]];
 let small=0; if(eig[1]<eig[small])small=1; if(eig[2]<eig[small])small=2;
 let n=[V[0][small],V[1][small],V[2][small]];
-const d = n[0]*cx+n[1]*cy+n[2]*cz;
+let d = n[0]*cx+n[1]*cy+n[2]*cz;
 // 方向统一：小脑(下方 Y<-0.5 的边界点)应在负侧
 let negCount=0,tot=0;
 for (const p of bpts){ if(p[1]<-0.5){tot++; if(n[0]*p[0]+n[1]*p[1]+n[2]*p[2]<d)negCount++;} }

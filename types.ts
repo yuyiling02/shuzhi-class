@@ -70,6 +70,14 @@ export interface ControlRefs {
   };
   interactionHandLandmarks: HandLandmarks;
   handNDCPosition: { x: number; y: number } | null;
+  // Live webcam MediaStream, published by HandController so other overlays
+  // (e.g. the quiz answer-area camera box) can mirror the same feed.
+  webcamStream: MediaStream | null;
+  // 手势答题指针（相对"空中鼠标"模式算出的光标位置，视口归一化 [0,1]），
+  // 由 HandController 每帧写入，QuizOverlay 直接消费，避免重复计算。
+  handPointer: { x: number; y: number } | null;
+  // 摄像头原始食指尖归一化坐标（未镜像），调试读数 / 自动标定用。
+  handRawFingertip: { x: number; y: number } | null;
   interactionSettings: InteractionSettings;
   agentDisassembly: AgentDisassemblyControl;
 }

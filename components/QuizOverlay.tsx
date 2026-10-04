@@ -1,9 +1,91 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ControlRefs } from '../types';
+import { createPortal } from 'react-dom';
+import { ControlRefs, HandLandmarks } from '../types';
 import { createQuizSession, getQuizResult, QuizSession, QuizQuestion } from '../services/quizData';
 import { prepareXiaozhiSpeech, speakXiaozhi, stopXiaozhiSpeech } from '../services/xiaozhiSpeechService';
 import { X, Trophy, Star, Clock, CheckCircle2, XCircle, Zap, Sparkles, Loader2, SkipForward } from 'lucide-react';
+import {
+  HAND_OPTION_INDEX_ATTR,
+  addHandAimOffset,
+  getHandAimOffset,
+  recordHandPointerSample,
+} from '../services/handPointerMapping';
+import HandPointerDebug, { isHandPointerDebugEnabled } from './HandPointerDebug';
+import HandPointerCalibration, { isHandPointerCalibrationActive } from './HandPointerCalibration';
+
+/**
+ * 在若干选项里找"离光标最近的那个框中心"。
+ *
+ * 这比"问浏览器光标压在哪个元素上"更鲁棒：当摄像头摆放导致指针整体偏移时，
+ * 手指朝向哪个框，离光标最近的框中心就是哪个框——选中的一定是你想选的。
+ * 自动学习也用这个中心当标签，于是映射会收敛到真实几何，指针最终贴合手指。
+ */
+const nearestOptionIndex = (
+  px: number,
+  py: number,
+  optionEls: (HTMLDivElement | null)[],
+  count: number,
+): { index: number | null; centerX: number; centerY: number } => {
+  let best = -1;
+  let bestDist = Infinity;
+  let bestCx = 0;
+  let bestCy = 0;
+  for (let i = 0; i < count; i += 1) {
+    const el = optionEls[i];
+    if (!el) continue;
+    const r = el.getBoundingClientRect();
+    const cx = (r.left + r.right) / 2;
+    const cy = (r.top + r.bottom) / 2;
+    const d = Math.hypot(px - cx, py - cy);
+    if (d < bestDist) {
+      bestDist = d;
+      best = i;
+      bestCx = cx;
+      bestCy = cy;
+    }
+  }
+  // 手放下/在框外很远时不选中，避免误触。
+  const threshold = Math.max(window.innerWidth, window.innerHeight) * 0.45;
+  if (best < 0 || bestDist > threshold) {
+    return { index: null, centerX: 0, centerY: 0 };
+  }
+  return { index: best, centerX: bestCx, centerY: bestCy };
+};
+
+/**
+ * 光标微调 = 固定种子（框宽倍数）+ 自动闭环补偿（个人瞄准偏移）。
+ *
+ * 固定种子：整体往左挪 0.75 个选项框宽（用户实测光标偏右约 3/4 个框）。以**实际
+ * 选项框宽度**为单位，自适应布局与屏幕；可用 `?handnudge=0.75` 临时覆盖
+ * （正数往左、负数往右）。
+ *
+ * 自动闭环补偿（根治偏移的关键）：固定种子只能治"当前这一次"的偏差，换设备、挪
+ * 摄像头就会复发。所以每次确认时测量「光标离框心差多少」（残差），交给服务层的
+ * `addHandAimOffset` 按比例累进并持久化（限幅很小，只做微调，避免把光标推出框外）。
+ * 答几题后残差会自动收敛到 0，光标自己居中，无需手调 `?handnudge`；
+ * 怀疑补偿学歪了就用 `?handdebug=1` 面板的「清瞄准补偿」一键复位。
+ *
+ * 注意：偏移必须同时作用于「光标绘制」「命中判定」「自动学习的标签」三处，
+ * 否则自动学习会把偏移学回去、导致光标和选中的框互相错位。
+ */
+const HAND_POINTER_NUDGE_DEFAULT_BOXES = 0.75;
+const readHandNudgeBoxes = (): number => {
+  if (typeof window === 'undefined') return HAND_POINTER_NUDGE_DEFAULT_BOXES;
+  const raw = new URLSearchParams(window.location.search).get('handnudge');
+  if (raw === null) return HAND_POINTER_NUDGE_DEFAULT_BOXES;
+  const value = Number.parseFloat(raw);
+  return Number.isFinite(value) ? value : HAND_POINTER_NUDGE_DEFAULT_BOXES;
+};
+
+/** 取当前选项框的实际宽度（px），用于把「框宽倍数」换算成像素。 */
+const measureOptionBoxWidth = (optionEls: (HTMLDivElement | null)[], count: number): number => {
+  for (let i = 0; i < count; i += 1) {
+    const el = optionEls[i];
+    if (el) return el.getBoundingClientRect().width;
+  }
+  return 0;
+};
 
 interface QuizOverlayProps {
   stageRef: React.RefObject<HTMLElement>;
@@ -15,6 +97,40 @@ interface QuizOverlayProps {
 }
 
 type QuizPhase = 'intro' | 'reading' | 'answering' | 'result' | 'summary';
+
+/** 结果页"张开手掌 → 下一题"需要保持多久（毫秒）。 */
+const NEXT_GESTURE_HOLD_MS = 800;
+
+/**
+ * 某根手指是否基本伸直：指尖到手腕的距离明显大于指根到手腕的距离。
+ * 用于判断"张开手掌"手势，避免依赖 MediaPipe 的额外手势分类。
+ */
+const isFingerStraight = (
+  landmarks: HandLandmarks,
+  tipIdx: number,
+  pipIdx: number,
+  wrist: { x: number; y: number },
+  ratio: number = 1.1,
+): boolean => {
+  const tip = landmarks[tipIdx];
+  const pip = landmarks[pipIdx];
+  if (!tip || !pip) return false;
+  const tipDistance = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
+  const pipDistance = Math.hypot(pip.x - wrist.x, pip.y - wrist.y);
+  return tipDistance > pipDistance * ratio;
+};
+
+/** 张开手掌：四指中至少三指伸直即视为"手掌张开"。 */
+const isOpenPalmGesture = (landmarks: HandLandmarks): boolean => {
+  if (!landmarks || landmarks.length < 21) return false;
+  const wrist = landmarks[0];
+  if (!wrist) return false;
+  let straight = 0;
+  for (const tipIdx of [8, 12, 16, 20]) {
+    if (isFingerStraight(landmarks, tipIdx, tipIdx - 2, wrist, 1.15)) straight += 1;
+  }
+  return straight >= 3;
+};
 
 // ─── Component ───────────────────────────────────────────
 const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraActive, onExit, subjectFilter, onComplete }) => {
@@ -44,6 +160,10 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
   const restartProgressRef = useRef<HTMLDivElement>(null);
   const exitProgressRef = useRef<HTMLDivElement>(null);
   const pointerRef = useRef<HTMLDivElement>(null);
+  /** 最近一次测到的选项框宽度（px），结果页没有选项时用它在那里也做同样的左移微调。 */
+  const optionWidthRef = useRef(0);
+  /** 最近一帧光标的屏幕坐标，确认时用来算「离框心差多少」。 */
+  const lastCursorRef = useRef({ x: 0, y: 0 });
   const pointerSmoothRef = useRef({ x: 0, y: 0, initialized: false });
   const pointerStableRef = useRef({ x: 0, y: 0, initialized: false });
   const pointerStableSinceRef = useRef(0);
@@ -54,6 +174,10 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
   const phaseRef = useRef(phase);
   const sessionRef = useRef(session);
   const reportedSessionRef = useRef<number | null>(null);
+  /** 结果页"张开手掌 → 下一题"的进度条：直接改 DOM，避免每帧 re-render。 */
+  const nextGestureBarRef = useRef<HTMLDivElement>(null);
+  /** 答题区摄像头小框的视频元素，复用 HandController 公布的同一路 MediaStream。 */
+  const smallCamRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => { phaseRef.current = phase; }, [phase]);
   useEffect(() => { sessionRef.current = session; }, [session]);
@@ -131,13 +255,13 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
 
       let hitOption: number | null = null;
 
-      // 1. Check the index fingertip; the palm center is too coarse for adjacent answers.
-      if (cameraActive) {
+      // 1. 食指指向判定：消费 HandController 每帧算好的绝对映射指针 handPointer。
+      // 校准进行中暂停命中，避免瞄准校准标记时误选选项。
+      if (cameraActive && !isHandPointerCalibrationActive()) {
+        const handPointer = controlRef.current.handPointer;
         const handLm = controlRef.current.interactionHandLandmarks;
-        if (handLm && handLm.length > 17) {
-          // A bent index finger is not a reliable pointer. Requiring an extended
-          // index prevents the palm/fingertips from selecting an answer while
-          // the user is moving their hand into position.
+        if (handPointer && handLm && handLm.length > 17) {
+          // 弯曲的食指不可靠。要求食指伸直，避免手掌/其他手指在移动时误选。
           const wrist = handLm[0];
           const indexTip = handLm[8];
           const indexPip = handLm[6];
@@ -145,35 +269,38 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
           const pipDistance = Math.hypot(indexPip.x - wrist.x, indexPip.y - wrist.y);
           const isPointing = indexTip.y < indexPip.y - 0.01 || tipDistance > pipDistance * 1.08;
           if (!isPointing) {
+            // 手收回（非指向）：隐藏光标、命中置空；相对指针会在手势重捕时自动重新锚定。
             hitOption = null;
             if (pointerRef.current) pointerRef.current.style.opacity = '0';
             pointerStableRef.current.initialized = false;
             pointerStableSinceRef.current = 0;
           } else {
-          // Use the index fingertip as the pointer; the palm center is too coarse for adjacent answers.
-          const centerX = handLm[8].x;
-          const centerY = handLm[8].y;
+            // handPointer 是"手指在屏幕上指到的位置"的估计值（绝对映射 + 自动标定）。
+            // 摄像头摆放带来的整体偏移会让它和真实手指略有出入，所以选中不靠"光标压在
+            // 哪个元素上"，而是取"离光标最近的选项框中心"——手指朝向哪个框就选哪个框。
+            // 水平微调：整体左移「半个选项框」的宽度（用户实测光标偏右半个框）。
+            // screenX 已经带上这个偏移，后面的命中/绘制/稳定判定都基于它，保持一致。
+            const boxWidth = measureOptionBoxWidth(optionRefs.current, optionCount);
+            if (boxWidth > 0) optionWidthRef.current = boxWidth;
+            const aim = getHandAimOffset();
+            const nudgePx = (boxWidth > 0 ? boxWidth : optionWidthRef.current) * readHandNudgeBoxes()
+              + aim.x * window.innerWidth;
+            const nudgePy = aim.y * window.innerHeight;
+            const screenX = handPointer.x * window.innerWidth - nudgePx;
+            const screenY = handPointer.y * window.innerHeight - nudgePy;
+            lastCursorRef.current.x = screenX;
+            lastCursorRef.current.y = screenY;
 
-          const stageEl = stageRef.current;
-          if (stageEl) {
-            const stageRect = stageEl.getBoundingClientRect();
-            let targetX = stageRect.left + (1 - centerX) * stageRect.width;
-            let targetY = stageRect.top + centerY * stageRect.height;
-            
-            if (!pointerSmoothRef.current.initialized) {
-              pointerSmoothRef.current.x = targetX;
-              pointerSmoothRef.current.y = targetY;
-              pointerSmoothRef.current.initialized = true;
-            } else {
-              // High smoothing factor (0.85) for silky and stable movement
-              pointerSmoothRef.current.x = pointerSmoothRef.current.x * 0.85 + targetX * 0.15;
-              pointerSmoothRef.current.y = pointerSmoothRef.current.y * 0.85 + targetY * 0.15;
+            const nearest = nearestOptionIndex(screenX, screenY, optionRefs.current, optionCount);
+            hitOption = nearest.index;
+
+            // 光标连续跟随手指（绝对映射后的位置），不吸附到框——用户能看见光标实时
+            // 移动，并自己把手指挪到想选的框上。框高亮 + 停顿确认即选中该框；自动学习
+            // 会把映射收敛到"光标正好落在框心"，答几道题后光标自然居中到框中间。
+            if (pointerRef.current) {
+              pointerRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
+              pointerRef.current.style.opacity = '1';
             }
-
-            const screenX = pointerSmoothRef.current.x;
-            const screenY = pointerSmoothRef.current.y;
-
-            hitOption = checkHitOnOptions(screenX, screenY, optionCount);
 
             const now = performance.now();
             const stable = pointerStableRef.current;
@@ -187,12 +314,6 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
               stable.x = stable.x * 0.8 + screenX * 0.2;
               stable.y = stable.y * 0.8 + screenY * 0.2;
             }
-            // Update virtual pointer position
-            if (pointerRef.current) {
-              pointerRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
-              pointerRef.current.style.opacity = '1';
-            }
-          }
           }
         } else {
           if (pointerRef.current) pointerRef.current.style.opacity = '0';
@@ -228,7 +349,35 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
           }
 
           if (progress >= 1) {
-            // Confirmed!
+            // Confirmed! 用这次命中记录一次自动标定：原始指尖坐标 → 该选项中心，
+            // 让后续映射越来越准（手不用挪到屏幕边就能指到框里）。
+            const raw = controlRef.current.handRawFingertip;
+            const optEl = optionRefs.current[hitOption];
+            if (raw && optEl) {
+              const r = optEl.getBoundingClientRect();
+              const centerX = (r.left + r.right) / 2;
+              const centerY = (r.top + r.bottom) / 2;
+
+              // ① 自动闭环补偿（根治偏移）：量一下"确认瞬间光标离框心差多少"，
+              //    按服务层的增益累进（限幅很小，只做微调，避免把光标推出框外）。
+              const residualX = (lastCursorRef.current.x - centerX) / window.innerWidth;
+              const residualY = (lastCursorRef.current.y - centerY) / window.innerHeight;
+              const nextAim = addHandAimOffset(residualX, residualY);
+
+              // ② 自动标定：标签记「物理投影位置」= 框心 + 微调量（含自动补偿量）。
+              //    因为光标显示时会左移 nudge，映射必须先偏右同样的量，光标才落在框心；
+              //    若这里记框心、显示却左移，自动学会把偏移学回去，光标与选中框会错位。
+              const learnNudgePx = optionWidthRef.current * readHandNudgeBoxes()
+                + nextAim.x * window.innerWidth;
+              const learnNudgePy = nextAim.y * window.innerHeight;
+              recordHandPointerSample(
+                raw.x,
+                raw.y,
+                (centerX + learnNudgePx) / window.innerWidth,
+                (centerY + learnNudgePy) / window.innerHeight,
+                3,
+              );
+            }
             confirmAnswer(hitOption);
             return;
           }
@@ -271,28 +420,28 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
       if (phaseRef.current !== 'summary') return;
 
       if (cameraActive) {
-        const handLm = controlRef.current.interactionHandLandmarks;
-        if (handLm && handLm.length > 17) {
-          const centerX = handLm[8].x;
-          const centerY = handLm[8].y;
+        const handPointer = controlRef.current.handPointer;
+        if (handPointer) {
+          // 结果页同样左移「半个框」，与答题阶段的映射保持一致（重玩/退出按钮的命中
+          // 判定也用这个坐标，否则映射被学成偏右半个框后会点不中按钮）。
+          const resultAim = getHandAimOffset();
+          const resultNudgePx = optionWidthRef.current * readHandNudgeBoxes()
+            + resultAim.x * window.innerWidth;
+          const resultNudgePy = resultAim.y * window.innerHeight;
+          const targetX = handPointer.x * window.innerWidth - resultNudgePx;
+          const targetY = handPointer.y * window.innerHeight - resultNudgePy;
 
-          const stageEl = stageRef.current;
-          if (stageEl) {
-            const stageRect = stageEl.getBoundingClientRect();
-            let targetX = stageRect.left + (1 - centerX) * stageRect.width;
-            let targetY = stageRect.top + centerY * stageRect.height;
-            
-            if (!pointerSmoothRef.current.initialized) {
-              pointerSmoothRef.current.x = targetX;
-              pointerSmoothRef.current.y = targetY;
-              pointerSmoothRef.current.initialized = true;
-            } else {
-              pointerSmoothRef.current.x = pointerSmoothRef.current.x * 0.85 + targetX * 0.15;
-              pointerSmoothRef.current.y = pointerSmoothRef.current.y * 0.85 + targetY * 0.15;
-            }
+          if (!pointerSmoothRef.current.initialized) {
+            pointerSmoothRef.current.x = targetX;
+            pointerSmoothRef.current.y = targetY;
+            pointerSmoothRef.current.initialized = true;
+          } else {
+            pointerSmoothRef.current.x = pointerSmoothRef.current.x * 0.85 + targetX * 0.15;
+            pointerSmoothRef.current.y = pointerSmoothRef.current.y * 0.85 + targetY * 0.15;
+          }
 
-            const screenX = pointerSmoothRef.current.x;
-            const screenY = pointerSmoothRef.current.y;
+          const screenX = pointerSmoothRef.current.x;
+          const screenY = pointerSmoothRef.current.y;
 
             if (pointerRef.current) {
               pointerRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
@@ -360,7 +509,6 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
           if (restartProgressRef.current) restartProgressRef.current.style.width = '0%';
           if (exitProgressRef.current) exitProgressRef.current.style.width = '0%';
         }
-      }
 
       animFrame = requestAnimationFrame(checkHover);
     };
@@ -489,6 +637,84 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
     }
   }, [phase, currentQuestion, selectedAnswer, speakQuiz, advanceToNextQuestion]);
 
+  // ─── Phase: RESULT — 张开手掌直接进入下一题 ──────────────
+  /**
+   * 结果页原本要等播报讲完（答错时还要讲解析）才自动进下一题。这里给一个
+   * 手势出口：张开手掌停住 0.8 秒就跳过播报进入下一题，全程不用碰鼠标。
+   *
+   * 用"张开手掌"而不是"指向"，是因为答题时用的是伸食指，两者不冲突——
+   * 作答完手自然张开即可，不会在答题过程中被误判成"下一题"。
+   */
+  useEffect(() => {
+    // 进入结果页先把答题用的光标收起来，避免它停在某个选项上误导。
+    if (phase === 'result' && pointerRef.current) pointerRef.current.style.opacity = '0';
+    if (phase !== 'result' || !cameraActive) return;
+
+    let animFrame = 0;
+    let holdStart = 0;
+
+    const setBar = (width: string) => {
+      if (nextGestureBarRef.current) nextGestureBarRef.current.style.width = width;
+    };
+
+    const check = () => {
+      if (phaseRef.current !== 'result') return;
+      const landmarks = controlRef.current.interactionHandLandmarks;
+      const now = performance.now();
+
+      if (isOpenPalmGesture(landmarks)) {
+        if (!holdStart) holdStart = now;
+        const progress = Math.min(1, (now - holdStart) / NEXT_GESTURE_HOLD_MS);
+        setBar(`${Math.round(progress * 100)}%`);
+        if (progress >= 1) {
+          setBar('0%');
+          skipResult();
+          return;
+        }
+      } else {
+        holdStart = 0;
+        setBar('0%');
+      }
+
+      animFrame = requestAnimationFrame(check);
+    };
+
+    animFrame = requestAnimationFrame(check);
+    return () => cancelAnimationFrame(animFrame);
+  }, [phase, cameraActive, skipResult, controlRef]);
+
+  // ─── Answer-area camera small box ───────────────────────
+  /** 复用 HandController 公布的同一路摄像头流，渲染一个小的自视图。 */
+  useEffect(() => {
+    const video = smallCamRef.current;
+    // 摄像头小框的 <video> 只在 answering / result 阶段挂载，所以 phase 也必须进
+    // 依赖：否则 cameraActive 变 true（intro 阶段）时视频还没挂上，effect 拿到
+    // 的 smallCamRef 是 null 直接返回，等进入答题视频挂载后 effect 不再触发，
+    // srcObject 永远没被设置，小窗就一片黑。
+    if (!video || !cameraActive) return;
+    let cancelled = false;
+    let retry: number | null = null;
+
+    const attach = () => {
+      if (cancelled) return;
+      const stream = controlRef.current.webcamStream;
+      if (stream && video.srcObject !== stream) {
+        video.srcObject = stream;
+        // 某些浏览器在 srcObject 晚于 autoPlay 属性赋值后不会自动播放，显式 play。
+        const playAttempt = video.play();
+        if (playAttempt && typeof playAttempt.catch === 'function') playAttempt.catch(() => {});
+      } else if (!stream) {
+        retry = window.setTimeout(attach, 200);
+      }
+    };
+    attach();
+
+    return () => {
+      cancelled = true;
+      if (retry !== null) window.clearTimeout(retry);
+    };
+  }, [cameraActive, controlRef, phase]);
+
   // ─── Speak summary on enter ────────────────────────────
   useEffect(() => {
     if (phase !== 'summary') return;
@@ -565,6 +791,13 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
           </div>
         </div>
       )}
+
+      {isHandPointerDebugEnabled() && (
+        <HandPointerDebug controlRef={controlRef} />
+      )}
+
+      {/* 手势指针两点校准（调试面板按钮或 ?handcal=1 唤起） */}
+      <HandPointerCalibration controlRef={controlRef} />
 
       {/* Exit button */}
       <button
@@ -657,6 +890,7 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
                   <div
                     key={idx}
                     ref={(el) => { optionRefs.current[idx] = el; }}
+                    {...{ [HAND_OPTION_INDEX_ATTR]: idx }}
                     className={`quiz-option-card ${
                       phase === 'answering' ? 'quiz-card-enter' : ''
                     } ${isHovered ? 'is-hovered' : ''} ${
@@ -707,6 +941,16 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
             </button>
           )}
 
+          {/* Next-question gesture progress (result page) */}
+          {phase === 'result' && cameraActive && (
+            <div className="quiz-next-gesture quiz-fade-in">
+              <div className="quiz-next-gesture-bar">
+                <div ref={nextGestureBarRef} className="quiz-next-gesture-fill" />
+              </div>
+              <span>✋ 张开手掌停住 0.8 秒 → 直接进入下一题</span>
+            </div>
+          )}
+
           {/* Gesture hint */}
           {phase === 'answering' && cameraActive && (
             <div className="quiz-gesture-hint quiz-fade-in">
@@ -718,8 +962,25 @@ const QuizOverlay: React.FC<QuizOverlayProps> = ({ stageRef, controlRef, cameraA
               <span>💡 请开启摄像头使用手势答题，或直接点击选项</span>
             </div>
           )}
+
+          {/* 摄像头小窗不再放在这里：.quiz-game-container 上的 quiz-fade-in 动画
+              （关键帧带 transform、fill-mode: both）会让 transform: translateY(0)
+              永久保留，使祖先成为 position:fixed 的包含块 —— 小窗会被锚到"题目容器"
+              右下角而非屏幕右下角，既压选项、容器超出屏幕时还会被顶到屏幕外。
+              现改用 portal 挂到 document.body（见下方），彻底摆脱祖先 transform。 */}
         </div>
       )}
+
+      {/* 答题区摄像头小窗：用 portal 挂到 document.body，绕开所有祖先 transform
+          （.quiz-game-container 的 quiz-fade-in 会让 transform 永久生效，
+          把 position:fixed 的包含块从视口变成该容器）。这样小窗才真正固定在
+          屏幕右下角，既不压选项，也不会因容器超高被顶出屏幕。 */}
+      {cameraActive &&
+        (phase === 'answering' || phase === 'result') &&
+        createPortal(
+          <video ref={smallCamRef} autoPlay playsInline muted className="quiz-camera-pip" />,
+          document.body,
+        )}
 
       {/* ─── SUMMARY PHASE ─── */}
       {phase === 'summary' && quizResult && (

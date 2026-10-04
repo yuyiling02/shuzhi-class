@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { HandLandmarker, DrawingUtils } from '@mediapipe/tasks-vision';
-import { ControlRefs, GestureType, HandLandmarkPoint, InteractionMode, MoveDirection } from '../types';
+import { ControlRefs, GestureType, HandLandmarkPoint, HandLandmarks, InteractionMode, MoveDirection } from '../types';
 import {
   describeHandCandidate,
   HandTargetTracker,
@@ -23,6 +23,7 @@ import {
   notePublishedHandInput,
   performanceTelemetry,
 } from '../services/performanceTelemetry';
+import { calibrateHandPoint } from '../services/handPointerMapping';
 
 export interface HandTrackingPerformanceSample {
   sequence: number;
@@ -171,6 +172,8 @@ const HandController: React.FC<HandControllerProps> = ({
     controlRef.current.handLandmarks.left = null;
     controlRef.current.handLandmarks.right = null;
     controlRef.current.interactionHandLandmarks = null;
+    controlRef.current.handPointer = null;
+    controlRef.current.handRawFingertip = null;
     const worker = handWorkerRef.current;
     if (worker) {
       stopFrameScheduler();
@@ -218,6 +221,8 @@ const HandController: React.FC<HandControllerProps> = ({
     controlRef.current.handLandmarks.left = null;
     controlRef.current.handLandmarks.right = null;
     controlRef.current.interactionHandLandmarks = null;
+    controlRef.current.handPointer = null;
+    controlRef.current.handRawFingertip = null;
     const worker = handWorkerRef.current;
     if (worker) {
       stopFrameScheduler();
@@ -350,6 +355,8 @@ const HandController: React.FC<HandControllerProps> = ({
     controls.zoomSpeed = 0;
     controls.isDragging = false;
     controls.interactionHandLandmarks = null;
+    controls.handPointer = null;
+    controls.handRawFingertip = null;
     controls.handLandmarks.left = null;
     controls.handLandmarks.right = null;
     controls.handNDCPosition = null;
@@ -587,6 +594,7 @@ const HandController: React.FC<HandControllerProps> = ({
       mediaStream = null;
       const video = videoRef.current;
       if (video) video.srcObject = null;
+      controlRef.current.webcamStream = null;
     };
 
     const stopHandWorker = () => {
@@ -731,6 +739,7 @@ const HandController: React.FC<HandControllerProps> = ({
           video.srcObject = stream;
           video.addEventListener('loadeddata', handleVideoLoaded);
         }
+        controlRef.current.webcamStream = stream;
         setLoading(false);
       } catch (err) {
         console.error('Webcam error:', err);
@@ -774,6 +783,8 @@ const HandController: React.FC<HandControllerProps> = ({
       if (controlRef.current) {
         controlRef.current.handLandmarks = { left: null, right: null };
         controlRef.current.interactionHandLandmarks = null;
+    controlRef.current.handPointer = null;
+    controlRef.current.handRawFingertip = null;
         controlRef.current.rotationVelocity = { x: 0, y: 0 };
         controlRef.current.rotationGestureActive = false;
         controlRef.current.zoomSpeed = 0;
@@ -828,6 +839,27 @@ const HandController: React.FC<HandControllerProps> = ({
     const isIndexUp = isRotationFingerExtended(landmarks, 8, 6);
     const isMiddleUp = isRotationFingerExtended(landmarks, 12, 10);
     return isIndexUp && isMiddleUp && fingersDist < threshold;
+  };
+
+  /**
+   * 用**相对（空中鼠标）**方式把食指尖算出视口归一化指针。
+   * 只把指尖位移按比例加到光标上，不猜"画面坐标对应屏幕哪一点"，
+   * 因此没有绝对映射那种系统性偏移——详见 services/handPointerMapping。
+   */
+  const computeHandPointer = (landmarks: HandLandmarks): { x: number; y: number } | null => {
+    if (!landmarks || landmarks.length < 9) return null;
+    const tip = landmarks[8];
+    if (!tip) return null;
+    // 绝对映射：指尖原始（未镜像）归一化坐标 → 视口归一化坐标。
+    // 配合 services/handPointerMapping 的自动标定，做到"手指指到哪个框就选哪个框"。
+    return calibrateHandPoint(tip.x, tip.y);
+  };
+
+  /** 调试/自动标定用：原始（未镜像）指尖归一化坐标。 */
+  const readRawFingertip = (landmarks: HandLandmarks): { x: number; y: number } | null => {
+    if (!landmarks || landmarks.length < 9) return null;
+    const tip = landmarks[8];
+    return tip ? { x: tip.x, y: tip.y } : null;
   };
 
   const processDetectionResult = (result: HandDetectionResult, startTimeMs: number) => {
@@ -1406,6 +1438,9 @@ const HandController: React.FC<HandControllerProps> = ({
         right: visibleRightHandLandmarks ? toPointList(visibleRightHandLandmarks) : null
       };
       controlRef.current.interactionHandLandmarks = mappedInteractionLandmarks;
+      // 每帧由 HandController 统一推进相对指针，作为答题光标唯一来源。
+      controlRef.current.handPointer = computeHandPointer(mappedInteractionLandmarks);
+      controlRef.current.handRawFingertip = readRawFingertip(mappedInteractionLandmarks);
       lastControlSampleAtRef.current = startTimeMs;
 
       // Use ref to call the latest callback, only on state changes
