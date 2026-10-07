@@ -18,7 +18,7 @@ import type { PageDirection } from './services/coursewareSwipe';
 import IntegratedPrepStudio from './prep/IntegratedPrepStudio';
 import InteractiveCourseware from './components/InteractiveCourseware';
 import { buildTeachingPlan, getTeachingModelName, inferTeachingModel, buildKnowledgeExplanation, buildOrchestratorDecision, buildFollowUpQuestion, getAutonomousDisassemblyArgs } from './services/agentRuntime';
-import { Sparkles, Box, Atom, Globe, ChevronDown, ChevronLeft, ChevronRight, MessageSquare, Hand, ScanFace, Move3d, Maximize2, Minimize2, FlaskConical, Heart, Settings, ShieldCheck, X, ClipboardCheck, Loader2, LockKeyhole, Play, Download, LogOut, Upload, FolderOpen, Trash2, Volume2, Info, PanelRightOpen, BookOpenCheck, Mic, Star } from 'lucide-react';
+import { Sparkles, Box, Atom, Globe, ChevronDown, ChevronLeft, ChevronRight, MessageSquare, Hand, ScanFace, Move3d, Maximize2, Minimize2, FlaskConical, Heart, Settings, ShieldCheck, X, ClipboardCheck, Loader2, LockKeyhole, Play, Download, LogOut, Upload, FolderOpen, Trash2, Volume2, Info, PanelRightOpen, BookOpenCheck, Mic, Star, RotateCcw } from 'lucide-react';
 import { ModelType } from './types';
 import type { AuthUser } from './Login';
 import { getLocalModel, listLocalModels, deleteLocalModel, hideStaticModel, listHiddenStaticModelIds, saveGeneratedModel, saveUploadedModel, type LocalModelSummary } from './services/localModelLibrary';
@@ -242,7 +242,7 @@ const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((resolve, 
 });
 
 const INTRO_INSTRUCTION =
-  '右手捏合：拖拽 | 右手食指中指并拢：控制旋转\n左手张开/闭合：缩放';
+  '单手模式优先 · Single Hand First\n旋转：食指中指伸直贴合控制旋转，其余手指握拳\n缩放：拇食指靠近缩小 | 张开放大，其余手指握拳\n拆解：拇食指抓取部位，其余手指伸直\n双手模式：右手旋转 / 左手缩放 / 双手均可拆解';
 
 interface DashboardProps {
   playIntro?: boolean;
@@ -372,7 +372,7 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
   const [modelAssetUrls, setModelAssetUrls] = useState<Record<string, string>>({});
   const [fileName, setFileName] = useState<string>('');
   const [cameraActive, setCameraActive] = useState(false);
-  const [interactionMode, setInteractionMode] = useState<InteractionMode>('dual');
+  const [interactionMode, setInteractionMode] = useState<InteractionMode>('single');
   const [activeContent, setActiveContent] = useState<ActiveContent>('model');
   const [isStageFullscreen, setIsStageFullscreen] = useState(false);
   const [isStageAppFullscreen, setIsStageAppFullscreen] = useState(false);
@@ -1157,6 +1157,33 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
       }
     };
   };
+
+  const canResetDisassembly = (): boolean => {
+    if (!modelUrl || activeContent !== 'model') return false;
+    const lower = modelUrl.toLowerCase();
+    if (lower.includes('diamond.glb') || lower.includes('diamond-unit-cell')) return false;
+    if (lower.includes('earth-layers')) return false; // 地球保持四层展示
+    if (isOneWayAnatomyModel(modelUrl, activeLocalModelId ?? undefined)) return false;
+    return true;
+  };
+
+  const resetDisassembly = useCallback(() => {
+    if (!canResetDisassembly()) return;
+    const nextActionId = (controlRef.current.agentDisassembly?.actionId ?? 0) + 1;
+    controlRef.current.agentDisassembly = {
+      enabled: false,
+      strength: 0,
+      spacing: 1.1,
+      avoidOverlap: true,
+      actionId: nextActionId,
+      label: '复原模型',
+    };
+    setAiAnalysis('模型已复原。');
+    void logUserActivity({
+      type: 'model.reset-disassembly',
+      payload: { modelName: fileName || modelUrl },
+    });
+  }, [modelUrl, activeContent, fileName, activeLocalModelId]);
 
   const revokeObjectUrls = () => {
     objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -4080,23 +4107,29 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
                             <div className="flex items-center gap-2 pb-2 border-b border-cyan-500/30">
                               <div className="lab-instruction-icon rounded-lg p-1.5"><Move3d size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-ink uppercase">双手协同</span>
-                                <span className="text-[9px] text-cyan font-bold">双手均可捏合拆解 | 右手中指滑动旋转</span>
+                                <span className="text-[10px] font-black text-ink uppercase">双手协同模式</span>
+                                <span className="text-[9px] text-cyan font-bold">❗单手模式优先</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="lab-instruction-icon rounded-lg p-1.5"><Hand size={14} className="text-cyan" /></div>
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-ink uppercase">右手旋转</span>
+                                <span className="text-[9px] text-ink-soft font-bold">食指中指伸直贴合控制旋转，其余手指握拳闭合</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="lab-instruction-icon rounded-lg p-1.5"><Hand size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-ink uppercase">左手缩放</span>
-                                <span className="text-[9px] text-ink-soft font-bold">其余三指握拳：拇食指靠近缩小 | 拉开放大</span>
+                                <span className="text-[9px] text-ink-soft font-bold">拇指食指靠近缩小 | 张开放大，其余手指握拳闭合</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="lab-instruction-icon rounded-lg p-1.5"><ScanFace size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-ink uppercase">右手</span>
-                                <span className="text-[9px] text-cyan font-bold">捏合 → 拆解/重组</span>
-                                <span className="text-[9px] text-ink-soft font-bold">食指+中指并拢滑动 → 旋转画面</span>
+                                <span className="text-[10px] font-black text-ink uppercase">拆解（可双手同时）</span>
+                                <span className="text-[9px] text-cyan font-bold">拇指食指抓取部位进行拆解，其余手指伸直</span>
                               </div>
                             </div>
                           </>
@@ -4105,22 +4138,29 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
                             <div className="flex items-center gap-2 pb-2 border-b border-cyan-500/30">
                               <div className="lab-instruction-icon rounded-lg p-1.5"><Hand size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-ink uppercase">右手优先</span>
-                                <span className="text-[9px] text-cyan font-bold">拇食指靠近缩小 | 拉开放大</span>
+                                <span className="text-[10px] font-black text-ink uppercase">单手模式</span>
+                                <span className="text-[9px] text-cyan font-bold">❗单手模式优先</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="lab-instruction-icon rounded-lg p-1.5"><Hand size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-ink uppercase">捏合拖拽</span>
-                                <span className="text-[9px] text-ink-soft font-bold">食指+拇指捏合 → 拖拽零件</span>
+                                <span className="text-[10px] font-black text-ink uppercase">旋转</span>
+                                <span className="text-[9px] text-ink-soft font-bold">食指中指伸直贴合控制旋转，其余手指握拳闭合</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="lab-instruction-icon rounded-lg p-1.5"><Hand size={14} className="text-cyan" /></div>
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-ink uppercase">缩放</span>
+                                <span className="text-[9px] text-ink-soft font-bold">拇指食指靠近缩小 | 张开放大，其余手指握拳闭合</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="lab-instruction-icon rounded-lg p-1.5"><ScanFace size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-ink uppercase">互斥控制</span>
-                                <span className="text-[9px] text-cyan font-bold">双指旋转优先；缩放与拖拽不会同时触发</span>
+                                <span className="text-[10px] font-black text-ink uppercase">拆解</span>
+                                <span className="text-[9px] text-cyan font-bold">拇指食指抓取部位进行拆解，其余手指伸直</span>
                               </div>
                             </div>
                           </>
@@ -4243,6 +4283,14 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
                 <span ref={quizProgressRef} className="absolute inset-y-0 left-0 bg-cyan-300/15" style={{ width: '0%' }} />
                 <ClipboardCheck className="relative z-10" size={18} /> <span className="relative z-10">答题</span>
                 {classWarmupQuestions.length > 0 && <span className="lab-stage-tool-count">{classWarmupQuestions.length}</span>}
+              </button>}
+              {canResetDisassembly() && <button
+                type="button"
+                onClick={resetDisassembly}
+                className="lab-stage-tool"
+                title="复原拆解后的模型"
+              >
+                <RotateCcw size={18} /> <span>复原</span>
               </button>}
               <button
                 type="button"

@@ -559,151 +559,33 @@ export default function LandingPage({
         )}
 
 
-        {/* 5. 教学案例展示区 (3D 控制台 Mockup) */}
+        {/* 5. 教学案例展示区 */}
         {page === 'cases' && (
         <section className="max-w-[76rem] mx-auto px-6 py-20 relative z-20">
-          <motion.div 
+          <div className="max-w-2xl mb-10">
+            <SectionEyebrow label="真实课堂界面" />
+            <h2 className="mt-4 text-3xl font-bold">一堂课，这样展开</h2>
+            <p className="mt-4 text-ink/60 leading-relaxed">
+              3D 教具、手势识别、AI 备课助手——全部在同一个界面里协同工作。
+              老师用手势操控模型，学生看到的是会动、会拆解、会高亮的立体知识。
+            </p>
+          </div>
+
+          <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="relative rounded-2xl overflow-hidden border border-line/15 bg-cyan-50/80 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] ring-1 ring-white/5"
           >
-            {/* 窗口头部 */}
-            <div className="h-12 border-b border-line/10 bg-white/[0.02] flex items-center px-4 relative">
-              <div className="flex gap-2 absolute left-4">
-                <button className="w-3.5 h-3.5 rounded-full bg-[#ff5f57] flex items-center justify-center group hover:bg-[#ff5f57]/80"><X className="w-2.5 h-2.5 text-black/50 opacity-0 group-hover:opacity-100" /></button>
-                <button className="w-3.5 h-3.5 rounded-full bg-[#febc2e] flex items-center justify-center group hover:bg-[#febc2e]/80"><Minus className="w-2.5 h-2.5 text-black/50 opacity-0 group-hover:opacity-100" /></button>
-                <button className="w-3.5 h-3.5 rounded-full bg-[#28c840] flex items-center justify-center group hover:bg-[#28c840]/80"><Maximize2 className="w-2.5 h-2.5 text-black/50 opacity-0 group-hover:opacity-100 p-0.5" /></button>
-              </div>
-              <div className="w-full text-center text-xs font-semibold text-ink/50 tracking-wider">
-                数智课堂 — 教具库
-              </div>
-            </div>
-
-            {/* 界面主体三栏 */}
-            <div className="grid grid-cols-1 md:grid-cols-12 h-[600px]">
-              
-              {/* 左侧 Sidebar */}
-              <div aria-label="静态界面示意" className="hidden md:flex flex-col col-span-2 border-r border-line/10 bg-cyan/40 p-3 pointer-events-none select-none">
-                <button type="button" disabled aria-disabled="true" className="w-full flex items-center justify-center gap-2 rounded-lg bg-white/10 border border-line/5 text-ink text-xs font-semibold px-3 py-2.5 mb-6 cursor-not-allowed">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan" />
-                  AI 生成教具
-                </button>
-                
-                <div className="space-y-0.5 mb-8">
-                  {[
-                    { icon: Folder, label: '我的教具库', active: true },
-                    { icon: Activity, label: '课堂互动' },
-                    { icon: Box, label: '3D 模型' },
-                    { icon: Cpu, label: 'AI 助教' },
-                    { icon: BarChart2, label: '数据分析' },
-                  ].map((item, i) => (
-                    <div key={i} className={`flex items-center gap-3 text-xs px-3 py-2 rounded-md ${item.active ? 'bg-white/10 text-ink font-medium' : 'text-ink/60'}`}>
-                      <item.icon className="w-4 h-4 opacity-80" />
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="text-[10px] uppercase tracking-widest text-ink/40 font-semibold mb-3 px-3">知识图谱标签</div>
-                <div className="space-y-1">
-                  {[
-                    { label: '地理', color: '#3b82f6' },
-                    { label: '生物', color: '#10b981' },
-                    { label: '化学', color: '#f59e0b' },
-                    { label: '物理', color: '#8b5cf6' },
-                    { label: '历史', color: '#ec4899' },
-                  ].map(tag => (
-                    <div key={tag.label} className="flex items-center gap-2 text-xs px-3 py-1.5 text-ink/60 rounded-md">
-                      <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: tag.color, color: tag.color }} />
-                      {tag.label}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 中间主视觉 (3D Canvas) */}
-              <div className="col-span-1 md:col-span-7 border-r border-line/10 relative bg-cyan/20 flex flex-col">
-                <div className="h-10 border-b border-line/10 px-4 flex items-center justify-end bg-cyan/40 backdrop-blur-sm z-10">
-                  <div className="flex gap-2">
-                    <button type="button" disabled aria-disabled="true" className="cursor-not-allowed text-xs text-ink/35 px-2 py-1 rounded flex items-center gap-1">
-                      <Glasses className="w-3.5 h-3.5" /> AR 预览
-                    </button>
-                    <button type="button" disabled aria-disabled="true" className="cursor-not-allowed text-xs text-ink/35 px-2 py-1 rounded flex items-center gap-1">
-                      <Share2 className="w-3.5 h-3.5" /> 投屏
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex-1 relative overflow-hidden">
-                  {/* 使用系统已有模型图片，案例页本身不承诺交互控制 */}
-                  <div className="absolute inset-0 flex items-center justify-center p-10">
-                    <img
-                      src="/images/model-info/organs/heart.webp"
-                      alt="心脏模型示意图"
-                      className="h-full w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.45)]"
-                    />
-                  </div>
-
-                  {/* UI 叠加层：手势识别状态 */}
-                  <div className="absolute bottom-6 inset-x-0 flex justify-center pointer-events-none">
-                    <div className="bg-cyan/60 backdrop-blur-md border border-line/10 px-4 py-2 rounded-full flex items-center gap-3">
-                      <div className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan"></span>
-                      </div>
-                      <span className="text-xs text-ink/80 font-medium">MediaPipe 手势追踪已开启 · 尝试“捏合”缩放</span>
-                      <Hand className="w-4 h-4 text-ink/50 ml-2" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 右侧详情面板 */}
-              <div className="hidden md:flex flex-col col-span-3 bg-cyan/40 p-5 overflow-y-auto">
-                <h3 className="text-sm font-bold text-ink mb-4">AI 备课助手</h3>
-                
-                <div className="rounded-xl border border-cyan/30 bg-cyan/5 p-4 mb-6 shadow-inner relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan to-transparent" />
-                  <div className="flex items-center gap-2 text-cyan text-xs font-bold mb-3">
-                    <Sparkles className="w-4 h-4" />
-                    自动生成讲解词
-                  </div>
-                  <p className="text-xs text-ink/80 leading-relaxed font-medium">
-                    “同学们请看，这是人体心脏的 3D 模型。心脏有四个腔室，分为左心房、左心室、右心房和右心室。当我们将手掌张开时，模型将展示内部的瓣膜结构...”
-                  </p>
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <div className="text-[10px] text-ink/40 uppercase tracking-wider mb-2">互动提问生成</div>
-                    <div className="bg-white/5 border border-line/10 rounded-lg p-3 text-xs text-ink/70">
-                      1. 血液是如何通过二尖瓣流动的？<br/>
-                      2. 右心室负责将血液泵向哪里？
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-[10px] text-ink/40 uppercase tracking-wider mb-2">交互说明</div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-2 py-1 bg-white/5 border border-line/10 rounded text-[10px] text-ink/80 flex items-center gap-1"><Hand className="w-3 h-3"/> 挥手旋转模型</span>
-                      <span className="px-2 py-1 bg-white/5 border border-line/10 rounded text-[10px] text-ink/80 flex items-center gap-1"><Mic className="w-3 h-3"/> 语音切换高亮</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-auto pt-6">
-                  <button className="w-full bg-white text-black text-xs font-bold py-3 rounded-lg hover:bg-white/90 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    开始课堂演示
-                  </button>
-                </div>
-              </div>
-            </div>
+            <img
+              src="/images/cases-full-mockup.png"
+              alt="数智课堂 · 完整教学界面"
+              className="w-full h-auto block"
+            />
           </motion.div>
         </section>
         )}
-
         {/* 6. 功能区：AI 教具管理 */}
         {page === 'solutions' && (
         <>
@@ -958,24 +840,23 @@ export default function LandingPage({
                   ]},
                 { icon: Hand, title: '空间手势操作', description: '掌握旋转、缩放与模型交互手势，并排查摄像头识别问题。', meta: '互动控制',
                   sections: [
-                    { kind: 'table', title: '双手协同模式 · Dual-hand Mode',
-                      headers: ['部位', '操作', '手势', 'English'],
-                      rows: [
-                        ['左手', '缩放', '其他三指握拳，拇指和食指拉开→放大；靠近→缩小', 'big / zoom in · small / zoom out'],
-                        ['左手', '拆解模型', '食指+拇指捏合 → 触发拆解', 'pinch → explode'],
-                        ['右手', '拆解模型', '食指+拇指捏合 → 触发拆解', 'pinch → explode'],
-                        ['右手', '旋转画面', '食指+中指并拢滑动 → 旋转整个模型', 'spin / rotate'],
-                      ],
-                    },
-                    { kind: 'table', title: '单手优先模式 · Single-hand Mode',
+                    { kind: 'callout', tone: 'warn', text: '❗ 单手模式优先。双手模式下右手负责旋转、左手负责缩放，拆解双手均可触发。' },
+                    { kind: 'table', title: '单手模式 · Single Hand Mode',
                       headers: ['操作', '手势', 'English'],
                       rows: [
-                        ['缩放', '其他三指握拳，拇指和食指拉开放大；靠近缩小', 'big / zoom in · small / zoom out'],
-                        ['拆解模型', '食指+拇指捏合', 'pinch → explode'],
-                        ['旋转画面', '食指+中指并拢滑动', 'spin / rotate'],
+                        ['旋转', '食指中指伸直贴合控制旋转，其余手指握拳闭合', 'spin / rotate'],
+                        ['缩放', '拇指食指靠近缩小 | 张开放大，其余手指握拳闭合', 'big / zoom in · small / zoom out'],
+                        ['拆解', '拇指食指抓取部位进行拆解，其余手指伸直', 'pinch → explode'],
                       ],
                     },
-                    { kind: 'callout', tone: 'info', text: '💡 缩放手势采用短滤波平滑：当拇指和食指距离保持不变时，缩放在短暂滤波后自动停止，避免抖动。' },
+                    { kind: 'table', title: '双手模式 · Dual Hand Mode',
+                      headers: ['部位', '操作', '手势', 'English'],
+                      rows: [
+                        ['右手', '旋转', '食指中指伸直贴合控制旋转，其余手指握拳闭合', 'spin / rotate'],
+                        ['左手', '缩放', '拇指食指靠近缩小 | 张开放大，其余手指握拳闭合', 'big / zoom in · small / zoom out'],
+                        ['双手均可', '拆解', '拇指食指抓取部位进行拆解，其余手指伸直', 'pinch → explode'],
+                      ],
+                    },
                     { kind: 'bullets', title: '常见问题排查', items: [
                       '手势不识别 → 检查光线充足、背景简洁、整只手在画面内。',
                       '旋转不流畅 → 食指和中指并拢贴紧，滑动速度均匀不要太快。',

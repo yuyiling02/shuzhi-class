@@ -2307,8 +2307,8 @@ const CameraInit: React.FC<{ modelUrl: string; target: CameraTarget }> = ({ mode
       // 肾 正面观
       camera.position.set(0, 0.8, 3.0);
     } else if (lower.includes('pancreas')) {
-      // 胰腺 正面观
-      camera.position.set(0, 0.8, 3.0);
+      // 胰腺 侧面观（原正面观绕Y轴转90°）
+      camera.position.set(3.0, 0.8, 0);
     } else if (lower.includes('intestine')) {
       // 肠道 正面观
       camera.position.set(0, 0.8, 3.0);
@@ -2316,8 +2316,11 @@ const CameraInit: React.FC<{ modelUrl: string; target: CameraTarget }> = ({ mode
       // 眼球 正面观
       camera.position.set(0, 0.5, 2.5);
     } else if (lower.includes('skin')) {
-      // 皮肤 正面观
-      camera.position.set(0, 0.8, 3.0);
+      // 皮肤 正面观（拉远以便看到整个皮肤层次 + 标签）
+      camera.position.set(0, 1.5, 5.0);
+    } else if (lower.includes('earth-layers') || lower.includes('terrain-topography')) {
+      // 地球内部结构 / 地形图（拉远以便看到整个地球 + 所有圈层标签）
+      camera.position.set(0, 2.5, 7.5);
     } else if (lower.includes('hiv')) {
       // HIV 病毒 3/4 视角
       camera.position.set(2.0, 1.5, 2.0);

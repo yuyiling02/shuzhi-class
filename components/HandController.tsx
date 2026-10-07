@@ -249,6 +249,13 @@ const HandController: React.FC<HandControllerProps> = ({
   const smoothDragPinchRef = useRef({ x: 0.5, y: 0.5 });
   const smoothRotateFingerCenterRef = useRef({ x: 0.5, y: 0.5 });
 
+  // Landmark EMA smoothing for the overlay skeleton drawing (suppresses flicker)
+  // alpha=0.3 means 30% new, 70% previous — smooth but responsive
+  const smoothedLandmarksRef = useRef<{
+    left: any[] | null;
+    right: any[] | null;
+  }>({ left: null, right: null });
+
   // Previous contact state for hysteresis
   const wasContactingRef = useRef(false);
   const openStopStartRef = useRef(0);
@@ -785,6 +792,7 @@ const HandController: React.FC<HandControllerProps> = ({
       rotationContinuityRef.current = createRotationContinuityState();
       lastValidRotVelRef.current = { x: 0, y: 0 };
       smoothRotVelRef.current = { x: 0, y: 0 };
+      smoothedLandmarksRef.current = { left: null, right: null };
 
       if (controlRef.current) {
         controlRef.current.handLandmarks = { left: null, right: null };
@@ -896,17 +904,36 @@ const HandController: React.FC<HandControllerProps> = ({
       }
 
       if (ctx) {
+        // EMA-smooth landmarks to suppress per-frame jitter in the overlay skeleton.
+        const alpha = 0.3;
+        const smoothHand = (raw: any[], prev: any[] | null): any[] => {
+          if (!raw) return prev ?? [];
+          if (!prev || prev.length !== raw.length) return raw.map(p => ({ ...p }));
+          return raw.map((p, i) => ({
+            x: prev[i].x + (p.x - prev[i].x) * alpha,
+            y: prev[i].y + (p.y - prev[i].y) * alpha,
+            z: prev[i].z !== undefined ? prev[i].z + ((p.z ?? 0) - prev[i].z) * alpha : p.z,
+          }));
+        };
+        const rawLeft = trackedHands.display.left?.landmarks ?? null;
+        const rawRight = trackedHands.display.right?.landmarks ?? null;
+        smoothedLandmarksRef.current.left = rawLeft ? smoothHand(rawLeft, smoothedLandmarksRef.current.left) : null;
+        smoothedLandmarksRef.current.right = rawRight ? smoothHand(rawRight, smoothedLandmarksRef.current.right) : null;
+
         const drawingUtils = drawingUtilsRef.current ?? new DrawingUtils(ctx);
         drawingUtilsRef.current = drawingUtils;
-        [trackedHands.display.left, trackedHands.display.right].forEach((hand) => {
-          if (!hand) return;
+        [
+          { side: 'left', raw: trackedHands.display.left, smoothLm: smoothedLandmarksRef.current.left },
+          { side: 'right', raw: trackedHands.display.right, smoothLm: smoothedLandmarksRef.current.right },
+        ].forEach(({ raw, smoothLm }) => {
+          if (!raw || !smoothLm) return;
           const isLocked = trackedHands.phase === 'locked';
           const isWaiting = trackedHands.phase === 'partial_lost' || trackedHands.phase === 'lost';
-          drawingUtils.drawConnectors(hand.landmarks as any, HandLandmarker.HAND_CONNECTIONS, {
+          drawingUtils.drawConnectors(smoothLm as any, HandLandmarker.HAND_CONNECTIONS, {
             color: isWaiting ? '#fbbf24' : isLocked ? '#22d3ee' : '#a78bfa',
             lineWidth: 3,
           });
-          drawingUtils.drawLandmarks(hand.landmarks as any, {
+          drawingUtils.drawLandmarks(smoothLm as any, {
             color: '#ffffff', lineWidth: 1, radius: 2,
           });
         });
