@@ -1,5 +1,6 @@
 export type BrowserSpeechRecognitionErrorCode =
   | 'unsupported'
+  | 'insecure_context'
   | 'microphone_denied'
   | 'microphone_unavailable'
   | 'network'
@@ -21,6 +22,8 @@ export interface BrowserSpeechRecognitionRuntime {
   setTimeout: typeof globalThis.setTimeout;
   clearTimeout: typeof globalThis.clearTimeout;
   restartDelayMs: number;
+  startTimeoutMs: number;
+  isSecureContext: () => boolean;
 }
 
 const getWindowRecognitionConstructor = () => {
@@ -33,6 +36,8 @@ const defaultRuntime = (): BrowserSpeechRecognitionRuntime => ({
   setTimeout: globalThis.setTimeout.bind(globalThis),
   clearTimeout: globalThis.clearTimeout.bind(globalThis),
   restartDelayMs: 250,
+  startTimeoutMs: 15000,
+  isSecureContext: () => typeof window === 'undefined' || window.isSecureContext !== false,
 });
 
 export const isBrowserSpeechRecognitionSupported = (
@@ -52,9 +57,10 @@ export class BrowserSpeechRecognitionError extends Error {
 export const describeBrowserSpeechRecognitionError = (error: BrowserSpeechRecognitionError) => {
   const messages: Record<BrowserSpeechRecognitionErrorCode, string> = {
     unsupported: '当前浏览器不支持语音识别，请使用最新版 Chrome 或 Edge。',
+    insecure_context: '语音识别需要安全连接，请使用 HTTPS 或 localhost 打开课堂。',
     microphone_denied: '麦克风访问被拒绝，请在浏览器地址栏中允许麦克风权限。',
     microphone_unavailable: '没有检测到可用麦克风，请检查设备连接。',
-    network: '浏览器语音识别服务连接失败，请检查网络后重试。',
+    network: '浏览器在线语音识别服务连接失败。Chrome 需要连接 Google 识别服务，请检查该服务的网络连通性，或尝试 Edge。',
     service_unavailable: '浏览器语音识别服务暂不可用，请稍后重试。',
     start_failed: '浏览器语音识别启动失败，请关闭语音后重试。',
   };
@@ -82,6 +88,7 @@ export class BrowserSpeechRecognition {
   private state: RecognitionState = 'idle';
   private recognition: SpeechRecognition | null = null;
   private restartTimer: ReturnType<typeof setTimeout> | null = null;
+  private startTimer: ReturnType<typeof setTimeout> | null = null;
   private shouldRun = false;
   private pendingStartResolve: (() => void) | null = null;
   private pendingStartReject: ((error: BrowserSpeechRecognitionError) => void) | null = null;
@@ -104,6 +111,9 @@ export class BrowserSpeechRecognition {
   }
 
   start() {
+    if (!this.runtime.isSecureContext()) {
+      return Promise.reject(new BrowserSpeechRecognitionError('insecure_context', 'HTTPS is required'));
+    }
     if (this.state === 'active') return Promise.resolve();
     if (this.state === 'connecting') {
       return Promise.reject(new BrowserSpeechRecognitionError('start_failed', '语音识别正在启动'));
@@ -129,6 +139,7 @@ export class BrowserSpeechRecognition {
     this.shouldRun = false;
     this.state = 'stopped';
     this.clearRestartTimer();
+    this.clearStartTimer();
     this.settlePendingStart();
 
     const recognition = this.recognition;
@@ -167,6 +178,7 @@ export class BrowserSpeechRecognition {
     this.recognition = recognition;
     recognition.onstart = () => {
       if (this.recognition !== recognition) return;
+      this.clearStartTimer();
       if (!this.shouldRun || !this.canContinue()) {
         this.stop();
         return;
@@ -195,6 +207,7 @@ export class BrowserSpeechRecognition {
     };
     recognition.onend = () => {
       if (this.recognition !== recognition) return;
+      this.clearStartTimer();
       this.detachRecognition(recognition);
       this.recognition = null;
 
@@ -217,6 +230,12 @@ export class BrowserSpeechRecognition {
     };
 
     try {
+      this.startTimer = this.runtime.setTimeout(() => {
+        this.startTimer = null;
+        if (this.recognition === recognition) {
+          this.fail(new BrowserSpeechRecognitionError('start_failed', '语音识别启动超时'));
+        }
+      }, this.runtime.startTimeoutMs);
       recognition.start();
     } catch (error) {
       this.detachRecognition(recognition);
@@ -229,6 +248,7 @@ export class BrowserSpeechRecognition {
     this.shouldRun = false;
     this.state = 'stopped';
     this.clearRestartTimer();
+    this.clearStartTimer();
     const recognition = this.recognition;
     this.recognition = null;
     if (recognition) {
@@ -252,6 +272,12 @@ export class BrowserSpeechRecognition {
     if (this.restartTimer === null) return;
     this.runtime.clearTimeout(this.restartTimer);
     this.restartTimer = null;
+  }
+
+  private clearStartTimer() {
+    if (this.startTimer === null) return;
+    this.runtime.clearTimeout(this.startTimer);
+    this.startTimer = null;
   }
 
   private detachRecognition(recognition: SpeechRecognition) {

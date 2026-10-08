@@ -76,6 +76,25 @@ const createHarness = (canContinue: () => boolean = () => true) => {
 
 const waitForTurn = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+test('rejects insecure origins before accessing the microphone', async () => {
+  const recognition = new BrowserSpeechRecognition({ onPartial() {}, onFinal() {}, onError() {} }, {
+    isSecureContext: () => false,
+    getConstructor: () => { throw new Error('must not access microphone'); },
+  });
+  await assert.rejects(recognition.start(), (error: BrowserSpeechRecognitionError) => error.code === 'insecure_context');
+});
+
+test('aborts and releases a browser that never reports startup', async () => {
+  const native = new FakeRecognition();
+  const recognition = new BrowserSpeechRecognition({ onPartial() {}, onFinal() {}, onError() {} }, {
+    getConstructor: () => (function () { return native; }) as unknown as SpeechRecognitionConstructor,
+    startTimeoutMs: 5,
+  });
+  await assert.rejects(recognition.start(), (error: BrowserSpeechRecognitionError) => error.code === 'start_failed');
+  assert.equal(native.abortCalls, 1);
+  assert.equal(recognition.currentState, 'stopped');
+});
+
 test('detects standard and prefixed Web Speech API implementations', () => {
   const Recognition = class {} as unknown as SpeechRecognitionConstructor;
   assert.equal(isBrowserSpeechRecognitionSupported({ SpeechRecognition: Recognition }), true);

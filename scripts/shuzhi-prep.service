@@ -1,0 +1,25 @@
+[Unit]
+Description=Shuzhi lesson preparation service
+After=network.target
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/shuzhi/teacher-studio-service/backend
+ExecStart=/www/wwwroot/shuzhi/teacher-studio-service/.venv/bin/python server.py
+EnvironmentFile=-/etc/shuzhi-prep.env
+Environment=TEACHER_STUDIO_HOST=127.0.0.1
+Environment=TEACHER_STUDIO_PORT=8765
+Environment=PYTHONUNBUFFERED=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=OMP_NUM_THREADS=1
+Restart=on-failure
+RestartSec=10
+Nice=10
+CPUQuota=50%
+MemoryHigh=384M
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,5 @@
 numpy
 Pillow
 python-pptx
+pypdf
 trimesh==4.6.13

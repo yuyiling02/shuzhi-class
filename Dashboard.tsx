@@ -4122,7 +4122,7 @@ const App: React.FC<DashboardProps> = ({ playIntro = true, initialLocalModelId, 
                               <div className="lab-instruction-icon rounded-lg p-1.5"><Hand size={14} className="text-cyan" /></div>
                               <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-ink uppercase">左手缩放</span>
-                                <span className="text-[9px] text-ink-soft font-bold">拇指食指靠近缩小 | 张开放大，其余手指握拳闭合</span>
+                                <span className="text-[9px] text-ink-soft font-bold">张开手掌放大 | 握拳缩小</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">

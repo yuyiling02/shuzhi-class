@@ -117,6 +117,7 @@ class BrowserSpeechSession implements XiaozhiSpeechSession {
   private flushed = false;
   private started = false;
   private finished = false;
+  private currentUtterance: SpeechSynthesisUtterance | null = null;
   private completionTimer: ReturnType<typeof setTimeout> | null = null;
   private clearCurrentProgressTimers: () => void = () => undefined;
   private options: SpeakOptions;
@@ -149,7 +150,7 @@ class BrowserSpeechSession implements XiaozhiSpeechSession {
     if (this.stopped || this.finished) return;
     this.options.onProgress?.({ charIndex: Math.max(0, charIndex), source });
   };
-  stop = () => { if (!this.stopped) { this.stopped = true; this.clearCurrentProgressTimers(); if (this.completionTimer) clearTimeout(this.completionTimer); getSynthesis()?.cancel(); this.finish(); } };
+  stop = () => { if (!this.stopped) { this.stopped = true; this.clearCurrentProgressTimers(); this.currentUtterance = null; if (this.completionTimer) clearTimeout(this.completionTimer); getSynthesis()?.cancel(); this.finish(); } };
   private markStarted = () => { if (!this.started && !this.stopped) { this.started = true; this.options.onStart?.(); } };
   private finish = () => { if (!this.finished) { this.finished = true; if (!this.stopped) this.options.onEnd?.(); this.resolveDone(); releaseActiveSession(this); } };
   private maybeDone = () => {
@@ -163,12 +164,14 @@ class BrowserSpeechSession implements XiaozhiSpeechSession {
     this.finish();
   };
   private pump = () => {
-    if (this.speaking || this.stopped) return;
+    if (this.speaking || this.stopped || this.finished) return;
     const segment = this.queue.shift();
     if (!segment) return this.maybeDone();
     const synthesis = getSynthesis();
     if (!synthesis || !window.SpeechSynthesisUtterance) { this.options.onError?.(new Error('当前浏览器不支持语音播报')); return this.finish(); }
     const utterance = new window.SpeechSynthesisUtterance(segment.text);
+    // Retain the utterance until completion, including Chrome's asynchronous callbacks.
+    this.currentUtterance = utterance;
     utterance.lang = 'zh-CN'; utterance.rate = 1.1; utterance.pitch = 1.15; utterance.volume = 1;
     const selectedVoice = browserVoice(); if (selectedVoice) utterance.voice = selectedVoice;
     this.speaking = true;
@@ -176,13 +179,16 @@ class BrowserSpeechSession implements XiaozhiSpeechSession {
     let fallbackDelayTimer: ReturnType<typeof setTimeout> | null = null;
     let fallbackProgressTimer: ReturnType<typeof setInterval> | null = null;
     let stuckTimer: ReturnType<typeof setTimeout> | null = null;
+    let startTimer: ReturnType<typeof setTimeout> | null = null;
     const clearProgressTimers = () => {
       if (fallbackDelayTimer) clearTimeout(fallbackDelayTimer);
       if (fallbackProgressTimer) clearInterval(fallbackProgressTimer);
       if (stuckTimer) clearTimeout(stuckTimer);
+      if (startTimer) clearTimeout(startTimer);
       fallbackDelayTimer = null;
       fallbackProgressTimer = null;
       stuckTimer = null;
+      startTimer = null;
     };
     this.clearCurrentProgressTimers = clearProgressTimers;
     const startFallbackProgress = () => {
@@ -197,38 +203,63 @@ class BrowserSpeechSession implements XiaozhiSpeechSession {
       fallbackProgressTimer = setInterval(emitEstimate, 100);
     };
     utterance.onstart = () => {
+      if (this.currentUtterance !== utterance || this.stopped) return;
+      if (startTimer) clearTimeout(startTimer);
+      startTimer = null;
       this.markStarted();
       this.emitProgress(segment.start, 'estimated');
       fallbackDelayTimer = setTimeout(startFallbackProgress, BROWSER_BOUNDARY_FALLBACK_DELAY_MS);
       const estimatedMs = estimateNarrationDuration(segment.text) * 1000;
       stuckTimer = setTimeout(() => {
         if (!this.speaking || this.stopped) return;
+        clearProgressTimers();
+        this.currentUtterance = null;
+        utterance.onend = null;
+        utterance.onerror = null;
         try { getSynthesis()?.cancel(); } catch { /* synthesis may already be gone */ }
         this.speaking = false;
         this.pump();
       }, estimatedMs * 2 + 3000);
     };
     utterance.onboundary = (event) => {
-      if (this.stopped) return;
+      if (this.stopped || this.currentUtterance !== utterance) return;
       boundaryReceived = true;
-      clearProgressTimers();
+      if (fallbackDelayTimer) clearTimeout(fallbackDelayTimer);
+      if (fallbackProgressTimer) clearInterval(fallbackProgressTimer);
+      fallbackDelayTimer = null;
+      fallbackProgressTimer = null;
       this.emitProgress(segment.start + Math.min(segment.text.length - 1, Math.max(0, event.charIndex)), 'boundary');
     };
     utterance.onend = () => {
+      if (this.currentUtterance !== utterance || this.stopped) return;
+      this.currentUtterance = null;
       clearProgressTimers();
       this.clearCurrentProgressTimers = () => undefined;
       this.emitProgress(segment.start + Math.max(0, segment.text.length - 1), boundaryReceived ? 'boundary' : 'estimated');
       this.speaking = false;
       this.pump();
     };
-    utterance.onerror = () => {
+    const failPlayback = (message: string) => {
+      if (this.currentUtterance !== utterance || this.stopped) return;
+      this.currentUtterance = null;
       clearProgressTimers();
       this.clearCurrentProgressTimers = () => undefined;
       this.speaking = false;
-      if (!this.stopped) this.options.onError?.(new Error('浏览器语音播报失败'));
-      this.pump();
+      this.queue = [];
+      try { synthesis.cancel(); } catch { /* browser already released playback */ }
+      this.options.onError?.(new Error(message));
+      this.finish();
     };
-    synthesis.speak(utterance);
+    utterance.onerror = (event) => failPlayback(event.error === 'not-allowed'
+      ? '浏览器阻止了语音播放，请点击页面中的语音按钮后重试'
+      : '浏览器语音播报失败，请检查系统中文语音或更换音色');
+    startTimer = setTimeout(() => failPlayback('语音播放启动超时，请检查浏览器声音权限和中文音色'), 10000);
+    try {
+      if (synthesis.paused) synthesis.resume();
+      synthesis.speak(utterance);
+    } catch (error) {
+      failPlayback(error instanceof Error ? error.message : '浏览器语音播报启动失败');
+    }
   };
 }
 

@@ -2,6 +2,38 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createXiaozhiSpeechSession, estimateNarrationCharIndex, isXiaozhiSpeechActive, setXiaozhiVoicePreference, speakXiaozhi, stopXiaozhiSpeech, subscribeXiaozhiSpeechActivity } from './xiaozhiSpeechService.ts';
 
+test('releases the speech lock when Chrome never starts playback', async (t) => {
+  const originalWindow = (globalThis as any).window;
+  const errors: Error[] = [];
+  let ended = 0;
+  let utterance: any;
+  t.mock.timers.enable({ apis: ['setTimeout', 'setInterval'] });
+  (globalThis as any).window = {
+    SpeechSynthesisUtterance: class { text: string; constructor(text: string) { this.text = text; } },
+    speechSynthesis: { getVoices: () => [], cancel() {}, speak(value: any) { utterance = value; } },
+  };
+  setXiaozhiVoicePreference({ mode: 'system' });
+  try {
+    const session = createXiaozhiSpeechSession({ onError: (error) => errors.push(error), onEnd: () => ended++ });
+    session.push('这是一段用于检查浏览器语音启动超时的文本。');
+    session.flush();
+    t.mock.timers.tick(10000);
+    await session.done;
+    t.mock.timers.tick(300);
+    assert.equal(errors.length, 1);
+    assert.match(errors[0].message, /启动超时/);
+    assert.equal(isXiaozhiSpeechActive(), false);
+    utterance.onstart?.();
+    utterance.onend?.();
+    assert.equal(ended, 1);
+  } finally {
+    stopXiaozhiSpeech();
+    t.mock.timers.reset();
+    if (originalWindow === undefined) delete (globalThis as any).window;
+    else (globalThis as any).window = originalWindow;
+  }
+});
+
 test('starts the first natural segment before the stream is flushed', async () => {
   const originalWindow = (globalThis as any).window;
   const utterances: any[] = [];
