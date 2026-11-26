@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>汽车刹车 · 匀减速直线运动 3D 交互实验室</title>
+<!--
+静态封面渲染短句：
+暗调科教实验室，沥青刻度路面，流线超跑3D模型，汽车刹车匀减速演示，
+暖橙色悬浮标注与受力矢量箭头，右侧科技参数控制面板，黑色实验台，
+竖纹吸音板背景，柔和暖轮廓光，PBR材质，WEDULAB虚拟实验风格，
+写实物理可视化，电影级暗调渲染
+
+渲染技术：PBR 物理材质 + PMREM 程序化环境反射 + ACES Filmic 暗调调色 +
+柔和聚光主灯/暖金轮廓光 + 接触阴影模拟环境光遮蔽，高像素比 60fps。
+-->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","PingFang SC",sans-serif;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0b0d10;color:#e8e2d8;}
+
+  /* ===== 顶部导航 ===== */
+  #topbar{position:fixed;top:0;left:0;right:0;z-index:20;height:52px;
+    display:flex;align-items:center;justify-content:space-between;padding:0 22px;
+    background:rgba(14,16,20,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,154,61,.18);}
+  #brand{font-size:14px;font-weight:800;letter-spacing:1px;color:#ffb35c;
+    display:flex;align-items:center;gap:9px;}
+  #brand::before{content:"";width:8px;height:8px;border-radius:50%;
+    background:#ff8c3a;box-shadow:0 0 10px #ff8c3a;}
+
+  /* ===== 右侧控制面板 ===== */
+  #panel{position:fixed;right:16px;top:66px;width:262px;z-index:15;
+    background:rgba(16,18,23,.88);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,154,61,.22);border-radius:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,.5);padding:14px 16px;user-select:none;}
+  #panel h3{font-size:12px;font-weight:800;letter-spacing:2px;color:#ff9a3d;
+    margin:4px 0 8px;display:flex;align-items:center;gap:7px;}
+  #panel h3::before{content:"";width:14px;height:2px;background:#ff8c3a;border-radius:2px;}
+  #panel h3:not(:first-child){margin-top:14px;}
+  .row{display:flex;align-items:center;gap:8px;margin:8px 0;}
+  .row label{width:60px;color:#8a93a0;font-size:11px;white-space:nowrap;}
+  .row b{width:56px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:#ffb35c;}
+  input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;
+    background:#2a2f37;border-radius:3px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+    border-radius:50%;background:#ff8c3a;cursor:pointer;box-shadow:0 0 8px rgba(255,140,58,.6);}
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;}
+  .btns button{border:1px solid rgba(255,154,61,.35);border-radius:8px;padding:8px 2px;
+    font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:#ffc98a;
+    background:rgba(255,140,58,.08);transition:all .15s;}
+  .btns button:hover{background:rgba(255,140,58,.2);border-color:#ff8c3a;}
+  .btns button:active{transform:translateY(1px);}
+  #play{grid-column:1/3;background:#ff8c3a;color:#0d0f12;border-color:#ff8c3a;}
+  #play:hover{background:#ffa04f;}
+  .tgl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;}
+  .tgl button{border:1px solid rgba(255,255,255,.14);background:transparent;color:#6b7480;
+    border-radius:7px;padding:6px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .tgl button.on{color:#ffb35c;border-color:rgba(255,154,61,.55);background:rgba(255,140,58,.1);}
+  .sep{height:1px;background:rgba(255,255,255,.08);margin:12px 0;}
+  .dline{display:flex;justify-content:space-between;margin:4px 0;font-size:12px;
+    font-variant-numeric:tabular-nums;}
+  .dline .k{color:#8a93a0;}
+  .dline .v{font-weight:700;color:#f2ede4;}
+  .dline .v.o{color:#ffb35c;}
+  #phasePill{margin-top:10px;padding:7px 12px;border-radius:99px;font-size:12px;font-weight:800;
+    text-align:center;background:rgba(255,140,58,.14);color:#ffb35c;
+    border:1px solid rgba(255,154,61,.35);}
+
+  #tip{position:fixed;right:296px;bottom:16px;z-index:15;color:#5c6570;font-size:11px;text-align:right;}
+  .knm{color:#e8e2d8;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="brand">汽车刹车 · 匀减速直线运动虚拟实验室</div>
+</div>
+
+<div id="panel">
+  <h3>实验参数</h3>
+  <div class="row"><label>初速度 v₀</label><input type="range" id="v0" min="5" max="15" step="0.5" value="10"><b id="lv0">10.0</b></div>
+  <div class="row"><label>刹车减速 a</label><input type="range" id="a" min="2" max="8" step="0.5" value="4"><b id="la">4.0</b></div>
+  <div class="row"><label>反应时间</label><input type="range" id="tr" min="0.4" max="2" step="0.1" value="1.0"><b id="ltr">1.0s</b></div>
+  <div class="btns">
+    <button id="play">▶ 一键启动行驶</button>
+    <button id="brake">● 触发刹车</button>
+    <button id="reset">↺ 重置实验</button>
+    <button id="slow">◐ 慢动作 ×0.25</button>
+  </div>
+  <div class="tgl">
+    <button id="tglLabels" class="on">悬浮标签</button>
+    <button id="tglVectors" class="on">矢量箭头</button>
+  </div>
+  <div class="sep"></div>
+  <h3>实时数据</h3>
+  <div class="dline"><span class="k">时间 t</span><span class="v" id="hT">0.00 s</span></div>
+  <div class="dline"><span class="k">初速度 v₀</span><span class="v o" id="hV0">10.0 m/s</span></div>
+  <div class="dline"><span class="k">瞬时速度 v</span><span class="v o" id="hV">10.0 m/s</span></div>
+  <div class="dline"><span class="k">加速度大小</span><span class="v" id="hA">0.0 m/s²</span></div>
+  <div class="dline"><span class="k">总位移 x</span><span class="v" id="hX">0.0 m</span></div>
+  <div class="dline"><span class="k">反应距离 x₁</span><span class="v" id="hX1">10.0 m</span></div>
+  <div class="dline"><span class="k">制动距离 x₂</span><span class="v" id="hX2">12.5 m</span></div>
+  <div id="phasePill">待机 · 设置参数后启动</div>
+</div>
+
+<div id="tip">拖动旋转 · 滚轮缩放 · 右键平移</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* ============================================================
+   物理模型
+   匀速段： v = v0 , x = v0·t （持续匀速，直到手动触发刹车）
+   制动段： v = v0 − a·τ , x = x₁ + v0·τ − ½aτ² （τ 自刹车起算）
+   反应距离 x₁ = v0·t_实际 ; 制动距离 x₂ = v0²/(2a)
+   v 归零后静止，无反向运动；慢动作仅缩放时间步长
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const START_X = -6;              // 车身中心起始 x
+const ZERO_X  = START_X + 2.45;  // 前保险杠 = 位移零点
+const WHEEL_R = 0.42, AXLE_Y = 0.42;
+const ROAD_TOP = 0.3;
+const CRUISE_WRAP = 96;          // 巡航回卷长度（路面可用里程）
+
+let P = { v0:10, a:4, tr:1.0 };
+let sim = { phase:'idle', t:0, s:0, v:10, reactT:1.0, brakeT:0, odo:0 };
+let slowMo = false, labelsOn = true, vectorsOn = true;
+
+const reactionDist = () => P.v0 * sim.reactT;
+const brakeDist    = () => P.v0 * P.v0 / (2 * P.a);
+const totalDist    = () => reactionDist() + brakeDist();
+const displayTime  = () => (sim.phase==='brake'||sim.phase==='stop') ? sim.reactT + sim.brakeT : sim.t;
+
+/* ============================================================
+   渲染器 / 相机 / 暗调影棚灯光
+   ============================================================ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0d10);
+scene.fog = new THREE.Fog(0x0b0d10, 70, 230);
+
+const camera = new THREE.PerspectiveCamera(46, innerWidth/innerHeight, 0.1, 400);
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI*0.495;
+controls.minDistance = 3;
+controls.maxDistance = 90;
+
+/* 程序化影棚环境反射（车漆高光） */
+(function buildEnv(){
+  const c=document.createElement('canvas'); c.width=512; c.height=256;
+  const g=c.getContext('2d');
+  const grd=g.createLinearGradient(0,0,0,256);
+  grd.addColorStop(0.00,'#07090d'); grd.addColorStop(0.40,'#1a212b');
+  grd.addColorStop(0.50,'#8f959e'); grd.addColorStop(0.56,'#232a33');
+  grd.addColorStop(1.00,'#050608');
+  g.fillStyle=grd; g.fillRect(0,0,512,256);
+  const blob=(x,y,r,a,col)=>{const rg=g.createRadialGradient(x,y,0,x,y,r);
+    rg.addColorStop(0,'rgba('+col+','+a+')'); rg.addColorStop(1,'rgba('+col+',0)');
+    g.fillStyle=rg; g.beginPath(); g.arc(x,y,r,0,7); g.fill();};
+  blob(150,66,95,0.9,'255,236,210');   // 暖白主高光
+  blob(390,50,70,0.6,'255,180,110');   // 暖金副高光
+  blob(60,180,120,0.35,'255,140,58');
+  const tex=new THREE.CanvasTexture(c);
+  tex.mapping=THREE.EquirectangularReflectionMapping;
+  const pmrem=new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  scene.environment=pmrem.fromEquirectangular(tex).texture;
+  tex.dispose(); pmrem.dispose();
+})();
+
+/* 灯光：柔和主聚光 + 两盏暖金轮廓光 + 微弱环境 */
+scene.add(new THREE.HemisphereLight(0x39414d, 0x101216, 0.5));
+scene.add(new THREE.AmbientLight(0x2a2e36, 0.5));
+const key = new THREE.SpotLight(0xfff1dd, 1.5, 160, 0.62, 0.55, 1.1);
+key.position.set(24, 26, 20);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.bias = -0.0004;
+key.target.position.set(20, 0, 0);
+scene.add(key, key.target);
+const rimA = new THREE.SpotLight(0xffb35c, 1.7, 130, 0.7, 0.6, 1.2);
+rimA.position.set(-26, 10, -16);
+rimA.target.position.set(6, 1, 0);
+scene.add(rimA, rimA.target);
+const rimB = new THREE.SpotLight(0xffd9a0, 0.9, 130, 0.7, 0.6, 1.2);
+rimB.position.set(60, 9, -18);
+rimB.target.position.set(34, 1, 0);
+scene.add(rimB, rimB.target);
+
+/* ============================================================
+   实验室环境：哑光黑台面 + 竖纹吸音板墙 + 暖金灯带
+   ============================================================ */
+// 台面（哑光黑实验台）
+const bench = new THREE.Mesh(
+  new THREE.BoxGeometry(170, 1.4, 30),
+  new THREE.MeshStandardMaterial({color:0x111318, roughness:0.96, metalness:0.05, envMapIntensity:0.25})
+);
+bench.position.set(40, -0.7, 0);
+bench.receiveShadow = true;
+scene.add(bench);
+// 房间地面
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(400, 200),
+  new THREE.MeshStandardMaterial({color:0x08090c, roughness:1})
+);
+floor.rotation.x = -Math.PI/2;
+floor.position.set(40, -1.42, 0);
+scene.add(floor);
+
+// 竖纹吸音板（InstancedMesh 竖条）
+const slatMat = new THREE.MeshStandardMaterial({color:0x1a1f27, roughness:0.85, metalness:0.12, envMapIntensity:0.4});
+function slatWall(count, step, place){
+  const geo = new THREE.BoxGeometry(0.3, 9.5, 0.3);
+  const inst = new THREE.InstancedMesh(geo, slatMat, count);
+  const m = new THREE.Matrix4();
+  for(let i=0;i<count;i++){ place(i*step, m); inst.setMatrixAt(i, m); }
+  scene.add(inst);
+}
+slatWall(Math.floor(150/0.55), 0.55, (d,m)=>m.setPosition(-20+d, 4.75, -13.2));   // 后墙
+slatWall(Math.floor(28/0.55),  0.55, (d,m)=>m.setPosition(-16.5, 4.75, -13.2+d)); // 左墙
+const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(152, 10),
+  new THREE.MeshStandardMaterial({color:0x0c0f13, roughness:0.95}));
+wallBack.position.set(38, 5, -13.45); scene.add(wallBack);
+const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(28, 10),
+  new THREE.MeshStandardMaterial({color:0x0c0f13, roughness:0.95}));
+wallLeft.rotation.y = Math.PI/2;
+wallLeft.position.set(-16.75, 5, 0.5); scene.add(wallLeft);
+
+// 暖金色轮廓灯带（墙顶 + 墙脚 + 台缘）
+const stripMat = new THREE.MeshBasicMaterial({color:0xff9a3d});
+const stripDim = new THREE.MeshBasicMaterial({color:0x7a4517});
+[[ -20+75, 9.6, -13.0, 150, 0.055, stripMat],
+ [ -20+75, 0.12, -12.75, 150, 0.05, stripDim],
+ [ -16.4, 9.6, 0.5, 0.055, 28, stripDim]].forEach(([x,y,z,a,b,mat])=>{
+  const s = new THREE.Mesh(new THREE.BoxGeometry(a, 0.055, b), mat);
+  s.position.set(x,y,z); scene.add(s);
+});
+const benchStrip = new THREE.Mesh(new THREE.BoxGeometry(170, 0.05, 0.05), stripDim);
+benchStrip.position.set(40, 0.02, -14.9); scene.add(benchStrip);
+
+/* ============================================================
+   沥青路面 + 白色标线 + 等距位移刻度
+   ============================================================ */
+const ROAD_LEN = 116, ROAD_W = 8;
+function asphaltTexture(){
+  const S=512, c=document.createElement('canvas'); c.width=c.height=S;
+  const g=c.getContext('2d');
+  g.fillStyle='#2e3237'; g.fillRect(0,0,S,S);
+  for(let i=0;i<42000;i++){
+    const x=Math.random()*S, y=Math.random()*S, r=Math.random()*1.5+0.25;
+    g.fillStyle = Math.random()>0.45
+      ? 'rgba(14,16,19,'+(0.05+Math.random()*0.18)+')'
+      : 'rgba(200,206,214,'+(0.03+Math.random()*0.09)+')';
+    g.beginPath(); g.arc(x,y,r,0,7); g.fill();
+  }
+  for(let i=0;i<26;i++){
+    const x=Math.random()*S,y=Math.random()*S,r=40+Math.random()*90;
+    const rg=g.createRadialGradient(x,y,0,x,y,r);
+    rg.addColorStop(0,'rgba(255,255,255,0.03)'); rg.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=rg; g.beginPath(); g.arc(x,y,r,0,7); g.fill();
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.repeat.set(ROAD_LEN/8, ROAD_W/8);
+  t.anisotropy=8;
+  return t;
+}
+const road = new THREE.Mesh(
+  new THREE.BoxGeometry(ROAD_LEN, ROAD_TOP, ROAD_W),
+  new THREE.MeshStandardMaterial({map:asphaltTexture(), bumpScale:0.035,
+    roughness:0.96, metalness:0.02, color:0x9aa0a8, envMapIntensity:0.35})
+);
+road.position.set(ROAD_LEN/2 - 9, ROAD_TOP/2, 0);
+road.receiveShadow = true;
+scene.add(road);
+
+const lineMat = new THREE.MeshStandardMaterial({color:0xe8ecf0, roughness:0.6});
+[-1,1].forEach(s=>{
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(ROAD_LEN-1.2, 0.006, 0.12), lineMat);
+  edge.position.set(ROAD_LEN/2-9, ROAD_TOP+0.004, s*3.55);
+  scene.add(edge);
+});
+for(let x=-6; x<ROAD_LEN-10; x+=4){
+  const dash = new THREE.Mesh(new THREE.BoxGeometry(2, 0.006, 0.12), lineMat);
+  dash.position.set(x, ROAD_TOP+0.004, 0);
+  scene.add(dash);
+}
+
+/* 白色等距刻度：每 1 m 短刻度，每 5 m 横线 + 数字 */
+const tickMat = new THREE.MeshStandardMaterial({color:0xdfe5ea, roughness:0.6});
+function flatNumber(txt){
+  const cv=document.createElement('canvas'); cv.width=128; cv.height=64;
+  const g=cv.getContext('2d');
+  g.font='bold 44px "Helvetica Neue",Arial,sans-serif';
+  g.textAlign='center'; g.textBaseline='middle';
+  g.fillStyle='#eef2f6'; g.fillText(txt,64,34);
+  return new THREE.CanvasTexture(cv);
+}
+for(let m=0; m<=100; m++){
+  const x = ZERO_X + m;
+  if(m%5===0){
+    const line = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.006, ROAD_W-0.5), tickMat);
+    line.position.set(x, ROAD_TOP+0.005, 0); scene.add(line);
+    const lb = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 0.52),
+      new THREE.MeshBasicMaterial({map:flatNumber(''+m), transparent:true}));
+    lb.rotation.x = -Math.PI/2;
+    lb.position.set(x+0.75, ROAD_TOP+0.013, 2.85);
+    scene.add(lb);
+  }else{
+    [-1,1].forEach(s=>{
+      const tk = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.006, 0.42), tickMat);
+      tk.position.set(x, ROAD_TOP+0.005, s*3.28);
+      scene.add(tk);
+    });
+  }
+}
+
+/* ============================================================
+   暖橙色悬浮标签系统
+   ============================================================ */
+function roundRect(c,x,y,w,h,r){
+  c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();
+}
+function makeTag(text, scale=1, fontPx=46){
+  const cv=document.createElement('canvas'); cv.width=256; cv.height=96;
+  const c=cv.getContext('2d');
+  const draw=(txt)=>{
+    c.clearRect(0,0,256,96);
+    c.fillStyle='rgba(20,14,7,0.8)';
+    roundRect(c,6,10,244,76,15); c.fill();
+    c.strokeStyle='rgba(255,154,61,0.95)'; c.lineWidth=3.5;
+    roundRect(c,6,10,244,76,15); c.stroke();
+    let fs=fontPx;
+    c.font=`bold ${fs}px "Microsoft YaHei",sans-serif`;
+    const tw=c.measureText(txt).width;
+    if(tw>224){ fs=Math.max(15,Math.floor(fs*224/tw)); c.font=`bold ${fs}px "Microsoft YaHei",sans-serif`; }
+    c.fillStyle='#ffb35c'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(txt,128,50);
+  };
+  draw(text);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false}));
+  sp.scale.set(3.0*scale,1.125*scale,1);
+  sp.setText=(txt)=>{ draw(txt); sp.material.map.needsUpdate=true; };
+  return sp;
+}
+
+// 路侧固定标签
+const tagTick = makeTag('位移刻度 / m', 0.78, 42);
+tagTick.position.set(ZERO_X+1.2, 1.5, 4.6);
+scene.add(tagTick);
+// 车顶标签
+const tagCar = makeTag('小车', 0.72, 48);
+scene.add(tagCar);
+// 距离括注标签
+const tagX1 = makeTag('反应距离 x₁', 0.85, 44);
+const tagX2 = makeTag('制动距离 x₂', 0.85, 44);
+scene.add(tagX1, tagX2);
+
+/* 距离标注括线（反应 / 制动） */
+function makeBracket(color, z){
+  const g = new THREE.Group();
+  const mat = new THREE.MeshBasicMaterial({color});
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(1,0.05,0.09), mat);
+  const c1  = new THREE.Mesh(new THREE.BoxGeometry(0.09,0.05,0.6), mat);
+  const c2  = new THREE.Mesh(new THREE.BoxGeometry(0.09,0.05,0.6), mat);
+  g.add(bar,c1,c2);
+  g.setSpan=(x1,x2)=>{
+    const L=Math.max(0.01,x2-x1), mid=(x1+x2)/2;
+    bar.scale.x=L; bar.position.set(mid,0,0);
+    c1.position.set(x1,0,0); c2.position.set(x2,0,0);
+    g.visible = L>0.4;
+  };
+  g.position.set(0, ROAD_TOP+0.06, z);
+  scene.add(g);
+  return g;
+}
+const brX1 = makeBracket(0xffb35c,  4.7);
+const brX2 = makeBracket(0xff7a2e, -4.7);
+
+/* 预测停车线 */
+const stopLine = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.008, ROAD_W-0.5),
+  new THREE.MeshBasicMaterial({color:0xff8c3a}));
+scene.add(stopLine);
+
+/* 刹车胎痕 */
+const skidMat = new THREE.MeshBasicMaterial({color:0x000000, transparent:true, opacity:0.42, depthWrite:false});
+const skids = [-0.72, 0.72].map(z=>{
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.26), skidMat);
+  p.rotation.x = -Math.PI/2;
+  p.position.set(0, ROAD_TOP+0.016, z);
+  p.visible = false;
+  scene.add(p);
+  return p;
+});
+
+/* ============================================================
+   流线型超跑（PBR + 渐变金属漆 + 剖面车轮结构）
+   ============================================================ */
+const car = new THREE.Group();
+
+function flakeNormal(){
+  const S=256, c=document.createElement('canvas'); c.width=c.height=S;
+  const g=c.getContext('2d'), img=g.createImageData(S,S);
+  for(let i=0;i<S*S;i++){
+    const n=i*4;
+    img.data[n]=118+Math.random()*22; img.data[n+1]=118+Math.random()*22;
+    img.data[n+2]=250; img.data[n+3]=255;
+  }
+  g.putImageData(img,0,0);
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(7,7);
+  return t;
+}
+/* 渐变金属漆：顶点色沿车高渐变（暗琥珀 → 暖亮琥珀） */
+const paintMat = new THREE.MeshPhysicalMaterial({
+  color:0xffffff, metalness:0.86, roughness:0.22,
+  clearcoat:1.0, clearcoatRoughness:0.04,
+  normalMap:flakeNormal(), normalScale:new THREE.Vector2(0.12,0.12),
+  envMapIntensity:1.35, vertexColors:true
+});
+const carbonMat = new THREE.MeshStandardMaterial({color:0x161b22, roughness:0.34, metalness:0.72});
+const darkMat   = new THREE.MeshStandardMaterial({color:0x05070a, roughness:0.9, metalness:0.2});
+const glassMat  = new THREE.MeshPhysicalMaterial({color:0x081018, metalness:0.9, roughness:0.06,
+                                                  transparent:true, opacity:0.9, side:THREE.DoubleSide});
+const chromeMat = new THREE.MeshStandardMaterial({color:0xd5dee8, metalness:1.0, roughness:0.12});
+function tireTexture(){
+  const W=512,H=128,c=document.createElement('canvas'); c.width=W;c.height=H;
+  const g=c.getContext('2d');
+  g.fillStyle='#191c20'; g.fillRect(0,0,W,H);
+  for(let i=0;i<12000;i++){
+    g.fillStyle='rgba(255,255,255,'+(Math.random()*0.045)+')';
+    g.fillRect(Math.random()*W,Math.random()*H,1.6,1.6);
+  }
+  [0.18,0.5,0.82].forEach(v=>{
+    g.fillStyle='#0a0c0f'; g.fillRect(0,H*v-5,W,10);
+    g.fillStyle='rgba(255,255,255,0.05)'; g.fillRect(0,H*v-7,W,2);
+  });
+  for(let x=0;x<W;x+=24){
+    g.fillStyle='rgba(0,0,0,0.5)'; g.fillRect(x,0,5,H);
+    g.fillStyle='rgba(255,255,255,0.05)'; g.fillRect(x+5,0,2,H);
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  return t;
+}
+const tireMat = new THREE.MeshStandardMaterial({map:tireTexture(), bumpMap:tireTexture(),
+  bumpScale:0.035, roughness:0.9, metalness:0.03});
+const tailMat = new THREE.MeshBasicMaterial({color:0x450a0a});
+const headMat = new THREE.MeshBasicMaterial({color:0xffe9c4});
+const accentMat = new THREE.MeshStandardMaterial({color:0xff8c3a, roughness:0.4, metalness:0.3});
+
+const AXLE_F=1.40, AXLE_R=-1.46;
+// 车身侧影（含轮拱切削）
+const bs = new THREE.Shape();
+bs.moveTo(-2.28, AXLE_Y);
+bs.lineTo(-1.92, AXLE_Y);
+bs.absarc(AXLE_R, AXLE_Y, 0.47, Math.PI, 0, true);
+bs.lineTo(0.93, AXLE_Y);
+bs.absarc(AXLE_F, AXLE_Y, 0.47, Math.PI, 0, true);
+bs.lineTo(2.30, AXLE_Y);
+bs.lineTo(2.34, 0.52);
+bs.quadraticCurveTo(2.30, 0.74, 2.02, 0.80);
+bs.lineTo(1.55, 0.84);
+bs.quadraticCurveTo(1.00, 0.86, 0.72, 1.02);
+bs.quadraticCurveTo(0.30, 1.30, -0.15, 1.32);
+bs.lineTo(-0.70, 1.30);
+bs.quadraticCurveTo(-1.15, 1.10, -1.55, 1.00);
+bs.lineTo(-2.05, 0.96);
+bs.quadraticCurveTo(-2.26, 0.92, -2.28, 0.78);
+bs.lineTo(-2.28, AXLE_Y);
+const bodyGeo = new THREE.ExtrudeGeometry(bs, {
+  depth:1.38, bevelEnabled:true, bevelThickness:0.10, bevelSize:0.07,
+  bevelSegments:7, curveSegments:24
+});
+bodyGeo.translate(0,0,-0.69);
+(function paintGradient(){
+  const pos=bodyGeo.attributes.position;
+  const colors=new Float32Array(pos.count*3);
+  const c1=new THREE.Color('#6e1c04'), cMid=new THREE.Color('#d8540f'), c2=new THREE.Color('#ffb066');
+  const tmp=new THREE.Color();
+  for(let i=0;i<pos.count;i++){
+    const y=pos.getY(i);
+    let t=(y-0.42)/(1.36-0.42); t=Math.max(0,Math.min(1,t));
+    if(t<0.55) tmp.copy(c1).lerp(cMid, t/0.55);
+    else       tmp.copy(cMid).lerp(c2, (t-0.55)/0.45);
+    colors[i*3]=tmp.r; colors[i*3+1]=tmp.g; colors[i*3+2]=tmp.b;
+  }
+  bodyGeo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+})();
+const body = new THREE.Mesh(bodyGeo, paintMat);
+body.castShadow = true; body.receiveShadow = true;
+car.add(body);
+
+// 侧窗 / 玻璃
+const ws = new THREE.Shape();
+ws.moveTo(0.50, 0.92);
+ws.quadraticCurveTo(0.18, 1.16, -0.20, 1.18);
+ws.lineTo(-0.64, 1.165);
+ws.quadraticCurveTo(-0.94, 1.04, -1.06, 0.95);
+ws.lineTo(0.50, 0.92);
+const winGeo = new THREE.ExtrudeGeometry(ws, {depth:0.02, bevelEnabled:false});
+[-1,1].forEach(s=>{
+  const win = new THREE.Mesh(winGeo, glassMat);
+  win.position.set(0,0, s>0?0.695:-0.715);
+  car.add(win);
+});
+const roofPanel = new THREE.Mesh(new THREE.BoxGeometry(0.56,0.02,1.30), glassMat);
+roofPanel.position.set(-0.42,1.325,0); car.add(roofPanel);
+const frontGlass = new THREE.Mesh(new THREE.BoxGeometry(0.92,0.02,1.28), glassMat);
+frontGlass.position.set(0.29,1.175,0); frontGlass.rotation.z=-0.345; car.add(frontGlass);
+const rearGlass = new THREE.Mesh(new THREE.BoxGeometry(0.82,0.02,1.24), glassMat);
+rearGlass.position.set(-1.08,1.155,0); rearGlass.rotation.z=0.35; car.add(rearGlass);
+
+// 底盘 / 侧裙 / 轮舱内衬
+const under = new THREE.Mesh(new THREE.BoxGeometry(4.0,0.16,1.52), darkMat);
+under.position.set(0,0.40,0); car.add(under);
+[-1,1].forEach(s=>{
+  const skirt = new THREE.Mesh(new THREE.BoxGeometry(2.35,0.12,0.14), carbonMat);
+  skirt.position.set(0,0.45,s*0.72); car.add(skirt);
+});
+const wellF = new THREE.Mesh(new THREE.BoxGeometry(0.95,0.46,1.30), darkMat);
+wellF.position.set(AXLE_F,0.74,0); car.add(wellF);
+const wellR = new THREE.Mesh(new THREE.BoxGeometry(0.95,0.46,1.30), darkMat);
+wellR.position.set(AXLE_R,0.74,0); car.add(wellR);
+
+// 前铲 / 扩散器 / 侧进气
+const splitter = new THREE.Mesh(new THREE.BoxGeometry(0.34,0.04,1.80), carbonMat);
+splitter.position.set(2.30,0.375,0); car.add(splitter);
+const diffuser = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.20,1.40), carbonMat);
+diffuser.position.set(-2.16,0.44,0); diffuser.rotation.z=0.22; car.add(diffuser);
+[-1,1].forEach(s=>{
+  const intake = new THREE.Mesh(new THREE.BoxGeometry(0.42,0.22,0.08), darkMat);
+  intake.position.set(-0.62,0.70,s*0.705); car.add(intake);
+  const blade = new THREE.Mesh(new THREE.BoxGeometry(2.6,0.05,0.09), carbonMat);
+  blade.position.set(-0.1,0.52,s*0.735); car.add(blade);
+});
+
+// 尾翼
+const wing = new THREE.Mesh(new THREE.BoxGeometry(0.52,0.06,1.92), carbonMat);
+wing.position.set(-2.05,1.20,0); wing.rotation.z=-0.14; wing.castShadow=true;
+car.add(wing);
+const wing2 = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.05,1.92), paintMat);
+wing2.position.set(-2.26,1.28,0); wing2.rotation.z=-0.14; car.add(wing2);
+[-1,1].forEach(s=>{
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.72,0.30,0.05), accentMat);
+  plate.position.set(-2.10,1.18,s*0.96); plate.rotation.z=-0.14; car.add(plate);
+  const strut = new THREE.Mesh(new THREE.BoxGeometry(0.09,0.26,0.07), carbonMat);
+  strut.position.set(-2.10,1.04,s*0.62); car.add(strut);
+});
+
+// 灯
+[-1,1].forEach(s=>{
+  const hl = new THREE.Mesh(new THREE.BoxGeometry(0.06,0.11,0.46), headMat);
+  hl.position.set(2.36,0.62,s*0.44); hl.rotation.z=0.12; car.add(hl);
+  const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.16,0.10,0.22), carbonMat);
+  mirror.position.set(0.52,0.96,s*0.80); car.add(mirror);
+  const mArm = new THREE.Mesh(new THREE.BoxGeometry(0.16,0.04,0.04), carbonMat);
+  mArm.position.set(0.52,0.92,s*0.72); car.add(mArm);
+});
+const tl = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.13,1.34), tailMat);
+tl.position.set(-2.30,0.74,0); car.add(tl);
+[-1,1].forEach(s=>{
+  const ex = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.16,12), chromeMat);
+  ex.rotation.z=Math.PI/2; ex.position.set(-2.33,0.52,s*0.38); car.add(ex);
+});
+
+// —— 车轮（含刹车盘结构，剖面可见）——
+const wheels = [], brakeDiscs = [];
+const rimDarkMat = new THREE.MeshStandardMaterial({color:0x0b0d10, metalness:0.6, roughness:0.55});
+function buildWheel(){
+  const g = new THREE.Group();
+  const tg = new THREE.CylinderGeometry(WHEEL_R, WHEEL_R, 0.30, 40);
+  tg.rotateX(Math.PI/2);
+  const tire = new THREE.Mesh(tg, tireMat);
+  tire.castShadow = true; g.add(tire);
+  [-1,1].forEach(s=>{
+    const side = new THREE.Mesh(new THREE.TorusGeometry(WHEEL_R-0.035, 0.04, 8, 36),
+      new THREE.MeshStandardMaterial({color:0x14171b, roughness:0.95}));
+    side.position.z = s*0.15; g.add(side);
+  });
+  [-1,1].forEach(s=>{
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.295,0.295,0.10,32,1,true), rimDarkMat);
+    barrel.rotation.x = Math.PI/2; barrel.position.z = s*0.10; g.add(barrel);
+    const lip = new THREE.Mesh(new THREE.TorusGeometry(0.30,0.032,10,34), chromeMat);
+    lip.position.z = s*0.145; g.add(lip);
+    for(let i=0;i<10;i++){
+      const sp = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.052,0.032), chromeMat);
+      sp.rotation.z = i*Math.PI/10; sp.position.z = s*0.135; g.add(sp);
+    }
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.072,0.072,0.05,18), accentMat);
+    cap.rotation.x = Math.PI/2; cap.position.z = s*0.15; g.add(cap);
+  });
+  const discMat = new THREE.MeshStandardMaterial({color:0x8b929c, metalness:0.95, roughness:0.35,
+    emissive:0xff4400, emissiveIntensity:0});
+  brakeDiscs.push(discMat);
+  const discB = new THREE.Mesh(new THREE.CylinderGeometry(0.245,0.245,0.03,26), discMat);
+  discB.rotation.x = Math.PI/2; g.add(discB);
+  const cal = new THREE.Mesh(new THREE.BoxGeometry(0.10,0.19,0.07), accentMat);
+  cal.position.set(0.18,0.11,0); g.add(cal);
+  return g;
+}
+[[AXLE_F,0.70],[AXLE_R,0.72]].forEach(([wx,wz])=>[-1,1].forEach(s=>{
+  const g = buildWheel();
+  g.position.set(wx, AXLE_Y, s*wz);
+  car.add(g); wheels.push(g);
+}));
+scene.add(car);
+
+/* 车底接触阴影（模拟环境光遮蔽） */
+const contactTex = (function(){
+  const c=document.createElement('canvas'); c.width=c.height=128;
+  const g=c.getContext('2d');
+  const rg=g.createRadialGradient(64,64,4,64,64,62);
+  rg.addColorStop(0,'rgba(0,0,0,0.72)'); rg.addColorStop(0.6,'rgba(0,0,0,0.4)');
+  rg.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=rg; g.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(c);
+})();
+const contact = new THREE.Mesh(new THREE.PlaneGeometry(6.4,3.2),
+  new THREE.MeshBasicMaterial({map:contactTex, transparent:true, depthWrite:false}));
+contact.rotation.x=-Math.PI/2;
+contact.position.set(START_X, ROAD_TOP+0.02, 0);
+scene.add(contact);
+
+car.position.set(START_X, ROAD_TOP, 0);
+
+/* ============================================================
+   矢量箭头（速度 / 加速度 / 受力）
+   ============================================================ */
+const ARROW_Y_V = 2.55, ARROW_Y_A = 3.25;
+const vArrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(0,ARROW_Y_V,0), 1, 0xffa02e, 0.4, 0.22);
+const aArrow = new THREE.ArrowHelper(new THREE.Vector3(-1,0,0), new THREE.Vector3(0,ARROW_Y_A,0), 1, 0x53d2ff, 0.4, 0.22);
+scene.add(vArrow, aArrow);
+const tagV = makeTag('速度 v', 0.7, 48);
+const tagA = makeTag('加速度 a', 0.7, 48);
+scene.add(tagV, tagA);
+
+/* ============================================================
+   实验台视角（固定机位 + 跟随赛车）
+   ============================================================ */
+const FOLLOW_X = 1.8;   // 相机焦点相对车头的跟随偏移
+camera.position.set(START_X-9.5, 8.0, 17.5);
+controls.target.set(START_X+1.5, 0.7, 0);
+controls.update();
+
+/* ============================================================
+   UI 接线
+   ============================================================ */
+const PHASE_UI = {
+  idle:  ['待机 · 点击「一键启动行驶」', 'rgba(120,128,140,.2)', '#aab2bc'],
+  cruise:['匀速行驶中 · 点击「触发刹车」制动', 'rgba(255,140,58,.16)', '#ffb35c'],
+  brake: ['制动中 · 匀减速直线运动', 'rgba(255,90,40,.2)', '#ff9a70'],
+  stop:  ['已停车 · v = 0 静止', 'rgba(90,200,140,.16)', '#7ee787']
+};
+function setPhaseUI(p){
+  sim.phase = p;
+  const [txt, bg, col] = PHASE_UI[p];
+  const pill = $('phasePill');
+  pill.textContent = txt;
+  pill.style.background = bg;
+  pill.style.color = col;
+}
+function updateMarkers(){
+  const x1 = reactionDist(), x2 = brakeDist(), xt = totalDist();
+  brX1.setSpan(ZERO_X, ZERO_X+x1);
+  brX2.setSpan(ZERO_X+x1, ZERO_X+xt);
+  stopLine.position.set(ZERO_X+xt, ROAD_TOP+0.008, 0);
+  tagX1.position.set(ZERO_X+x1/2, ROAD_TOP+1.35, 4.7);
+  tagX2.position.set(ZERO_X+x1+x2/2, ROAD_TOP+1.35, -4.7);
+  $('hX1').textContent = x1.toFixed(1)+' m';
+  $('hX2').textContent = x2.toFixed(1)+' m';
+  $('lv0').textContent = P.v0.toFixed(1);
+  $('la').textContent = P.a.toFixed(1);
+  $('ltr').textContent = P.tr.toFixed(1)+'s';
+}
+function updateVisuals(){
+  car.position.x = START_X + sim.s;
+  contact.position.x = car.position.x;
+  tagCar.position.set(car.position.x-1.0, ROAD_TOP+1.8, 1.9);
+  wheels.forEach(w=>{ w.rotation.z = -sim.odo/WHEEL_R; });
+  // 刹车灯 + 刹车盘发热
+  const braking = sim.phase==='brake';
+  tailMat.color.setHex(braking ? 0xff2a1a : 0x450a0a);
+  const glow = braking ? Math.min(1, P.a/6) : (sim.phase==='stop' ? 0.18 : 0);
+  brakeDiscs.forEach(m=>{ m.emissiveIntensity = glow*1.3; });
+  // 速度矢量
+  const vLen = sim.v*0.32;
+  vArrow.position.set(car.position.x, ROAD_TOP+ARROW_Y_V, 0);
+  vArrow.setLength(Math.max(0.01, vLen), 0.4, 0.22);
+  vArrow.visible = vectorsOn && sim.v>0.05;
+  tagV.position.set(car.position.x + vLen + 0.8, ROAD_TOP+ARROW_Y_V, 0);
+  // 加速度矢量
+  const aLen = P.a*0.34;
+  aArrow.position.set(car.position.x, ROAD_TOP+ARROW_Y_A, 0);
+  aArrow.setLength(aLen, 0.4, 0.22);
+  aArrow.visible = vectorsOn && braking && sim.v>0.05;
+  tagA.position.set(car.position.x - aLen - 0.8, ROAD_TOP+ARROW_Y_A, 0);
+  // 胎痕（自刹车起始位置延伸到当前后轮处）
+  const skidLen = braking||sim.phase==='stop' ? Math.max(0, sim.s - reactionDist()) : 0;
+  skids.forEach(p=>{
+    p.visible = skidLen>0.3;
+    p.scale.x = Math.max(0.01, skidLen);
+    p.position.x = (car.position.x - 1.45) - skidLen/2;
+  });
+  // 标签开关
+  tagTick.visible = labelsOn;
+  tagCar.visible = labelsOn;
+  tagX1.visible = labelsOn;
+  tagX2.visible = labelsOn;
+  tagV.visible = labelsOn && vArrow.visible;
+  tagA.visible = labelsOn && aArrow.visible;
+  // 数据
+  $('hT').textContent = displayTime().toFixed(2)+' s';
+  $('hV0').textContent = P.v0.toFixed(1)+' m/s';
+  $('hV').textContent = sim.v.toFixed(1)+' m/s';
+  $('hA').textContent = (braking?P.a:0).toFixed(1)+' m/s²';
+  $('hX').textContent = sim.s.toFixed(1)+' m';
+}
+
+/* ============================================================
+   状态机
+   ============================================================ */
+function resetSim(){
+  sim = { phase:'idle', t:0, s:0, v:P.v0, reactT:P.tr, brakeT:0, odo:0 };
+  car.position.x = START_X;
+  skids.forEach(p=>p.visible=false);
+  setPhaseUI('idle');
+  updateMarkers();
+  updateVisuals();
+}
+function applyParams(){
+  P = { v0:+$('v0').value, a:+$('a').value, tr:+$('tr').value };
+  resetSim();
+}
+function triggerBrake(){
+  if(sim.phase!=='cruise') return;
+  sim.reactT = Math.max(0, sim.t);   // 实际反应时间
+  sim.brakeT = 0;
+  setPhaseUI('brake');
+  updateMarkers();
+}
+$('v0').addEventListener('input', applyParams);
+$('a').addEventListener('input', applyParams);
+$('tr').addEventListener('input', applyParams);
+$('play').onclick = ()=>{
+  if(sim.phase==='brake') return;
+  if(sim.phase==='stop') resetSim();
+  sim.t=0; sim.s=0; sim.v=P.v0; sim.brakeT=0; sim.reactT=P.tr;
+  setPhaseUI('cruise');
+  updateMarkers();
+};
+$('brake').onclick = triggerBrake;
+$('reset').onclick = resetSim;
+$('slow').onclick = ()=>{
+  slowMo = !slowMo;
+  $('slow').textContent = slowMo ? '◑ 慢动作 ×0.25（开）' : '◐ 慢动作 ×0.25';
+  $('slow').style.background = slowMo ? 'rgba(255,140,58,.3)' : '';
+};
+$('tglLabels').onclick = ()=>{
+  labelsOn = !labelsOn;
+  $('tglLabels').classList.toggle('on', labelsOn);
+};
+$('tglVectors').onclick = ()=>{
+  vectorsOn = !vectorsOn;
+  $('tglVectors').classList.toggle('on', vectorsOn);
+};
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+/* ============================================================
+   主循环（60fps，慢动作缩放物理步长）
+   ============================================================ */
+let lastTs = null;
+function loop(ts){
+  requestAnimationFrame(loop);
+  let dt = 0;
+  if(lastTs==null) lastTs = ts;
+  dt = Math.min((ts-lastTs)/1000, 0.05);
+  lastTs = ts;
+  const sdt = dt * (slowMo?0.25:1);
+
+  if(sim.phase==='cruise'){
+    sim.t += sdt;
+    sim.s += P.v0*sdt;
+    sim.v = P.v0;
+    // 巡航至路面末端则回卷到起点（位移按当前圈段计），等待手动刹车
+    if(sim.s > CRUISE_WRAP){
+      sim.s -= CRUISE_WRAP;
+      sim.t -= CRUISE_WRAP/P.v0;
+      camera.position.x -= CRUISE_WRAP;
+      controls.target.x -= CRUISE_WRAP;
+    }
+  }else if(sim.phase==='brake'){
+    sim.brakeT += sdt;
+    const tau = sim.brakeT;
+    sim.v = Math.max(0, P.v0 - P.a*tau);
+    sim.s = reactionDist() + Math.max(0, P.v0*tau - 0.5*P.a*tau*tau);
+    if(sim.v<=0){ sim.v=0; sim.s=totalDist(); setPhaseUI('stop'); }
+  }
+  sim.odo += sim.v*sdt;
+
+  // 相机跟随赛车 x（保留用户轨道角度）
+  const fx = car.position.x + FOLLOW_X;
+  const dx = fx - controls.target.x;
+  if(Math.abs(dx)>0.005){
+    const k = Math.min(1, dt*3);
+    const mx = dx*k;
+    controls.target.x += mx;
+    camera.position.x += mx;
+  }
+
+  updateVisuals();
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+applyParams();
+setPhaseUI('idle');
+loop(0);
+</script>
+</body>
+</html>

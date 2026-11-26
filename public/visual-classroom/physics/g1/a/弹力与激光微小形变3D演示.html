@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>弹力与激光微小形变 · 3D 演示</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b0e12;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  canvas{display:block;}
+  .hud{position:fixed;z-index:10;user-select:none;}
+  #modes{top:16px;left:16px;display:flex;gap:8px;}
+  #modes button{padding:9px 16px;border:1px solid rgba(255,255,255,.18);border-radius:20px;
+    background:rgba(20,26,33,.72);color:#cfe0ee;font-size:13.5px;cursor:pointer;backdrop-filter:blur(6px);transition:.2s;}
+  #modes button.on{background:#d92b3a;border-color:#d92b3a;color:#fff;}
+  #panel{top:64px;left:16px;display:flex;gap:10px;align-items:center;padding:10px 14px;
+    background:rgba(20,26,33,.72);border:1px solid rgba(255,255,255,.14);border-radius:12px;
+    backdrop-filter:blur(6px);color:#dfe9f2;font-size:13px;}
+  #panel .val{color:#ffd166;font-weight:700;min-width:52px;font-variant-numeric:tabular-nums;}
+  #panel input[type=range]{width:150px;accent-color:#d92b3a;}
+  #read{bottom:18px;right:18px;display:flex;gap:10px;}
+  #read .ro{background:rgba(20,26,33,.72);border:1px solid rgba(255,255,255,.14);border-radius:10px;
+    padding:8px 13px;backdrop-filter:blur(6px);text-align:center;}
+  #read .k{font-size:11px;color:#8fa2b1;}
+  #read .v{font-size:15px;font-weight:700;color:#ffd166;font-variant-numeric:tabular-nums;}
+  #read .v small{font-size:10px;color:#8fa2b1;font-weight:400;margin-left:2px;}
+  #hint{bottom:18px;left:18px;color:rgba(207,224,238,.5);font-size:12px;}
+  /* 标签按钮 */
+  .posBtn{padding:8px 14px;border:1px solid rgba(255,255,255,.2);border-radius:18px;
+    background:rgba(40,52,66,.75);color:#cfe0ee;font-size:12.5px;cursor:pointer;
+    backdrop-filter:blur(6px);transition:.2s;}
+  .posBtn:hover{background:rgba(80,110,140,.85);border-color:#ffd166;transform:translateY(-1px);}
+  .posBtn.on{background:#d92b3a;border-color:#d92b3a;color:#fff;}
+  .posBtn.active{background:#ffd166;color:#1a1a1a;border-color:#ffd166;}
+</style>
+</head>
+<body>
+
+<div id="modes" class="hud">
+  <button id="mLaser" class="on">激光 · 微小形变</button>
+</div>
+
+<div id="panel" class="hud"></div>
+<div id="read" class="hud"></div>
+<div id="hint" class="hud">左键旋转 · 滚轮缩放 · 木块放桌面后可左右拖动</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ---------------- 基础 ---------------- */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x11151b);
+scene.fog = new THREE.Fog(0x11151b, 9, 20);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, .1, 100);
+camera.position.set(3.0, 2.9, 4.6);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0.5, 1.35, 0);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.52;
+controls.minDistance = 1.6;
+controls.maxDistance = 12;
+
+scene.add(new THREE.AmbientLight(0x9db2c6, .55));
+const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+sun.position.set(4.5, 7, 3.5);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -5; sun.shadow.camera.right = 5;
+sun.shadow.camera.top = 6;  sun.shadow.camera.bottom = -3;
+scene.add(sun);
+const fill = new THREE.PointLight(0x6688aa, 12, 15);
+fill.position.set(-3, 3, -3);
+scene.add(fill);
+
+/* 地面 */
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(9, 48),
+  new THREE.MeshStandardMaterial({ color: 0x1a2028, roughness: 1 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+const grid = new THREE.GridHelper(16, 32, 0x2b3542, 0x202832);
+grid.position.y = .002;
+scene.add(grid);
+
+/* 工具 */
+const V0 = new THREE.Vector3(0, 1, 0);
+function setBeam(mesh, a, b){
+  const dir = b.clone().sub(a);
+  const len = Math.max(dir.length(), 1e-4);
+  mesh.scale.set(1, len, 1);
+  mesh.position.copy(a);
+  mesh.quaternion.setFromUnitVectors(V0, dir.normalize());
+}
+function glowTexture(inner = 'rgba(255,120,120,.95)'){
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, inner);
+  gr.addColorStop(.35, 'rgba(255,60,60,.5)');
+  gr.addColorStop(1, 'rgba(255,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+}
+function beamMaterial(){
+  return new THREE.MeshBasicMaterial({ color: 0xff3b3b });
+}
+const beamGeo = new THREE.CylinderGeometry(.011, .011, 1, 8);
+beamGeo.translate(0, .5, 0);   // 底部对齐原点：setBeam 从起点延伸到终点
+
+/* =====================================================
+   模式一：激光 · 桌面微小形变
+   ===================================================== */
+const laserG = new THREE.Group();
+scene.add(laserG);
+const TAB_W = 3, TAB_Y = 1.0;
+const SCREEN_Y = 2.72;
+
+/* 桌面（可弯曲） */
+const topGeo = new THREE.PlaneGeometry(TAB_W, 1.4, 72, 20);
+topGeo.rotateX(-Math.PI / 2);
+const tableTop = new THREE.Mesh(topGeo,
+  new THREE.MeshStandardMaterial({ color: 0xa97c46, roughness: .65, side: THREE.DoubleSide }));
+tableTop.position.y = TAB_Y;
+tableTop.castShadow = tableTop.receiveShadow = true;
+laserG.add(tableTop);
+
+/* 桌腿 */
+const legGeo = new THREE.BoxGeometry(.09, TAB_Y, .09);
+const legMat = new THREE.MeshStandardMaterial({ color: 0x7d5a33, roughness: .8 });
+[[-1.38, -.55], [-1.38, .55], [1.38, -.55], [1.38, .55]].forEach(([x, z]) => {
+  const leg = new THREE.Mesh(legGeo, legMat);
+  leg.position.set(x, TAB_Y / 2, z);
+  leg.castShadow = true;
+  laserG.add(leg);
+});
+
+/* 平面镜 */
+const mGroup = new THREE.Group();
+mGroup.position.set(1.32, TAB_Y + .16, 0);
+laserG.add(mGroup);
+const mirror = new THREE.Mesh(
+  new THREE.BoxGeometry(.02, .34, .24),
+  new THREE.MeshStandardMaterial({ color: 0xdff3ff, metalness: .95, roughness: .06 })
+);
+mirror.rotation.z = Math.PI / 4;
+mirror.castShadow = true;
+mGroup.add(mirror);
+const mirrorBack = new THREE.Mesh(
+  new THREE.BoxGeometry(.016, .36, .26),
+  new THREE.MeshStandardMaterial({ color: 0x3d4a56, roughness: .5 })
+);
+mirrorBack.rotation.z = Math.PI / 4;
+mirrorBack.position.set(.013, .013, 0);
+mGroup.add(mirrorBack);
+const mPost = new THREE.Mesh(new THREE.BoxGeometry(.05, .1, .07), legMat);
+mPost.position.set(1.2, TAB_Y + .05, 0);
+laserG.add(mPost);
+
+/* 激光笔 + 支架 */
+const laserBody = new THREE.Mesh(
+  new THREE.BoxGeometry(.24, .1, .1),
+  new THREE.MeshStandardMaterial({ color: 0xb03a2e, roughness: .4 })
+);
+laserBody.position.set(-1.1, TAB_Y + .16, 0);
+laserBody.castShadow = true;
+laserG.add(laserBody);
+const standPost = new THREE.Mesh(new THREE.BoxGeometry(.05, TAB_Y + .11, .05),
+  new THREE.MeshStandardMaterial({ color: 0x46525e, roughness: .6 }));
+standPost.position.set(-1.1, (TAB_Y + .11) / 2, 0);
+standPost.castShadow = true;
+laserG.add(standPost);
+const standBase = new THREE.Mesh(new THREE.BoxGeometry(.34, .04, .3), standPost.material);
+standBase.position.set(-1.1, .02, 0);
+laserG.add(standBase);
+
+/* 光屏（顶部） */
+function screenTexture(){
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 160;
+  const g = c.getContext('2d');
+  g.fillStyle = '#1e2831'; g.fillRect(0, 0, 1024, 160);
+  for(let x = 20; x < 1004; x += 21){
+    const big = (x - 20) % 105 === 0;
+    g.fillStyle = big ? 'rgba(210,228,242,.85)' : 'rgba(210,228,242,.4)';
+    g.fillRect(x, 0, 2, big ? 46 : 24);
+  }
+  return new THREE.CanvasTexture(c);
+}
+const screen = new THREE.Mesh(
+  new THREE.PlaneGeometry(2.9, 1.0),
+  new THREE.MeshBasicMaterial({ map: screenTexture() })
+);
+screen.rotation.x = Math.PI / 2;
+screen.position.set(1.32, SCREEN_Y, 0);
+laserG.add(screen);
+/* 吊杆 */
+[0.15, 2.5].forEach(x => {
+  const wire = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, 1.28), 
+    new THREE.MeshStandardMaterial({ color: 0x39434d }));
+  wire.position.set(x, SCREEN_Y + .64, 0);
+  laserG.add(wire);
+});
+
+/* 光束 */
+const beam1 = new THREE.Mesh(beamGeo, beamMaterial());
+const beam2 = new THREE.Mesh(beamGeo, beamMaterial());
+laserG.add(beam1, beam2);
+const hitGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: glowTexture(), blending: THREE.AdditiveBlending, depthWrite: false }));
+hitGlow.scale.set(.16, .16, 1);
+laserG.add(hitGlow);
+const spot = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: glowTexture('rgba(255,160,160,1)'), blending: THREE.AdditiveBlending, depthWrite: false }));
+spot.scale.set(.24, .24, 1);
+laserG.add(spot);
+const zeroMark = new THREE.Mesh(new THREE.SphereGeometry(.016, 12, 12),
+  new THREE.MeshBasicMaterial({ color: 0xcfe0ee, transparent: true, opacity: .7 }));
+zeroMark.position.set(1.32, SCREEN_Y - .005, 0);
+laserG.add(zeroMark);
+
+/* 重物（木块，可拖动） */
+const weight = new THREE.Mesh(
+  new THREE.BoxGeometry(.32, .22, .32),
+  new THREE.MeshStandardMaterial({ color: 0xd9a13f, roughness: .45, metalness: .25 })
+);
+weight.castShadow = true;
+laserG.add(weight);
+const HOME = new THREE.Vector3(-1.95, .11, 1.15);   // 初始放在桌旁的地面上
+weight.position.copy(HOME);
+
+/* ---------- Canvas → Sprite 工具 ---------- */
+function makeLabel(text, scale = 0.55){
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 128;
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthWrite: false, depthTest: false
+  }));
+  sp.scale.set(scale, scale * 0.25, 1);
+  sp.renderOrder = 20;
+  sp.userData = { cv, tex, text: '', color: '#ff9a3c', scale, hitbox: null };
+  laserG.add(sp);
+  setLabel(sp, text);
+  return sp;
+}
+function setLabel(sp, text, color='#ff9a3c'){
+  if(sp.userData.text === text && sp.userData.color === color) return;
+  sp.userData.text = text; sp.userData.color = color;
+  const g = sp.userData.cv.getContext('2d');
+  g.clearRect(0, 0, 512, 128);
+  // 圆角矩形背景
+  g.font = 'bold 46px "Microsoft YaHei", sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const w = g.measureText(text).width + 80;
+  const cx = 256, cy = 64, r = 36;
+  const x0 = cx - w/2, x1 = cx + w/2, y0 = 14, y1 = 114;
+  g.beginPath();
+  g.moveTo(x0+r, y0);
+  g.arcTo(x1, y0, x1, y1, r);
+  g.arcTo(x1, y1, x0, y1, r);
+  g.arcTo(x0, y1, x0, y0, r);
+  g.arcTo(x0, y0, x1, y0, r);
+  g.closePath();
+  g.fillStyle = 'rgba(20,26,33,0.85)';
+  g.fill();
+  g.strokeStyle = color;
+  g.lineWidth = 3;
+  g.stroke();
+  // 文字
+  g.fillStyle = color;
+  g.fillText(text, cx, cy);
+  sp.userData.tex.needsUpdate = true;
+}
+
+/* ---------- 桌面位置常量 ---------- */
+const TABLE_TOP_Y = TAB_Y;   // 桌面 PlaneGeometry y
+const WEIGHT_HALF_H = 0.11;  // BoxGeometry(.32,.22,.32) 半高
+const TABLE_POSITIONS = [
+  { id: 'L', label: '左端', x: -1.0, z: 0 },
+  { id: 'M', label: '中间', x:  0.0, z: 0 },
+  { id: 'R', label: '右端', x:  0.9, z: 0 },
+];
+const TABLE_RECT = { x0: -1.1, x1: 0.95, z0: -.55, z1: .55 };
+
+/* ---------- 桌面上的 3D 位置标签 ---------- */
+const labelPlaneY = TAB_Y + 0.55;   // 标签悬浮高度
+const TABLE_LABELS = TABLE_POSITIONS.map(p => {
+  const sp = makeLabel(p.label + '（点我）', 0.65);
+  sp.position.set(p.x, labelPlaneY, p.z - 0.3);  // 稍微靠后，不挡木块
+  sp.userData.tableId = p.id;
+  sp.userData.tablePos = p;
+  return sp;
+});
+
+/* "拖动提示"标签（木块放桌面后才显示） */
+const dragHintLabel = makeLabel('⇆ 可沿桌面拖动木块', 0.5);
+dragHintLabel.position.set(0, labelPlaneY + 0.35, 0.45);
+dragHintLabel.visible = false;
+setLabel(dragHintLabel, '⇆ 可沿桌面拖动木块', '#7fd4ff');
+
+/* 状态 */
+let loadT = 0, loadC = 0;
+let placed = false;            // 木块是否在桌面上
+let dragging = false;          // 鼠标正在拖动（仅桌面平面内）
+let animatingTo = null;        // {x, z, t0, dur} 平滑动画到某位置
+const raycaster = new THREE.Raycaster();
+const pointerNDC = new THREE.Vector2();
+const dragPt = new THREE.Vector3();
+const MIRROR_HIT = new THREE.Vector3(1.32, TAB_Y + .16, 0);
+const LASER_TIP = new THREE.Vector3(-.98, TAB_Y + .16, 0);
+
+function updateLaser(){
+  const p = loadC;
+  const sag = p * .12;          // 桌面中心最大形变深度
+
+  const bx = placed ? weight.position.x : null;
+  const TAB_W = 3;              // 桌面宽
+  const MIRROR_X = 1.32;        // 镜面 x 坐标
+
+  /* ============ 桌面形变：两端桌腿支撑，中间弯最大 ============
+     形状：cos(π * x / TAB_W) —— 两端 x=±1.5 为 0，中间 x=0 最大
+     形变深度权重由木块位置决定：
+     - 木块在桌面中间 → cos²(π*bx/3) = 1，形变最深
+     - 木块靠近桌腿  → 权重 → 0，形变很浅 ============ */
+  const weightFactor = bx !== null ? 
+    Math.pow(Math.cos(Math.PI * bx / TAB_W), 2) : 0;
+  const actualSag = sag * weightFactor;  // 当前桌面真实最大形变
+  
+  const pos = topGeo.attributes.position;
+  for(let i = 0; i < pos.count; i++){
+    const x = pos.getX(i);
+    // cos(π*x/3) 在 x=±1.5 时为 0，x=0 时为 -1（下弯）
+    const beamShape = -Math.cos(Math.PI * x / TAB_W);
+    pos.setY(i, beamShape * actualSag);
+  }
+  pos.needsUpdate = true;
+  topGeo.computeVertexNormals();
+
+  /* ============ 镜面偏转：由镜面位置的形变梯度决定 ============
+     f(x) = actualSag * cos(π*x/3)      （下弯为负）
+     df/dx = actualSag * (-π/3) * sin(π*x/3)
+     镜面倾角 ≈ arctan(|df/dx|) ≈ |df/dx| ============ */
+  let th;
+  if(bx !== null && weightFactor > 0.01){
+    const df = actualSag * (Math.PI / TAB_W) * Math.sin(Math.PI * MIRROR_X / TAB_W);
+    th = df;   // 近似倾角（弧度）
+  } else {
+    th = 0;
+  }
+  mGroup.rotation.z = -th;
+
+  const phi = Math.PI / 4 - th;
+  const n = new THREE.Vector3(-Math.sin(phi), Math.cos(phi), 0);
+  const d = new THREE.Vector3(1, 0, 0);
+  const r = d.clone().sub(n.clone().multiplyScalar(2 * d.dot(n))).normalize();
+
+  /* 重物位置（沉到桌面凹陷处） */
+  if(placed && !dragging && bx !== null){
+    const beamHere = -Math.cos(Math.PI * bx / TAB_W);   // 桌面 bx 处的顶点 y 偏移（负=下弯）
+    weight.position.y = TABLE_TOP_Y + beamHere * actualSag + WEIGHT_HALF_H;
+  }
+
+  /* 光束 */
+  setBeam(beam1, LASER_TIP, MIRROR_HIT);
+  const t = (SCREEN_Y - MIRROR_HIT.y) / r.y;
+  const spotPos = MIRROR_HIT.clone().addScaledVector(r, t);
+  setBeam(beam2, MIRROR_HIT, spotPos);
+  hitGlow.position.copy(MIRROR_HIT).addScaledVector(r, .02);
+  spot.position.set(spotPos.x, SCREEN_Y - .008, 0);
+
+  /* ============ 读数 ============ */
+  if(readEls.d){
+    const mirrorBeamY = actualSag * Math.cos(Math.PI * MIRROR_X / TAB_W);
+    readEls.d.textContent = (mirrorBeamY * 1000).toFixed(4);           // mm
+    readEls.t.textContent = (th * 1000).toFixed(2);                    // mrad
+    readEls.a.textContent = (th * 2000).toFixed(2);                    // mrad（2θ）
+    readEls.s.textContent = (th * 150).toFixed(2);                     // mm（光点位移近似）
+    readEls.m.textContent = actualSag > .005 ? '100' : '—';
+  }
+}
+
+
+/* =====================================================
+   HUD：三个定位按钮 + 移除按钮 + 读数面板
+   ===================================================== */
+const panelEl = document.getElementById('panel');
+const readEl = document.getElementById('read');
+let readEls = {};
+
+panelEl.innerHTML = `
+  <div style="display:flex;flex-direction:column;gap:4px;min-width:200px;">
+    <div style="font-size:11px;color:#8fa2b1;">📌 点桌面上方的标签放重物</div>
+    <div style="font-size:11px;color:#8fa2b1;">💡 木块放桌后可左右拖动</div>
+  </div>`;
+
+readEl.innerHTML = `
+  <div class="ro"><div class="k">桌面下垂 δ</div><div class="v"><span id="rd">0.0000</span><small>mm</small></div></div>
+  <div class="ro"><div class="k">镜面转角 θ</div><div class="v"><span id="rt">0.00</span><small>mrad</small></div></div>
+  <div class="ro"><div class="k">反射光 2θ</div><div class="v"><span id="ra">0.00</span><small>mrad</small></div></div>
+  <div class="ro"><div class="k">光点位移 Δ</div><div class="v"><span id="rs">0.00</span><small>mm</small></div></div>
+  <div class="ro"><div class="k">放大倍数</div><div class="v"><span id="rm">—</span><small>×</small></div></div>`;
+readEls = { d: rd, t: rt, a: ra, s: rs, m: rm };
+
+/* 点击 3D 标签 → 木块平滑滑到该位置 */
+function goToPosition(id){
+  const pos = TABLE_POSITIONS.find(p => p.id === id);
+  if(!pos) return;
+  animatingTo = { x: pos.x, z: pos.z, t0: performance.now() / 1000, dur: 0.6 };
+  placed = true;
+  loadT = 1;
+  updateLabelHighlights();
+}
+function removeWeight(){
+  placed = false;
+  loadT = 0;
+  animatingTo = { x: HOME.x, z: HOME.z, t0: performance.now()/1000, dur: 0.8 };
+  updateLabelHighlights();
+}
+
+function updateLabelHighlights(){
+  // 3D 位置标签：哪个位置当前有木块就金色高亮
+  TABLE_LABELS.forEach(sp => {
+    if(!placed){
+      setLabel(sp, sp.userData.tablePos.label + '（点我）', '#ff9a3c');
+    } else {
+      const p = sp.userData.tablePos;
+      const d = Math.abs(weight.position.x - p.x);
+      if(d < 0.35){
+        setLabel(sp, p.label + ' ⬅ 当前', '#ffd166');
+      } else {
+        setLabel(sp, p.label + '（点我）', '#ff9a3c');
+      }
+    }
+  });
+  // 拖动提示：只有木块在桌面时才显示
+  dragHintLabel.visible = placed;
+}
+
+/* ---------------- 拖动（仅桌面平面内） ---------------- */
+function setNDC(e){
+  pointerNDC.x = (e.clientX / innerWidth) * 2 - 1;
+  pointerNDC.y = -(e.clientY / innerHeight) * 2 + 1;
+}
+function pickWeight(){
+  raycaster.setFromCamera(pointerNDC, camera);
+  return raycaster.intersectObject(weight, false).length > 0;
+}
+function onTable(x, z){
+  return x >= TABLE_RECT.x0 && x <= TABLE_RECT.x1 && z >= TABLE_RECT.z0 && z <= TABLE_RECT.z1;
+}
+
+renderer.domElement.addEventListener('pointerdown', e => {
+  if(e.button !== 0) return;
+  setNDC(e);
+
+  // 1. 先检测是否点到了 3D 位置标签
+  raycaster.setFromCamera(pointerNDC, camera);
+  const labelHit = raycaster.intersectObjects(TABLE_LABELS, false);
+  if(labelHit.length > 0){
+    const sp = labelHit[0].object;
+    goToPosition(sp.userData.tableId);
+    return;
+  }
+
+  // 2. 检测是否点到了木块（拖动）
+  if(!pickWeight()) return;
+  if(!placed) return;
+  e.stopPropagation();
+  animatingTo = null;     // 打断平滑动画
+  dragging = true;
+  controls.enabled = false;
+  renderer.domElement.style.cursor = 'grabbing';
+}, true);
+
+window.addEventListener('pointermove', e => {
+  if(dragging){
+    setNDC(e);
+    raycaster.setFromCamera(pointerNDC, camera);
+    const tablePlane = new THREE.Plane(new THREE.Vector3(0,1,0), -TABLE_TOP_Y);
+    raycaster.ray.intersectPlane(tablePlane, dragPt);
+    if(!dragPt) return;
+    const nx = THREE.MathUtils.clamp(dragPt.x, TABLE_RECT.x0 + 0.18, TABLE_RECT.x1 - 0.18);
+    const nz = THREE.MathUtils.clamp(dragPt.z, TABLE_RECT.z0 + 0.15, TABLE_RECT.z1 - 0.15);
+    weight.position.x = nx;
+    weight.position.z = nz;
+    updateLabelHighlights();
+  }else if(e.target === renderer.domElement){
+    setNDC(e);
+    raycaster.setFromCamera(pointerNDC, camera);
+    // 悬停标签时手型
+    const labelHit = raycaster.intersectObjects(TABLE_LABELS, false).length > 0;
+    const hitW = placed && raycaster.intersectObject(weight, false).length > 0;
+    renderer.domElement.style.cursor = labelHit ? 'pointer' : (hitW ? 'grab' : '');
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  if(!dragging) return;
+  dragging = false;
+  controls.enabled = true;
+  renderer.domElement.style.cursor = '';
+  if(!onTable(weight.position.x, weight.position.z)){
+    removeWeight();
+  }
+  updateLabelHighlights();
+});
+
+/* ---------------- 循环 ---------------- */
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+
+renderer.setAnimationLoop(() => {
+  loadC += (loadT - loadC) * .07;
+
+  // 平滑动画：点击按钮 / 移走重物
+  if(animatingTo && !dragging){
+    const now = performance.now() / 1000;
+    const k = Math.min(1, (now - animatingTo.t0) / animatingTo.dur);
+    const ease = k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2;  // easeInOutQuad
+    weight.position.x += (animatingTo.x - weight.position.x) * 0.12;
+    weight.position.z += (animatingTo.z - weight.position.z) * 0.12;
+    // y 插值：放到桌面 or 降到地面
+    if(placed){
+      const targetY = TABLE_TOP_Y + WEIGHT_HALF_H;
+      weight.position.y += (targetY - weight.position.y) * 0.18;
+    }else{
+      weight.position.y += (HOME.y - weight.position.y) * 0.12;
+    }
+    if(k >= 1){
+      animatingTo = null;
+    }
+  } else if(placed && !dragging){
+    // 放好后贴紧桌面
+    const targetY = TABLE_TOP_Y + WEIGHT_HALF_H;
+    if(Math.abs(weight.position.y - targetY) > 0.001){
+      weight.position.y += (targetY - weight.position.y) * 0.25;
+    }
+  } else if(!placed && !dragging){
+    // 没放桌面：维持 HOME 位置
+    weight.position.x = HOME.x;
+    weight.position.y = HOME.y;
+    weight.position.z = HOME.z;
+  }
+
+  if(laserG.visible) updateLaser();
+  updateLabelHighlights();
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

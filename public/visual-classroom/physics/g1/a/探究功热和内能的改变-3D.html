@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>探究功、热和内能的改变 · 3D 交互实验</title>
+<style>
+  :root{
+    --or:#ff9a3c; --or2:#ffb066; --bg:#0a0e14; --pan:rgba(13,17,24,.86);
+    --line:rgba(255,154,60,.28); --tx:#e8e2d8; --sub:#9aa3ad;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:var(--bg);
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:var(--tx)}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 40%, rgba(0,0,0,.66) 100%)}
+  /* 顶部导航标签栏 */
+  #tabs{position:fixed;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+  .tab{padding:8px 20px;border-radius:20px;border:1px solid rgba(255,255,255,.12);
+    background:rgba(13,17,24,.8);color:var(--sub);font-size:13px;cursor:pointer;
+    backdrop-filter:blur(6px);transition:all .25s}
+  .tab.on{border-color:var(--or);color:var(--or2);box-shadow:0 0 14px rgba(255,154,60,.25)}
+  .tab:hover{color:var(--tx)}
+  /* 右侧控制面板 */
+  #panel{position:fixed;top:14px;right:14px;width:252px;z-index:10;
+    background:var(--pan);border:1px solid var(--line);border-radius:14px;
+    padding:12px 14px;backdrop-filter:blur(10px);max-height:calc(100vh - 28px);overflow-y:auto}
+  #panel::-webkit-scrollbar{width:5px}
+  #panel::-webkit-scrollbar-thumb{background:rgba(255,154,60,.3);border-radius:3px}
+  .sec{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .stitle{font-size:12px;color:var(--or);letter-spacing:1px;margin-bottom:8px;font-weight:bold}
+  .obtn{padding:7px 10px;border-radius:8px;border:1px solid var(--line);
+    background:rgba(255,154,60,.1);color:var(--or2);font-size:12.5px;cursor:pointer;transition:all .2s}
+  .obtn:hover{background:rgba(255,154,60,.22)}
+  .obtn:active{transform:scale(.96)}
+  .obtn.on{background:var(--or);color:#1a1005;border-color:var(--or);font-weight:bold}
+  .wide{width:100%;margin-bottom:7px;text-align:left}
+  .srow{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--sub);margin-top:4px}
+  .srow span{width:52px;flex:none}
+  input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;
+    background:linear-gradient(90deg,var(--or),rgba(255,154,60,.18));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+    border-radius:50%;background:var(--or);box-shadow:0 0 8px rgba(255,154,60,.7);cursor:pointer}
+  #dataTable{width:100%;border-collapse:collapse;font-size:12px}
+  #dataTable th{color:var(--or2);font-weight:normal;padding:3px 4px;text-align:right;
+    border-bottom:1px solid rgba(255,154,60,.2);font-size:11.5px}
+  #dataTable th:first-child{text-align:left;color:var(--sub)}
+  #dataTable td{padding:4px;text-align:right;font-variant-numeric:tabular-nums;
+    color:var(--tx);border-bottom:1px solid rgba(255,255,255,.05)}
+  #dataTable td:first-child{text-align:left;color:var(--sub)}
+  #dataTable td.hot{color:#ff8563}
+  #dataTable td.cold{color:#6fa8ff}
+  .btnrow{display:flex;gap:6px;margin-bottom:8px}
+  .btnrow .obtn{flex:1;text-align:center;padding:7px 0}
+  .tglrow{display:flex;gap:6px}
+  .tgl{flex:1;padding:6px 0;border-radius:7px;border:1px solid rgba(255,255,255,.12);
+    background:transparent;color:var(--sub);font-size:11.5px;cursor:pointer;transition:all .2s}
+  .tgl.on{border-color:var(--or);color:var(--or2);background:rgba(255,154,60,.12)}
+  /* 提示 */
+  #hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;
+    font-size:11px;color:#5b6470;pointer-events:none}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="vig"></div>
+
+<div id="tabs">
+  <button class="tab on" data-v="work">做功演示</button>
+  <button class="tab" data-v="heat">热传递演示</button>
+</div>
+
+<aside id="panel">
+  <div class="sec">
+    <div class="stitle">① 做功改变内能</div>
+    <button id="btnPress" class="obtn wide" title="点一下：自动下压活塞">▼ 点按下压活塞</button>
+    <button id="btnPull" class="obtn wide" title="点一下：自动上拉活塞">▲ 点按上拉活塞</button>
+    <button id="btnHammer" class="obtn wide" title="击锤快速压缩，做功更剧烈">🔨 击锤压缩</button>
+    <div class="srow"><span>做功幅度</span><input type="range" id="rAmp" min="0.2" max="1" step="0.01" value="0.6"></div>
+  </div>
+  <div class="sec">
+    <div class="stitle">② 热传递改变内能</div>
+    <button id="btnHeat" class="obtn wide">🔥 加热热源 · 关</button>
+    <div class="srow"><span>加热功率</span><input type="range" id="rPow" min="0.1" max="1" step="0.01" value="0.6"></div>
+  </div>
+  <div class="sec">
+    <div class="stitle">实时数据（热力学第一定律）</div>
+    <table id="dataTable">
+      <tr><th>物理量</th><th>做功缸</th><th>热传缸</th></tr>
+      <tr><td>内能 ΔU</td><td id="vUw">0 J</td><td id="vUh">0 J</td></tr>
+      <tr><td>热量 Q</td><td id="vQw">0 J</td><td id="vQh">0 J</td></tr>
+      <tr><td>做功 W</td><td id="vWw">0 J</td><td id="vWh">—</td></tr>
+      <tr><td>温度 T</td><td id="vTw">300 K</td><td id="vTh">300 K</td></tr>
+      <tr><td>压强 p</td><td id="vpw">101 kPa</td><td id="vph">101 kPa</td></tr>
+    </table>
+  </div>
+  <div class="sec">
+    <div class="stitle">全局控制</div>
+    <div class="btnrow">
+      <button id="btnPause" class="obtn" title="暂停 / 继续">⏸ 暂停</button>
+      <button id="btnSlow" class="obtn" title="慢动作">🐢 慢动作</button>
+      <button id="btnReset" class="obtn" title="重置">⟲</button>
+    </div>
+    <div class="tglrow">
+      <button class="tgl on" id="tMap">热力云图</button>
+      <button class="tgl on" id="tPar">分子</button>
+      <button class="tgl on" id="tArr">矢量箭头</button>
+      <button class="tgl on" id="tLab">标注</button>
+    </div>
+  </div>
+</aside>
+
+<div id="hint">拖动旋转视角 · 滚轮缩放</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* ================= 基础场景 ================= */
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.22;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0e14);
+scene.fog = new THREE.Fog(0x0a0e14, 14, 34);
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(-0.2, 3.0, 9.0);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.92, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI*0.52;
+controls.minDistance = 2.5;
+controls.maxDistance = 18;
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.5;
+
+/* 灯光 */
+const key = new THREE.DirectionalLight(0xfff1e0, 2.25);
+key.position.set(5, 9, 6);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -8; key.shadow.camera.right = 8;
+key.shadow.camera.top = 8;   key.shadow.camera.bottom = -8;
+key.shadow.bias = -0.0004;
+scene.add(key);
+const warm = new THREE.PointLight(0xff9a3c, 14, 14, 2);
+warm.position.set(0, 2.4, 2.6);
+scene.add(warm);
+scene.add(new THREE.HemisphereLight(0x9ab6d8, 0x241a10, 0.35));
+const cool = new THREE.PointLight(0x4a6cff, 5, 12, 2);
+cool.position.set(-4, 2.5, -3);
+scene.add(cool);
+
+/* ================= 背景：竖纹吸音板 + 轮廓灯带 ================= */
+function wallTexture(){
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 512;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#10141c'; g.fillRect(0,0,512,512);
+  for(let x=0; x<512; x+=26){
+    g.fillStyle = '#0c1017'; g.fillRect(x,0,14,512);
+    g.fillStyle = 'rgba(255,255,255,0.028)'; g.fillRect(x+14,0,3,512);
+    g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(x+11,0,3,512);
+  }
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5,2);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const wall = new THREE.Mesh(
+  new THREE.PlaneGeometry(26, 9),
+  new THREE.MeshStandardMaterial({map:wallTexture(), roughness:0.95, metalness:0})
+);
+wall.position.set(0, 4.2, -4.6);
+wall.receiveShadow = true;
+scene.add(wall);
+
+/* 暖金色轮廓灯带 */
+function strip(w,h,d,x,y,z,ry=0){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d),
+    new THREE.MeshStandardMaterial({color:0x1a1208, emissive:0xff9a3c, emissiveIntensity:2.2}));
+  m.position.set(x,y,z); m.rotation.y = ry;
+  scene.add(m);
+}
+strip(22, 0.045, 0.045, 0, 8.55, -4.5);          // 墙顶横带
+strip(0.045, 8.4, 0.045, -11.2, 4.3, -4.5);      // 左竖带
+strip(0.045, 8.4, 0.045,  11.2, 4.3, -4.5);      // 右竖带
+
+/* ================= 实验台 ================= */
+const table = new THREE.Mesh(
+  new RoundedBoxGeometry(15, 0.7, 6.2, 3, 0.06),
+  new THREE.MeshStandardMaterial({color:0x0b0d10, roughness:0.88, metalness:0.15})
+);
+table.position.y = -0.35;
+table.receiveShadow = true;
+scene.add(table);
+/* 台面暖色描边 */
+const edge = new THREE.Mesh(new THREE.BoxGeometry(15.1, 0.02, 0.03),
+  new THREE.MeshStandardMaterial({color:0x221507, emissive:0xff9a3c, emissiveIntensity:1.4}));
+edge.position.set(0, 0.008, 3.08);
+scene.add(edge);
+
+/* ================= 物理状态 ================= */
+const S = {
+  running:true, slow:false,
+  Tw:300, pistonFrac:1, pressHold:false, pullHold:false, autoPressT:0, autoPullT:0, lastMotion:0, hammerT:-1, workAmp:0.6,
+  Wc:0,
+  Th:300, heater:false, power:0.6, Qc:0,
+  showMap:true, showParticles:true, showArrows:true, showLabels:true,
+};
+const CV = 3;   // 显示用热容量 J/K
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const ease = t=>t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+
+// 标签显示延迟：在压缩/膨胀停止后继续显示一段时间
+let workLabelHoldT = 0;   // 外界做功标签保持时间
+let lastWorkMode = 0;      // 1=压缩, -1=膨胀, 0=无
+
+const COLOR_STOPS = [
+  [0.00, 0.12, 0.38, 1.00],   // 冷态：深蓝
+  [0.25, 0.05, 0.72, 1.00],   // 微热：亮蓝
+  [0.46, 0.55, 0.18, 0.95],   // 温热：蓝紫
+  [0.65, 0.98, 0.08, 0.45],   // 较热：品红
+  [0.82, 1.00, 0.05, 0.08],   // 高温：大红
+  [1.00, 1.00, 0.00, 0.00],   // 极高温：纯红
+];
+function tempColor(T){
+  const t = clamp((T-300)/300, 0, 1);
+  for(let i=0;i<COLOR_STOPS.length-1;i++){
+    const a = COLOR_STOPS[i], b = COLOR_STOPS[i+1];
+    if(t <= b[0]){
+      const k = (t-a[0])/(b[0]-a[0] || 1);
+      return [a[1]+(b[1]-a[1])*k, a[2]+(b[2]-a[2])*k, a[3]+(b[3]-a[3])*k];
+    }
+  }
+  const l = COLOR_STOPS[COLOR_STOPS.length-1];
+  return [l[1], l[2], l[3]];
+}
+
+/* ================= 悬浮标签 ================= */
+const labelGroup = new THREE.Group(); scene.add(labelGroup);
+function makeLabel(text, scale=0.42){
+  const cv = document.createElement('canvas'); cv.width=512; cv.height=128;
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, depthWrite:false, depthTest:false}));
+  sp.renderOrder = 20;
+  sp.userData = {cv, tex, text:'', scale};
+  labelGroup.add(sp);
+  setLabel(sp, text);
+  return sp;
+}
+function setLabel(sp, text, color='#ff9a3c'){
+  if(sp.userData.text === text && sp.userData.color === color) return;
+  sp.userData.text = text; sp.userData.color = color;
+  const g = sp.userData.cv.getContext('2d');
+  g.clearRect(0,0,512,128);
+  g.font = 'bold 50px "Microsoft YaHei",sans-serif';
+  g.textAlign='center'; g.textBaseline='middle';
+  const w = g.measureText(text).width + 64;
+  g.beginPath();
+  g.moveTo(256-w/2+40, 22);
+  g.arcTo(256+w/2, 22, 256+w/2, 106, 40);
+  g.arcTo(256+w/2, 106, 256-w/2, 106, 40);
+  g.arcTo(256-w/2, 106, 256-w/2, 22, 40);
+  g.arcTo(256-w/2, 22, 256+w/2, 22, 40);
+  g.closePath();
+  g.fillStyle='rgba(16,11,6,.78)'; g.fill();
+  g.strokeStyle=color; g.lineWidth=4; g.stroke();
+  g.fillStyle='#ffe3c2'; g.fillText(text, 256, 66);
+  sp.userData.tex.needsUpdate = true;
+  const s = sp.userData.scale;
+  sp.scale.set(s*4, s, 1);
+}
+
+/* ================= 3D 箭头 ================= */
+function makeArrow(color){
+  const g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:0.7, roughness:0.4});
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.032,1,10), mat);
+  const head = new THREE.Mesh(new THREE.ConeGeometry(0.078,0.19,14), mat);
+  g.add(shaft, head);
+  g.userData = {shaft, head, mat};
+  g.visible = false;
+  return g;
+}
+function setArrowLen(g, len){
+  const {shaft, head} = g.userData;
+  const hl = Math.min(0.19, Math.max(0.1, len*0.45));
+  shaft.scale.y = Math.max(0.02, len-hl); shaft.position.y = (len-hl)/2;
+  head.position.y = len - hl/2;
+}
+const arrowGroup = new THREE.Group(); scene.add(arrowGroup);
+
+/* ================= 气缸构建 ================= */
+const GLASS_R = 0.5, GLASS_H = 1.5, GLASS_Y = 0.14 + GLASS_H/2;  // 底座 0.14
+const GAS_R = 0.4, GAS_Y0 = 0.22;
+const gasTopOf = frac => 0.24 + 1.22*frac;   // 左缸气体上界
+
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color:0xeaf6ff, transmission:0.97, roughness:0.03, thickness:0.045,
+  ior:1.45, transparent:true, side:THREE.DoubleSide, depthWrite:false,
+  clearcoat:0.35, clearcoatRoughness:0.15
+});
+const metalMat = new THREE.MeshStandardMaterial({color:0x39424e, roughness:0.32, metalness:0.92});
+const darkMat  = new THREE.MeshStandardMaterial({color:0x14181f, roughness:0.7, metalness:0.5});
+
+function makeBaseRing(x){
+  const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.CylinderGeometry(GLASS_R+0.13, GLASS_R+0.16, 0.14, 40), metalMat);
+  ring.position.y = 0.07; ring.castShadow = ring.receiveShadow = true;
+  g.add(ring);
+  g.position.x = x;
+  scene.add(g);
+  return g;
+}
+function makeGlass(x, openTop){
+  const geo = new THREE.CylinderGeometry(GLASS_R, GLASS_R, GLASS_H, 48, 1, true);
+  const glass = new THREE.Mesh(geo, glassMat);
+  glass.position.set(x, GLASS_Y, 0);
+  scene.add(glass);
+  if(!openTop){
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(GLASS_R+0.05, GLASS_R+0.05, 0.08, 40), metalMat);
+    cap.position.set(x, 0.14+GLASS_H+0.04, 0);
+    cap.castShadow = true;
+    scene.add(cap);
+  }
+  return glass;
+}
+
+/* --- 左：做功装置（活塞 + 连杆 + 击锤） --- */
+const XL = -2.6;
+makeBaseRing(XL);
+makeGlass(XL, true);
+
+const pistonGrp = new THREE.Group();
+const pistonDisk = new THREE.Mesh(new THREE.CylinderGeometry(GAS_R+0.06, GAS_R+0.06, 0.1, 40),
+  new THREE.MeshStandardMaterial({color:0x5a4632, roughness:0.5, metalness:0.55}));
+pistonDisk.castShadow = true;
+pistonGrp.add(pistonDisk);
+const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.62, 16), metalMat);
+rod.position.y = 0.36;
+pistonGrp.add(rod);
+const handle = new THREE.Mesh(new RoundedBoxGeometry(0.52, 0.09, 0.09, 2, 0.03),
+  new THREE.MeshStandardMaterial({color:0x8a5a2b, roughness:0.6, metalness:0.3}));
+handle.position.y = 0.72;
+pistonGrp.add(handle);
+handle.castShadow = true;
+scene.add(pistonGrp);
+
+/* 气缸上方的 3D 交互标签（点击下压/上拉） */
+const pistonActionLabel = makeLabel('▼ 点击下压活塞', 0.5);
+pistonActionLabel.position.set(XL, 2.4, 0);   // 气缸正上方
+pistonActionLabel.userData.action = 'press';    // 'press' 或 'pull'
+const labelClickRaycaster = new THREE.Raycaster();
+const labelClickNDC = new THREE.Vector2();
+function pistonBottomY(){ return gasTopOf(S.pistonFrac); }
+
+/* 击锤 */
+const hammer = new THREE.Group();
+const armM = new THREE.Mesh(new THREE.BoxGeometry(1.14, 0.17, 0.17),
+  new THREE.MeshStandardMaterial({color:0x3c4654, roughness:0.4, metalness:0.85}));
+armM.position.x = 0.58;
+hammer.add(armM);
+const headM = new THREE.Mesh(new RoundedBoxGeometry(0.34, 0.26, 0.26, 2, 0.05),
+  new THREE.MeshStandardMaterial({color:0x2b333d, roughness:0.34, metalness:0.9}));
+headM.position.x = 1.17;
+headM.castShadow = true;
+hammer.add(headM);
+
+const cw = new THREE.Mesh(new RoundedBoxGeometry(0.2, 0.24, 0.2, 2, 0.04), darkMat);
+cw.position.x = -0.12;
+hammer.add(cw);
+const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.075,0.16,16), metalMat);
+hub.rotation.x = Math.PI/2;
+hammer.add(hub);
+hammer.position.set(XL-1.38, 2.12, 0);
+hammer.rotation.z = 0.12;
+/* 击锤立柱支架 */
+const post = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.095, 2.12, 16), darkMat);
+post.position.set(XL-1.38, 1.06, 0);
+post.castShadow = true;
+scene.add(post);
+const postTop = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.12, 16), metalMat);
+postTop.position.set(XL-1.38, 2.12, 0);
+scene.add(postTop);
+const postBase = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.3, 0.08, 24), metalMat);
+postBase.position.set(XL-1.38, 0.04, 0);
+postBase.castShadow = true;
+scene.add(postBase);
+scene.add(hammer);
+let hammerAnim = -1;   // >=0 表示挥动中
+
+/* 压缩闪光 */
+const flashMat = new THREE.SpriteMaterial({color:0xffa040, transparent:true, opacity:0,
+  blending:THREE.AdditiveBlending, depthWrite:false});
+const flash = new THREE.Sprite(flashMat);
+flash.position.set(XL, 0.8, 0); flash.scale.set(0.8,0.8,1);
+scene.add(flash);
+let flashT = -1;
+
+/* --- 右：热传递装置（密闭气缸 + 加热底座） --- */
+const XR = 2.6;
+/* 右缸上方的加热热源 3D 标签（必须在 XR 声明之后） */
+const heatActionLabel = makeLabel('🔥 点击开启加热', 0.45);
+heatActionLabel.position.set(XR, 2.4, 0);
+heatActionLabel.userData.on = false;
+const interactiveLabels = [pistonActionLabel, heatActionLabel];
+makeBaseRing(XR);
+makeGlass(XR, false);
+const heaterBase = new THREE.Mesh(new THREE.CylinderGeometry(GLASS_R+0.2, GLASS_R+0.26, 0.16, 40),
+  new THREE.MeshStandardMaterial({color:0x1a1d22, roughness:0.6, metalness:0.4}));
+heaterBase.position.set(XR, 0.08, 0);
+heaterBase.castShadow = true;
+scene.add(heaterBase);
+/* 加热丝（发光环） */
+const coilMat = new THREE.MeshStandardMaterial({color:0x331a05, emissive:0xff5a00, emissiveIntensity:0});
+const coil = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 10, 40), coilMat);
+coil.rotation.x = Math.PI/2;
+coil.position.set(XR, 0.185, 0);
+scene.add(coil);
+/* 热源光晕 */
+const glowTex = (()=>{
+  const cv = document.createElement('canvas'); cv.width=cv.height=128;
+  const g = cv.getContext('2d');
+  const grd = g.createRadialGradient(64,64,4,64,64,62);
+  grd.addColorStop(0,'rgba(255,150,40,0.9)');
+  grd.addColorStop(0.5,'rgba(255,110,20,0.28)');
+  grd.addColorStop(1,'rgba(255,110,20,0)');
+  g.fillStyle = grd; g.fillRect(0,0,128,128);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+const heaterGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, transparent:true,
+  opacity:0, blending:THREE.AdditiveBlending, depthWrite:false}));
+heaterGlow.position.set(XR, 0.22, 0);
+heaterGlow.scale.set(2.6, 1.7, 1);
+scene.add(heaterGlow);
+
+/* ================= 气体分子粒子 ================= */
+const N_PER = 150;
+function makeGasPoints(x){
+  const pos = new Float32Array(N_PER*3);
+  const col = new Float32Array(N_PER*3);
+  const vel = new Float32Array(N_PER*3);
+  const seed = new Float32Array(N_PER);
+  for(let i=0;i<N_PER;i++){
+    const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*GAS_R*0.88;
+    pos[i*3]   = x + Math.cos(a)*r;
+    pos[i*3+1] = GAS_Y0 + Math.random()*1.1;
+    pos[i*3+2] = Math.sin(a)*r;
+    const th = Math.random()*Math.PI*2, ph = Math.acos(Math.random()*2-1);
+    vel[i*3]   = Math.sin(ph)*Math.cos(th);
+    vel[i*3+1] = Math.cos(ph);
+    vel[i*3+2] = Math.sin(ph)*Math.sin(th);
+    seed[i] = Math.random();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+  const mat = new THREE.PointsMaterial({size:0.075, vertexColors:true, transparent:true,
+    opacity:0.95, depthWrite:false, sizeAttenuation:true, map:dotTex,
+    alphaTest:0.02, toneMapped:false});
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+  return {pts, pos, col, vel, seed, x};
+}
+const dotTex = (()=>{
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  const g = cv.getContext('2d');
+  const grd = g.createRadialGradient(32,32,1,32,32,31);
+  grd.addColorStop(0,'rgba(255,255,255,1)');
+  grd.addColorStop(0.30,'rgba(255,255,255,0.9)');
+  grd.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0,0,64,64);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+const gasL = makeGasPoints(XL);
+const gasR = makeGasPoints(XR);
+
+function updateGas(G, T, ceiling, dt, running){
+  const speed = running ? 0.55*Math.sqrt(T/300) : 0;
+  const pos = G.pos, vel = G.vel, col = G.col;
+  const top = ceiling - 0.03;
+  for(let i=0;i<N_PER;i++){
+    if(running){
+      // 布朗抖动
+      vel[i*3]   += (Math.random()-0.5)*0.16;
+      vel[i*3+1] += (Math.random()-0.5)*0.16;
+      vel[i*3+2] += (Math.random()-0.5)*0.16;
+      let vx=vel[i*3], vy=vel[i*3+1], vz=vel[i*3+2];
+      const m = Math.hypot(vx,vy,vz) || 1;
+      vel[i*3]=vx/m; vel[i*3+1]=vy/m; vel[i*3+2]=vz/m;
+      pos[i*3]   += vel[i*3]*speed*dt;
+      pos[i*3+1] += vel[i*3+1]*speed*dt;
+      pos[i*3+2] += vel[i*3+2]*speed*dt;
+      // 边界反弹
+      const dx = pos[i*3]-G.x, dz = pos[i*3+2];
+      const rr = Math.hypot(dx,dz);
+      if(rr > GAS_R){
+        const nx=dx/rr, nz=dz/rr;
+        const vn = vel[i*3]*nx + vel[i*3+2]*nz;
+        if(vn > 0){
+          vel[i*3]   -= 2*vn*nx;
+          vel[i*3+2] -= 2*vn*nz;
+        }
+        pos[i*3]   = G.x + nx*GAS_R*0.99;
+        pos[i*3+2] = nz*GAS_R*0.99;
+      }
+      if(pos[i*3+1] < GAS_Y0+0.02){ pos[i*3+1]=GAS_Y0+0.02; vel[i*3+1]=Math.abs(vel[i*3+1]); }
+      if(pos[i*3+1] > top){ pos[i*3+1]=top; vel[i*3+1]=-Math.abs(vel[i*3+1]); }
+    }
+  }
+  G.pts.geometry.attributes.position.needsUpdate = true;
+}
+function colorGas(G, T){
+  const [r,g,b] = tempColor(T);
+  const col = G.col, seed = G.seed;
+  for(let i=0;i<N_PER;i++){
+    const k = 0.72 + seed[i]*0.33;
+    col[i*3]=Math.min(1,r*k); col[i*3+1]=Math.min(1,g*k); col[i*3+2]=Math.min(1,b*k);
+  }
+  G.pts.geometry.attributes.color.needsUpdate = true;
+}
+
+/* ================= 热量粒子（金色 / 散热暗蓝） ================= */
+const N_HEAT = 54;
+const heatPos = new Float32Array(N_HEAT*3);
+const heatCol = new Float32Array(N_HEAT*3);
+const heatDat = [];
+for(let i=0;i<N_HEAT;i++){ heatDat.push({mode:0, life:0, a:0, r:0, y:0}); }
+const heatGeo = new THREE.BufferGeometry();
+heatGeo.setAttribute('position', new THREE.BufferAttribute(heatPos,3));
+heatGeo.setAttribute('color', new THREE.BufferAttribute(heatCol,3));
+const heatPts = new THREE.Points(heatGeo, new THREE.PointsMaterial({size:0.085, vertexColors:true,
+  transparent:true, opacity:0.95, blending:THREE.AdditiveBlending, depthWrite:false, map:dotTex}));
+scene.add(heatPts);
+let heatSpawnAcc = 0;
+function updateHeatParticles(Qdot, dt, running){
+  let spawn = 0, out = 0;
+  if(running && Qdot > 2) spawn = Math.min(3, Qdot*0.05);
+  if(running && Qdot < -2) out = Math.min(2, -Qdot*0.04);
+  heatSpawnAcc += spawn;
+  let outAcc = out;
+  for(let i=0;i<N_HEAT;i++){
+    const d = heatDat[i];
+    if(d.mode === 0){
+      if(heatSpawnAcc >= 1){ d.mode=1; d.life=0; d.a=Math.random()*Math.PI*2;
+        d.r=Math.random()*GAS_R*0.7; d.y=0.2; heatSpawnAcc-=1; }
+      else if(outAcc >= 1){ d.mode=2; d.life=0; d.a=Math.random()*Math.PI*2;
+        d.r=GAS_R+0.02; d.y=0.3+Math.random()*1.0; outAcc-=1; }
+    }
+    if(d.mode === 1){
+      d.life += dt;
+      d.y += 0.55*dt;
+      d.a += 0.6*dt;
+      const fade = Math.max(0, 1 - d.life/1.4);
+      heatPos[i*3]   = XR + Math.cos(d.a)*d.r;
+      heatPos[i*3+1] = d.y;
+      heatPos[i*3+2] = Math.sin(d.a)*d.r;
+      heatCol[i*3]=1.0; heatCol[i*3+1]=0.72; heatCol[i*3+2]=0.2*fade+0.05;
+      if(d.life > 1.4 || d.y > 1.6) d.mode = 0;
+    } else if(d.mode === 2){
+      d.life += dt;
+      d.y -= 0.25*dt; d.r += 0.3*dt;
+      const fade = Math.max(0, 1 - d.life/1.6);
+      heatPos[i*3]   = XR + Math.cos(d.a)*d.r;
+      heatPos[i*3+1] = d.y;
+      heatPos[i*3+2] = Math.sin(d.a)*d.r;
+      heatCol[i*3]=0.45*fade; heatCol[i*3+1]=0.55*fade; heatCol[i*3+2]=0.85*fade;
+      if(d.life > 1.6) d.mode = 0;
+    } else {
+      heatPos[i*3+1] = -10;
+    }
+  }
+  heatGeo.attributes.position.needsUpdate = true;
+  heatGeo.attributes.color.needsUpdate = true;
+}
+
+/* ================= 热力云图（覆盖气缸） ================= */
+function makeHeatMap(x){
+  const cv = document.createElement('canvas'); cv.width=128; cv.height=192;
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const mesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(GLASS_R+0.012, GLASS_R+0.012, GLASS_H, 40, 1, true),
+    new THREE.MeshBasicMaterial({map:tex, transparent:true, opacity:0.30,
+      depthWrite:false, side:THREE.DoubleSide})
+  );
+  mesh.position.set(x, GLASS_Y, 0);
+  scene.add(mesh);
+  return {cv, tex, mesh, lastT:-99, lastF:-1};
+}
+const mapL = makeHeatMap(XL), mapR = makeHeatMap(XR);
+function drawMap(M, T, frac, mode){
+  if(Math.abs(T - M.lastT) < 2 && (mode==='L' ? Math.abs(frac-M.lastF) < 0.02 : true)) return;
+  M.lastT = T; if(mode==='L') M.lastF = frac;
+  const g = M.cv.getContext('2d');
+  g.clearRect(0,0,128,192);
+  const [r,gg,b] = tempColor(T);
+  const rgb = `${(r*255)|0},${(gg*255)|0},${(b*255)|0}`;
+  const grd = g.createLinearGradient(0,192,0,0);
+  if(mode === 'L'){
+    const topPix = 192 * (1 - frac*0.94);
+    grd.addColorStop(0, `rgba(${rgb},0.55)`);
+    grd.addColorStop(0.55, `rgba(${rgb},0.30)`);
+    grd.addColorStop(1, `rgba(${rgb},0.10)`);
+    g.fillStyle = grd;
+    g.fillRect(0, topPix, 128, 192-topPix);
+    // 活塞位置淡线
+    g.fillStyle = `rgba(255,220,180,0.18)`;
+    g.fillRect(0, topPix-1, 128, 2);
+  } else {
+    const rg = g.createRadialGradient(64,192,10, 64,192,150);
+    rg.addColorStop(0, `rgba(${rgb},0.62)`);
+    rg.addColorStop(0.5, `rgba(${rgb},0.28)`);
+    rg.addColorStop(1, `rgba(${rgb},0.05)`);
+    g.fillStyle = rg;
+    g.fillRect(0,0,128,192);
+  }
+  M.tex.needsUpdate = true;
+}
+
+/* ================= 受力/做功矢量箭头 ================= */
+/* 左：做功方向箭头（活塞上方，竖直） */
+const arrW = makeArrow(0xff8a3c);
+arrW.position.set(XL+0.46, 2.3, 0);
+arrowGroup.add(arrW);
+/* 右：热流箭头 ×3（底座周围，竖直） */
+const arrQ = [];
+for(let i=0;i<3;i++){
+  const a = makeArrow(0xffc040);
+  const ang = -0.55 + i*0.55;
+  a.position.set(XR + Math.sin(ang)*0.86, 0.34, Math.cos(ang)*0.86);
+  arrowGroup.add(a);
+  arrQ.push(a);
+}
+
+/* ================= 悬浮标注 ================= */
+const labPiston = makeLabel('活塞', 0.34);
+const labRod    = makeLabel('连杆', 0.30);
+const labCylL   = makeLabel('气缸', 0.32);
+const labMolL   = makeLabel('气体分子 · 分子热运动', 0.36);
+const labWork   = makeLabel('外界对系统做功', 0.4);
+const labCylR   = makeLabel('密闭气缸', 0.32);
+const labHeat   = makeLabel('热源（加热底座）', 0.34);
+const labQt     = makeLabel('热传递 Q', 0.36);
+const labMolR   = makeLabel('气体分子', 0.32);
+const labUL = makeLabel('内能 ΔU ↑', 0.36);
+const labUR = makeLabel('内能 ΔU ↑', 0.36);
+labRod.position.set(XL-0.62, 2.02, 0);
+labCylL.position.set(XL-1.16, 0.5, 0);
+labMolL.position.set(XL-0.02, 0.33, 0.85);
+labWork.position.set(XL+1.5, 2.48, 0);
+labCylR.position.set(XR-1.32, 1.5, 0);
+labHeat.position.set(XR-1.25, 0.28, 0);
+labQt.position.set(XR-1.3, 0.95, 0);
+labMolR.position.set(XR-0.02, 0.33, 0.85);
+labUL.position.set(XL+1.46, 1.9, 0);
+labUR.position.set(XR-1.12, 2.0, 0);
+
+/* ================= 物理演化 ================= */
+let mapTimer = 0, colTimer = 0;
+function physics(dt){
+  /* ---- 左：做功 ---- */
+  let dTwork = 0;
+  const prevF = S.pistonFrac;
+  if(S.hammerT >= 0){
+    S.hammerT += dt;
+    if(S.hammerT < 0.16){
+      S.pistonFrac = Math.max(0.15, S.pistonFrac - 3.2*dt);
+    }
+    if(S.hammerT >= 0.16 && !S.hammerHit){
+      S.hammerHit = true;
+      dTwork += 55 * S.workAmp;
+      flashT = 0;
+    }
+    if(S.hammerT > 0.9){ S.hammerT = -1; S.hammerHit = false; }
+  } else {
+    // 平滑接近目标位置（支持点按按钮的动画 + 手动拉）
+    if(S.pressHold && !S.pullHold){
+      // 按住下压 → 往最深处 (0.15) 走
+      S.pistonFrac = Math.max(0.15, S.pistonFrac - (0.35 + 0.65*S.workAmp) * dt);
+    } else if(S.pullHold){
+      // 按住上拉 → 往初始位置 (1.0) 走
+      S.pistonFrac = Math.min(1.0, S.pistonFrac + 1.2 * dt);
+    } else if(S.autoPressT > 0){
+      // 点按"下压" → 自动慢慢压到底
+      S.autoPressT -= dt;
+      S.pistonFrac = Math.max(0.15, S.pistonFrac - 0.6 * dt);
+      if(S.pistonFrac <= 0.15) S.autoPressT = 0;
+    } else if(S.autoPullT > 0){
+      // 点按"上拉" → 自动慢慢弹回
+      S.autoPullT -= dt;
+      S.pistonFrac = Math.min(1.0, S.pistonFrac + 0.6 * dt);
+      if(S.pistonFrac >= 1.0) S.autoPullT = 0;
+    }
+    // 都没触发 → 保持当前位置不动
+  }
+  const dF = S.pistonFrac - prevF;
+  const Vf = Math.max(0.06, S.pistonFrac);
+  dTwork += -S.Tw * 0.45 * (dF / Vf);          // 绝热压缩/膨胀
+  S.Tw += dTwork;
+  S.Tw += (300 - S.Tw) * 0.055 * dt;           // 缓慢向环境漏热
+  S.Tw = clamp(S.Tw, 220, 850);
+  S.Wc += CV * dTwork;                          // 绝热时 W = ΔU
+  /* 活塞位置 */
+  pistonGrp.position.set(XL, pistonBottomY(), 0);
+  /* 击锤动画 */
+  if(hammerAnim >= 0){
+    hammerAnim += dt*2.2;
+    const k = Math.min(1, hammerAnim);
+    const sw = k < 0.45 ? ease(k/0.45) : 1 - ease((k-0.45)/0.55)*0.25;
+    hammer.rotation.z = 0.12 - sw*0.3;
+    if(k >= 1){ hammerAnim = -1; hammer.rotation.z = 0.12; }
+  }
+  if(flashT >= 0){
+    flashT += dt;
+    const k = flashT/0.45;
+    flashMat.opacity = Math.max(0, 0.75*(1-k));
+    flash.scale.setScalar(0.7 + k*1.3);
+    flash.position.set(XL, pistonBottomY()*0.7+0.25, 0);
+    if(k >= 1){ flashT = -1; flashMat.opacity = 0; }
+  }
+
+  /* ---- 右：热传递 ---- */
+  const Pin  = S.heater ? S.power * 600 : 0;         // 输入功率（显示 W）
+  const Pout = (S.Th - 300) * 1.0;                    // 向环境散热
+  const dT = (Pin - Pout) / 5 * dt;                   // 加快升温/降温节奏：默认功率约5秒变红
+  S.Th = clamp(S.Th + dT, 220, 850);
+  S.Qc += (Pin - Pout) * dt;
+  /* 加热圈 & 光晕 */
+  const heatK = S.heater ? 0.4 + 0.6*S.power : 0;
+  coilMat.emissiveIntensity += (heatK*3.2 - coilMat.emissiveIntensity) * Math.min(1, dt*6);
+  heaterGlow.material.opacity += ((S.heater?0.95:0) - heaterGlow.material.opacity) * Math.min(1, dt*5);
+
+  /* ---- 箭头 ---- */
+  const compressing = dF < -0.0004, expanding = dF > 0.0004;
+
+  // 判定：只要活塞不在初始位置（pistonFrac 显著偏离 1.0），就保持显示对应标签
+  // pistonFrac < 1.0 → 被压缩过; = 1.0 → 完全复位
+  const isCompressedState = S.pistonFrac < 0.97;
+
+  if(compressing){
+    lastWorkMode = 1;        // 正在下压 → W>0
+    S.lastMotion = 1;
+    workLabelHoldT = 1.5;
+  } else if(expanding){
+    lastWorkMode = -1;       // 正在上拉 → W<0
+    S.lastMotion = -1;
+    workLabelHoldT = 1.5;
+  } else if(S.lastMotion !== 0){
+    // 只要发生过做功动作（不管活塞现在在哪个位置），就持续显示对应标签
+    // 直到按重置才清 S.lastMotion = 0
+    lastWorkMode = S.lastMotion;
+    workLabelHoldT = 999;    // 不衰减
+  } else if(workLabelHoldT > 0){
+    workLabelHoldT -= dt;
+  }
+
+  // 按压/上拉中也更新标签方向
+  if(S.pressHold){
+    lastWorkMode = 1;
+    workLabelHoldT = Math.max(workLabelHoldT, 0.3);
+  }
+  if(S.pullHold){
+    lastWorkMode = -1;
+    workLabelHoldT = Math.max(workLabelHoldT, 0.3);
+  }
+  const showWorkArrow = (compressing || expanding) || workLabelHoldT > 0.3;
+  arrW.visible = S.showArrows && showWorkArrow;
+  if(arrW.visible){
+    const len = clamp(0.28 + Math.abs(dF)/Math.max(dt,0.001)*0.16, 0.3, 0.72);
+    setArrowLen(arrW, len);
+    const isCompress = compressing || (lastWorkMode === 1);
+    arrW.scale.y = isCompress ? -1 : 1;
+    arrW.userData.mat.color.set(isCompress ? 0xff8a3c : 0x5fd4ff);
+    arrW.userData.mat.emissive.set(isCompress ? 0xff8a3c : 0x5fd4ff);
+    setLabel(labWork, isCompress ? '外界对系统做功 W>0' : '系统对外做功 W<0',
+             isCompress ? '#ff9a3c' : '#5fd4ff');
+  }
+  const Qdot = Pin - Pout;
+  const qShow = Math.abs(Qdot) > 4;
+  arrQ.forEach(a=>{
+    a.visible = S.showArrows && qShow;
+    if(a.visible){
+      setArrowLen(a, 0.5 + Math.min(0.3, Math.abs(Qdot)*0.005));
+      a.scale.y = Qdot > 0 ? 1 : -1;
+      a.userData.mat.color.set(Qdot > 0 ? 0xffc040 : 0x5f8fc9);
+      a.userData.mat.emissive.set(Qdot > 0 ? 0xffc040 : 0x5f8fc9);
+    }
+  });
+  labWork.visible = S.showLabels && (showWorkArrow || workLabelHoldT > 0);
+  labQt.visible = S.showLabels && qShow;
+  setLabel(labQt, Qdot > 0 ? '热传递 Q>0 吸热' : '热传递 Q<0 散热', Qdot > 0 ? '#ffc040' : '#7fa8d9');
+
+  /* ---- 粒子 ---- */
+  const ts = dt;
+  updateGas(gasL, S.Tw, pistonBottomY(), ts, S.running);
+  updateGas(gasR, S.Th, 0.14+GLASS_H, ts, S.running);
+  updateHeatParticles(Qdot, ts, S.running);
+  colTimer += dt;
+  if(colTimer > 0.12){
+    colTimer = 0;
+    colorGas(gasL, S.Tw);
+    colorGas(gasR, S.Th);
+  }
+  /* ---- 云图 ---- */
+  mapTimer += dt;
+  if(mapTimer > 0.12){
+    mapTimer = 0;
+    drawMap(mapL, S.Tw, S.pistonFrac, 'L');
+    drawMap(mapR, S.Th, 1, 'R');
+  }
+  /* ---- 标签跟随 ---- */
+  labPiston.position.set(XL + 0.98, pistonBottomY() + 0.02, 0);
+  labRod.position.set(XL + 0.52, pistonBottomY() + 0.46, 0);
+  const upW = S.Tw > 320, upH = S.Th > 330;
+  labUL.visible = S.showLabels; labUR.visible = S.showLabels;
+  setLabel(labUL, upW ? '内能 ΔU 增大 ↑' : (S.Tw < 285 ? '内能 ΔU 减小 ↓' : '内能 ΔU'),
+           upW ? '#ff9a3c' : '#7fa8d9');
+  setLabel(labUR, upH ? '内能 ΔU 增大 ↑' : (S.Th < 285 ? '内能 ΔU 减小 ↓' : '内能 ΔU'),
+           upH ? '#ff9a3c' : '#7fa8d9');
+}
+
+/* ================= HUD ================= */
+const $ = id => document.getElementById(id);
+function hud(){
+  const Uw = CV*(S.Tw-300), Uh = CV*(S.Th-300);
+  const set = (id, v)=>{ $(id).textContent = v; };
+  set('vUw', Uw.toFixed(0)+' J');  set('vUh', Uh.toFixed(0)+' J');
+  set('vQw', (Uw - S.Wc).toFixed(0)+' J');  set('vQh', S.Qc.toFixed(0)+' J');
+  set('vWw', S.Wc.toFixed(0)+' J');  set('vWh', '—');
+  const tw = $('vTw'), th = $('vTh');
+  tw.textContent = S.Tw.toFixed(0)+' K';  th.textContent = S.Th.toFixed(0)+' K';
+  tw.className = S.Tw>340?'hot':(S.Tw<290?'cold':'');
+  th.className = S.Th>340?'hot':(S.Th<290?'cold':'');
+  const pw = 101.3*(S.Tw/300)/Math.max(0.3,S.pistonFrac);
+  const ph = 101.3*(S.Th/300);
+  set('vpw', pw.toFixed(0)+' kPa');  set('vph', ph.toFixed(0)+' kPa');
+}
+
+/* ================= UI 交互 ================= */
+/* 按钮改"点按"：点一下自动压到底，再点上拉自动弹回 */
+const btnPress = $('btnPress');
+btnPress.addEventListener('click', ()=>{
+  if(S.running === false || S.pressHold || S.pullHold) return;
+  S.autoPressT = 2.0;   // 2 秒内压到底
+  btnPress.classList.add('on');
+  setTimeout(()=> btnPress.classList.remove('on'), 400);
+});
+
+const btnPull = $('btnPull');
+btnPull.addEventListener('click', ()=>{
+  if(S.running === false || S.pressHold || S.pullHold) return;
+  if(S.pistonFrac >= 0.98) return;  // 已经在顶就不触发
+  S.autoPullT = 2.0;
+  btnPull.classList.add('on');
+  setTimeout(()=> btnPull.classList.remove('on'), 400);
+});
+
+$('btnHammer').addEventListener('click', ()=>{
+  if(hammerAnim < 0){ hammerAnim = 0; S.hammerT = 0; S.hammerHit = false; }
+});
+$('rAmp').addEventListener('input', e=>{ S.workAmp = +e.target.value; });
+
+const btnHeat = $('btnHeat');
+btnHeat.addEventListener('click', ()=>{
+  S.heater = !S.heater;
+  btnHeat.classList.toggle('on', S.heater);
+  btnHeat.textContent = S.heater ? '🔥 加热热源 · 开' : '🔥 加热热源 · 关';
+});
+$('rPow').addEventListener('input', e=>{ S.power = +e.target.value; });
+
+$('btnPause').addEventListener('click', ()=>{
+  S.running = !S.running;
+  $('btnPause').textContent = S.running ? '⏸ 暂停' : '▶ 继续';
+});
+$('btnSlow').addEventListener('click', ()=>{
+  S.slow = !S.slow;
+  $('btnSlow').classList.toggle('on', S.slow);
+});
+$('btnReset').addEventListener('click', ()=>{
+  S.Tw = S.Th = 300; S.pistonFrac = 1; S.Wc = 0; S.Qc = 0;
+  S.pressHold = false; S.pullHold = false; S.autoPressT = 0; S.autoPullT = 0; S.lastMotion = 0;
+  btnPress.classList.remove('on'); btnPull.classList.remove('on');
+  S.heater = false; btnHeat.classList.remove('on'); btnHeat.textContent = '🔥 加热热源 · 关';
+  S.hammerT = -1; hammerAnim = -1; hammer.rotation.z = 0.12;
+  flashMat.opacity = 0; flashT = -1;
+  workLabelHoldT = 0; lastWorkMode = 0;
+  for(const d of heatDat) d.mode = 0;
+  mapL.lastT = mapR.lastT = -99;
+  colorGas(gasL, 300); colorGas(gasR, 300);
+});
+
+function bindToggle(id, key, objs){
+  $(id).addEventListener('click', ()=>{
+    S[key] = !S[key];
+    $(id).classList.toggle('on', S[key]);
+    objs.forEach(o=>{ if(o) o.visible = S[key]; });
+  });
+}
+bindToggle('tMap','showMap',[mapL.mesh, mapR.mesh]);
+bindToggle('tPar','showParticles',[gasL.pts, gasR.pts, heatPts]);
+bindToggle('tArr','showArrows',[arrW, ...arrQ]);
+bindToggle('tLab','showLabels',[labelGroup]);
+
+/* 顶部标签 → 相机 */
+const views = {
+  work: {pos:[-5.5, 2.8, 8.0], tgt:[-2.5, 1.0, 0]},
+  heat: {pos:[5.3, 2.8, 7.8], tgt:[2.55, 1.0, 0]},
+};
+let camAnim = null;
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    const v = views[t.dataset.v];
+    camAnim = {t:0, p0:camera.position.clone(), q0:controls.target.clone(),
+               p1:new THREE.Vector3(...v.pos), q1:new THREE.Vector3(...v.tgt)};
+    controls.enabled = false;
+  });
+});
+
+/* ================= 主循环 ================= */
+const clock = new THREE.Clock();
+
+/* ================= 气缸上方 3D 标签 ================= */
+// 活塞标签根据活塞位置自动切换；加热标签根据 heater 状态切换
+function updateInteractiveLabels(){
+  const nearTop = S.pistonFrac > 0.85;      // 活塞接近顶部
+  const nearBottom = S.pistonFrac < 0.25;  // 活塞接近底部
+  
+  if(nearTop){
+    setLabel(pistonActionLabel, '▼ 点击下压活塞', '#ff9a3c');
+    pistonActionLabel.userData.action = 'press';
+  } else if(nearBottom){
+    setLabel(pistonActionLabel, '▲ 点击上拉活塞', '#5fd4ff');
+    pistonActionLabel.userData.action = 'pull';
+  } else {
+    if(pistonActionLabel.userData.action === 'press'){
+      setLabel(pistonActionLabel, '▼ 继续下压', '#ff9a3c');
+    } else {
+      setLabel(pistonActionLabel, '▲ 继续上拉', '#5fd4ff');
+    }
+  }
+  // 加热标签
+  if(S.heater){
+    setLabel(heatActionLabel, '🔥 加热中 · 点击关闭', '#ff7a3c');
+    heatActionLabel.userData.on = true;
+  } else {
+    setLabel(heatActionLabel, '🔥 点击开启加热', '#ff9a3c');
+    heatActionLabel.userData.on = false;
+  }
+}
+
+renderer.domElement.addEventListener('pointerdown', (e)=>{
+  if(e.button !== 0) return;
+  labelClickNDC.x = (e.clientX / innerWidth) * 2 - 1;
+  labelClickNDC.y = -(e.clientY / innerHeight) * 2 + 1;
+  labelClickRaycaster.setFromCamera(labelClickNDC, camera);
+  const hits = labelClickRaycaster.intersectObjects(interactiveLabels, false);
+  if(hits.length > 0){
+    e.stopPropagation();
+    e.preventDefault();
+    if(!S.running) return;
+    const hitLabel = hits[0].object;
+    if(hitLabel === pistonActionLabel){
+      const act = pistonActionLabel.userData.action;
+      if(act === 'press' && S.pistonFrac > 0.16){
+        S.autoPressT = 2.5;
+      } else if(act === 'pull' && S.pistonFrac < 0.98){
+        S.autoPullT = 2.5;
+      }
+    } else if(hitLabel === heatActionLabel){
+      S.heater = !S.heater;
+      document.getElementById('btnHeat').classList.toggle('on', S.heater);
+      document.getElementById('btnHeat').textContent = S.heater ? '🔥 加热热源 · 开' : '🔥 加热热源 · 关';
+    }
+  }
+}, true);
+
+renderer.domElement.addEventListener('pointermove', (e)=>{
+  labelClickNDC.x = (e.clientX / innerWidth) * 2 - 1;
+  labelClickNDC.y = -(e.clientY / innerHeight) * 2 + 1;
+  labelClickRaycaster.setFromCamera(labelClickNDC, camera);
+  const hit = labelClickRaycaster.intersectObjects(interactiveLabels, false).length > 0;
+  renderer.domElement.style.cursor = hit ? 'pointer' : '';
+});
+
+function loop(){
+  requestAnimationFrame(loop);
+  let dt = Math.min(clock.getDelta(), 0.05);
+  const ts = S.running ? (S.slow ? 0.32 : 1) : 0;
+  if(ts > 0) physics(dt * ts);
+  hud();
+  updateInteractiveLabels();
+
+  if(camAnim){
+    camAnim.t += dt * 1.1;
+    const k = ease(Math.min(1, camAnim.t));
+    camera.position.lerpVectors(camAnim.p0, camAnim.p1, k);
+    controls.target.lerpVectors(camAnim.q0, camAnim.q1, k);
+    if(camAnim.t >= 1){ camAnim = null; controls.enabled = true; }
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+colorGas(gasL, 300); colorGas(gasR, 300);
+loop();
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

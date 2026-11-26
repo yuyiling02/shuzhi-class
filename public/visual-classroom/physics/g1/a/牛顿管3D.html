@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>牛顿管 · 自由落体 3D</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#e9eff7;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:#0f172a}
+  canvas{display:block;width:100%;height:100%}
+  #app{position:fixed;inset:0}
+  .hud{position:absolute;left:26px;top:22px;pointer-events:none}
+  .hud .t{font-size:17px;font-weight:700;letter-spacing:.5px}
+  .hud .s{margin-top:6px;font-size:12.5px;color:#64748b;font-variant-numeric:tabular-nums}
+  .tag{position:absolute;transform:translate(-50%,-100%);font-size:12px;font-weight:700;
+    color:#334155;background:rgba(255,255,255,.72);backdrop-filter:blur(6px);
+    padding:4px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 3px 10px rgba(15,23,42,.08);white-space:nowrap;pointer-events:none;
+    transition:opacity .3s}
+  .tag.vac{color:#047857;background:rgba(236,253,245,.85);border-color:rgba(167,243,208,.9)}
+  .bar{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);
+    display:flex;gap:10px;align-items:center}
+  button{font-family:inherit;font-size:13.5px;font-weight:700;border:none;cursor:pointer;
+    padding:11px 22px;border-radius:12px;background:rgba(255,255,255,.88);color:#334155;
+    box-shadow:0 6px 18px rgba(15,23,42,.10),inset 0 0 0 1px rgba(255,255,255,.9);
+    backdrop-filter:blur(8px);transition:transform .12s,box-shadow .2s,opacity .2s}
+  button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 24px rgba(15,23,42,.14)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button.primary{background:#2563eb;color:#fff;box-shadow:0 8px 22px rgba(37,99,235,.35)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  #result{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);
+    font-size:15px;font-weight:700;padding:9px 20px;border-radius:24px;opacity:0;
+    transition:opacity .35s,transform .35s;pointer-events:none}
+  #result.show{opacity:1}
+  #result.ok{background:rgba(16,185,129,.14);color:#047857}
+  #result.bad{background:rgba(217,119,6,.14);color:#b45309}
+  #loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-size:13px;color:#94a3b8}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene"></canvas>
+  <div class="hud">
+    <div class="t">牛顿管 · 自由落体</div>
+    <div class="s" id="pv">1.00 atm</div>
+  </div>
+  <div id="tagA" class="tag">空气</div>
+  <div id="tagB" class="tag">空气</div>
+  <!-- 管内物体标签：左管(空气)、右管(真空/空气) 各有铁片和羽毛 -->
+  <div id="tagAIron" class="tag" style="color:#4b586c;background:rgba(241,245,249,.85);border-color:rgba(148,163,184,.9)">铁片</div>
+  <div id="tagAFeather" class="tag" style="color:#a16207;background:rgba(254,249,195,.85);border-color:rgba(253,230,138,.9)">羽毛</div>
+  <div id="tagBIron" class="tag" style="color:#4b586c;background:rgba(241,245,249,.85);border-color:rgba(148,163,184,.9)">铁片</div>
+  <div id="tagBFeather" class="tag" style="color:#a16207;background:rgba(254,249,195,.85);border-color:rgba(253,230,138,.9)">羽毛</div>
+  <div id="result"></div>
+  <div class="bar">
+    <button id="btnPump">抽气</button>
+    <button id="btnFlip" class="primary">倒立释放</button>
+    <button id="btnReset">复位</button>
+  </div>
+  <div id="loading">载入三维场景…</div>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ========== 常量 ==========
+const G = 9.8;
+const TUBE_LEN = 3.4, TUBE_R = 0.5, INNER_H = 3.05;
+const CY = 1.95;                 // 管中心高度
+const TX = [-1.35, 1.35];        // 两根管的位置
+const SPEED = 0.72;              // 播放倍率
+
+// ========== 渲染器 ==========
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = makeGradientBg();
+scene.fog = new THREE.Fog(0xe2eaf5, 16, 42);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.05).texture;
+
+window.addEventListener('error', (e)=>{
+  const el = document.getElementById('loading');
+  if(el){ el.style.display='block'; el.textContent = '渲染出错：' + (e.message || ''); }
+});
+
+const camera = new THREE.PerspectiveCamera(33, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0.4, 3.1, 9.2);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.9, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.enablePan = false;
+controls.minDistance = 5.5;
+controls.maxDistance = 15;
+controls.minPolarAngle = 0.55;
+controls.maxPolarAngle = 1.62;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.35;
+controls.update();
+
+function makeGradientBg(){
+  const c = document.createElement('canvas');
+  c.width = 16; c.height = 256;
+  const g = c.getContext('2d').createLinearGradient(0,0,0,256);
+  g.addColorStop(0,'#f4f8fd');
+  g.addColorStop(0.55,'#e6eef8');
+  g.addColorStop(1,'#d6e2f1');
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = g; ctx.fillRect(0,0,16,256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+// ========== 灯光 ==========
+scene.add(new THREE.HemisphereLight(0xffffff, 0xaab8cc, 1.15));
+const key = new THREE.DirectionalLight(0xffffff, 2.1);
+key.position.set(4.5, 8, 6.5);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.near = 1;
+key.shadow.camera.far = 30;
+key.shadow.camera.left = -8; key.shadow.camera.right = 8;
+key.shadow.camera.top = 8;  key.shadow.camera.bottom = -4;
+key.shadow.bias = -0.0008;
+key.shadow.radius = 3;
+scene.add(key);
+
+const rim = new THREE.DirectionalLight(0xcfe4ff, 1.1);
+rim.position.set(-6, 3, -5);
+scene.add(rim);
+
+// ========== 地面与底座 ==========
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(26, 64),
+  new THREE.MeshStandardMaterial({ color:0xe9eef6, roughness:0.96, metalness:0 })
+);
+ground.rotation.x = -Math.PI/2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const baseMat = new THREE.MeshStandardMaterial({ color:0x2b3a4d, roughness:0.42, metalness:0.55 });
+const base = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.18, 1.15), baseMat);
+base.position.set(0, 0.09, 0);
+base.castShadow = true; base.receiveShadow = true;
+scene.add(base);
+
+const baseTop = new THREE.Mesh(
+  new THREE.BoxGeometry(4.3, 0.05, 0.95),
+  new THREE.MeshStandardMaterial({ color:0x3d4f66, roughness:0.3, metalness:0.7 })
+);
+baseTop.position.set(0, 0.2, 0);
+baseTop.receiveShadow = true;
+scene.add(baseTop);
+
+// ========== 材质 ==========
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0xf2f9ff, metalness: 0, roughness: 0.02,
+  transmission: 1, thickness: 0.04, ior: 1.4,
+  transparent: true, side: THREE.FrontSide,
+  envMapIntensity: 1.1, clearcoat: 1, clearcoatRoughness: 0.02
+});
+const capMat = new THREE.MeshStandardMaterial({ color:0xb9c4d2, roughness:0.28, metalness:0.95 });
+const darkMetal = new THREE.MeshStandardMaterial({ color:0x64748b, roughness:0.35, metalness:0.9 });
+
+// ========== 羽毛 ==========
+function makeFeather(){
+  const g = new THREE.Group();
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.bezierCurveTo(0.13, 0.22, 0.17, 0.6, 0.015, 0.86);
+  s.bezierCurveTo(-0.14, 0.6, -0.12, 0.22, 0, 0);
+  const geo = new THREE.ExtrudeGeometry(s, { depth: 0.012, bevelEnabled: false, curveSegments: 26 });
+  const vane = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
+    color: 0xf6c765, roughness: 0.5, metalness: 0.0, side: THREE.DoubleSide,
+    sheen: 1, sheenColor: 0xfff6e0
+  }));
+  vane.position.set(0, -0.4, -0.006);
+  vane.castShadow = true;
+  g.add(vane);
+
+  const shaft = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.008, 0.013, 0.9, 8),
+    new THREE.MeshStandardMaterial({ color:0xb07a4a, roughness:0.75 })
+  );
+  shaft.position.set(0, -0.04, 0);
+  shaft.castShadow = true;
+  g.add(shaft);
+
+  g.scale.setScalar(1.05);
+  return g;
+}
+
+// ========== 铁片 ==========
+function makeIron(){
+  const g = new THREE.Group();
+  const plate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.62, 0.075, 0.4),
+    new THREE.MeshStandardMaterial({ color:0x4b586c, roughness:0.22, metalness:1.0, envMapIntensity:1.3 })
+  );
+  plate.castShadow = true;
+  g.add(plate);
+  const edge = new THREE.Mesh(
+    new THREE.BoxGeometry(0.64, 0.03, 0.42),
+    new THREE.MeshStandardMaterial({ color:0x5c6b7f, roughness:0.3, metalness:0.95 })
+  );
+  edge.position.y = 0.03;
+  g.add(edge);
+  return g;
+}
+
+// ========== 分子 ==========
+const dotTex = (()=>{
+  const c = document.createElement('canvas'); c.width = c.height = 32;
+  const x = c.getContext('2d');
+  const rg = x.createRadialGradient(16,16,0,16,16,16);
+  rg.addColorStop(0,'rgba(255,255,255,1)');
+  rg.addColorStop(0.45,'rgba(147,197,253,.9)');
+  rg.addColorStop(1,'rgba(147,197,253,0)');
+  x.fillStyle = rg; x.beginPath(); x.arc(16,16,16,0,7); x.fill();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+
+function makeMolecules(cx){
+  const N = 240;
+  const pos = new Float32Array(N*3);
+  const vel = [];
+  for(let i=0;i<N;i++){
+    const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*0.4;
+    pos[i*3]   = cx + Math.cos(a)*r;
+    pos[i*3+1] = CY + (Math.random()-0.5)*2.7;
+    pos[i*3+2] = Math.sin(a)*r;
+    vel.push(new THREE.Vector3((Math.random()-0.5)*0.35,(Math.random()-0.5)*0.35,(Math.random()-0.5)*0.35));
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const mat = new THREE.PointsMaterial({
+    size: 0.075, map: dotTex,
+    transparent: false, alphaTest: 0.35,
+    depthWrite: true, sizeAttenuation: true,
+    color: 0x3b82f6, blending: THREE.NormalBlending
+  });
+  const pts = new THREE.Points(geo, mat);
+  pts.userData = { N, vel, cx };
+  return pts;
+}
+
+// ========== 玻璃管 ==========
+function buildTube(x){
+  const group = new THREE.Group();
+  group.position.set(x, CY, 0);
+
+  const wall = new THREE.Mesh(
+    new THREE.CylinderGeometry(TUBE_R, TUBE_R, TUBE_LEN, 72, 1, true),
+    glassMat
+  );
+  wall.renderOrder = 4;
+  group.add(wall);
+
+  // 管壁厚度暗示（内层，极淡）
+  const inner = new THREE.Mesh(
+    new THREE.CylinderGeometry(TUBE_R-0.03, TUBE_R-0.03, TUBE_LEN-0.04, 64, 1, true),
+    new THREE.MeshPhysicalMaterial({
+      color:0xdff0ff, metalness:0, roughness:0.05, transparent:true, opacity:0.05,
+      side:THREE.BackSide, depthWrite:false
+    })
+  );
+  inner.renderOrder = 3;
+  group.add(inner);
+
+  // 上下端盖
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(TUBE_R*1.06, TUBE_R*1.06, 0.11, 72), capMat);
+  top.position.y = TUBE_LEN/2;
+  top.castShadow = true;
+  group.add(top);
+
+  const bot = new THREE.Mesh(new THREE.CylinderGeometry(TUBE_R*1.06, TUBE_R*1.06, 0.11, 72), capMat);
+  bot.position.y = -TUBE_LEN/2;
+  bot.castShadow = true; bot.receiveShadow = true;
+  group.add(bot);
+
+  // 阀门（下端前方）
+  const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.22, 24), darkMetal);
+  valve.rotation.z = Math.PI/2;
+  valve.position.set(0, -TUBE_LEN/2 + 0.2, TUBE_R + 0.05);
+  group.add(valve);
+  const knob = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.025, 12, 24), darkMetal);
+  knob.position.set(0, -TUBE_LEN/2 + 0.2, TUBE_R + 0.18);
+  group.add(knob);
+
+  scene.add(group);
+  return group;
+}
+
+// ========== 抽气泵 ==========
+const pumpGroup = new THREE.Group();
+pumpGroup.position.set(2.95, 0.34, 0.15);
+{
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(0.95, 0.68, 0.8),
+    new THREE.MeshStandardMaterial({ color:0x334155, roughness:0.45, metalness:0.4 })
+  );
+  body.castShadow = true; body.receiveShadow = true;
+  pumpGroup.add(body);
+
+  const cap = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.26, 0.26, 0.12, 32),
+    new THREE.MeshStandardMaterial({ color:0x64748b, roughness:0.3, metalness:0.85 })
+  );
+  cap.position.set(0, 0.4, 0);
+  cap.castShadow = true;
+  pumpGroup.add(cap);
+
+  const led = new THREE.Mesh(
+    new THREE.SphereGeometry(0.055, 16, 16),
+    new THREE.MeshStandardMaterial({ color:0x94a3b8, emissive:0x000000, emissiveIntensity:1 })
+  );
+  led.position.set(0.3, 0.06, 0.41);
+  pumpGroup.add(led);
+  pumpGroup.userData.led = led;
+}
+scene.add(pumpGroup);
+
+// ========== 软管 ==========
+let hose = null;
+const pumpInlet = new THREE.Vector3(2.62, 0.62, 0.26);
+function valveWorld(){
+  const ly = -TUBE_LEN/2 + 0.2, lz = TUBE_R + 0.2;
+  const c = Math.cos(st.flip), s = Math.sin(st.flip);
+  return new THREE.Vector3(
+    TX[1],
+    CY + ly*c - lz*s,
+    ly*s + lz*c
+  );
+}
+function updateHose(){
+  const a = valveWorld(), b = pumpInlet;
+  const mid = a.clone().lerp(b, 0.5);
+  mid.y -= 0.42;
+  mid.x += 0.15;
+  const curve = new THREE.CatmullRomCurve3([a, mid, b]);
+  const geo = new THREE.TubeGeometry(curve, 42, 0.045, 10, false);
+  if(hose){ hose.geometry.dispose(); hose.geometry = geo; }
+  else {
+    hose = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+      color:0x1f2937, roughness:0.7, metalness:0.1
+    }));
+    hose.castShadow = true;
+    scene.add(hose);
+  }
+}
+
+// ========== 建立场景对象 ==========
+const TUBES = [
+  { x: TX[0], group: buildTube(TX[0]), pts: makeMolecules(TX[0]), p: 1,
+    objs: [
+      { kind:'iron',    dx:-0.17, dz:0, mesh: makeIron(),    s:0, v:0, landed:false, tl:null, kd:0.015 },
+      { kind:'feather', dx: 0.17, dz:0, mesh: makeFeather(), s:0, v:0, landed:false, tl:null, kd:2.25 }
+    ]},
+  { x: TX[1], group: buildTube(TX[1]), pts: makeMolecules(TX[1]), p: 1,
+    objs: [
+      { kind:'iron',    dx:-0.17, dz:0, mesh: makeIron(),    s:0, v:0, landed:false, tl:null, kd:0.015 },
+      { kind:'feather', dx: 0.17, dz:0, mesh: makeFeather(), s:0, v:0, landed:false, tl:null, kd:2.25 }
+    ]}
+];
+TUBES.forEach(t=>{
+  scene.add(t.pts);
+  t.objs.forEach(o=>{
+    o.mesh.castShadow = true;
+    scene.add(o.mesh);
+  });
+});
+
+// ========== 状态 ==========
+const st = {
+  phase: 'idle',     // idle | flipping | falling | done
+  flip: 0,
+  flipT: 0,
+  t: 0,
+  pumping: false,
+  pumpMode: 'pump',   // 'pump' = 抽气, 'release' = 放气
+  pumpT: 0
+};
+
+// ========== 摆放物体 ==========
+function placeObjects(dt){
+  const topY = CY + INNER_H/2;
+  const botY = CY - INNER_H/2;
+
+  for(const tube of TUBES){
+    for(const o of tube.objs){
+      if(st.phase === 'idle'){
+        o.mesh.position.set(tube.x + o.dx, botY + 0.05, o.dz);
+        o.mesh.rotation.set(0, 0, 0);
+        if(o.kind === 'feather'){ o.mesh.rotation.set(0, 0, 0.25); }
+      }
+      else if(st.phase === 'flipping'){
+        const ly = -INNER_H/2;
+        const c = Math.cos(st.flip), s = Math.sin(st.flip);
+        o.mesh.position.set(tube.x + o.dx, CY + ly*c, ly*s + o.dz);
+        o.mesh.rotation.set(st.flip, 0, o.kind==='feather' ? 0.25 : 0);
+      }
+      else {
+        const air = Math.min(1, tube.p);
+        const wob = (o.kind === 'feather' && air > 0.05 && !o.landed)
+          ? Math.sin(st.t*7.5) * 0.075 * air * Math.min(1, st.t*2) : 0;
+        const wobz = (o.kind === 'feather' && air > 0.05 && !o.landed)
+          ? Math.cos(st.t*5.3) * 0.05 * air * Math.min(1, st.t*2) : 0;
+        o.mesh.position.set(tube.x + o.dx + wob, topY - o.s, o.dz + wobz);
+        if(o.kind === 'feather'){
+          o.mesh.rotation.set(0, wob*1.6, 0.25 + wob*2.2);
+        } else {
+          o.mesh.rotation.set(0, 0, 0);
+        }
+      }
+    }
+  }
+}
+
+// ========== 物理 ==========
+function simulate(dt){
+  st.t += dt;
+  let allDone = true;
+
+  for(const tube of TUBES){
+    for(const o of tube.objs){
+      if(o.landed) continue;
+      allDone = false;
+      const a = G - o.kd * tube.p * o.v * o.v;
+      o.v += a * dt;
+      o.s += o.v * dt;
+      if(o.s >= INNER_H){
+        o.s = INNER_H;
+        o.landed = true;
+        o.tl = st.t;
+      }
+    }
+  }
+  if(allDone && st.phase === 'falling') onAllLanded();
+}
+
+function onAllLanded(){
+  st.phase = 'done';
+  const vacuum = TUBES[1].p < 0.06;
+  const res = document.getElementById('result');
+  if(vacuum){
+    res.textContent = '同时落地';
+    res.className = 'show ok';
+  } else {
+    res.textContent = '铁片先落';
+    res.className = 'show bad';
+  }
+  syncUI();
+}
+
+// ========== 循环 ==========
+let last = performance.now();
+let acc = 0;
+
+function tick(now){
+  const dtReal = Math.min((now - last)/1000, 0.05);
+  last = now;
+
+  // 倒立动画
+  if(st.phase === 'flipping'){
+    st.flipT += dtReal;
+    const p = Math.min(st.flipT / 0.85, 1);
+    const e = p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2)/2;
+    st.flip = Math.PI * e;
+    TUBES.forEach(t => t.group.rotation.x = st.flip);
+    updateHose();
+    if(p >= 1){
+      st.flip = Math.PI;
+      TUBES.forEach(t => t.group.rotation.x = st.flip);
+      updateHose();
+      st.phase = 'falling';
+      st.t = 0;
+    }
+  }
+
+  // 物理
+  if(st.phase === 'falling'){
+    acc += dtReal * SPEED;
+    const h = 1/480;
+    let guard = 0;
+    while(acc >= h && guard < 600){
+      simulate(h);
+      acc -= h; guard++;
+      if(st.phase !== 'falling') break;
+    }
+  }
+
+  // 抽气 / 放气（双向）
+  if(st.pumping){
+    st.pumpT += dtReal;
+    const speed = 1.6;  // 和原来一样 1.6 秒完成一次
+    if(st.pumpMode === 'pump'){
+      TUBES[1].p = Math.max(0.015, 1 - st.pumpT / speed);
+      pumpGroup.position.x = 2.95 + Math.sin(st.pumpT * 55) * 0.008;
+      if(TUBES[1].p <= 0.015){
+        st.pumping = false;
+        pumpGroup.position.x = 2.95;
+        syncUI();
+      }
+    } else {
+      // 放气：从当前气压升回 1 atm
+      const startP = 1 - st.pumpT / speed;  // 按同样节奏线性升到 1
+      TUBES[1].p = Math.min(1, TUBES[1].p + dtReal / speed * 0.985);
+      pumpGroup.position.x = 2.95 + Math.sin(st.pumpT * 40) * 0.012;
+      if(TUBES[1].p >= 0.99){
+        TUBES[1].p = 1;
+        st.pumping = false;
+        pumpGroup.position.x = 2.95;
+        syncUI();
+      }
+    }
+    if(st.pumping) syncUI();
+  }
+
+  // 分子
+  for(const tube of TUBES){
+    const pts = tube.pts;
+    const arr = pts.geometry.attributes.position.array;
+    const { vel, cx } = pts.userData;
+    for(let i=0;i<vel.length;i++){
+      const v = vel[i];
+      arr[i*3]   += v.x*dtReal;
+      arr[i*3+1] += v.y*dtReal;
+      arr[i*3+2] += v.z*dtReal;
+      // 边界
+      const dx = arr[i*3]-cx, dz = arr[i*3+2];
+      const rr = Math.hypot(dx,dz);
+      if(rr > 0.4){ const k = 0.4/rr; arr[i*3] = cx + dx*k; arr[i*3+2] = dz*k; v.x*=-1; v.z*=-1; }
+      if(arr[i*3+1] > CY+1.6){ arr[i*3+1] = CY+1.6; v.y *= -1; }
+      if(arr[i*3+1] < CY-1.6){ arr[i*3+1] = CY-1.6; v.y *= -1; }
+    }
+    pts.geometry.attributes.position.needsUpdate = true;
+
+    const n = Math.round(pts.userData.N * Math.min(1, tube.p));
+    pts.geometry.setDrawRange(0, n);
+    pts.visible = n > 0;
+  }
+
+  placeObjects(dtReal);
+
+  // 泵指示灯
+  const led = pumpGroup.userData.led;
+  if(st.pumping){
+    led.material.color.setHex(0x22d3ee);
+    led.material.emissive.setHex(0x0891b2);
+    led.material.emissiveIntensity = 1.4;
+  } else {
+    led.material.color.setHex(0x94a3b8);
+    led.material.emissive.setHex(0x000000);
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+  updateTags();
+  requestAnimationFrame(tick);
+}
+
+// ========== HTML 标签跟随 ==========
+const tagA = document.getElementById('tagA');
+const tagB = document.getElementById('tagB');
+const tagAIron = document.getElementById('tagAIron');
+const tagAFeather = document.getElementById('tagAFeather');
+const tagBIron = document.getElementById('tagBIron');
+const tagBFeather = document.getElementById('tagBFeather');
+const _v = new THREE.Vector3();
+
+function placeTag(el, world){
+  _v.copy(world).project(camera);
+  const x = (_v.x*0.5+0.5)*innerWidth;
+  const y = (-_v.y*0.5+0.5)*innerHeight;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.style.opacity = _v.z > 1 ? 0 : 1;
+}
+
+function updateTags(){
+  // 管子倒立前后占据同一空间，标签固定在管顶上方
+  const y = CY + TUBE_LEN/2 + 0.42;
+  placeTag(tagA, new THREE.Vector3(TX[0], y, 0));
+  placeTag(tagB, new THREE.Vector3(TX[1], y, 0));
+  
+  // 管内物体标签（跟随物体位置，略偏上方以便看清）
+  const ironA = TUBES[0].objs.find(o => o.kind === 'iron');
+  const featherA = TUBES[0].objs.find(o => o.kind === 'feather');
+  const ironB = TUBES[1].objs.find(o => o.kind === 'iron');
+  const featherB = TUBES[1].objs.find(o => o.kind === 'feather');
+  const offsetY = 0.35;  // 标签在物体上方
+  if(ironA) placeTag(tagAIron, ironA.mesh.position.clone().add(new THREE.Vector3(0, offsetY, 0)));
+  if(featherA) placeTag(tagAFeather, featherA.mesh.position.clone().add(new THREE.Vector3(0, offsetY, 0)));
+  if(ironB) placeTag(tagBIron, ironB.mesh.position.clone().add(new THREE.Vector3(0, offsetY, 0)));
+  if(featherB) placeTag(tagBFeather, featherB.mesh.position.clone().add(new THREE.Vector3(0, offsetY, 0)));
+}
+
+// ========== UI ==========
+const btnPump = document.getElementById('btnPump');
+const btnFlip = document.getElementById('btnFlip');
+const btnReset = document.getElementById('btnReset');
+const pv = document.getElementById('pv');
+const result = document.getElementById('result');
+
+function syncUI(){
+  const vacuum = TUBES[1].p < 0.06;
+  tagB.textContent = vacuum ? '真空' : '空气';
+  tagB.classList.toggle('vac', vacuum);
+  tagA.textContent = '空气';
+  pv.textContent = vacuum ? '≈ 0 atm' : TUBES[1].p.toFixed(2) + ' atm';
+
+  // 按钮文字：根据当前气压显示"抽气"或"放气"
+  const isLow = TUBES[1].p < 0.1;
+  const isHigh = TUBES[1].p > 0.94;
+  btnPump.textContent = isHigh ? '抽气' : (isLow ? '放气' : (TUBES[1].p < 0.5 ? '放气' : '抽气'));
+  btnPump.style.background = isLow ? '#059669' : (isHigh ? '#2563eb' : '#2563eb');
+  btnPump.style.color = '#fff';
+
+  btnPump.disabled = st.pumping || st.phase === 'flipping' || st.phase === 'falling';
+  btnFlip.disabled = st.pumping || st.phase === 'flipping' || st.phase === 'falling';
+  btnReset.disabled = st.pumping;
+}
+
+btnPump.addEventListener('click', ()=>{
+  if(st.pumping || st.phase === 'flipping' || st.phase === 'falling') return;
+  if(st.phase === 'done') resetScene();
+  // 根据当前气压决定方向
+  st.pumpMode = TUBES[1].p > 0.5 ? 'pump' : 'release';
+  st.pumping = true;
+  st.pumpT = 0;
+  result.className = '';
+  syncUI();
+});
+
+btnFlip.addEventListener('click', ()=>{
+  if(st.phase === 'flipping' || st.phase === 'falling' || st.pumping) return;
+  if(st.phase === 'done') resetScene(false);
+  st.phase = 'flipping';
+  st.flipT = 0;
+  st.t = 0; acc = 0;
+  result.className = '';
+  controls.autoRotate = false;
+  syncUI();
+});
+
+btnReset.addEventListener('click', ()=> resetScene(false));
+
+function resetScene(){
+  st.phase = 'idle';
+  st.flip = 0; st.flipT = 0; st.t = 0; acc = 0;
+  st.pumping = false;
+  TUBES.forEach(t=>{
+    t.group.rotation.x = 0;
+    t.objs.forEach(o=>{
+      o.s = 0; o.v = 0; o.landed = false; o.tl = null;
+      o.mesh.rotation.set(0,0,0);
+    });
+  });
+  // 保留右管当前气压（真空状态），不再每次复位都恢复大气压
+  // TUBES[1].p = 1;  // 注释掉：让抽成真空后保持真空
+  pumpGroup.position.x = 2.95;
+  updateHose();
+  result.className = '';
+  controls.autoRotate = true;
+  syncUI();
+}
+
+// ========== 自动演示（?demo 用于检查动画） ==========
+if(location.search.includes('demo')){
+  setTimeout(()=>{ document.getElementById('btnPump').click(); }, 600);
+  setTimeout(()=>{ document.getElementById('btnFlip').click(); }, 3000);
+}
+
+// ========== 初始化 ==========
+updateHose();
+placeObjects(0);
+syncUI();
+document.getElementById('loading').style.display = 'none';
+requestAnimationFrame(tick);
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+<script>
+  // 若三维库加载失败，给出提示
+  setTimeout(()=>{
+    const el = document.getElementById('loading');
+    if(el && el.style.display !== 'none'){
+      el.textContent = '三维资源加载失败，请检查网络后刷新';
+      el.style.color = '#b45309';
+    }
+  }, 8000);
+</script>
+</body>
+</html>

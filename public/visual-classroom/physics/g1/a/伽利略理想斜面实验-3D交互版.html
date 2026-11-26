@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>伽利略理想斜面实验 · 3D</title>
+<style>
+  :root{
+    --blue:#5aa8ff; --blue-dim:#2b5f96; --orange:#ff9a4d; --orange-dim:#b96a2c;
+    --panel:rgba(10,16,24,.82); --line:rgba(90,168,255,.22); --txt:#dbe8f6; --muted:#7f96ad;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;background:#05080d;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--txt);}
+  #app{position:fixed;inset:0;}
+  #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden;}
+
+  /* ---------- 浮动标签 ---------- */
+  .tag{
+    padding:5px 11px;border-radius:999px;font-size:12px;letter-spacing:.3px;white-space:nowrap;
+    color:#ffc39a;background:rgba(48,22,8,.62);
+    border:1px solid rgba(255,154,77,.55);
+    box-shadow:0 6px 20px rgba(255,110,30,.16), inset 0 0 12px rgba(255,140,60,.1);
+    backdrop-filter:blur(6px);
+  }
+  .tag b{color:#ffd7b0;font-family:Consolas,monospace;font-weight:700;}
+  .tag.white{color:rgba(235,245,255,.72);background:rgba(12,20,30,.5);
+    border-color:rgba(190,215,240,.3);box-shadow:none;font-size:11px;padding:3px 9px;}
+  /* 停靠标记标签 */
+  .tag.mk{
+    font-size:11px;font-weight:700;letter-spacing:.2px;padding:2px 8px;
+    font-family:Consolas,monospace;border-width:1px;backdrop-filter:blur(4px);
+  }
+
+  /* ---------- 控制面板 ---------- */
+  .panel{
+    position:fixed;left:18px;top:18px;width:252px;padding:15px 16px 14px;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    backdrop-filter:blur(14px);box-shadow:0 18px 48px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+    user-select:none;z-index:10;
+  }
+  .brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.6px;
+    color:#eaf3ff;margin-bottom:13px;}
+  .brand i{width:7px;height:7px;border-radius:50%;background:var(--orange);
+    box-shadow:0 0 10px rgba(255,154,77,.9);}
+  .brand small{font-weight:400;color:var(--muted);font-size:10px;letter-spacing:0;margin-left:auto;}
+
+  .mats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:14px;}
+  .mats button{
+    padding:7px 0;font-size:11.5px;font-family:inherit;font-weight:600;cursor:pointer;
+    color:#8ea6bd;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);
+    border-radius:9px;transition:.18s;
+  }
+  .mats button:hover{color:#cfe3f7;border-color:rgba(90,168,255,.35);}
+  .mats button.on{
+    color:#fff;background:linear-gradient(180deg,rgba(90,168,255,.32),rgba(90,168,255,.16));
+    border-color:rgba(90,168,255,.7);box-shadow:0 0 14px rgba(60,140,255,.28);
+  }
+
+  .row{margin:12px 0 4px;}
+  .row .head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--muted);margin-bottom:6px;}
+  .row .head b{color:#8fc3ff;font-family:Consolas,monospace;font-size:13px;font-weight:700;}
+  input[type=range]{
+    -webkit-appearance:none;width:100%;height:3px;border-radius:3px;outline:none;
+    background:linear-gradient(90deg,rgba(90,168,255,.75),rgba(90,168,255,.15));
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:13px;height:13px;border-radius:50%;cursor:pointer;
+    background:#eaf4ff;border:2px solid #5aa8ff;box-shadow:0 0 10px rgba(90,168,255,.7);
+  }
+
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:15px;}
+  .btns button{
+    padding:9px 0;font-size:12.5px;font-family:inherit;font-weight:700;cursor:pointer;color:#fff;
+    border:none;border-radius:10px;transition:.18s;letter-spacing:.5px;
+  }
+  #run{background:linear-gradient(180deg,#3f8fe8,#2266b8);box-shadow:0 6px 18px rgba(40,120,220,.32);}
+  #run:hover{filter:brightness(1.12);}
+  #reset{background:rgba(255,255,255,.08);color:#b7cbdd;border:1px solid rgba(255,255,255,.1);}
+  #reset:hover{background:rgba(255,255,255,.13);}
+  #cmp{grid-column:span 2;background:rgba(255,154,77,.13);color:#ffb27a;
+    border:1px solid rgba(255,154,77,.42);}
+  #cmp:hover{background:rgba(255,154,77,.2);}
+
+  .toggles{display:flex;gap:6px;margin-top:9px;}
+  .toggles button{
+    flex:1;padding:6px 0;font-size:11px;font-family:inherit;cursor:pointer;font-weight:600;
+    color:#7f96ad;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;
+  }
+  .toggles button.on{color:#8fc3ff;border-color:rgba(90,168,255,.45);background:rgba(90,168,255,.1);}
+
+  /* ---------- 数据窗 ---------- */
+  .hud{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:13px;}
+  .cell{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.055);border-radius:10px;padding:7px 9px;}
+  .cell .k{font-size:10px;color:var(--muted);letter-spacing:.5px;}
+  .cell .v{font-size:17px;font-family:Consolas,monospace;font-weight:700;color:#fff;line-height:1.25;}
+  .cell .v span{font-size:10px;color:var(--muted);font-weight:400;margin-left:2px;}
+  .bar{height:3px;border-radius:3px;background:rgba(255,255,255,.09);margin-top:6px;overflow:hidden;}
+  .bar i{display:block;height:100%;width:0%;border-radius:3px;
+    background:linear-gradient(90deg,#ff9a4d,#ffd08a);transition:width .12s linear;}
+  .hint{font-size:10.5px;color:#5f7387;text-align:center;margin-top:11px;letter-spacing:.3px;}
+
+  #toast{
+    position:fixed;left:50%;top:24px;transform:translate(-50%,-8px);z-index:20;
+    padding:8px 20px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.6px;
+    color:#ffe2c6;background:rgba(60,28,10,.72);border:1px solid rgba(255,154,77,.5);
+    box-shadow:0 8px 26px rgba(255,110,30,.25);backdrop-filter:blur(10px);
+    opacity:0;transition:opacity .35s, transform .35s;pointer-events:none;
+  }
+  #toast.on{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="labels"></div>
+
+<div class="panel">
+  <div class="brand"><i></i>伽利略理想斜面实验<small>3D SIM</small></div>
+
+  <div class="mats" id="mats">
+    <button data-m="0">毛巾</button>
+    <button data-m="1">棉布</button>
+    <button data-m="2" class="on">木板</button>
+    <button data-m="3">玻璃</button>
+    <button data-m="4">理想</button>
+  </div>
+
+  <div class="row">
+    <div class="head"><span>释放高度 h₀</span><b id="outH">0.25 m</b></div>
+    <input type="range" id="sH" min="0.14" max="0.34" step="0.01" value="0.25">
+  </div>
+  <div class="row">
+    <div class="head"><span>右侧斜面倾角 θ</span><b id="outT">20°</b></div>
+    <input type="range" id="sT" min="0" max="40" step="1" value="20">
+  </div>
+
+  <div class="btns">
+    <button id="run">▶ 释放</button>
+    <button id="reset">↺ 复位</button>
+    <button id="cmp">⚡ 对比多组轨迹</button>
+  </div>
+
+  <div class="toggles">
+    <button id="tgTrail" class="on">轨迹虚线</button>
+    <button id="tgSpeed">加速演示</button>
+  </div>
+
+  <div class="hud">
+    <div class="cell"><div class="k">速度 v</div><div class="v" id="outV">0.00<span>m/s</span></div></div>
+    <div class="cell"><div class="k">高度比 h/h₀</div><div class="v" id="outR">100<span>%</span></div>
+      <div class="bar"><i id="bar"></i></div></div>
+  </div>
+  <div class="hint">拖动旋转 · 滚轮缩放 · 停靠点自动标记</div>
+</div>
+
+<div id="toast"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+/* ================= 渲染器 / 场景 ================= */
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.getElementById('app').appendChild(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+labelRenderer.domElement.style.position = 'fixed';
+labelRenderer.domElement.style.top = '0';
+labelRenderer.domElement.style.left = '0';
+labelRenderer.domElement.style.pointerEvents = 'none';
+document.getElementById('labels').appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06090e);
+scene.fog = new THREE.Fog(0x06090e, 11, 30);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.05, 120);
+const CAM_HOME = new THREE.Vector3(-1.72, 1.48, 2.9);
+const TGT_HOME = new THREE.Vector3(0.88, 0.42, 0);
+camera.position.copy(CAM_HOME);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.copy(TGT_HOME);
+controls.enableDamping = true;
+controls.dampingFactor = 0.075;
+controls.minDistance = 1.6;
+controls.maxDistance = 12;
+controls.maxPolarAngle = Math.PI/2 - 0.03;
+controls.enablePan = true;
+
+/* PBR 环境反射 */
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envTex;
+
+/* ================= 灯光 ================= */
+scene.add(new THREE.HemisphereLight(0x2a4d78, 0x05080c, 1.05));
+
+const key = new THREE.DirectionalLight(0xffffff, 2.3);
+key.position.set(4.2, 7.5, 5.4);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -6; key.shadow.camera.right = 9;
+key.shadow.camera.top = 6;  key.shadow.camera.bottom = -3;
+key.shadow.camera.near = 0.5; key.shadow.camera.far = 22;
+key.shadow.bias = -0.0006;
+key.shadow.radius = 3;
+scene.add(key);
+scene.add(key.target);
+
+const rim = new THREE.PointLight(0x3d8bff, 26, 14, 2);
+rim.position.set(-3.2, 2.6, -3.0);
+scene.add(rim);
+
+const warm = new THREE.PointLight(0xff9a4d, 7, 5.5, 2);
+warm.position.set(1.3, 1.9, 2.2);
+scene.add(warm);
+
+/* ================= 地面 / 蓝色网格 ================= */
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(600, 600),
+  new THREE.MeshStandardMaterial({color:0x0a1420, metalness:0.45, roughness:0.62, envMapIntensity:0.5})
+);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -0.002;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const gridFine = new THREE.GridHelper(60, 120, 0x1d5480, 0x123a5c);
+gridFine.material.transparent = true; gridFine.material.opacity = 0.5;
+gridFine.position.y = 0.001;
+scene.add(gridFine);
+
+const gridMain = new THREE.GridHelper(60, 30, 0x3d8fd0, 0x2a6b9d);
+gridMain.material.transparent = true; gridMain.material.opacity = 0.62;
+gridMain.position.y = 0.002;
+scene.add(gridMain);
+
+const gridFar = new THREE.GridHelper(600, 100, 0x1d5480, 0x153f61);
+gridFar.material.transparent = true; gridFar.material.opacity = 0.4;
+gridFar.position.y = 0.0015;
+scene.add(gridFar);
+
+/* ================= 参数 ================= */
+const G = 9.8, TH1 = Math.PI/6, D_FLAT = 0.35, R = 0.075, LIFT = 0.088;
+const MATS = [
+  {n:'毛巾', mu:0.097, c:0xff7a5c},
+  {n:'棉布', mu:0.059, c:0xffb35c},
+  {n:'木板', mu:0.031, c:0xd8a866},
+  {n:'玻璃', mu:0.0105,c:0x66d9e8},
+  {n:'理想', mu:0,     c:0xffffff},
+];
+let h0 = 0.25, th2 = 20*Math.PI/180, mi = 2;
+
+/* ================= 轨道几何（弧长参数化） ================= */
+let La, Lc, uMax;
+function rebuildLens(){
+  La = h0 / Math.sin(TH1);
+  Lc = th2 > 1e-6 ? (h0 + 0.32) / Math.sin(th2) : 200;
+  uMax = La + D_FLAT + Lc;
+}
+function trackAt(u){
+  if (u < La){
+    return {x:u*Math.cos(TH1), y:h0 - u*Math.sin(TH1), dy:-Math.sin(TH1), cs:Math.cos(TH1)};
+  }
+  if (u < La + D_FLAT){
+    return {x: La*Math.cos(TH1) + (u - La), y:0, dy:0, cs:1};
+  }
+  const u2 = u - La - D_FLAT;
+  const x0 = La*Math.cos(TH1) + D_FLAT;
+  if (th2 < 1e-6) return {x: x0 + u2, y:0, dy:0, cs:1};
+  return {x: x0 + u2*Math.cos(th2), y: u2*Math.sin(th2), dy:Math.sin(th2), cs:Math.cos(th2)};
+}
+
+/* ================= 轨道模型 ================= */
+const trackGroup = new THREE.Group();
+scene.add(trackGroup);
+
+const M_BODY = new THREE.MeshStandardMaterial({color:0x16212e, metalness:0.72, roughness:0.38, envMapIntensity:0.9});
+const M_GUIDE = new THREE.MeshStandardMaterial({color:0xff9a4d, emissive:0xff6a10, emissiveIntensity:1.5, roughness:0.35});
+const M_EDGE = new THREE.MeshStandardMaterial({color:0x2f6fa8, emissive:0x1d4f7a, emissiveIntensity:0.9, roughness:0.4, metalness:0.6});
+const M_DASH_W = new THREE.LineDashedMaterial({color:0xdce9f7, dashSize:0.055, gapSize:0.045, transparent:true, opacity:0.55});
+
+function dashedLine(pts, mat){
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const l = new THREE.Line(g, mat);
+  l.computeLineDistances();
+  return l;
+}
+
+let tagH, tagT, tagEq;
+function buildLabels(){
+  const mk = (cls, html) => {
+    const d = document.createElement('div');
+    d.className = 'tag ' + cls; d.innerHTML = html;
+    const o = new CSS2DObject(d);
+    scene.add(o);
+    return o;
+  };
+  tagH = mk('', '释放高度 <b>h₀ = 0.25 m</b>');
+  tagT = mk('', '倾角 <b>θ = 20°</b>');
+  tagEq = mk('white', '等高参考线 h₀');
+}
+
+let refLineH, refLineV;
+function buildTrack(){
+  // 清理旧轨道
+  while (trackGroup.children.length){
+    const o = trackGroup.children.pop();
+    o.geometry?.dispose();
+    trackGroup.remove(o);
+  }
+  if (refLineH){ scene.remove(refLineH); refLineH.geometry.dispose(); }
+  if (refLineV){ scene.remove(refLineV); refLineV.geometry.dispose(); }
+
+  rebuildLens();
+  const N = th2 > 1e-6 ? 80 : 60;
+  const pts = [];
+  for (let i=0;i<=N;i++) pts.push(trackAt(uMax * i / N));
+
+  /* 轨道主体：沿轮廓折返的带状实体 */
+  const TH = 0.075;
+  const shape = new THREE.Shape();
+  shape.moveTo(pts[0].x, pts[0].y);
+  for (const p of pts) shape.lineTo(p.x, p.y);
+  for (let i=pts.length-1;i>=0;i--) shape.lineTo(pts[i].x, pts[i].y - TH);
+  shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    depth:0.46, bevelEnabled:true, bevelThickness:0.006, bevelSize:0.006, bevelSegments:2, curveSegments:1
+  });
+  geo.translate(0, 0, -0.23);
+  const body = new THREE.Mesh(geo, M_BODY);
+  body.castShadow = true; body.receiveShadow = true;
+  trackGroup.add(body);
+
+  /* 橙色引导标线 */
+  const curve = new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p.x, p.y + 0.012, 0)), false, 'catmullrom', 0.02);
+  const guide = new THREE.Mesh(new THREE.TubeGeometry(curve, 160, 0.007, 8, false), M_GUIDE);
+  trackGroup.add(guide);
+
+  /* 两侧冷蓝边条 */
+  for (const z of [-0.205, 0.205]){
+    const c2 = new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p.x, p.y + 0.004, z)), false, 'catmullrom', 0.02);
+    trackGroup.add(new THREE.Mesh(new THREE.TubeGeometry(c2, 140, 0.0045, 6, false), M_EDGE));
+  }
+
+  /* 等高虚线 + 高度标注线 */
+  const xEnd = pts[pts.length-1].x;
+  refLineH = dashedLine([
+    new THREE.Vector3(-0.85, h0, 0),
+    new THREE.Vector3(Math.min(xEnd + 0.55, 7), h0, 0)
+  ], M_DASH_W);
+  scene.add(refLineH);
+
+  refLineV = dashedLine([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0, h0, 0)
+  ], M_DASH_W);
+  scene.add(refLineV);
+
+  /* 标签位置 */
+  tagH.position.set(-0.42, h0 + 0.085, 0);
+  if (th2 > 1e-6){
+    const pe = trackAt(uMax);
+    // 坡脚地面处：θ 即坡底与水平面的夹角，且避开右侧停靠标注列
+    tagT.position.set(pe.x + 0.16, 0.13, 0);
+  } else {
+    tagT.position.set(La*Math.cos(TH1) + D_FLAT + 1.35, 0.16, 0);
+  }
+  tagEq.position.set(0.55, h0 + 0.045, 0);
+  tagH.element.innerHTML = `释放高度 <b>h₀ = ${h0.toFixed(2)} m</b>`;
+  tagT.element.innerHTML = `倾角 <b>θ = ${Math.round(th2*180/Math.PI)}°</b>`;
+  tagEq.element.textContent = '等高参考线 h₀';
+
+  hLineY = h0;
+}
+let hLineY = h0;
+
+/* ================= 小球 ================= */
+const ballTex = (() => {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#ffc83d'; g.fillRect(0, 0, 256, 128);
+  g.fillStyle = '#e08a12';
+  g.beginPath(); g.arc(128, 64, 9, 0, Math.PI*2); g.fill();
+  g.globalAlpha = 0.18; g.fillStyle = '#fff';
+  g.fillRect(0, 0, 256, 22);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+})();
+
+const ball = new THREE.Mesh(
+  new THREE.SphereGeometry(R, 48, 32),
+  new THREE.MeshPhysicalMaterial({
+    color:0xffc83d, map:ballTex, metalness:0.22, roughness:0.18,
+    clearcoat:0.9, clearcoatRoughness:0.08, envMapIntensity:1.1
+  })
+);
+ball.castShadow = true;
+ball.receiveShadow = false;
+scene.add(ball);
+
+/* 速度 / 摩擦矢量 */
+const arrV = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(), 0.5, 0xff4d4d, 0.085, 0.045);
+const arrF = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(), 0.3, 0x2dd4bf, 0.075, 0.04);
+scene.add(arrV, arrF);
+
+/* ================= 轨迹 / 标记 ================= */
+const trailGroup = new THREE.Group();
+const markGroup = new THREE.Group();
+scene.add(trailGroup, markGroup);
+
+class Trail {
+  constructor(color){
+    this.cap = 24000; this.n = 0;
+    this.pos = new Float32Array(this.cap * 3);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+    g.setDrawRange(0, 0);
+    this.line = new THREE.Line(g, new THREE.LineDashedMaterial({
+      color, dashSize:0.045, gapSize:0.032, transparent:true, opacity:0.9
+    }));
+    this.line.frustumCulled = false;
+    this.geo = g;
+    trailGroup.add(this.line);
+    this.last = null;
+  }
+  push(x, y){
+    if (this.n >= this.cap) return;
+    if (this.last && Math.hypot(x - this.last[0], y - this.last[1]) < 0.012) return;
+    this.pos[this.n*3] = x; this.pos[this.n*3+1] = y; this.pos[this.n*3+2] = 0;
+    this.n++;
+    this.geo.setDrawRange(0, this.n);
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.computeBoundingSphere();
+    this.line.computeLineDistances();
+    this.last = [x, y];
+  }
+}
+let curTrail = null;
+
+function clearTrails(){
+  trailGroup.children.slice().forEach(o=>{
+    trailGroup.remove(o);
+    o.geometry.dispose();
+    o.material.dispose();
+  });
+  markGroup.children.slice().forEach(o=>{
+    markGroup.remove(o);
+    o.geometry?.dispose?.();
+    o.material?.dispose?.();
+  });
+  markMap.clear();
+  curTrail = null;
+}
+function clearCurTrail(){
+  if (!curTrail) return;
+  trailGroup.remove(curTrail.line);
+  curTrail.line.geometry.dispose();
+  curTrail.line.material.dispose();
+  curTrail = null;
+}
+
+/* 每种接触面的停靠标记（同材质重跑则替换，换材质保留） */
+const markMap = new Map();
+function rgba(hex, a){
+  const c = new THREE.Color(hex);
+  return `rgba(${Math.round(c.r*255)},${Math.round(c.g*255)},${Math.round(c.b*255)},${a})`;
+}
+
+function addMarker(x, y, color, idx, ratio){
+  const old = markMap.get(idx);
+  if (old){
+    markGroup.remove(old.g);
+    markGroup.remove(old.label);
+    if (old.leader) markGroup.remove(old.leader);
+    old.g.traverse(o=>{ o.geometry?.dispose?.(); o.material?.dispose?.(); });
+  }
+
+  const g = new THREE.Group();
+  const base = new THREE.Mesh(
+    new THREE.RingGeometry(0.026, 0.046, 28),
+    new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85, side:THREE.DoubleSide})
+  );
+  base.rotation.x = -Math.PI/2;
+  base.position.y = 0.005;
+  const stem = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.0038, 0.0038, 0.19, 8),
+    new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:0.75, roughness:0.4})
+  );
+  stem.position.y = 0.095;
+  const knob = new THREE.Mesh(
+    new THREE.SphereGeometry(0.021, 16, 12),
+    new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:1.25, roughness:0.35})
+  );
+  knob.position.y = 0.195;
+  g.add(base, stem, knob);
+  g.position.set(x, y + 0.012, 0);
+  markGroup.add(g);
+
+  const d = document.createElement('div');
+  d.className = 'tag mk';
+  d.style.color = rgba(color, 1);
+  d.style.borderColor = rgba(color, .5);
+  d.style.background = 'rgba(8,14,22,.72)';
+  d.style.boxShadow = `0 4px 16px ${rgba(color, .2)}`;
+  d.textContent = `${MATS[idx].n} ${Math.round(ratio*100)}%`;
+  const label = new CSS2DObject(d);
+  markGroup.add(label);
+
+  markMap.set(idx, {g, label});
+  layoutMarks();
+}
+
+/* 标注列：所有停靠标签在斜面上方空域自下而上排布，细引线指向对应标记 */
+function layoutMarks(){
+  const items = [...markMap.entries()].sort((a,b)=>a[1].g.position.y - b[1].g.position.y);
+  if (!items.length) return;
+  const colX = Math.max(...items.map(([,o])=>o.g.position.x)) + 0.46;
+  const x0 = La*Math.cos(TH1) + D_FLAT;
+  const baseY = th2 > 1e-6
+    ? Math.max(0, (colX - x0)) * Math.tan(th2) + 0.12
+    : h0 * 0.42 + 0.055;
+  items.forEach(([idx,o], i)=>{
+    const y = baseY + i * 0.105;
+    o.label.position.set(colX, y, 0);
+    if (o.leader){
+      markGroup.remove(o.leader);
+      o.leader.geometry.dispose();
+    }
+    o.leader = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(o.g.position.x, o.g.position.y + 0.19, 0),
+        new THREE.Vector3(colX - 0.05, y - 0.012, 0),
+      ]),
+      new THREE.LineBasicMaterial({color: MATS[idx].c, transparent:true, opacity:0.38})
+    );
+    markGroup.add(o.leader);
+  });
+}
+
+/* ================= 物理 ================= */
+let u = 0, v = 0, running = false, done = false;
+const ui = {
+  outH: document.getElementById('outH'), outT: document.getElementById('outT'),
+  outV: document.getElementById('outV'), outR: document.getElementById('outR'),
+  bar: document.getElementById('bar'), toast: document.getElementById('toast'),
+};
+
+function resetBall(){
+  u = 0; v = 0; running = false; done = false;
+  ball.position.set(0, h0 + LIFT, 0);
+  ball.rotation.set(0, 0, 0);
+  if (curTrail){ trailGroup.remove(curTrail.line); curTrail.line.geometry.dispose(); curTrail = null; }
+  arrV.visible = false; arrF.visible = false;
+  ui.outV.innerHTML = '0.00<span>m/s</span>';
+  setRatioUI(h0);
+  hideToast();
+}
+
+function stopAt(x, y, atEnd){
+  running = false; done = true;
+  if (!atEnd) addMarker(x, y, MATS[mi].c, mi, h0 > 0 ? y / h0 : 0);
+  if (mi === 4) showToast(th2 > 1e-6 ? 'v = 0 于 h = h₀ · 恰好回到原高度' : 'μ = 0 · 匀速直线运动，永不停止');
+}
+
+function step(dt){
+  const m = MATS[mi];
+  const t = trackAt(u);
+  const ag = -G * t.dy;
+  const fr = m.mu * G * t.cs;
+  const past = u > La + D_FLAT + 1e-4;
+
+  if (v <= 1e-6 && Math.abs(ag) <= fr){
+    if (past){ stopAt(t.x, t.y); }
+    else if (running){ running = false; }   // 起点被静摩擦托住（不会发生，兜底）
+    return;
+  }
+  const a = ag - fr * Math.sign(v > 1e-6 ? v : ag);
+  v += a * dt;
+
+  if (v <= 0){
+    v = 0;
+    if (past) stopAt(t.x, t.y);
+    else running = false;
+    return;
+  }
+  u += v * dt;
+  if (u >= uMax){ u = uMax; v = 0; stopAt(trackAt(u).x, trackAt(u).y, true); }
+}
+
+function setRatioUI(y){
+  const r = Math.max(0, Math.min(1.2, y / h0));
+  ui.outR.innerHTML = Math.round(r * 100) + '<span>%</span>';
+  ui.bar.style.width = Math.min(100, r * 100) + '%';
+}
+
+let toastTimer = 0;
+function showToast(txt){
+  ui.toast.textContent = txt;
+  ui.toast.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>ui.toast.classList.remove('on'), 3600);
+}
+function hideToast(){ ui.toast.classList.remove('on'); }
+
+/* ================= UI 绑定 ================= */
+let autoOn = false, speed = 1, showTrail = true;
+
+function syncMats(){
+  document.querySelectorAll('#mats button').forEach((b,i)=>b.classList.toggle('on', i === mi));
+}
+document.querySelectorAll('#mats button').forEach((b,i)=>{
+  b.onclick = ()=>{
+    autoOn = false;
+    if (running) clearCurTrail();
+    curTrail = null;                    // 已完成的轨迹与标记保留，便于逐面比较
+    mi = +b.dataset.m; syncMats(); resetBall();
+  };
+});
+
+document.getElementById('sH').oninput = e => {
+  autoOn = false; h0 = +e.target.value;
+  ui.outH.textContent = h0.toFixed(2) + ' m';
+  clearTrails(); buildTrack(); resetBall();
+};
+document.getElementById('sT').oninput = e => {
+  autoOn = false; th2 = +e.target.value * Math.PI/180;
+  ui.outT.textContent = e.target.value + '°';
+  clearTrails(); buildTrack(); resetBall();
+};
+
+document.getElementById('run').onclick = ()=>{
+  autoOn = false; resetBall();
+  curTrail = new Trail(MATS[mi].c);
+  curTrail.push(0, h0 + LIFT);
+  running = true;
+};
+document.getElementById('reset').onclick = ()=>{
+  autoOn = false; clearTrails(); resetBall();
+  controls.target.copy(TGT_HOME); camera.position.copy(CAM_HOME); controls.update();
+};
+
+document.getElementById('cmp').onclick = async ()=>{
+  autoOn = true; clearTrails();
+  for (let i=0;i<MATS.length;i++){
+    if (!autoOn) return;
+    mi = i; syncMats();
+    curTrail = null;          // 保留上一条轨迹用于对比
+    resetBall();
+    curTrail = new Trail(MATS[i].c); curTrail.push(0, h0 + LIFT);
+    running = true;
+    await new Promise(res=>{
+      const iv = setInterval(()=>{ if (!running || !autoOn){ clearInterval(iv); res(); } }, 50);
+    });
+    await new Promise(r=>setTimeout(r, 550));
+  }
+  autoOn = false; showToast('轨迹对比完成 · 越光滑，回升越接近 h₀');
+};
+
+document.getElementById('tgTrail').onclick = e => {
+  showTrail = !showTrail;
+  trailGroup.visible = showTrail;
+  e.currentTarget.classList.toggle('on', showTrail);
+};
+document.getElementById('tgSpeed').onclick = e => {
+  speed = speed === 1 ? 2 : 1;
+  e.currentTarget.classList.toggle('on', speed === 2);
+};
+
+/* ================= 主循环 ================= */
+const clock = new THREE.Clock();
+let acc = 0;
+const tangV = new THREE.Vector3();
+
+function updateVisual(dtReal){
+  const p = trackAt(u);
+  ball.position.set(p.x, p.y + LIFT, 0);
+  ball.rotation.z = -u / R;
+
+  // 轨迹
+  if (running && curTrail && showTrail) curTrail.push(p.x, p.y + LIFT);
+
+  // 矢量
+  const a2 = trackAt(u + 0.008), b2 = trackAt(u);
+  tangV.set(a2.x - b2.x, a2.y - b2.y, 0).normalize();
+  if (v > 0.03){
+    arrV.visible = true;
+    arrV.position.copy(ball.position);
+    arrV.setDirection(tangV);
+    arrV.setLength(Math.min(0.18 + v*0.17, 0.8), 0.1, 0.055);
+  } else arrV.visible = false;
+
+  const m = MATS[mi];
+  if (m.mu > 0 && v > 0.03){
+    arrF.visible = true;
+    arrF.position.copy(ball.position);
+    arrF.setDirection(tangV.clone().negate());
+    arrF.setLength(0.1 + m.mu*1.1, 0.075, 0.04);
+  } else arrF.visible = false;
+
+  // 数据
+  ui.outV.innerHTML = v.toFixed(2) + '<span>m/s</span>';
+  setRatioUI(p.y);
+
+  // 阴影相机跟随小球
+  key.position.set(p.x + 4.2, 7.5, 5.4);
+  key.target.position.set(p.x, 0, 0);
+
+  // 镜头跟随（θ=0 长距离）
+  const farX = p.x > 2.15;
+  if (farX){
+    const want = p.x - 1.15;
+    const k = Math.min(1, dtReal * 3.0);
+    const dx = (want - controls.target.x) * k;
+    controls.target.x += dx;
+    camera.position.x += dx;
+  } else if (controls.target.x > 0.95){
+    const k = Math.min(1, dtReal * 2.2);
+    const dx = (TGT_HOME.x - controls.target.x) * k;
+    controls.target.x += dx;
+    camera.position.x += dx;
+  }
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dtReal = Math.min(clock.getDelta(), 0.05);
+
+  if (running){
+    acc += dtReal * speed;
+    const h = 0.001;
+    let guard = 0;
+    while (acc >= h && guard++ < 400){ step(h); acc -= h; if (!running) break; }
+    if (acc > h) acc = 0;
+  } else acc = 0;
+
+  updateVisual(dtReal);
+  controls.update();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+}
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  labelRenderer.setSize(innerWidth, innerHeight);
+});
+
+/* ================= 启动 ================= */
+buildLabels();
+buildTrack();
+syncMats();
+resetBall();
+ui.outH.textContent = h0.toFixed(2) + ' m';
+ui.outT.textContent = Math.round(th2*180/Math.PI) + '°';
+animate();
+
+/* 调试钩子 */
+window.__sim = {
+  adv(sec){ let n = Math.round(sec*1000); while (n-- > 0 && running) step(0.001); },
+  pause(){ running = false; },
+  state(){ const p = trackAt(u); return {u:+u.toFixed(3), v:+v.toFixed(2), y:+p.y.toFixed(3), ratio:+(p.y/h0*100).toFixed(0), running, done, mi}; },
+  ball(){ return ball.position.toArray().map(x=>+x.toFixed(3)); },
+  marks(){ return [...markMap.entries()].map(([k,o])=>[MATS[k].n, +o.g.position.x.toFixed(2), +o.g.position.y.toFixed(2)]); },
+};
+</script>
+</body>
+</html>
