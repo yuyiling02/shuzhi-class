@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>压力作用效果</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;background:#eef2f6;color:#28323e;display:flex;flex-direction:column}
+  header{flex:0 0 auto;height:54px;display:flex;align-items:center;gap:16px;padding:0 18px;background:#fff;border-bottom:1px solid #e3e9f0;z-index:6}
+  .brand{font-size:15px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+  .tabs{display:flex;gap:3px;background:#f1f4f8;border-radius:9px;padding:3px}
+  .tabs button{border:0;background:transparent;padding:7px 15px;border-radius:7px;font-size:12px;font-weight:600;color:#7a8798;cursor:pointer;font-family:inherit;transition:.18s}
+  .tabs button.active{background:#fff;color:#2f6ae0;box-shadow:0 1px 6px rgba(30,45,70,.12)}
+  .spacer{flex:1}
+  .angles{display:flex;gap:6px}
+  .angles button{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:600;color:#6b7787;cursor:pointer;font-family:inherit;transition:.18s}
+  .angles button.active{background:#2f6ae0;border-color:#2f6ae0;color:#fff}
+  main{flex:1 1 auto;display:flex;min-height:0}
+  #viewport{flex:1 1 auto;position:relative;min-width:0;background:radial-gradient(ellipse at 50% 26%,#fbfcfe 0%,#e9eef6 52%,#cfd9e6 100%)}
+  #viewport canvas{display:block;width:100%;height:100%}
+  #tagLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .tag{position:absolute;transform:translate(-50%,0);display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.95);border:1px solid #e5eaf1;border-radius:22px;padding:6px 13px;box-shadow:0 6px 20px rgba(30,45,70,.14);white-space:nowrap;font-size:12px}
+  .tag i{width:10px;height:10px;border-radius:50%;display:block}
+  .tag b{font-size:14px;color:#2c3947}
+  .tag .lbl{color:#8b96a5;font-size:11px}
+  .tag .v{font-size:15px;font-weight:700;color:#d84315;font-variant-numeric:tabular-nums}
+  .tag .u{color:#b08c7a;font-size:10px}
+  aside{flex:0 0 252px;background:#fff;border-left:1px solid #e3e9f0;padding:16px 14px;overflow-y:auto;z-index:5}
+  .card{border:1px solid #e7ecf2;border-radius:13px;padding:13px 13px 12px;margin-bottom:12px;background:#fff;box-shadow:0 2px 10px rgba(30,45,70,.04)}
+  .card .head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .card .head i{width:11px;height:11px;border-radius:50%;display:block;flex:0 0 auto}
+  .card .head b{font-size:15px;color:#2c3947}
+  .card .head .d{margin-left:auto;font-size:11px;color:#8b96a5}
+  .card .head .d b{font-size:17px;color:#d84315;font-variant-numeric:tabular-nums;margin-left:3px}
+  .card .head .d em{font-style:normal;font-size:10px;color:#b08c7a;margin-left:2px}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px dashed #edf1f6;font-size:12px}
+  .row>span{color:#7d8898}
+  .row>b{font-size:13px;font-weight:700;color:#2c3947;font-variant-numeric:tabular-nums}
+  .row>b.hi{font-size:15px;color:#d84315}
+  .row>b i{font-style:normal;font-size:10px;font-weight:500;color:#9aa5b3;margin-left:2px}
+  .stepper{display:flex;align-items:center;gap:8px}
+  .stepper button{width:26px;height:26px;flex:0 0 auto;border:1px solid #e2e8f0;background:#f7f9fc;border-radius:7px;font-size:15px;line-height:1;cursor:pointer;color:#445;transition:.15s;font-family:inherit}
+  .stepper button:hover{border-color:#2f6ae0;color:#2f6ae0;background:#eef4ff}
+  .stepper button:disabled{opacity:.3;cursor:not-allowed}
+  .stepper .n{min-width:34px;text-align:center;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#2c3947}
+  .stepper .n small{font-size:10px;font-weight:500;color:#9aa5b3;margin-left:2px}
+  .flip{margin-top:10px;width:100%;border:1px solid #e2e8f0;background:#f7f9fc;border-radius:8px;padding:8px;font-size:12px;font-weight:600;color:#6b7787;cursor:pointer;font-family:inherit;transition:.15s}
+  .flip:hover{border-color:#2f6ae0;color:#2f6ae0;background:#eef4ff}
+  .foot{margin-top:6px;text-align:center;font-size:10px;color:#aeb8c4}
+  @media(max-width:860px){main{flex-direction:column}aside{flex:0 0 auto;max-height:44%;border-left:0;border-top:1px solid #e3e9f0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">压力作用效果</div>
+  <div class="tabs">
+    <button id="tabG1" class="active" onclick="setView('g1')">比压力</button>
+    <button id="tabG2" onclick="setView('g2')">比面积</button>
+    <button id="tabAll" onclick="setView('all')">全览</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="angles">
+    <button id="btnAng3d" class="active" onclick="setAngle(false)">立体</button>
+    <button id="btnAngLow" onclick="setAngle(true)">平视</button>
+  </div>
+</header>
+<main>
+  <div id="viewport"><div id="tagLayer"></div></div>
+  <aside id="panel"></aside>
+</main>
+
+<script src="/visual-classroom/vendor/three/0.128.0/build/three.min.js"></script>
+<script src="/visual-classroom/vendor/three/0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* =========================================================
+   压力作用效果 · 教材对照实验
+   甲乙：只变压力（砝码多少）   丙丁：只变受力面积（小桌正放/倒放）
+   海绵整体下陷（不是四个洞）；砝码可一直加
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const viewport = $('viewport');
+const clamp = (v,a,b) => v<a?a:(v>b?b:v);
+const smooth = t => { t=clamp(t,0,1); return t*t*(3-2*t); };
+
+/* ---------- 物理 ---------- */
+const TABLE_N = 2, WEIGHT_N = 5;
+const AREA_LEGS = 4, AREA_TOP = 40;
+const MAX_W = 99;                 // 砝码一直可加
+const MAX_DEPTH = 0.62, P0 = 0.9;
+const MM = 40;
+function F(c){ return TABLE_N + c.w*WEIGHT_N; }
+function S(c){ return c.o==='legs'?AREA_LEGS:AREA_TOP; }
+function P(c){ return F(c)/S(c); }
+function depthOf(c){ const p=P(c); return MAX_DEPTH*p/(p+P0); }  // 饱和，压实后不再无限下陷
+
+/* ---------- 尺寸 ---------- */
+const SW=3.0, SD=2.4, SH=1.0, STOP=SH/2;
+const TW=1.5, TD=1.2, TT=0.2, LEG=0.15, LH=0.50;
+const LX=0.60, LZ=0.46;
+const LEG_POS=[[-LX,-LZ],[LX,-LZ],[-LX,LZ],[LX,LZ]];
+
+/* ---------- 实验位 ---------- */
+const cfg = {
+  A:{id:'A',name:'甲',color:'#2f66d0',tray:0x7fa8e2,o:'legs',w:0},
+  B:{id:'B',name:'乙',color:'#e05a1f',tray:0xef8a4e,o:'legs',w:3},
+  C:{id:'C',name:'丙',color:'#0e8a5f',tray:0x3fae82,o:'top', w:2},
+  D:{id:'D',name:'丁',color:'#7e44c8',tray:0xa678dd,o:'legs',w:2}
+};
+const VIEW_MEMBERS={g1:['A','B'],g2:['C','D'],all:['A','B','C','D']};
+const VIEW_POS={
+  g1:{A:[-2.15,0,0],B:[2.15,0,0]},
+  g2:{C:[-2.15,0,0],D:[2.15,0,0]},
+  all:{A:[-2.5,0,-2.45],B:[2.5,0,-2.45],C:[-2.5,0,2.45],D:[2.5,0,2.45]}
+};
+let view='g1', lowAngle=false;
+
+/* ---------- 渲染基础 ---------- */
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0xeaf0f6,26,52);
+(function buildEnv(){
+  const c=document.createElement('canvas'); c.width=512;c.height=256;
+  const g=c.getContext('2d');
+  const grd=g.createLinearGradient(0,0,0,256);
+  grd.addColorStop(0,'#ffffff');grd.addColorStop(.42,'#f7faff');
+  grd.addColorStop(.56,'#e8eef6');grd.addColorStop(1,'#b9c4d2');
+  g.fillStyle=grd;g.fillRect(0,0,512,256);
+  [[130,58,95,'rgba(255,255,255,.95)'],[370,46,70,'rgba(255,248,230,.8)'],[255,110,55,'rgba(255,255,255,.55)']].forEach(a=>{
+    const rg=g.createRadialGradient(a[0],a[1],0,a[0],a[1],a[2]);
+    rg.addColorStop(0,a[3]);rg.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=rg;g.beginPath();g.arc(a[0],a[1],a[2],0,6.283);g.fill();
+  });
+  const t=new THREE.CanvasTexture(c);
+  t.mapping=THREE.EquirectangularReflectionMapping;t.encoding=THREE.sRGBEncoding;
+  scene.environment=t;
+})();
+const camera=new THREE.PerspectiveCamera(40,1,.1,120);
+camera.position.set(0,3.6,11.4);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputEncoding=THREE.sRGBEncoding;
+viewport.appendChild(renderer.domElement);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.075;
+controls.minDistance=5;controls.maxDistance=30;controls.maxPolarAngle=Math.PI*.495;
+controls.target.set(0,0.08,0);controls.update();
+let camAnim=false;const camGoal=new THREE.Vector3();
+controls.addEventListener('start',()=>camAnim=false);
+
+scene.add(new THREE.AmbientLight(0xffffff,.30));
+scene.add(new THREE.HemisphereLight(0xf4f8ff,0xa4b0c0,.34));
+const key=new THREE.DirectionalLight(0xfff6e8,.80);
+key.position.set(5.5,9.5,6.5);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.left=-14;key.shadow.camera.right=14;
+key.shadow.camera.top=14;key.shadow.camera.bottom=-14;
+key.shadow.camera.near=1;key.shadow.camera.far=34;
+key.shadow.bias=-0.00045;key.shadow.radius=4;scene.add(key);
+const fill=new THREE.DirectionalLight(0xdce8ff,.20);fill.position.set(-8,4.5,-6);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xfff0d8,.16);rim.position.set(0,2.5,11);scene.add(rim);
+
+const bench=new THREE.Mesh(new THREE.PlaneGeometry(80,80),
+  new THREE.MeshStandardMaterial({color:0xe3e9f1,roughness:.95,metalness:0}));
+bench.rotation.x=-Math.PI/2;bench.position.y=-0.565;bench.receiveShadow=true;scene.add(bench);
+
+/* ---------- 纹理 ---------- */
+function spongeTextures(){
+  const c=document.createElement('canvas');c.width=c.height=768;
+  const x=c.getContext('2d');
+  x.fillStyle='#eccf92';x.fillRect(0,0,768,768);
+  // 大尺度柔和明暗，让表面有海绵的自然起伏感
+  for(let i=0;i<40;i++){
+    x.save();x.translate(Math.random()*768,Math.random()*768);
+    const r=70+Math.random()*120;
+    const g2=x.createRadialGradient(0,0,0,0,0,r);
+    g2.addColorStop(0,Math.random()>.5?'rgba(255,240,196,.12)':'rgba(198,160,98,.06)');
+    g2.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g2;x.beginPath();x.arc(0,0,r,0,6.283);x.fill();x.restore();
+  }
+  // 细密均匀的小孔：暗孔 + 亮边，整体像海绵而不是石头
+  for(let i=0;i<34000;i++){
+    const px=Math.random()*768, py=Math.random()*768;
+    const r=.45+Math.random()*1.15;
+    x.fillStyle='rgba(247,224,172,.9)';
+    x.beginPath();x.arc(px,py,r,0,6.283);x.fill();
+    x.fillStyle=`rgba(${150+Math.random()*24|0},${114+Math.random()*20|0},${64+Math.random()*18|0},.34)`;
+    x.beginPath();x.arc(px,py+.25,r*.72,0,6.283);x.fill();
+  }
+  // 少量更深的孔洞，增加孔隙层次
+  for(let i=0;i<1400;i++){
+    x.fillStyle='rgba(128,96,52,.28)';
+    x.beginPath();x.arc(Math.random()*768,Math.random()*768,.9+Math.random()*1.9,0,6.283);x.fill();
+  }
+  const map=new THREE.CanvasTexture(c);
+  map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(2.9,2.9);map.encoding=THREE.sRGBEncoding;
+  const bump=new THREE.CanvasTexture(c);
+  bump.wrapS=bump.wrapT=THREE.RepeatWrapping;bump.repeat.set(2.9,2.9);
+  return {map,bump};
+}
+const spongeTex=spongeTextures();
+function woodTexture(){
+  const c=document.createElement('canvas');c.width=512;c.height=256;
+  const x=c.getContext('2d');
+  x.fillStyle='#b0804a';x.fillRect(0,0,512,256);
+  for(let i=0;i<170;i++){
+    x.strokeStyle=`rgba(${92+Math.random()*30},${58+Math.random()*24},${26+Math.random()*18},${.16+Math.random()*.24})`;
+    x.lineWidth=.4+Math.random()*1.8;
+    x.beginPath();
+    const y=Math.random()*256;
+    x.moveTo(0,y);
+    for(let px=0;px<=512;px+=16) x.lineTo(px,y+Math.sin(px*.025+i)*2.2+Math.sin(px*.008+i*3)*3);
+    x.stroke();
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;
+  return t;
+}
+const woodTex=woodTexture();
+
+/* ---------- 材质 ---------- */
+const spongeMatBase={map:spongeTex.map,bumpMap:spongeTex.bump,bumpScale:.022,
+  color:0xffffff,roughness:1,metalness:0,vertexColors:true,
+  emissive:0x241804,emissiveIntensity:.04,envMapIntensity:.22};
+const woodMat=new THREE.MeshStandardMaterial({map:woodTex,color:0xf2e0c8,roughness:.62,metalness:.03,envMapIntensity:.45});
+const woodEdge=new THREE.MeshStandardMaterial({color:0x7a5227,roughness:.68,metalness:.03,envMapIntensity:.4});
+const brassMat=new THREE.MeshStandardMaterial({color:0xc99d38,roughness:.4,metalness:.45,envMapIntensity:.55});
+const brassTop=new THREE.MeshStandardMaterial({color:0xddb552,roughness:.34,metalness:.48,envMapIntensity:.55});
+const steelMat=new THREE.MeshStandardMaterial({color:0x9aa5b2,roughness:.42,metalness:.5,envMapIntensity:.6});
+
+/* ---------- 圆角盒（解析平滑法线，海绵才不像石砖） ---------- */
+function roundedBox(w,h,d,r,sx,sy,sz){
+  const g=new THREE.BoxGeometry(w,h,d,sx,sy,sz);
+  const p=g.attributes.position,n=g.attributes.normal;
+  const hx=w/2-r,hy=h/2-r,hz=d/2-r;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+    const cx=clamp(x,-hx,hx),cy=clamp(y,-hy,hy),cz=clamp(z,-hz,hz);
+    let dx=x-cx,dy=y-cy,dz=z-cz;
+    let len=Math.sqrt(dx*dx+dy*dy+dz*dz);
+    if(len<1e-6){dx=0;dy=1;dz=0;len=1;}
+    const ux=dx/len,uy=dy/len,uz=dz/len;
+    p.setXYZ(i,cx+ux*r,cy+uy*r,cz+uz*r);
+    n.setXYZ(i,ux,uy,uz);
+  }
+  p.needsUpdate=true;n.needsUpdate=true;
+  return g;
+}
+// 预计算「位置重合的顶点分组」，形变后用于平均法线，消除面接缝
+function buildNormalGroups(orig){
+  const map=new Map();
+  for(let i=0;i<orig.length/3;i++){
+    const k=Math.round(orig[i*3]*1e4)+','+Math.round(orig[i*3+1]*1e4)+','+Math.round(orig[i*3+2]*1e4);
+    let a=map.get(k);if(!a){a=[];map.set(k,a);}a.push(i);
+  }
+  return Array.from(map.values()).filter(a=>a.length>1);
+}
+
+/* ---------- 构建一个实验位 ---------- */
+function buildStation(c){
+  const g=new THREE.Group();scene.add(g);
+  // 彩色托盘（区分四个实验位）
+  const tray=new THREE.Mesh(roundedBox(SW+.5,.07,SD+.5,.06,20,3,16),
+    new THREE.MeshStandardMaterial({color:c.tray,roughness:.8,metalness:0,envMapIntensity:.4}));
+  tray.position.y=-0.535;tray.castShadow=true;tray.receiveShadow=true;g.add(tray);
+  // 海绵
+  const geo=roundedBox(SW,SH,SD,.155,64,14,50);
+  const cnt=geo.attributes.position.count;
+  const col=new Float32Array(cnt*3);col.fill(1);
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const mat=new THREE.MeshStandardMaterial(spongeMatBase);
+  const sponge=new THREE.Mesh(geo,mat);
+  sponge.castShadow=true;sponge.receiveShadow=true;g.add(sponge);
+  const orig=Float32Array.from(geo.attributes.position.array);
+  const groups=buildNormalGroups(orig);
+  // 小桌
+  const desk=new THREE.Group();g.add(desk);
+  const top=new THREE.Mesh(roundedBox(TW,TT,TD,.028,20,3,16),woodMat);
+  top.castShadow=true;top.receiveShadow=true;desk.add(top);
+  const band=new THREE.Mesh(roundedBox(TW+.012,TT*.42,TD+.012,.02,16,2,12),woodEdge);
+  band.position.y=-TT*.3;band.castShadow=true;desk.add(band);
+  for(const [lx,lz] of LEG_POS){
+    const leg=new THREE.Mesh(new THREE.CylinderGeometry(LEG/2,LEG/2*.92,LH,18),woodMat);
+    leg.position.set(lx,-(TT/2+LH/2),lz);
+    leg.castShadow=true;leg.receiveShadow=true;desk.add(leg);
+  }
+  const weights=new THREE.Group();g.add(weights);
+  return {c,g,sponge,geo,orig,groups,desk,weights,curDepth:0,flip:0,goalFlip:0,dirty:true,visible:false};
+}
+const ST={};for(const k in cfg)ST[k]=buildStation(cfg[k]);
+
+/* ---------- 砝码：真实车削外形，可一直加 ---------- */
+function discGeometry(){
+  const pts=[
+    new THREE.Vector2(0,0),new THREE.Vector2(.205,0),
+    new THREE.Vector2(.243,.012),new THREE.Vector2(.252,.032),
+    new THREE.Vector2(.252,.086),new THREE.Vector2(.243,.106),
+    new THREE.Vector2(.205,.118),new THREE.Vector2(0,.118)
+  ];
+  return new THREE.LatheGeometry(pts,40);
+}
+const DISC=discGeometry();
+const DISC_H=.118;
+function rebuildWeights(st){
+  const grp=st.weights;
+  while(grp.children.length)grp.remove(grp.children[0]);
+  const n=st.c.w;
+  if(n<=0)return;
+  for(let i=0;i<n;i++){
+    const d=new THREE.Mesh(DISC,i===n-1?brassTop:brassMat);
+    d.position.y=i*DISC_H;d.castShadow=true;d.receiveShadow=true;grp.add(d);
+  }
+  const stem=new THREE.Mesh(new THREE.CylinderGeometry(.05,.075,.045,20),steelMat);
+  stem.position.y=n*DISC_H+.022;stem.castShadow=true;grp.add(stem);
+  const knob=new THREE.Mesh(new THREE.SphereGeometry(.05,18,12),steelMat);
+  knob.position.y=n*DISC_H+.078;knob.castShadow=true;grp.add(knob);
+  // 数量多时整摞等比压低，避免顶出画面（仍不重叠、仍是一摞砝码）
+  const total=n*DISC_H+.14;
+  grp.scale.y=total>1.8?1.8/total:1;
+}
+for(const k in ST)rebuildWeights(ST[k]);
+
+/* ---------- 形变：整块下陷（平底 + 柔和边缘 + 挤压隆起） ---------- */
+function sdRoundRect(x,z,hx,hz,r){
+  const qx=Math.abs(x)-(hx-r),qz=Math.abs(z)-(hz-r);
+  return Math.sqrt(Math.max(qx,0)**2+Math.max(qz,0)**2)+Math.min(Math.max(qx,qz),0)-r;
+}
+function deform(st,depth,o){
+  const p=st.geo.attributes.position,arr=p.array,o0=st.orig;
+  const col=st.geo.attributes.color.array;
+  const hx=o==='legs'?.78:.71, hz=o==='legs'?.62:.56;
+  const rr=o==='legs'?.20:.24;
+  const fade=o==='legs'?.58:.70;
+  for(let i=0;i<p.count;i++){
+    const ix=i*3, x=o0[ix], y=o0[ix+1], z=o0[ix+2];
+    const hf=(y+SH/2)/SH;
+    const hw=Math.pow(Math.max(0,hf),1.5);
+    const d=sdRoundRect(x,z,hx,hz,rr);
+    const w=1-smooth((d+.13)/fade);          // 内部平底，外部平滑过渡
+    let dy=-depth*w*hw;
+    // 凹陷外缘被挤出的轻微隆起
+    const ring=Math.exp(-Math.pow((d-.12)/.30,2));
+    dy+=ring*depth*.045*hw;
+    // 侧向轻微外鼓（体积被挤开）
+    const push=ring*depth*.028*hw;
+    const rad=Math.sqrt(x*x+z*z)||1;
+    arr[ix]  =x+x/rad*push;
+    arr[ix+1]=y+dy;
+    arr[ix+2]=z+z/rad*push;
+    // 未受压表面极轻微的起伏，避免完美平面带来的塑料感
+    if(hf>.45&&w<.6){
+      arr[ix+1]+=(Math.sin(x*4.3+z*3.1)+Math.sin(x*8.7-z*6.3)*.5)*.005*(1-w)*hw;
+    }
+    const shade=1-.17*w*hw*clamp(depth/.4,0,1);
+    col[ix]=col[ix+1]=col[ix+2]=shade;
+  }
+  p.needsUpdate=true;st.geo.attributes.color.needsUpdate=true;
+  st.geo.computeVertexNormals();
+  // 平均重合顶点法线，消除盒子接缝
+  const na=st.geo.attributes.normal.array;
+  for(const grp of st.groups){
+    let sx=0,sy=0,sz=0;
+    for(const j of grp){sx+=na[j*3];sy+=na[j*3+1];sz+=na[j*3+2];}
+    const l=Math.sqrt(sx*sx+sy*sy+sz*sz)||1;
+    for(const j of grp){na[j*3]=sx/l;na[j*3+1]=sy/l;na[j*3+2]=sz/l;}
+  }
+  st.geo.attributes.normal.needsUpdate=true;
+
+  // 小桌整体随凹陷下沉，接触面始终贴住海绵
+  const t=smooth(st.flip/Math.PI);
+  const yLegs=(STOP-depth)+TT/2+LH;
+  const yTop =(STOP-depth)+TT/2;
+  st.desk.position.y=yLegs+(yTop-yLegs)*t;
+  st.desk.rotation.z=st.flip;
+  st.weights.position.y=st.desk.position.y+TT/2;
+}
+
+/* ---------- 界面 ---------- */
+function cardHTML(k){
+  const c=cfg[k];
+  const dmm=(depthOf(c)*MM).toFixed(1);
+  return `<div class="card">
+    <div class="head"><i style="background:${c.color}"></i><b>${c.name}</b>
+      <span class="d">凹陷<b>${dmm}</b><em>mm</em></span></div>
+    <div class="row"><span>压力 F</span><b>${F(c)}<i>N</i></b></div>
+    <div class="row"><span>受力面积 S</span><b>${S(c)}<i>cm²</i></b></div>
+    <div class="row"><span>凹陷程度 Δh</span><b class="hi">${dmm}<i>mm</i></b></div>
+    <div class="row"><span>砝码个数</span>
+      <div class="stepper">
+        <button onclick="chg('${k}',-1)" ${c.w<=0?'disabled':''} title="取下一个砝码">−</button>
+        <span class="n">${c.w}</span>
+        <button onclick="chg('${k}',1)" title="添加一个砝码">＋</button>
+      </div></div>
+    <button class="flip" onclick="flipDesk('${k}')" title="翻转小桌，改变接触方式">⟳ 小桌${c.o==='legs'?'桌腿朝下':'桌面朝下'}</button>
+  </div>`;
+}
+function renderCards(){$('panel').innerHTML=VIEW_MEMBERS[view].map(cardHTML).join('');}
+function chg(k,d){
+  const c=cfg[k];c.w=clamp(c.w+d,0,MAX_W);
+  rebuildWeights(ST[k]);ST[k].dirty=true;renderCards();
+}
+function flipDesk(k){
+  const c=cfg[k];c.o=c.o==='legs'?'top':'legs';
+  ST[k].goalFlip=c.o==='top'?Math.PI:0;ST[k].dirty=true;renderCards();
+}
+
+/* ---------- 视图 ---------- */
+function camPosFor(v,low){
+  const hi=v==='all';
+  if(low)return [0,hi?3.6:1.40,hi?12.6:8.2];
+  return [0,hi?6.9:2.60,hi?11.6:7.6];
+}
+function setView(v){
+  view=v;
+  ['G1','G2','All'].forEach((x,i)=>$('tab'+x).classList.toggle('active',['g1','g2','all'][i]===v));
+  for(const k in ST){
+    const was=ST[k].visible;
+    ST[k].visible=VIEW_MEMBERS[v].includes(k);
+    ST[k].g.visible=ST[k].visible;
+    ST[k].dirty=true;
+    if(ST[k].visible&&!was){const p=VIEW_POS[v][k];ST[k].g.position.set(p[0],0,p[2]);}
+  }
+  camGoal.fromArray(camPosFor(v,lowAngle));camAnim=true;
+  renderCards();
+}
+function setAngle(low){
+  lowAngle=low;
+  $('btnAng3d').classList.toggle('active',!low);
+  $('btnAngLow').classList.toggle('active',low);
+  camGoal.fromArray(camPosFor(view,low));camAnim=true;
+}
+
+/* ---------- 3D 极简标签 ---------- */
+const tagEls={};
+for(const k in cfg){
+  const d=document.createElement('div');d.className='tag';$('tagLayer').appendChild(d);tagEls[k]=d;
+}
+function updateTags(){
+  if(view==='all'){for(const k in tagEls)tagEls[k].style.display='none';return;}
+  const members=VIEW_MEMBERS[view];
+  for(const k in tagEls){
+    const el=tagEls[k];
+    if(!members.includes(k)){el.style.display='none';continue;}
+    el.style.display='flex';
+    const c=cfg[k];
+    el.innerHTML=`<i style="background:${c.color}"></i><b>${c.name}</b><span class="lbl">凹陷程度</span><b class="v">${(depthOf(c)*MM).toFixed(1)}</b><span class="u">mm</span>`;
+    const v=ST[k].g.position.clone();v.y=-SH/2-.1;v.z+=SD/2+.7;
+    v.project(camera);
+    el.style.left=((v.x*.5+.5)*viewport.clientWidth)+'px';
+    el.style.top=((-v.y*.5+.5)*viewport.clientHeight)+'px';
+  }
+}
+
+/* ---------- 尺寸与动画 ---------- */
+function resize(){
+  const w=viewport.clientWidth,h=viewport.clientHeight;
+  if(!w||!h)return;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+addEventListener('resize',resize);
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  if(camAnim){camera.position.lerp(camGoal,.08);if(camera.position.distanceTo(camGoal)<.02)camAnim=false;}
+  for(const k in ST){
+    const st=ST[k];if(!st.visible)continue;
+    const pos=VIEW_POS[view][k];
+    st.g.position.x+=(pos[0]-st.g.position.x)*.12;
+    st.g.position.z+=(pos[2]-st.g.position.z)*.12;
+    const gf=st.goalFlip;
+    if(Math.abs(gf-st.flip)>.002){st.flip+=(gf-st.flip)*.16;st.dirty=true;}
+    else st.flip=gf;
+    const target=depthOf(st.c);
+    if(st.dirty||Math.abs(target-st.curDepth)>.0005){
+      st.curDepth+=(target-st.curDepth)*.13;
+      deform(st,st.curDepth,st.c.o);
+      st.dirty=(Math.abs(target-st.curDepth)>.0005)||(Math.abs(gf-st.flip)>.002);
+    }
+  }
+  updateTags();
+  renderer.render(scene,camera);
+}
+
+/* ---------- 启动 ---------- */
+for(const k in ST){ST[k].goalFlip=cfg[k].o==='top'?Math.PI:0;ST[k].flip=ST[k].goalFlip;}
+const hp=location.hash.slice(1).split('-');
+if(['g1','g2','all'].includes(hp[0]))view=hp[0];
+if(hp.includes('low'))lowAngle=true;
+for(const k in ST){
+  if(VIEW_MEMBERS[view].includes(k)){const p=VIEW_POS[view][k];ST[k].g.position.set(p[0],0,p[2]);}
+  ST[k].curDepth=depthOf(cfg[k]);
+  deform(ST[k],ST[k].curDepth,cfg[k].o);   // 首帧即到位，静态截图不会停在半路
+}
+$('btnAng3d').classList.toggle('active',!lowAngle);
+$('btnAngLow').classList.toggle('active',lowAngle);
+setView(view);
+camera.position.fromArray(camPosFor(view,lowAngle));
+camGoal.fromArray(camPosFor(view,lowAngle));camAnim=false;
+resize();animate();
+</script>
+</body>
+</html>

@@ -1111,7 +1111,7 @@
                       "id": "p0110",
                       "name": "｜P8｜弹簧弹力与伸长量关系（弹簧测力计原理）",
                       "url": "/visual-classroom/physics/g8/b/c01/p0110.html",
-                      "source": "八年级下册/｜P8｜弹簧弹力与伸长量关系（弹簧测力计原理）.html",
+                      "source": "八年级上册及选必三第一单元可视化/弹簧弹力与伸长量的关系.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -1119,7 +1119,7 @@
                       "id": "p0100",
                       "name": "｜P19｜阻力对物体运动的影响",
                       "url": "/visual-classroom/physics/g8/b/c01/p0100.html",
-                      "source": "八年级下册/｜P19｜阻力对物体运动的影响.html",
+                      "source": "八年级上册及选必三第一单元可视化/阻力对物体运动的影响.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -1127,7 +1127,7 @@
                       "id": "p0101",
                       "name": "｜P24｜二力平衡的四个条件",
                       "url": "/visual-classroom/physics/g8/b/c01/p0101.html",
-                      "source": "八年级下册/｜P24｜二力平衡的四个条件.html",
+                      "source": "八年级上册及选必三第一单元可视化/二力平衡.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -1135,7 +1135,7 @@
                       "id": "p0102",
                       "name": "｜P29｜滑动摩擦力大小的影响因素",
                       "url": "/visual-classroom/physics/g8/b/c01/p0102.html",
-                      "source": "八年级下册/｜P29｜滑动摩擦力大小的影响因素.html",
+                      "source": "八年级上册及选必三第一单元可视化/滑动摩擦力测量方法.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -1149,7 +1149,15 @@
                       "id": "p0103",
                       "name": "｜P41｜压力的作用效果",
                       "url": "/visual-classroom/physics/g8/b/c02/p0103.html",
-                      "source": "八年级下册/｜P41｜压力的作用效果.html",
+                      "source": "八年级上册及选必三第一单元可视化/压力和受力面积对海绵形变影响.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0188",
+                      "name": "海绵形变与压力及受力面积影响",
+                      "url": "/visual-classroom/physics/g8/b/c02/p0188.html",
+                      "source": "八年级上册及选必三第一单元可视化/海绵形变与压力及受力面积影响.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -1225,7 +1233,7 @@
                       "id": "p0097",
                       "name": "丨P104-P106丨杠杆平衡条件",
                       "url": "/visual-classroom/physics/g8/b/c04/p0097.html",
-                      "source": "八年级下册/丨P104-P106丨杠杆平衡条件.html",
+                      "source": "八年级上册及选必三第一单元可视化/探究杠杆的平衡条件.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -1233,7 +1241,7 @@
                       "id": "p0099",
                       "name": "｜P115｜滑轮组工作特点",
                       "url": "/visual-classroom/physics/g8/b/c04/p0099.html",
-                      "source": "八年级下册/｜P115｜滑轮组工作特点.html",
+                      "source": "八年级上册及选必三第一单元可视化/滑轮组.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
