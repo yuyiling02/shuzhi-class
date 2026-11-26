@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>α粒子散射实验模拟器 · 卢瑟福核式结构 vs 汤姆孙枣糕模型</title>
+<style>
+  :root{
+    --ink:#dbe7f7; --teal:#22d3d3; --panel:rgba(10,22,42,.82);
+    --border:rgba(90,170,255,.28);
+  }
+  html,body{margin:0;height:100%;overflow:hidden;
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:radial-gradient(1200px 700px at 70% 15%, #16304f 0%, #0c1c33 55%, #070f1f 100%);
+    color:var(--ink);}
+  #app{position:fixed;inset:0;}
+  canvas{display:block;}
+
+  #title{position:fixed;top:18px;left:24px;z-index:10;pointer-events:none;}
+  #title h1{margin:0;font-size:21px;font-weight:700;letter-spacing:.5px;
+    background:linear-gradient(90deg,#3ee0d0,#6ab6ff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  #title p{margin:4px 0 0;font-size:12.5px;color:#8fa8c8;}
+  #modelBadge{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:999px;font-size:12px;
+    color:#fff;background:linear-gradient(90deg,#e07b39,#d9534f);box-shadow:0 2px 8px rgba(217,83,79,.35);}
+  #modelBadge.thomson{background:linear-gradient(90deg,#4a7fc1,#6a5fc1);box-shadow:0 2px 8px rgba(74,127,193,.35);}
+
+  #panel{position:fixed;left:24px;bottom:24px;z-index:10;width:302px;
+    background:var(--panel);backdrop-filter:blur(10px);border:1px solid var(--border);
+    border-radius:14px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,10,30,.5);}
+  #panel h3{margin:0 0 10px;font-size:13px;color:#7fb2e8;letter-spacing:1px;}
+  .row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  button{flex:1;min-width:70px;padding:8px 10px;border-radius:9px;border:1px solid var(--border);
+    background:rgba(20,40,70,.9);color:var(--ink);font-size:13px;cursor:pointer;transition:.15s;font-weight:600;}
+  button:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(60,140,255,.25);border-color:#3aa0ff;}
+  button.primary{background:linear-gradient(135deg,#0e9aa8,#0b6fa8);color:#fff;border:none;}
+  button.warn{background:linear-gradient(135deg,#c96a2e,#c04a44);color:#fff;border:none;}
+  button.modelBtn{border:1.5px solid var(--border);}
+  button.modelBtn.active{border-color:var(--teal);background:rgba(20,70,80,.85);color:#5fe6dd;}
+  .hint{font-size:11px;color:#8fa4c0;line-height:1.7;margin-top:6px;}
+
+  #stats{position:fixed;right:24px;bottom:24px;z-index:10;width:252px;
+    background:var(--panel);backdrop-filter:blur(10px);border:1px solid var(--border);
+    border-radius:14px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,10,30,.5);}
+  #stats h3{margin:0 0 10px;font-size:13px;color:#7fb2e8;letter-spacing:1px;}
+  .stat{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;
+    padding:4px 0;border-bottom:1px dashed rgba(90,170,255,.18);}
+  .stat:last-child{border-bottom:none;}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .stat b{font-variant-numeric:tabular-nums;font-size:14px;color:#eaf3ff;}
+
+  #legend{position:fixed;right:24px;top:18px;z-index:10;
+    background:var(--panel);backdrop-filter:blur(10px);border:1px solid var(--border);
+    border-radius:12px;padding:10px 14px;box-shadow:0 8px 30px rgba(0,10,30,.5);}
+  #legend h4{margin:0 0 6px;font-size:11.5px;color:#7fb2e8;letter-spacing:1px;}
+  #legend .lg{font-size:11.5px;color:#c8d8ee;padding:2px 0;}
+  #legend .dot{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle;}
+
+  .lbl{position:fixed;z-index:5;pointer-events:none;transform:translate(-50%,-130%);
+    font-size:11.5px;font-weight:600;color:#dceaff;white-space:nowrap;
+    background:rgba(8,20,40,.85);border:1px solid rgba(80,180,255,.55);
+    padding:2px 9px;border-radius:999px;box-shadow:0 2px 8px rgba(0,10,30,.5);}
+  .lbl.nucleus{color:#ffb08c;border-color:rgba(255,140,90,.65);}
+  .lbl.electron{color:#8fc2ff;border-color:rgba(100,170,255,.6);}
+  .lbl.caption{font-size:10.5px;color:#9db8d8;border-color:rgba(90,170,255,.3);background:rgba(8,20,40,.7);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="title">
+  <h1>α 粒子散射实验 · 交互模拟器</h1>
+  <p>放射源 → 准直孔 → 金箔 → 环形荧光屏 ｜ 拖动旋转视角 · 滚轮缩放</p>
+  <span id="modelBadge">当前模型：卢瑟福核式结构</span>
+</div>
+
+<div id="legend">
+  <h4>轨迹分色</h4>
+  <div class="lg"><i class="dot" style="background:#ffd27a"></i>直穿 / 微偏（&lt;10°）</div>
+  <div class="lg"><i class="dot" style="background:#ff9a3c"></i>小角度偏转（10°~90°）</div>
+  <div class="lg"><i class="dot" style="background:#ff5a50"></i>大角度反弹（&gt;90°）</div>
+</div>
+
+<div id="panel">
+  <h3>实验控制</h3>
+  <div class="row">
+    <button id="btnR" class="modelBtn active">卢瑟福核式模型</button>
+    <button id="btnT" class="modelBtn">汤姆孙枣糕模型</button>
+  </div>
+  <div class="row">
+    <button id="btnRun" class="primary">▶ 开始发射</button>
+    <button id="btnReset" class="warn">↺ 重置</button>
+  </div>
+  <div class="hint" id="hint">卢瑟福模型：正电荷集中在极小的原子核内。预期：绝大多数 α 粒子直穿，极少数发生大角度反弹。</div>
+</div>
+
+<div id="stats">
+  <h3>探测器统计</h3>
+  <div class="stat"><span><i class="dot" style="background:#3fae62"></i>直穿（&lt;10°）</span><b id="s1">0</b></div>
+  <div class="stat"><span><i class="dot" style="background:#e8912d"></i>偏转（10°~90°）</span><b id="s2">0</b></div>
+  <div class="stat"><span><i class="dot" style="background:#d9453c"></i>大角度反弹（&gt;90°）</span><b id="s3">0</b></div>
+  <div class="stat"><span>已发射 α 粒子</span><b id="s0">0</b></div>
+</div>
+
+<script src="../../../../vendor/three/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ================= 常量 ================= */
+var CFG = {
+  speed: 9.5,
+  rate: 130,
+  maxP: 800,
+  screenR: 5.2,
+  screenHalf: 5.5,
+  discX: 6.2,
+  beamR: 1.05,
+  D: 0.062,
+  foilHalf: 0.15,
+  trailH: 22,
+  atomPos: new THREE.Vector3(11.2, 2.6, 0)
+};
+var COL = {
+  gold:   new THREE.Color(0xffd27a),
+  orange: new THREE.Color(0xff9a3c),
+  red:    new THREE.Color(0xff5a50),
+  flashG: 0x9fe8b0, flashO: 0xffc06a, flashR: 0xff7a70
+};
+function catColor(deg){
+  return deg<10 ? COL.gold : (deg<90 ? COL.orange : COL.red);
+}
+var ARCH_N = 36, ARCH_PTS = 64, ARCH_LIFE = 12;
+
+/* ================= 渲染器 ================= */
+var container = document.getElementById('app');
+var renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.18;
+container.appendChild(renderer.domElement);
+
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0c1c33);
+scene.fog = new THREE.Fog(0x0c1c33, 40, 95);
+
+/* ---- 环境反射贴图 ---- */
+(function(){
+  var c=document.createElement('canvas'); c.width=512; c.height=256;
+  var g=c.getContext('2d');
+  var grad=g.createLinearGradient(0,0,0,256);
+  grad.addColorStop(0,'#3a5a8c'); grad.addColorStop(.45,'#122844'); grad.addColorStop(1,'#040a14');
+  g.fillStyle=grad; g.fillRect(0,0,512,256);
+  var lights=[[80,60,150,26],[260,40,120,20],[420,80,130,24],[180,180,110,18]];
+  for(var i=0;i<lights.length;i++){
+    var L=lights[i];
+    var rg=g.createRadialGradient(L[0],L[1],2,L[0],L[1],L[2]);
+    rg.addColorStop(0,'rgba(220,240,255,.95)'); rg.addColorStop(.4,'rgba(150,200,255,.35)'); rg.addColorStop(1,'rgba(150,200,255,0)');
+    g.save(); g.translate(L[0],L[1]); g.scale(1,L[3]/L[2]); g.translate(-L[0],-L[1]);
+    g.fillStyle=rg; g.beginPath(); g.arc(L[0],L[1],L[2],0,Math.PI*2); g.fill(); g.restore();
+  }
+  var tex=new THREE.CanvasTexture(c);
+  tex.encoding = THREE.sRGBEncoding;
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromEquirectangular(tex).texture;
+  tex.dispose(); pmrem.dispose();
+})();
+
+var camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, .05, 200);
+
+var target = new THREE.Vector3(0, 1.0, 0);
+var orbit = {r: 26, yaw: 0.62, pitch: 0.32};
+function applyCamera(){
+  orbit.pitch = Math.max(-0.1, Math.min(1.25, orbit.pitch));
+  orbit.r = Math.max(8, Math.min(65, orbit.r));
+  camera.position.set(
+    target.x + orbit.r*Math.cos(orbit.pitch)*Math.sin(orbit.yaw),
+    target.y + orbit.r*Math.sin(orbit.pitch),
+    target.z + orbit.r*Math.cos(orbit.pitch)*Math.cos(orbit.yaw));
+  camera.lookAt(target);
+}
+applyCamera();
+var drag=false, lx=0, ly=0;
+renderer.domElement.addEventListener('mousedown', function(e){drag=true;lx=e.clientX;ly=e.clientY;});
+addEventListener('mouseup', function(){drag=false;});
+addEventListener('mousemove', function(e){
+  if(!drag) return;
+  orbit.yaw -= (e.clientX-lx)*0.005;
+  orbit.pitch += (e.clientY-ly)*0.004;
+  lx=e.clientX; ly=e.clientY; applyCamera();
+});
+renderer.domElement.addEventListener('wheel', function(e){
+  orbit.r += e.deltaY*0.02; applyCamera(); e.preventDefault();
+}, {passive:false});
+addEventListener('resize', function(){
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  updateViewportUniforms();
+});
+
+/* ================= 灯光 ================= */
+scene.add(new THREE.HemisphereLight(0xbfd9ff, 0x0a1626, 0.7));
+var sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(12,18,10); scene.add(sun);
+var fill = new THREE.DirectionalLight(0x9fc4ff, 0.4); fill.position.set(-10,6,-12); scene.add(fill);
+var rim = new THREE.DirectionalLight(0x66c8ff, 0.55); rim.position.set(-6,4,16); scene.add(rim);
+
+/* ================= 展台 ================= */
+var stageY = -4.6;
+var stage = new THREE.Mesh(new THREE.CircleGeometry(12.5, 80),
+  new THREE.MeshPhysicalMaterial({color:0x0d1f38, metalness:.55, roughness:.32, envMapIntensity:.7}));
+stage.rotation.x = -Math.PI/2; stage.position.y = stageY; scene.add(stage);
+var stageRim = new THREE.Mesh(new THREE.TorusGeometry(12.5,.05,10,110),
+  new THREE.MeshStandardMaterial({color:0x2a6fc0, emissive:0x1a5aa8, emissiveIntensity:.9, metalness:.6, roughness:.3}));
+stageRim.rotation.x = Math.PI/2; stageRim.position.y = stageY+.02; scene.add(stageRim);
+var innerRim = new THREE.Mesh(new THREE.TorusGeometry(9,.03,10,100),
+  new THREE.MeshStandardMaterial({color:0x1f5a9a, emissive:0x134a88, emissiveIntensity:.6, metalness:.6, roughness:.3}));
+innerRim.rotation.x = Math.PI/2; innerRim.position.y = stageY+.02; scene.add(innerRim);
+var grid = new THREE.GridHelper(25, 25, 0x2a4a78, 0x16294a);
+grid.material.transparent = true; grid.material.opacity = .55;
+grid.position.y = stageY+.015; scene.add(grid);
+(function(){
+  var c=document.createElement('canvas'); c.width=c.height=256;
+  var g=c.getContext('2d');
+  var rg=g.createRadialGradient(128,128,10,128,128,126);
+  rg.addColorStop(0,'rgba(70,130,220,.55)'); rg.addColorStop(1,'rgba(70,130,220,0)');
+  g.fillStyle=rg; g.fillRect(0,0,256,256);
+  var t=new THREE.CanvasTexture(c);
+  var haloBg=new THREE.Sprite(new THREE.SpriteMaterial({map:t, transparent:true, opacity:.5,
+    blending:THREE.AdditiveBlending, depthWrite:false}));
+  haloBg.scale.set(34,22,1); haloBg.position.set(0,3,-20); scene.add(haloBg);
+})();
+
+/* ================= 纹理 ================= */
+function glowTexture(inner, outer){
+  var c = document.createElement('canvas'); c.width=c.height=64;
+  var g = c.getContext('2d');
+  var grad = g.createRadialGradient(32,32,2,32,32,30);
+  grad.addColorStop(0, inner); grad.addColorStop(0.35, outer); grad.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = grad; g.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c);
+}
+var texParticle = glowTexture('rgba(255,255,255,1)','rgba(255,200,110,.85)');
+var texFlash    = glowTexture('rgba(255,255,255,1)','rgba(255,255,255,.7)');
+var texStreak = (function(){
+  var c=document.createElement('canvas'); c.width=8; c.height=64;
+  var g=c.getContext('2d');
+  var grad=g.createLinearGradient(0,0,0,64);
+  grad.addColorStop(0,'rgba(255,255,255,0)');
+  grad.addColorStop(.5,'rgba(255,255,255,1)');
+  grad.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=grad; g.fillRect(0,0,8,64);
+  return new THREE.CanvasTexture(c);
+})();
+
+/* ============ 屏幕空间恒宽光线着色器 ============
+   顶点携带线段两端点 A(position) 与 B(aB)。顶点着色器把两端投影到屏幕空间，
+   沿屏幕垂直方向偏移固定像素宽度——宽度与轨迹和视线的夹角无关，
+   因此正面看时偏转轨迹依然清晰可见(呈放射状线条)。 */
+var ribbonVert = [
+  'attribute vec3 aB;',
+  'attribute float aSide;',
+  'attribute float aEnd;',
+  'attribute vec3 aColor;',
+  'uniform vec2 uViewport;',
+  'uniform float uWidth;',
+  'varying vec2 vUv;',
+  'varying vec3 vColor;',
+  'void main(){',
+  '  vec4 cA = projectionMatrix * modelViewMatrix * vec4(position,1.0);',
+  '  vec4 cB = projectionMatrix * modelViewMatrix * vec4(aB,1.0);',
+  '  vec2 ndcA = cA.xy / max(abs(cA.w), 0.0001);',
+  '  vec2 ndcB = cB.xy / max(abs(cB.w), 0.0001);',
+  '  vec2 dpx = (ndcB - ndcA) * uViewport;',
+  '  float dl = length(dpx);',
+  '  vec2 perp = dl > 0.0001 ? vec2(-dpx.y, dpx.x)/dl : vec2(0.0,1.0);',
+  '  vec4 clip = mix(cA, cB, aEnd);',
+  '  if(clip.w > 0.0){',
+  '    clip.xy += perp * (aSide * uWidth * 0.5 / uViewport.y) * clip.w;',
+  '  }',
+  '  gl_Position = clip;',
+  '  vUv = vec2(aEnd, aSide*0.5+0.5);',
+  '  vColor = aColor;',
+  '}'
+].join('\n');
+var ribbonFrag = [
+  'uniform sampler2D uMap;',
+  'varying vec2 vUv;',
+  'varying vec3 vColor;',
+  'void main(){',
+  '  vec4 t = texture2D(uMap, vec2(0.5, vUv.y));',
+  '  gl_FragColor = vec4(vColor * t.rgb * 1.5, t.r);',
+  '}'
+].join('\n');
+function makeRibbonMaterial(widthPx){
+  return new THREE.ShaderMaterial({
+    uniforms:{
+      uViewport:{value:new THREE.Vector2(1,1)},
+      uWidth:{value:widthPx},
+      uMap:{value:texStreak}
+    },
+    vertexShader:ribbonVert, fragmentShader:ribbonFrag,
+    transparent:true, blending:THREE.AdditiveBlending,
+    depthWrite:false, side:THREE.DoubleSide
+  });
+}
+var DPR = Math.min(devicePixelRatio,2);
+var trailMat = makeRibbonMaterial(3.4*DPR);
+var archMat  = makeRibbonMaterial(5.5*DPR);
+function updateViewportUniforms(){
+  var w=renderer.domElement.width, h=renderer.domElement.height;
+  trailMat.uniforms.uViewport.value.set(w,h);
+  archMat.uniforms.uViewport.value.set(w,h);
+}
+updateViewportUniforms();
+
+/* ================= 实验装置 ================= */
+var rig = new THREE.Group(); scene.add(rig);
+var steel   = new THREE.MeshPhysicalMaterial({color:0xc4d2e2, metalness:.9,  roughness:.22, envMapIntensity:1.2});
+var alu     = new THREE.MeshPhysicalMaterial({color:0x9fb2c8, metalness:.75, roughness:.35, envMapIntensity:1.0});
+var darkAcc = new THREE.MeshPhysicalMaterial({color:0x1c2c44, metalness:.5,  roughness:.5});
+var tealAcc = new THREE.MeshStandardMaterial({color:0x3fd6c8, emissive:0x1fa898, emissiveIntensity:1.0, metalness:.4, roughness:.35});
+
+var source = new THREE.Mesh(new THREE.CylinderGeometry(.34,.38,1.5,32), steel);
+source.rotation.z = Math.PI/2; source.position.set(-7.4,0,0); rig.add(source);
+for(var rb=0;rb<3;rb++){
+  var rib = new THREE.Mesh(new THREE.TorusGeometry(.40-.04*rb, .045, 12, 32), darkAcc);
+  rib.rotation.y = Math.PI/2; rib.position.set(-7.8+rb*.42,0,0); rig.add(rib);
+}
+var capMat = new THREE.MeshPhysicalMaterial({color:0xb8f2c2, emissive:0x4fe07a, emissiveIntensity:1.6, roughness:.3});
+var srcCap = new THREE.Mesh(new THREE.CylinderGeometry(.26,.26,.14,28), capMat);
+srcCap.rotation.z = Math.PI/2; srcCap.position.set(-6.55,0,0); rig.add(srcCap);
+var capGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:texFlash, color:0x7fe8a0, transparent:true, opacity:.85,
+  blending:THREE.AdditiveBlending, depthWrite:false}));
+capGlow.scale.set(1.3,1.3,1); capGlow.position.copy(srcCap.position); rig.add(capGlow);
+var shield = new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,.7,28,1,true), darkAcc);
+shield.rotation.z = Math.PI/2; shield.position.set(-6.9,0,0); rig.add(shield);
+
+var postG = new THREE.BoxGeometry(.24,3.1,.24);
+var postM = alu;
+function post(x,z){ var m=new THREE.Mesh(postG,postM); m.position.set(x,-1.7,z||0); rig.add(m);
+  var f=new THREE.Mesh(new THREE.BoxGeometry(.4,.1,.4), darkAcc); f.position.set(x,-3.25,z||0); rig.add(f); }
+post(-7.4); post(0,1.2); post(0,-1.2); post(-4.25); post(3.6,1.2); post(3.6,-1.2);
+var rail = new THREE.Mesh(new THREE.BoxGeometry(13.4,.14,.2), steel);
+rail.position.set(-1.9,-3.32,0); rig.add(rail);
+
+function collimatorDisc(x){
+  var shape = new THREE.Shape(); shape.absarc(0,0,1.35,0,Math.PI*2,false);
+  var hole = new THREE.Path(); hole.absarc(0,0,0.13,0,Math.PI*2,true);
+  shape.holes.push(hole);
+  var geo = new THREE.ExtrudeGeometry(shape,{depth:.18,bevelEnabled:false});
+  var m = new THREE.Mesh(geo, steel);
+  m.rotation.y = Math.PI/2; m.position.set(x,0,0);
+  var rimT = new THREE.Mesh(new THREE.TorusGeometry(1.35,.035,10,64), tealAcc);
+  rimT.rotation.y = Math.PI/2; rimT.position.set(x-.1,0,0);
+  rig.add(m); rig.add(rimT);
+}
+collimatorDisc(-4.6);
+collimatorDisc(-3.9);
+
+var foil = new THREE.Mesh(
+  new THREE.BoxGeometry(.09, 3.6, 3.6),
+  new THREE.MeshPhysicalMaterial({color:0xffdf7a, metalness:.95, roughness:.15,
+    transparent:true, opacity:.55, side:THREE.DoubleSide,
+    emissive:0x9a7a20, emissiveIntensity:.45, envMapIntensity:1.4}));
+rig.add(foil);
+(function(){
+  var fw=3.66, t=.1;
+  var hbars=[[fw/2],[-fw/2]];
+  for(var i=0;i<2;i++){
+    var m=new THREE.Mesh(new THREE.BoxGeometry(.2, t, fw), steel);
+    m.position.set(0,hbars[i][0],0); rig.add(m);
+  }
+  var vbars=[[fw/2],[-fw/2]];
+  for(var j=0;j<2;j++){
+    var m2=new THREE.Mesh(new THREE.BoxGeometry(.2, fw, t), steel);
+    m2.position.set(0,0,vbars[j][0]); rig.add(m2);
+  }
+})();
+
+var screenMat = new THREE.MeshPhysicalMaterial({color:0x8fe8b8, transparent:true, opacity:.12,
+  side:THREE.DoubleSide, roughness:.15, emissive:0x3fd68f, emissiveIntensity:.3, depthWrite:false});
+var cyl = new THREE.Mesh(new THREE.CylinderGeometry(CFG.screenR, CFG.screenR, CFG.screenHalf*2, 80, 1, true), screenMat);
+cyl.rotation.z = Math.PI/2; rig.add(cyl);
+for(var i2=0;i2<5;i2++){
+  var ring = new THREE.Mesh(new THREE.TorusGeometry(CFG.screenR, .016, 8, 96),
+    new THREE.MeshBasicMaterial({color:0x6fe0a8, transparent:true, opacity:.5}));
+  ring.rotation.y = Math.PI/2; ring.position.x = -CFG.screenHalf + i2*(CFG.screenHalf*2/4);
+  rig.add(ring);
+}
+for(var e2=0;e2<2;e2++){
+  var er = new THREE.Mesh(new THREE.TorusGeometry(CFG.screenR,.045,10,90), tealAcc);
+  er.rotation.y = Math.PI/2; er.position.x = e2===0? -CFG.screenHalf-.05 : CFG.screenHalf+.05;
+  rig.add(er);
+}
+var endShape = new THREE.Shape(); endShape.absarc(0,0,CFG.screenR,0,Math.PI*2,false);
+var endHole = new THREE.Path(); endHole.absarc(0,0,.55,0,Math.PI*2,true);
+endShape.holes.push(endHole);
+var endDisc = new THREE.Mesh(new THREE.ExtrudeGeometry(endShape,{depth:.1,bevelEnabled:false}), screenMat.clone());
+endDisc.rotation.y = Math.PI/2; endDisc.position.x = CFG.discX; rig.add(endDisc);
+
+(function(){
+  var pts=[]; for(var x=-6.4;x<=CFG.discX;x+=.5) pts.push(new THREE.Vector3(x,0,0));
+  var g = new THREE.BufferGeometry().setFromPoints(pts);
+  var line = new THREE.Line(g, new THREE.LineDashedMaterial({color:0x5f8fd8, dashSize:.22, gapSize:.22, transparent:true, opacity:.75}));
+  line.computeLineDistances(); rig.add(line);
+})();
+
+/* ================= 放大原子模型 ================= */
+var atomGroup = new THREE.Group();
+atomGroup.position.copy(CFG.atomPos); scene.add(atomGroup);
+var halo = new THREE.Mesh(new THREE.TorusGeometry(1.9,.028,10,80), tealAcc);
+halo.rotation.x = Math.PI/2; atomGroup.add(halo);
+
+var rudAtom = new THREE.Group(); atomGroup.add(rudAtom);
+var nucleus = new THREE.Mesh(new THREE.SphereGeometry(.26,28,28),
+  new THREE.MeshPhysicalMaterial({color:0xff9a68, emissive:0xe0502a, emissiveIntensity:1.1, roughness:.3, metalness:.2}));
+rudAtom.add(nucleus);
+var nGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:texFlash, color:0xff8a50, transparent:true, opacity:.6,
+  blending:THREE.AdditiveBlending, depthWrite:false}));
+nGlow.scale.set(1.5,1.5,1); nucleus.add(nGlow);
+var orbitRings=[], electrons=[];
+var eMatR = new THREE.MeshPhysicalMaterial({color:0x5a90e8, emissive:0x3a6fd8, emissiveIntensity:.9, roughness:.3});
+var ringMat = new THREE.MeshBasicMaterial({color:0x7fb0f0, transparent:true, opacity:.65});
+var tilts = [0,.9,-.9,.45];
+for(var o=0;o<4;o++){
+  var rr=.8+o*.32, pts=[];
+  for(var a=0;a<=64;a++){var t2=a/64*Math.PI*2; pts.push(new THREE.Vector3(rr*Math.cos(t2),0,rr*Math.sin(t2)));}
+  var og=new THREE.BufferGeometry().setFromPoints(pts);
+  var oring=new THREE.Line(og, ringMat);
+  oring.rotation.set(tilts[o],o*.7,0);
+  rudAtom.add(oring); orbitRings.push({mesh:oring, r:rr, tilt:tilts[o], yrot:o*.7, phase:o*1.3});
+  for(var k=0;k<2;k++){
+    var e=new THREE.Mesh(new THREE.SphereGeometry(.085,16,16), eMatR);
+    rudAtom.add(e); electrons.push({mesh:e, ring:orbitRings.length-1, k:k, speed:1.6+o*.35});
+  }
+}
+
+var thomAtom = new THREE.Group(); thomAtom.visible=false; atomGroup.add(thomAtom);
+var pudding = new THREE.Mesh(new THREE.SphereGeometry(1.42,36,36),
+  new THREE.MeshPhysicalMaterial({color:0xcfe4ff, transparent:true, opacity:.4, roughness:.22,
+    emissive:0x5a88c8, emissiveIntensity:.32, envMapIntensity:1.1}));
+thomAtom.add(pudding);
+var puddingWire = new THREE.Mesh(new THREE.SphereGeometry(1.42,22,15),
+  new THREE.MeshBasicMaterial({color:0x8fb8e8, wireframe:true, transparent:true, opacity:.32}));
+thomAtom.add(puddingWire);
+var thomElectrons=[];
+for(var t3=0;t3<9;t3++){
+  var e2=new THREE.Mesh(new THREE.SphereGeometry(.1,16,16), eMatR);
+  var rr2=.35+Math.random()*.85, aa=Math.random()*Math.PI*2, bb=(Math.random()-.5)*1.6;
+  e2.position.set(rr2*Math.cos(aa)*Math.cos(bb), rr2*Math.sin(bb), rr2*Math.sin(aa)*Math.cos(bb));
+  thomAtom.add(e2); thomElectrons.push(e2);
+}
+
+/* ================= α 粒子系统 ================= */
+var N = CFG.maxP, H = CFG.trailH, SEGS = H-1;
+var particles=[];
+for(var i=0;i<N;i++){
+  var hist=[]; for(var h=0;h<H;h++) hist.push(new THREE.Vector3());
+  particles.push({alive:false, fading:false, fade:0, fadeRate:.6, cat:0, rec:null,
+    pos:new THREE.Vector3(), prev:new THREE.Vector3(), vel:new THREE.Vector3(),
+    theta:0, deflected:false, col:COL.gold.clone(), hist:hist});
+}
+
+var pGeo = new THREE.BufferGeometry();
+var pPos = new Float32Array(N*3), pCol = new Float32Array(N*3);
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+pGeo.setAttribute('color', new THREE.BufferAttribute(pCol,3));
+var points = new THREE.Points(pGeo, new THREE.PointsMaterial({size:.24, map:texParticle, transparent:true,
+  depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true}));
+points.frustumCulled=false; scene.add(points);
+
+/* ---- 尾迹：屏幕空间恒宽光带 ---- */
+var tGeo = new THREE.BufferGeometry();
+var QV = N*SEGS*4;
+var tA = new Float32Array(QV*3);
+var tB = new Float32Array(QV*3);
+var tCol = new Float32Array(QV*3);
+var tSide = new Float32Array(QV);
+var tEnd  = new Float32Array(QV);
+var tIdx = new Uint32Array(N*SEGS*6);
+(function(){
+  for(var q=0;q<N*SEGS;q++){
+    var b=q*4;
+    tSide[b]=-1; tSide[b+1]=1; tSide[b+2]=1; tSide[b+3]=-1;
+    tEnd[b]=0; tEnd[b+1]=0; tEnd[b+2]=1; tEnd[b+3]=1;
+    var o=q*6;
+    tIdx[o]=b; tIdx[o+1]=b+1; tIdx[o+2]=b+2;
+    tIdx[o+3]=b; tIdx[o+4]=b+2; tIdx[o+5]=b+3;
+  }
+})();
+tGeo.setAttribute('position', new THREE.BufferAttribute(tA,3));
+tGeo.setAttribute('aB', new THREE.BufferAttribute(tB,3));
+tGeo.setAttribute('aColor', new THREE.BufferAttribute(tCol,3));
+tGeo.setAttribute('aSide', new THREE.BufferAttribute(tSide,1));
+tGeo.setAttribute('aEnd', new THREE.BufferAttribute(tEnd,1));
+tGeo.setIndex(new THREE.BufferAttribute(tIdx,1));
+var trails = new THREE.Mesh(tGeo, trailMat);
+trails.frustumCulled=false; scene.add(trails);
+/* 渲染顺序：尾迹和存档最后画，避免被透明器材的深度遮挡 */
+trails.renderOrder = 10;
+
+/* 闪光池 */
+var flashes=[];
+for(var f=0;f<70;f++){
+  var sm = new THREE.SpriteMaterial({map:texFlash, transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending});
+  var sp = new THREE.Sprite(sm); sp.visible=false; scene.add(sp);
+  flashes.push({sp:sp, life:0});
+}
+function spawnFlash(pos, hex, big){
+  for(var i=0;i<flashes.length;i++){
+    var fl=flashes[i];
+    if(fl.life<=0){
+      fl.life=1; fl.sp.visible=true; fl.sp.position.copy(pos);
+      fl.sp.material.color.setHex(hex);
+      fl.base = big? 2.0 : 1.0;
+      return;
+    }
+  }
+}
+
+/* 屏幕累积光斑 */
+var MAXHIT=600, hitCount=0;
+var hGeo = new THREE.BufferGeometry();
+var hPos = new Float32Array(MAXHIT*3), hCol = new Float32Array(MAXHIT*3);
+hGeo.setAttribute('position', new THREE.BufferAttribute(hPos,3));
+hGeo.setAttribute('color', new THREE.BufferAttribute(hCol,3));
+var hits = new THREE.Points(hGeo, new THREE.PointsMaterial({size:.18, map:texFlash, transparent:true, opacity:.8,
+  depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true}));
+hits.frustumCulled=false; scene.add(hits);
+var cGreen=new THREE.Color(0x3fae62), cOrange=new THREE.Color(0xe8912d), cRed=new THREE.Color(0xd9453c);
+function addHit(pos, cat){
+  var idx = hitCount % MAXHIT; hitCount++;
+  hPos[idx*3]=pos.x; hPos[idx*3+1]=pos.y; hPos[idx*3+2]=pos.z;
+  var c = cat===0?cGreen:(cat===1?cOrange:cRed);
+  hCol[idx*3]=c.r; hCol[idx*3+1]=c.g; hCol[idx*3+2]=c.b;
+  hGeo.attributes.position.needsUpdate=true; hGeo.attributes.color.needsUpdate=true;
+}
+
+/* ============ 轨迹存档：≥10° 偏转路径持续高亮 ============ */
+var aGeo = new THREE.BufferGeometry();
+var AQV = ARCH_N*(ARCH_PTS-1)*4;
+var aA = new Float32Array(AQV*3), aB2 = new Float32Array(AQV*3), aCol = new Float32Array(AQV*3);
+var aSide = new Float32Array(AQV), aEnd = new Float32Array(AQV);
+var aIdx = new Uint32Array(ARCH_N*(ARCH_PTS-1)*6);
+(function(){
+  for(var q=0;q<ARCH_N*(ARCH_PTS-1);q++){
+    var b=q*4;
+    aSide[b]=-1; aSide[b+1]=1; aSide[b+2]=1; aSide[b+3]=-1;
+    aEnd[b]=0; aEnd[b+1]=0; aEnd[b+2]=1; aEnd[b+3]=1;
+    var o=q*6;
+    aIdx[o]=b; aIdx[o+1]=b+1; aIdx[o+2]=b+2;
+    aIdx[o+3]=b; aIdx[o+4]=b+2; aIdx[o+5]=b+3;
+  }
+})();
+aGeo.setAttribute('position', new THREE.BufferAttribute(aA,3));
+aGeo.setAttribute('aB', new THREE.BufferAttribute(aB2,3));
+aGeo.setAttribute('aColor', new THREE.BufferAttribute(aCol,3));
+aGeo.setAttribute('aSide', new THREE.BufferAttribute(aSide,1));
+aGeo.setAttribute('aEnd', new THREE.BufferAttribute(aEnd,1));
+aGeo.setIndex(new THREE.BufferAttribute(aIdx,1));
+var archMesh = new THREE.Mesh(aGeo, archMat);
+archMesh.frustumCulled=false; scene.add(archMesh);
+archMesh.renderOrder = 11;
+
+var archSlots=[];
+for(var as=0;as<ARCH_N;as++){
+  archSlots.push({active:false, life:0, col:new THREE.Color(), pts:new Float32Array(ARCH_PTS*3)});
+}
+function archivePush(rec, col){
+  var slot=null, minLife=1e9, minIdx=0;
+  for(var s=0;s<ARCH_N;s++){
+    if(!archSlots[s].active){ slot=archSlots[s]; break; }
+    if(archSlots[s].life<minLife){ minLife=archSlots[s].life; minIdx=s; }
+  }
+  if(!slot) slot=archSlots[minIdx];
+  var cnt=Math.min(rec.length/3, ARCH_PTS);
+  for(var k=0;k<cnt;k++){
+    slot.pts[k*3]=rec[k*3]; slot.pts[k*3+1]=rec[k*3+1]; slot.pts[k*3+2]=rec[k*3+2];
+  }
+  for(var k2=cnt;k2<ARCH_PTS;k2++){
+    slot.pts[k2*3]=slot.pts[(cnt-1)*3];
+    slot.pts[k2*3+1]=slot.pts[(cnt-1)*3+1];
+    slot.pts[k2*3+2]=slot.pts[(cnt-1)*3+2];
+  }
+  slot.col.copy(col); slot.life=ARCH_LIFE; slot.active=true;
+}
+function updateArchive(dt){
+  for(var s=0;s<ARCH_N;s++){
+    var sl=archSlots[s];
+    if(sl.active){
+      sl.life-=dt;
+      if(sl.life<=0){ sl.active=false; sl.life=0; }
+    }
+    var alpha = sl.active ? Math.min(1, sl.life/1.2)*.9 : 0;
+    for(var q2=0;q2<ARCH_PTS-1;q2++){
+      var vi=(s*(ARCH_PTS-1)+q2)*12;
+      if(alpha<=0){
+        for(var z=vi;z<vi+12;z++){ aA[z]=0; aB2[z]=0; aCol[z]=0; }
+        continue;
+      }
+      var ax=sl.pts[q2*3],ay=sl.pts[q2*3+1],az=sl.pts[q2*3+2];
+      var bx=sl.pts[(q2+1)*3],by=sl.pts[(q2+1)*3+1],bz=sl.pts[(q2+1)*3+2];
+      aA[vi]=ax; aA[vi+1]=ay; aA[vi+2]=az;
+      aA[vi+3]=ax; aA[vi+4]=ay; aA[vi+5]=az;
+      aA[vi+6]=ax; aA[vi+7]=ay; aA[vi+8]=az;
+      aA[vi+9]=ax; aA[vi+10]=ay; aA[vi+11]=az;
+      aB2[vi]=bx; aB2[vi+1]=by; aB2[vi+2]=bz;
+      aB2[vi+3]=bx; aB2[vi+4]=by; aB2[vi+5]=bz;
+      aB2[vi+6]=bx; aB2[vi+7]=by; aB2[vi+8]=bz;
+      aB2[vi+9]=bx; aB2[vi+10]=by; aB2[vi+11]=bz;
+      var kA=(1-q2/(ARCH_PTS-1))*alpha, kB=(1-(q2+1)/(ARCH_PTS-1))*alpha;
+      aCol[vi]=sl.col.r*kA; aCol[vi+1]=sl.col.g*kA; aCol[vi+2]=sl.col.b*kA;
+      aCol[vi+3]=sl.col.r*kA; aCol[vi+4]=sl.col.g*kA; aCol[vi+5]=sl.col.b*kA;
+      aCol[vi+6]=sl.col.r*kB; aCol[vi+7]=sl.col.g*kB; aCol[vi+8]=sl.col.b*kB;
+      aCol[vi+9]=sl.col.r*kB; aCol[vi+10]=sl.col.g*kB; aCol[vi+11]=sl.col.b*kB;
+    }
+  }
+  aGeo.attributes.position.needsUpdate=true;
+  aGeo.attributes.aB.needsUpdate=true;
+  aGeo.attributes.aColor.needsUpdate=true;
+}
+
+/* ================= 物理 ================= */
+var model = 'rutherford';
+var running = false, emitAcc = 0;
+var stats = {total:0, cat0:0, cat1:0, cat2:0};
+
+function sampleScatter(){
+  if(model==='thomson') return (0.003 + Math.random()*0.014);
+  var b = CFG.beamR * Math.sqrt(Math.random());
+  var th = 2*Math.atan(CFG.D/(2*Math.max(b,1e-4)));
+  return Math.min(th, Math.PI*0.97);
+}
+
+function spawnParticle(){
+  for(var i=0;i<N;i++){
+    var p=particles[i];
+    if(!p.alive && !p.fading){
+      p.alive=true; p.fading=false; p.fade=0; p.deflected=false; p.theta=0; p.cat=0;
+      p.col.copy(COL.gold); p.rec=null;
+      var r=.1*Math.sqrt(Math.random()), a=Math.random()*Math.PI*2;
+      p.pos.set(-6.45, r*Math.cos(a), r*Math.sin(a));
+      p.prev.copy(p.pos);
+      p.vel.set(CFG.speed,0,0);
+      for(var h2=0;h2<H;h2++) p.hist[h2].copy(p.pos);
+      stats.total++;
+      return;
+    }
+  }
+}
+
+function applyDeflection(p){
+  var th = sampleScatter();
+  p.theta = th;
+  var deg = th*180/Math.PI;
+  p.cat = deg<10?0:(deg<90?1:2);
+  p.col.copy(catColor(deg));
+  var phi = Math.random()*Math.PI*2;
+  var w = new THREE.Vector3(0, Math.cos(phi), Math.sin(phi));
+  var axis = new THREE.Vector3().crossVectors(p.vel, w);
+  if(axis.lengthSq()<1e-8) axis.set(0,1,0);
+  axis.normalize();
+  p.vel.applyAxisAngle(axis, th).normalize().multiplyScalar(CFG.speed);
+  stats['cat'+p.cat]++;
+}
+
+function killParticle(p){
+  p.alive=false;
+  p.fadeRate = p.cat>=1 ? 0.12 : 0.6;
+  if(!p.fading){ p.fading=true; p.fade=1; }
+  if(p.cat>=1 && p.rec && p.rec.length>6) archivePush(p.rec, p.col);
+  p.rec=null;
+}
+
+function updateParticles(dt){
+  var half=CFG.screenHalf, R=CFG.screenR-.06, dx=CFG.discX;
+  for(var i=0;i<N;i++){
+    var p=particles[i];
+
+    if(p.alive){
+      p.prev.copy(p.pos);
+      p.pos.addScaledVector(p.vel, dt);
+
+      if(!p.deflected && p.prev.x < CFG.foilHalf && p.pos.x >= CFG.foilHalf){
+        p.deflected=true;
+        applyDeflection(p);
+      }
+
+      var rad=Math.sqrt(p.pos.y*p.pos.y+p.pos.z*p.pos.z);
+      var hit=null, hex=0, big=false;
+
+      if(p.pos.x >= dx){
+        if(rad<=CFG.screenR){
+          hit=new THREE.Vector3(dx-.05,p.pos.y,p.pos.z);
+          hex = p.cat===0?COL.flashG:(p.cat===1?COL.flashO:COL.flashR);
+          big = p.cat===2;
+          addHit(new THREE.Vector3(dx-.02,p.pos.y,p.pos.z), p.cat);
+        }
+        killParticle(p);
+      }else if(rad>=R && p.pos.x>-half && p.pos.x<half){
+        var sc=R/rad;
+        hit=new THREE.Vector3(p.pos.x, p.pos.y*sc, p.pos.z*sc);
+        hex = p.cat===0?COL.flashG:(p.cat===1?COL.flashO:COL.flashR);
+        big = p.cat===2;
+        addHit(hit.clone().multiplyScalar(.995), p.cat);
+        killParticle(p);
+      }else if(p.pos.x<-9 || rad>9){
+        killParticle(p);
+      }
+
+      if(hit) spawnFlash(hit, hex, big);
+      if(p.cat>=1){
+        if(!p.rec) p.rec=[];
+        if(p.rec.length < ARCH_PTS*3) p.rec.push(p.pos.x, p.pos.y, p.pos.z);
+      }
+      for(var j=SEGS;j>0;j--) p.hist[j].copy(p.hist[j-1]);
+      p.hist[0].copy(p.pos);
+    }else if(p.fading){
+      p.fade -= dt*p.fadeRate;
+      if(p.fade<=0){ p.fading=false; p.fade=0; }
+    }
+
+    /* ---- 写入尾迹缓冲 ---- */
+    var base=p.col;
+    var vis = p.alive ? 1 : p.fade;
+    pPos[i*3]=p.pos.x; pPos[i*3+1]=p.pos.y; pPos[i*3+2]=p.pos.z;
+    pCol[i*3]=base.r; pCol[i*3+1]=base.g; pCol[i*3+2]=base.b;
+
+    if(p.alive || p.fading){
+      for(var s=0;s<SEGS;s++){
+        var a=p.hist[s], b=p.hist[s+1];
+        var vi=(i*SEGS+s)*12;
+        for(var v=0;v<4;v++){
+          tA[vi+v*3]=a.x; tA[vi+v*3+1]=a.y; tA[vi+v*3+2]=a.z;
+          tB[vi+v*3]=b.x; tB[vi+v*3+1]=b.y; tB[vi+v*3+2]=b.z;
+        }
+        var k1=(1-s/SEGS)*vis, k2=(1-(s+1)/SEGS)*vis;
+        tCol[vi]=base.r*k1; tCol[vi+1]=base.g*k1; tCol[vi+2]=base.b*k1;
+        tCol[vi+3]=base.r*k1; tCol[vi+4]=base.g*k1; tCol[vi+5]=base.b*k1;
+        tCol[vi+6]=base.r*k2; tCol[vi+7]=base.g*k2; tCol[vi+8]=base.b*k2;
+        tCol[vi+9]=base.r*k2; tCol[vi+10]=base.g*k2; tCol[vi+11]=base.b*k2;
+      }
+    }else{
+      for(var z=(i*SEGS)*12, ze=(i*SEGS+SEGS)*12; z<ze; z++){ tA[z]=0; tB[z]=0; tCol[z]=0; }
+    }
+  }
+  pGeo.attributes.position.needsUpdate=true;
+  pGeo.attributes.color.needsUpdate=true;
+  tGeo.attributes.position.needsUpdate=true;
+  tGeo.attributes.aB.needsUpdate=true;
+  tGeo.attributes.aColor.needsUpdate=true;
+}
+
+function updateFlashes(dt){
+  for(var i=0;i<flashes.length;i++){
+    var fl=flashes[i];
+    if(fl.life>0){
+      fl.life -= dt*1.7;
+      if(fl.life<=0){ fl.sp.visible=false; fl.sp.material.opacity=0; continue; }
+      var s = fl.base*(1.7-fl.life*.7);
+      fl.sp.scale.set(s,s,1);
+      fl.sp.material.opacity = Math.min(1, fl.life*1.4);
+    }
+  }
+}
+
+/* ================= HTML 标签 ================= */
+function makeLabel(text, cls){
+  var d=document.createElement('div');
+  d.className='lbl'+(cls?' '+cls:'');
+  d.textContent=text;
+  document.body.appendChild(d);
+  return d;
+}
+var labels = {
+  source:   makeLabel('放射源'),
+  alpha:    makeLabel('α粒子'),
+  foil:     makeLabel('金箔'),
+  screen:   makeLabel('环形荧光屏'),
+  nucleus:  makeLabel('金原子核','nucleus'),
+  electron: makeLabel('电子','electron'),
+  charge:   makeLabel('正电荷均匀分布（无核）','electron'),
+  caption:  makeLabel('原子结构（放大示意）','caption')
+};
+function placeLabel(el, wp){
+  var v = wp.clone().project(camera);
+  if(v.z>1 || v.z<-1){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.style.left = ((v.x*.5+.5)*innerWidth)+'px';
+  el.style.top  = ((-v.y*.5+.5)*innerHeight)+'px';
+}
+var tmpV = new THREE.Vector3();
+function updateLabels(){
+  placeLabel(labels.source, new THREE.Vector3(-7.4,.75,0));
+  placeLabel(labels.foil,  new THREE.Vector3(0,2.05,0));
+  placeLabel(labels.screen, new THREE.Vector3(-2.6,CFG.screenR+.1,0));
+  placeLabel(labels.caption, new THREE.Vector3(CFG.atomPos.x,CFG.atomPos.y+2.1,CFG.atomPos.z));
+  var anchor=null;
+  for(var i=0;i<N;i++){
+    if(particles[i].alive && particles[i].pos.x<1){ anchor=particles[i].pos; break; }
+  }
+  if(anchor) placeLabel(labels.alpha, tmpV.copy(anchor).add(new THREE.Vector3(0,.3,0)));
+  else labels.alpha.style.display='none';
+  if(model==='rutherford'){
+    labels.charge.style.display='none';
+    nucleus.getWorldPosition(tmpV); placeLabel(labels.nucleus, tmpV.add(new THREE.Vector3(.1,.4,0)));
+    var e0=electrons[0], rg=orbitRings[e0.ring];
+    var ang=e0phase+e0.k*Math.PI;
+    tmpV.set(rg.r*Math.cos(ang),0,rg.r*Math.sin(ang)).applyEuler(rg.mesh.rotation);
+    atomGroup.localToWorld(tmpV); placeLabel(labels.electron, tmpV.add(new THREE.Vector3(0,.3,0)));
+  }else{
+    labels.nucleus.style.display='none';
+    labels.charge.style.display='block';
+    placeLabel(labels.charge, new THREE.Vector3(CFG.atomPos.x,CFG.atomPos.y-1.75,CFG.atomPos.z));
+    thomElectrons[0].getWorldPosition(tmpV); placeLabel(labels.electron, tmpV.add(new THREE.Vector3(0,.3,0)));
+  }
+}
+var e0phase=0;
+
+/* ================= UI ================= */
+var btnRun=document.getElementById('btnRun'), btnReset=document.getElementById('btnReset');
+var btnR=document.getElementById('btnR'), btnT=document.getElementById('btnT');
+var badge=document.getElementById('modelBadge'), hint=document.getElementById('hint');
+var s0=document.getElementById('s0'), s1=document.getElementById('s1'), s2=document.getElementById('s2'), s3=document.getElementById('s3');
+
+btnRun.addEventListener('click', function(){
+  running=!running;
+  btnRun.textContent = running? '⏸ 暂停':'▶ 开始发射';
+  btnRun.classList.toggle('primary', !running);
+  btnRun.classList.toggle('warn', running);
+});
+btnReset.addEventListener('click', function(){
+  for(var i=0;i<N;i++){ particles[i].alive=false; particles[i].fading=false; particles[i].fade=0; particles[i].rec=null;
+    for(var z=(i*SEGS)*12, ze=(i*SEGS+SEGS)*12; z<ze; z++){ tA[z]=0; tB[z]=0; tCol[z]=0; } }
+  for(var as2=0;as2<ARCH_N;as2++){ archSlots[as2].active=false; archSlots[as2].life=0; }
+  for(var z2=0;z2<AQV*3;z2++){ aA[z2]=0; aB2[z2]=0; aCol[z2]=0; }
+  for(var f=0;f<flashes.length;f++){flashes[f].life=0;flashes[f].sp.visible=false;}
+  hitCount=0;
+  hGeo.attributes.position.needsUpdate=true;
+  tGeo.attributes.position.needsUpdate=true;
+  tGeo.attributes.aB.needsUpdate=true;
+  tGeo.attributes.aColor.needsUpdate=true;
+  aGeo.attributes.position.needsUpdate=true;
+  aGeo.attributes.aB.needsUpdate=true;
+  aGeo.attributes.aColor.needsUpdate=true;
+  stats={total:0,cat0:0,cat1:0,cat2:0};
+  emitAcc=0; updateStats();
+});
+function setModel(m){
+  model=m;
+  rudAtom.visible=(m==='rutherford');
+  thomAtom.visible=(m==='thomson');
+  btnR.classList.toggle('active', m==='rutherford');
+  btnT.classList.toggle('active', m==='thomson');
+  badge.textContent = m==='rutherford'? '当前模型：卢瑟福核式结构':'当前模型：汤姆孙枣糕模型';
+  badge.classList.toggle('thomson', m==='thomson');
+  hint.textContent = m==='rutherford'
+    ? '卢瑟福模型：正电荷集中在极小的原子核内。预期：绝大多数 α 粒子直穿，极少数发生大角度反弹（红色轨迹）。'
+    : '汤姆孙模型：正电荷均匀分布在球内。预期：电荷作用相互抵消，α 粒子几乎全部直穿，不会出现大角度反弹。';
+}
+btnR.addEventListener('click', function(){setModel('rutherford');});
+btnT.addEventListener('click', function(){setModel('thomson');});
+function updateStats(){
+  s0.textContent=stats.total; s1.textContent=stats.cat0;
+  s2.textContent=stats.cat1;  s3.textContent=stats.cat2;
+}
+
+/* ================= 主循环 ================= */
+var clock=new THREE.Clock();
+var statTimer=0;
+
+function animate(){
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),.05);
+
+  if(running){
+    emitAcc += dt*CFG.rate;
+    while(emitAcc>=1){ emitAcc--; spawnParticle(); }
+    updateParticles(dt);
+  }else{
+    updateParticles(0.0001);
+  }
+  updateFlashes(dt);
+  updateArchive(dt);
+
+  e0phase += dt*1.8;
+  for(var o2=0;o2<orbitRings.length;o2++) orbitRings[o2].mesh.rotation.y = orbitRings[o2].yrot + clock.elapsedTime*.15;
+  for(var e3=0;e3<electrons.length;e3++){
+    var el=electrons[e3], rg=orbitRings[el.ring];
+    var ang=e0phase*el.speed + el.k*Math.PI + rg.phase;
+    el.mesh.position.set(rg.r*Math.cos(ang),0,rg.r*Math.sin(ang)).applyEuler(rg.mesh.rotation);
+  }
+  nucleus.scale.setScalar(1+Math.sin(clock.elapsedTime*3)*.08);
+  for(var t4=0;t4<thomElectrons.length;t4++){
+    thomElectrons[t4].position.y += Math.sin(clock.elapsedTime*2+t4*1.7)*.002;
+  }
+  atomGroup.rotation.y += dt*.25;
+  halo.rotation.z += dt*.4;
+
+  statTimer+=dt;
+  if(statTimer>.25){ statTimer=0; updateStats(); }
+
+  updateLabels();
+  renderer.render(scene, camera);
+}
+animate();
+
+})();
+</script>
+</body>
+</html>

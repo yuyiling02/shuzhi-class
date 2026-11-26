@@ -1,1223 +1,819 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>速度与匀速直线运动</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>运动与速度 · 物理可视化</title>
 <style>
-:root{
-  --blue:#2563EB;
-  --blue-d:#1D4ED8;
-  --blue-l:#EFF4FF;
-  --green:#10B981;
-  --green-l:#EAFBF4;
-  --red:#EF4444;
-  --purple:#7C3AED;
-  --amber:#F59E0B;
-  --ink:#1F2937;
-  --ink-2:#4B5563;
-  --ink-3:#6B7280;
-  --line:#E5E7EB;
-  --bg:#F5F7FB;
-  --card:#FFFFFF;
-  --radius:14px;
-  --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
-}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#061226;}
+  body{
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app{position:fixed;inset:0;}
+  canvas{display:block;width:100%;height:100%;}
 
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  line-height:1.65;
-  -webkit-font-smoothing:antialiased;
-}
-
-/* ---------- header ---------- */
-.site-header{
-  background:linear-gradient(135deg,#1E40AF 0%,#2563EB 55%,#3B82F6 100%);
-  color:#fff;padding:26px 0 28px;
-}
-.header-inner{
-  max-width:1080px;margin:0 auto;padding:0 24px;
-  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
-}
-.header-text h1{margin:0;font-size:25px;letter-spacing:.4px;font-weight:700;}
-.header-text p{margin:6px 0 0;font-size:14px;opacity:.9;}
-.header-badge{
-  border:1px solid rgba(255,255,255,.4);border-radius:999px;
-  padding:7px 16px;font-size:13px;background:rgba(255,255,255,.12);white-space:nowrap;
-}
-
-/* ---------- 吸顶导航 ---------- */
-.sec-nav{
-  position:sticky;top:0;z-index:20;
-  background:rgba(255,255,255,.94);
-  backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line);
-}
-.nav-inner{
-  max-width:1080px;margin:0 auto;padding:9px 24px;
-  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-}
-.nav-chip{
-  border:1px solid var(--line);background:#fff;color:var(--ink-2);
-  border-radius:999px;padding:6px 15px;font-size:13px;cursor:pointer;
-  font-family:inherit;text-decoration:none;transition:.16s;
-}
-.nav-chip:hover{border-color:var(--blue);color:var(--blue);}
-
-/* ---------- layout ---------- */
-.wrap{max-width:1080px;margin:0 auto;padding:24px 24px 40px;}
-.card{
-  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-  padding:24px;border:1px solid rgba(229,231,235,.7);
-  scroll-margin-top:72px;
-}
-.card + .card{margin-top:18px;}
-.card > h2{margin:0 0 6px;font-size:19px;font-weight:700;}
-.card > h2 .no{
-  display:inline-block;min-width:26px;height:26px;line-height:26px;text-align:center;
-  background:var(--blue);color:#fff;border-radius:8px;font-size:14px;margin-right:8px;
-}
-.lead{margin:0 0 16px;color:var(--ink-2);font-size:14px;}
-
-/* ---------- 画面区 ---------- */
-.stage{
-  background:#F8FAFC;border:1px solid var(--line);border-radius:12px;
-  padding:14px;display:flex;justify-content:center;overflow-x:auto;
-}
-.stage svg{display:block;}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
-.two .stage{padding:10px;}
-
-/* ---------- 控制 / 读数 两栏 ---------- */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px;}
-.ctrl-block{padding:10px 0 0;}
-
-/* ---------- 分段按钮 ---------- */
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:4px;}
-.seg-b{
-  border:none;background:#fff;color:var(--ink-2);padding:7px 14px;font-size:13px;
-  cursor:pointer;font-family:inherit;transition:.16s;white-space:nowrap;
-}
-.seg-b + .seg-b{border-left:1px solid var(--line);}
-.seg-b:hover{background:#F8FAFC;}
-.seg-b.on{background:var(--blue);color:#fff;font-weight:600;}
-
-/* ---------- 滑块 ---------- */
-.slider-row{margin-top:10px;}
-.slider-row label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:5px;}
-.slider-row label b{color:var(--blue);font-variant-numeric:tabular-nums;}
-.slider-row input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer;}
-.slider-row input[type=range]:disabled{opacity:.45;cursor:not-allowed;}
-.hint{color:var(--ink-3);font-size:12px;}
-.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 18px;}
-
-/* ---------- 按钮 ---------- */
-.quick{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;}
-.btn-sm{
-  border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:8px;
-  padding:6px 14px;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.16s;
-}
-.btn-sm:hover{background:var(--blue);color:#fff;}
-.btn-sm.primary{background:var(--blue);color:#fff;box-shadow:0 1px 2px rgba(37,99,235,.25);}
-.btn-sm.primary:hover{background:var(--blue-d);}
-.btn-sm.on{background:var(--purple);border-color:var(--purple);color:#fff;}
-.btn-sm.on:hover{background:#6D28D9;}
-
-/* ---------- 读数 ---------- */
-.ro-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;}
-.ro{display:flex;justify-content:space-between;padding:8px 14px;font-size:13.5px;border-bottom:1px solid var(--line);}
-.ro:last-child{border-bottom:none;}
-.ro span{color:var(--ink-3);}
-.ro b{font-variant-numeric:tabular-nums;color:var(--ink);}
-.ro b.ok{color:var(--green);}
-.ro b.warn{color:var(--amber);}
-.ro b.bad{color:var(--red);}
-
-/* ---------- 结论 / 提示 ---------- */
-.verdict{margin-top:12px;padding:10px 13px;border-radius:10px;font-size:13.5px;border:1px solid;}
-.verdict.ok{background:var(--green-l);border-color:#A7F3D0;color:#065F46;}
-.verdict.no{background:#FEF2F2;border-color:#FECACA;color:#991B1B;}
-.calc-res{margin-top:10px;font-size:13.5px;color:var(--ink-2);}
-.tag-ok{color:var(--green);font-weight:700;}
-.tag-no{color:var(--red);font-weight:700;}
-.formula{
-  margin-top:12px;padding:9px 12px;background:#F8FAFC;border:1px dashed var(--line);
-  border-radius:8px;font-size:13px;color:var(--ink-2);
-}
-.formula b{color:var(--purple);}
-.note{color:var(--ink-3);font-size:12px;margin-top:8px;}
-.note b{color:var(--ink-2);}
-.play-state{color:var(--purple);font-size:12px;font-weight:700;}
-
-/* ---------- 迷你表格 ---------- */
-.mini-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;}
-.mini-table th,.mini-table td{
-  border:1px solid var(--line);padding:5px 3px;text-align:center;
-  font-variant-numeric:tabular-nums;
-}
-.mini-table th{background:#F8FAFC;color:var(--ink-3);font-weight:600;}
-.mini-table td{color:var(--ink-2);}
-
-/* ---------- 小结 ---------- */
-.summary{list-style:none;margin:6px 0 0;padding:0;}
-.summary li{
-  position:relative;padding:6px 0 6px 22px;font-size:13.5px;color:var(--ink-2);
-  border-bottom:1px dashed var(--line);
-}
-.summary li:last-child{border-bottom:none;}
-.summary li::before{
-  content:"";position:absolute;left:4px;top:14px;width:7px;height:7px;
-  border-radius:50%;background:var(--blue);
-}
-.summary b{color:var(--purple);}
-
-/* ---------- footer ---------- */
-.site-footer{text-align:center;padding:22px 0 34px;color:var(--ink-3);font-size:12.5px;}
-
-/* ---------- 响应式 ---------- */
-@media(max-width:900px){
-  .two-col{grid-template-columns:1fr;}
-  .two{grid-template-columns:1fr;}
-  .grid6{grid-template-columns:repeat(2,1fr);}
-}
+  .tabs{
+    position:absolute;
+    top:clamp(18px,3.4vh,40px);
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:6px;
+    padding:6px;
+    border-radius:999px;
+    background:rgba(10,30,58,.72);
+    box-shadow:0 8px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(90,180,255,.22);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    z-index:5;
+  }
+  .tabs button{
+    appearance:none;border:0;cursor:pointer;
+    font-family:inherit;
+    font-size:clamp(13px,1.05vw,17px);
+    font-weight:600;
+    letter-spacing:.5px;
+    color:#7fa6cc;
+    padding:clamp(8px,1.1vh,13px) clamp(18px,2vw,30px);
+    border-radius:999px;
+    background:transparent;
+    transition:color .25s ease,background .25s ease,box-shadow .25s ease;
+    white-space:nowrap;
+  }
+  .tabs button:hover{color:#bfe2ff;}
+  .tabs button.active{
+    color:#eaf6ff;
+    background:linear-gradient(180deg,#2a80d8,#1b62ad);
+    box-shadow:0 4px 16px rgba(40,140,235,.45),inset 0 0 0 1px rgba(150,215,255,.35);
+  }
 </style>
 </head>
 <body>
-
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-text">
-      <h1>探究：速度的概念与匀速直线运动</h1>
-      <p>初中物理 · 机械运动　|　四步走：怎么比快慢 → 速度是什么 → 怎样才算匀速 → 照片上怎么比快慢</p>
-    </div>
-    <div class="header-badge">可交互探究 · 拖动看变化</div>
+<div id="app">
+  <canvas id="scene"></canvas>
+  <div class="tabs" role="tablist" aria-label="演示模块">
+    <button id="tabUniform" class="active" role="tab" aria-selected="true">匀速直线运动</button>
+    <button id="tabCompare" role="tab" aria-selected="false">速度对比</button>
   </div>
-</header>
-
-<nav class="sec-nav">
-  <div class="nav-inner">
-    <a class="nav-chip" href="#sec-race">① 谁跑得快</a>
-    <a class="nav-chip" href="#sec-speed">② 速度是个什么数</a>
-    <a class="nav-chip" href="#sec-uni">③ 匀速还是变速</a>
-    <a class="nav-chip" href="#sec-stro">④ 同屏两车频闪对比</a>
-  </div>
-</nav>
-
-<main class="wrap">
-
-  <!-- ① -->
-  <section class="card" id="sec-race">
-    <h2><span class="no">1</span>谁跑得快？——比较运动快慢的两种方法</h2>
-    <div class="stage" id="raceStage"></div>
-    <div class="two-col">
-      <div class="ctrl" id="raceCtrl"></div>
-      <div id="raceRead"></div>
-    </div>
-  </section>
-
-  <!-- ② -->
-  <section class="card" id="sec-speed">
-    <h2><span class="no">2</span>速度到底是个什么数？——把路程按时间切开</h2>
-    <div class="stage" id="speedStage"></div>
-    <div class="ctrl" id="speedCtrl"></div>
-  </section>
-
-  <!-- ③ -->
-  <section class="card" id="sec-uni">
-    <h2><span class="no">3</span>匀速还是变速？——频闪记录说了算</h2>
-    <div class="stage" id="uniStage"></div>
-    <div class="two">
-      <div class="stage" id="chartST"></div>
-      <div class="stage" id="chartVT"></div>
-    </div>
-    <div class="two-col">
-      <div class="ctrl" id="uniCtrl"></div>
-      <div id="uniRead"></div>
-    </div>
-  </section>
-
-  <!-- ④ -->
-  <section class="card" id="sec-stro">
-    <h2><span class="no">4</span>同屏两车频闪照片——点距就是快慢</h2>
-    <div class="stage" id="stroStage"></div>
-    <div class="ctrl" id="stroCtrl"></div>
-  </section>
-
-</main>
-
-<footer class="site-footer">物理可视化模型 · 速度与匀速直线运动　|　纯静态、零依赖，双击 index.html 即可使用</footer>
+</div>
 
 <script>
-/* ---------- core.js ---------- */
-/* ============================================================
-   core.js —— 通用工具 + SVG 绘图引擎
-   专题：速度的概念与匀速直线运动
+(function(){
+  "use strict";
 
-   坐标约定：SVG 内部一律用 px；物理量乘「每单位多少 px」换算成 px。
-   本文件与具体实验无关，后续做「平均速度测量」「牛顿第一定律」等
-   直线运动相关实验可直接复用 car / bracket / rulerX / axes。
-   ============================================================ */
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d', {alpha:false});
 
-const FONT = "Microsoft YaHei, PingFang SC, sans-serif";
+  // ---------- 设计空间（16:9）----------
+  const DW = 1600, DH = 900;
+  let dpr = 1, viewScale = 1, offX = 0, offY = 0, cssW = 0, cssH = 0;
 
-/* ---------------- 小工具 ---------------- */
-const $  = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const fmt  = (n, d = 2) => Number(n).toFixed(d);
-const fmt1 = n => Number(n).toFixed(1);
-const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-const round = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
-
-/* ---------------- 配色 ---------------- */
-const CL = {
-  blue: "#2563EB", blueD: "#1D4ED8", blueL: "#EFF4FF",
-  green: "#10B981", greenL: "#EAFBF4",
-  red: "#EF4444", amber: "#F59E0B", purple: "#7C3AED",
-  ink: "#1F2937", ink2: "#4B5563", ink3: "#6B7280",
-  line: "#E5E7EB", grid: "#EEF2F7", slate: "#94A3B8"
-};
-
-/* ---------------- 文字 ---------------- */
-function txt(x, y, s, o = {}) {
-  return `<text x="${round(x, 2)}" y="${round(y, 2)}" font-size="${o.size ?? 13}" fill="${o.fill ?? CL.ink}"`
-    + ` font-weight="${o.w ?? 400}" text-anchor="${o.a ?? "start"}" font-family="${FONT}">${s}</text>`;
-}
-
-/* ---------------- 画布包装 ---------------- */
-/* opt = { content, w, h, pad, padTop, padBottom, maxW, cls } */
-function svgWrap(opt) {
-  const pad  = opt.pad ?? 14;
-  const pT   = opt.padTop ?? pad;
-  const pB   = opt.padBottom ?? pad;
-  const vb   = `${-pad} ${-pT} ${round(opt.w + pad * 2, 2)} ${round(opt.h + pT + pB, 2)}`;
-  const scale = Math.min(1, (opt.maxW ?? 900) / (opt.w + pad * 2));
-  const w = round((opt.w + pad * 2) * scale, 1);
-  const h = round((opt.h + pT + pB) * scale, 1);
-  return `<svg viewBox="${vb}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" role="img">${opt.content}</svg>`;
-}
-
-/* ---------------- 小车（侧视，车轮底部贴 groundY） ---------------- */
-/* cx = 车身中心 x；s = 缩放；color = 主色 */
-function car(cx, groundY, s, color, label) {
-  s = s || 1;
-  const w = 54 * s, bh = 18 * s, r = 7 * s;
-  const top = groundY - bh - 3 * r;
-  let g = `<g transform="translate(${round(cx - w / 2, 2)},${round(top, 2)})">`;
-  g += `<rect x="0" y="0" width="${round(w, 2)}" height="${round(bh, 2)}" rx="${round(4 * s, 2)}"`
-    + ` fill="${color}" fill-opacity=".16" stroke="${color}" stroke-width="${round(1.8 * s, 2)}"/>`;
-  g += `<rect x="${round(w * 0.52, 2)}" y="${round(bh * 0.18, 2)}" width="${round(w * 0.34, 2)}"`
-    + ` height="${round(bh * 0.52, 2)}" rx="${round(2 * s, 2)}" fill="${color}" fill-opacity=".34"/>`;
-  g += `<circle cx="${round(w * 0.24, 2)}" cy="${round(bh + 2 * r, 2)}" r="${round(r, 2)}"`
-    + ` fill="#fff" stroke="${color}" stroke-width="${round(1.8 * s, 2)}"/>`;
-  g += `<circle cx="${round(w * 0.76, 2)}" cy="${round(bh + 2 * r, 2)}" r="${round(r, 2)}"`
-    + ` fill="#fff" stroke="${color}" stroke-width="${round(1.8 * s, 2)}"/>`;
-  g += `</g>`;
-  if (label) g += txt(cx, top - 7, label, { size: 12 * s, w: 700, a: "middle", fill: color });
-  return g;
-}
-
-/* ---------------- 距离括注（两端带竖线，文字居中在上） ---------------- */
-function bracket(xA, xB, y, label, color) {
-  let g = `<line x1="${round(xA, 2)}" y1="${y}" x2="${round(xB, 2)}" y2="${y}" stroke="${color}" stroke-width="1.6"/>`;
-  g += `<line x1="${round(xA, 2)}" y1="${y - 6}" x2="${round(xA, 2)}" y2="${y + 6}" stroke="${color}" stroke-width="1.6"/>`;
-  g += `<line x1="${round(xB, 2)}" y1="${y - 6}" x2="${round(xB, 2)}" y2="${y + 6}" stroke="${color}" stroke-width="1.6"/>`;
-  if (label) g += txt((xA + xB) / 2, y - 9, label, { size: 12, w: 700, a: "middle", fill: color });
-  return g;
-}
-
-/* ---------------- 水平刻度尺 ---------------- */
-/* o = { x0, L(米), px, y, step, color } */
-function rulerX(o) {
-  const step = o.step ?? (o.L > 30 ? 10 : (o.L > 14 ? 5 : (o.L > 7 ? 2 : 1)));
-  const n = Math.floor(o.L / step + 1e-9);
-  let g = `<line x1="${o.x0}" y1="${o.y}" x2="${round(o.x0 + o.L * o.px, 2)}" y2="${o.y}" stroke="${CL.line}" stroke-width="1"/>`;
-  for (let i = 0; i <= n; i++) {
-    const m = i * step, X = o.x0 + m * o.px;
-    g += `<line x1="${round(X, 2)}" y1="${o.y}" x2="${round(X, 2)}" y2="${o.y + 6}" stroke="${CL.slate}" stroke-width="1.2"/>`;
-    g += txt(X, o.y + 19, String(m), { size: 11, a: "middle", fill: CL.ink3 });
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 3);
+    cssW = window.innerWidth; cssH = window.innerHeight;
+    canvas.width  = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.width  = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    viewScale = Math.min(cssW / DW, cssH / DH);
+    offX = (cssW - DW * viewScale) / 2;
+    offY = (cssH - DH * viewScale) / 2;
   }
-  g += txt(o.x0 + o.L * o.px + 10, o.y + 19, "m", { size: 11, fill: CL.ink3 });
-  return g;
-}
+  window.addEventListener('resize', resize);
+  resize();
 
-/* ---------------- 图表坐标框 ---------------- */
-/* o = { x, y, w, h, xMin, xMax, yMin, yMax, xStep, yStep, xLabel, yLabel, xFmt, yFmt }
-   返回 { markup, X(v), Y(v), x, y, w, h } */
-function axes(o) {
-  const x = o.x, y = o.y, w = o.w, h = o.h;
-  const xMin = o.xMin ?? 0, xMax = o.xMax;
-  const yMin = o.yMin ?? 0, yMax = o.yMax;
-  const X = v => x + (v - xMin) / (xMax - xMin) * w;
-  const Y = v => y + h - (v - yMin) / (yMax - yMin) * h;
-  const xF = o.xFmt || (v => fmt(v, 1));
-  const yF = o.yFmt || (v => fmt(v, 1));
+  // ---------- 物理参数 ----------
+  const X0 = 250, X1 = 1350;
+  const METERS = 10;
+  const PPM = (X1 - X0) / METERS;
 
-  let g = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${CL.line}"/>`;
+  const TRACK = {
+    left:150, right:1450,
+    faceTop:398, faceBottom:560,
+    frontBottom:592,
+    rulerY:636
+  };
 
-  const nx = Math.round((xMax - xMin) / o.xStep);
-  for (let i = 0; i <= nx; i++) {
-    const v = xMin + i * o.xStep, X0 = X(v);
-    g += `<line x1="${round(X0, 2)}" y1="${y}" x2="${round(X0, 2)}" y2="${y + h}" stroke="${CL.grid}" stroke-width="1"/>`;
-    g += txt(X0, y + h + 15, xF(v), { size: 11, a: "middle", fill: CL.ink3 });
-  }
-  const ny = Math.round((yMax - yMin) / o.yStep);
-  for (let i = 0; i <= ny; i++) {
-    const v = yMin + i * o.yStep, Y0 = Y(v);
-    g += `<line x1="${x}" y1="${round(Y0, 2)}" x2="${x + w}" y2="${round(Y0, 2)}" stroke="${CL.grid}" stroke-width="1"/>`;
-    g += txt(x - 7, Y0 + 4, yF(v), { size: 11, a: "end", fill: CL.ink3 });
-  }
-  g += `<line x1="${x}" y1="${y + h}" x2="${x + w}" y2="${y + h}" stroke="${CL.ink2}" stroke-width="1.6"/>`;
-  g += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y + h}" stroke="${CL.ink2}" stroke-width="1.6"/>`;
-  if (o.xLabel) g += txt(x + w / 2, y + h + 32, o.xLabel, { size: 12, a: "middle", fill: CL.ink2, w: 600 });
-  if (o.yLabel) g += txt(x - 6, y - 8, o.yLabel, { size: 12, a: "end", fill: CL.ink2, w: 600 });
-
-  return { markup: g, X, Y, x, y, w, h };
-}
-
-/* 折线路径 */
-function polyPath(pts, X, Y) {
-  return pts.map((p, i) => `${i ? "L" : "M"}${round(X(p[0]), 2)} ${round(Y(p[1]), 2)}`).join(" ");
-}
-</script>
-<script>
-/* ---------- race.js ---------- */
-/* ============================================================
-   race.js —— 探究①：谁跑得快？比较运动快慢的两种方法
-
-   两种办法：
-     A. 相同时间比路程 —— 都跑 T 秒，路程长的快
-     B. 相同路程比时间 —— 都跑 S 米，用时短的快
-   两种方法本质上都在比 s/t，所以结论必然一致 —— 这正是引入
-   「速度 v = s/t」这个统一标准的理由。
-
-   动画说明：为便于课堂观察，动画时长按比例压缩到 2.2~6 s，
-   但图中计时器读的是真实物理时间。
-   ============================================================ */
-
-const RACE = {
-  mode: "T",          // "T" = 相同时间比路程；"S" = 相同路程比时间
-  vA: 6, vB: 4,       // m/s
-  T: 4,               // 相同时间，s
-  S: 20,              // 相同路程，m
-  tau: 4,             // 当前显示的物理时刻
-  playing: false, raf: null
-};
-
-/* 本轮运动的总物理时长 */
-function raceTOT() {
-  return RACE.mode === "T" ? RACE.T : Math.max(RACE.S / RACE.vA, RACE.S / RACE.vB);
-}
-
-/* 场景比例尺：让画面刚好容纳最远的那辆车 */
-function raceScale() {
-  const need = RACE.mode === "T" ? Math.max(RACE.vA, RACE.vB) * RACE.T : RACE.S;
-  const L = Math.max(need * 1.08, 6);
-  return { L, px: 470 / L };
-}
-
-/* ---------------- 场景绘制 ---------------- */
-function raceScene() {
-  const { vA, vB, T, S, mode, tau } = RACE;
-  const { L, px } = raceScale();
-  const X0 = 56, gA = 118, gB = 206, rulerY = 252;
-
-  const posA = mode === "T" ? vA * Math.min(tau, T) : Math.min(vA * tau, S);
-  const posB = mode === "T" ? vB * Math.min(tau, T) : Math.min(vB * tau, S);
-
-  let g = "";
-
-  /* 顶部计时牌 */
-  g += `<rect x="${X0}" y="6" width="146" height="26" rx="6" fill="#EEF2FF" stroke="#C7D2FE"/>`;
-  g += txt(X0 + 73, 24, `t = ${fmt(tau, 1)} s`, { size: 13.5, w: 700, a: "middle", fill: "#4338CA" });
-  g += txt(X0 + 158, 24,
-    mode === "T" ? `两车同时出发，运动时间都是 ${fmt1(T)} s` : `两车跑同一段 ${S} m，看谁先到`,
-    { size: 12, fill: CL.ink3 });
-
-  /* 两条赛道 */
-  const lanes = [
-    { name: "甲", v: vA, pos: posA, gy: gA, color: CL.blue,  arrive: S / vA },
-    { name: "乙", v: vB, pos: posB, gy: gB, color: CL.amber, arrive: S / vB }
-  ];
-  lanes.forEach(ln => {
-    const xEnd = X0 + ln.pos * px;
-    g += `<line x1="${X0 - 42}" y1="${ln.gy}" x2="${round(X0 + L * px + 12, 2)}" y2="${ln.gy}"`
-      + ` stroke="${CL.slate}" stroke-width="2.4"/>`;
-    g += txt(X0 - 50, ln.gy + 5, ln.name, { size: 15, w: 700, fill: ln.color });
-    g += txt(X0 - 52, ln.gy + 21, fmt1(ln.v) + " m/s", { size: 11, fill: CL.ink3 });
-    g += car(xEnd, ln.gy, 1, ln.color);
-    g += bracket(X0, xEnd, ln.gy - 60, `s = ${fmt(ln.pos, 1)} m`, ln.color);
-    /* 到达终点：打勾并标出用时 */
-    if (mode === "S" && ln.pos >= S - 1e-9) {
-      g += txt(xEnd + 34, ln.gy - 12, `✓ 用时 ${fmt(ln.arrive, 2)} s`, { size: 12, w: 700, fill: CL.green });
+  const MODES = {
+    uniform: {
+      distance: METERS,
+      v: 1.5,
+      pause: 0.9,
+      carBase: 548
+    },
+    compare: {
+      distance: METERS,
+      vFast: 2.0,
+      vSlow: 1.0,
+      pause: 1.4,
+      fastBase: 486,
+      slowBase: 552,
+      targetM: 5
     }
-  });
-
-  /* 同一终点线（办法 B） */
-  if (mode === "S") {
-    const X = X0 + S * px;
-    g += `<line x1="${round(X, 2)}" y1="46" x2="${round(X, 2)}" y2="${rulerY}"`
-      + ` stroke="${CL.red}" stroke-width="2" stroke-dasharray="6 4"/>`;
-    g += txt(X, 40, `终点 ${S} m`, { size: 12, w: 700, a: "middle", fill: CL.red });
-  }
-
-  /* 共用刻度尺 */
-  g += rulerX({ x0: X0, L, px, y: rulerY });
-
-  return svgWrap({
-    content: g, w: X0 + L * px + 30, h: rulerY + 30,
-    pad: 16, padTop: 14, maxW: 640
-  });
-}
-
-/* ---------------- 结论 ---------------- */
-function raceRead() {
-  const { vA, vB, T, S, mode } = RACE;
-  let concl;
-
-  if (mode === "T") {
-    const sA = vA * T, sB = vB * T;
-    concl = Math.abs(sA - sB) < 1e-9
-      ? "相同时间内两车通过的路程一样长 → <b>一样快</b>"
-      : `相同时间内，<b>${sA > sB ? "甲" : "乙"}</b>通过的路程更长 → <b>${sA > sB ? "甲" : "乙"}运动得快</b>`;
-  } else {
-    const tA = S / vA, tB = S / vB;
-    concl = Math.abs(tA - tB) < 1e-9
-      ? "通过相同路程两车用时相同 → <b>一样快</b>"
-      : `通过相同路程，<b>${tA < tB ? "甲" : "乙"}</b>用时更短 → <b>${tA < tB ? "甲" : "乙"}运动得快</b>`;
-  }
-
-  return `<div class="verdict ok">${concl}</div>`;
-}
-
-/* ---------------- 重绘 ---------------- */
-function raceDraw() {
-  const st = $("#raceStage");
-  if (!st) return;
-  st.innerHTML = raceScene();
-  $("#raceRead").innerHTML = raceRead();
-  $("#rTv").textContent = fmt1(RACE.T);
-  $("#rSv").textContent = String(RACE.S);
-  $("#rAv").textContent = fmt1(RACE.vA);
-  $("#rBv").textContent = fmt1(RACE.vB);
-
-  const TOT = raceTOT();
-  $("#rNote").innerHTML = RACE.playing
-    ? `<span class="play-state">动画播放中…</span>　真实物理时长 ${fmt(TOT, 2)} s`
-    : `为便于观察，播放时动画被压缩到 ${fmt(clamp(TOT, 2.2, 6), 1)} s（相对快慢不变）。`;
-}
-
-/* ---------------- 播放 ---------------- */
-function raceStop() {
-  if (RACE.raf) { cancelAnimationFrame(RACE.raf); RACE.raf = null; }
-  RACE.playing = false;
-  const b = $("#rPlay");
-  if (b) b.textContent = "▶ 播放";
-}
-
-function racePlay() {
-  if (RACE.playing) { raceStop(); RACE.tau = raceTOT(); raceDraw(); return; }
-  const TOT = raceTOT();
-  const wall = clamp(TOT, 2.2, 6) * 1000;
-  RACE.playing = true;
-  $("#rPlay").textContent = "⏸ 暂停";
-  const t0 = performance.now();
-  const step = now => {
-    const p = clamp((now - t0) / wall, 0, 1);
-    RACE.tau = p * TOT;
-    raceDraw();
-    if (p < 1) RACE.raf = requestAnimationFrame(step);
-    else { raceStop(); RACE.tau = TOT; raceDraw(); }
-  };
-  RACE.raf = requestAnimationFrame(step);
-}
-
-/* ---------------- 初始化 ---------------- */
-function initRace() {
-  const ctrl = $("#raceCtrl");
-  if (!ctrl) return;
-
-  ctrl.innerHTML = `
-    <div class="seg" id="rMode">
-      <button class="seg-b on" data-m="T">办法 A：相同时间比路程</button>
-      <button class="seg-b" data-m="S">办法 B：相同路程比时间</button>
-    </div>
-    <div class="ctrl-block" id="rRowT">
-      <div class="slider-row">
-        <label>运动时间 T：<b id="rTv">4.0</b> s　<span class="hint">两车跑同样久</span></label>
-        <input type="range" id="rT" min="2" max="8" step="0.5" value="4">
-      </div>
-    </div>
-    <div class="ctrl-block" id="rRowS" style="display:none">
-      <div class="slider-row">
-        <label>相同路程 S：<b id="rSv">20</b> m　<span class="hint">两车都跑到这一条线</span></label>
-        <input type="range" id="rS" min="6" max="30" step="1" value="20">
-      </div>
-    </div>
-    <div class="ctrl-block">
-      <div class="slider-row">
-        <label>甲车速度 v甲：<b id="rAv">6.0</b> m/s</label>
-        <input type="range" id="rA" min="1" max="10" step="0.5" value="6">
-      </div>
-      <div class="slider-row">
-        <label>乙车速度 v乙：<b id="rBv">4.0</b> m/s</label>
-        <input type="range" id="rB" min="1" max="10" step="0.5" value="4">
-      </div>
-    </div>
-    <div class="quick">
-      <button class="btn-sm primary" id="rPlay">▶ 播放</button>
-      <button class="btn-sm" id="rReset">跳到结束状态</button>
-      <button class="btn-sm" data-swap="1">让乙反超</button>
-    </div>
-    <div class="note" id="rNote"></div>`;
-
-  const setMode = m => {
-    RACE.mode = m;
-    $$("#rMode .seg-b").forEach(b => b.classList.toggle("on", b.dataset.m === m));
-    $("#rRowT").style.display = m === "T" ? "" : "none";
-    $("#rRowS").style.display = m === "S" ? "" : "none";
-    raceStop();
-    RACE.tau = raceTOT();
-    raceDraw();
   };
 
-  $$("#rMode .seg-b").forEach(b => { b.onclick = () => setMode(b.dataset.m); });
-  $("#rT").oninput = e => { raceStop(); RACE.T = +e.target.value; RACE.tau = raceTOT(); raceDraw(); };
-  $("#rS").oninput = e => { raceStop(); RACE.S = +e.target.value; RACE.tau = raceTOT(); raceDraw(); };
-  $("#rA").oninput = e => { raceStop(); RACE.vA = +e.target.value; RACE.tau = raceTOT(); raceDraw(); };
-  $("#rB").oninput = e => { raceStop(); RACE.vB = +e.target.value; RACE.tau = raceTOT(); raceDraw(); };
-  $("#rPlay").onclick = racePlay;
-  $("#rReset").onclick = () => { raceStop(); RACE.tau = raceTOT(); raceDraw(); };
-  $$('#raceCtrl [data-swap]').forEach(b => {
-    b.onclick = () => {
-      const t = RACE.vA; RACE.vA = RACE.vB; RACE.vB = t;
-      $("#rA").value = RACE.vA; $("#rB").value = RACE.vB;
-      raceStop(); RACE.tau = raceTOT(); raceDraw();
-    };
-  });
-
-  RACE.tau = raceTOT();
-  raceDraw();
-}
-</script>
-<script>
-/* ---------- speed.js ---------- */
-/* ============================================================
-   speed.js —— 探究②：速度到底是个什么数？
-
-   核心可视化：把总路程 s 按时间 t 等分成 t 份，
-   **每一份的长度就是 1 秒内通过的路程 —— 它就是速度 v = s/t**。
-
-   · 只改 s（t 不变）→ 份数不变，每份变长 → v 变大
-   · 只改 t（s 不变）→ 份数变多，每份变短 → v 变小
-   · 锁定 v（匀速）   → 时间变几倍，路程也变几倍，每份长度纹丝不动
-   最后一条直接把学生送到「匀速直线运动」的门口。
-   ============================================================ */
-
-const SPD = {
-  s: 30,        // 总路程 m
-  t: 5,         // 总时间 s（等分份数，整数）
-  lock: false,  // 是否锁定速度（让 s 与 t 成正比）
-  vLock: 6      // 锁定时的速度值
-};
-
-const SPD_MAX_S = 60;   // 画幅最多表示 60 m
-const SPD_W = 470;
-
-function spdV() { return SPD.s / SPD.t; }
-
-/* ---------------- 场景绘制 ---------------- */
-function speedScene() {
-  const s = SPD.s, t = SPD.t, v = spdV();
-  const X0 = 30, px = SPD_W / SPD_MAX_S;
-  const bw = s * px, cell = bw / t;
-  const by = 46, bh = 44;
-
-  let g = "";
-  g += txt(X0, 22, `总路程 s = ${fmt1(s)} m　÷　总时间 t = ${t} s`, { size: 13.5, w: 600, fill: CL.ink2 });
-
-  /* 每份的长度标注（份太窄时只在第一份上标） */
-  for (let i = 0; i < t; i++) {
-    if (cell < 34 && i !== 0) continue;
-    const xa = X0 + i * cell;
-    g += txt(xa + cell / 2, 38, (i === 0 ? fmt(v, 2) + " m" : fmt(v, 2)),
-      { size: 11.5, w: 700, a: "middle", fill: CL.purple });
-  }
-
-  /* 路程条 + 等分线 */
-  g += `<rect x="${X0}" y="${by}" width="${round(bw, 2)}" height="${bh}" rx="6"`
-    + ` fill="#EEF2FF" stroke="${CL.blue}" stroke-width="1.6"/>`;
-  for (let i = 1; i < t; i++) {
-    const X = X0 + i * cell;
-    g += `<line x1="${round(X, 2)}" y1="${by}" x2="${round(X, 2)}" y2="${by + bh}"`
-      + ` stroke="${CL.blue}" stroke-width="1.4"/>`;
-  }
-  if (bw > 150) {
-    g += txt(X0 + bw / 2, by + bh / 2 + 5, `平均分成 ${t} 份`, { size: 12, a: "middle", fill: CL.blueD, w: 600 });
-  }
-
-  /* 时间轴 */
-  const ty = by + bh + 14;
-  g += `<line x1="${X0}" y1="${ty}" x2="${round(X0 + bw, 2)}" y2="${ty}" stroke="${CL.ink3}" stroke-width="1.2"/>`;
-  for (let i = 0; i <= t; i++) {
-    const X = X0 + i * cell;
-    g += `<line x1="${round(X, 2)}" y1="${ty}" x2="${round(X, 2)}" y2="${ty + 5}" stroke="${CL.ink3}" stroke-width="1.2"/>`;
-    if (i === 0) g += txt(X, ty + 18, "0", { size: 11, a: "middle", fill: CL.ink3 });
-    else if (i === t || cell >= 28) g += txt(X, ty + 18, `${i} s`, { size: 11, a: "middle", fill: CL.ink3 });
-  }
-  g += txt(X0 + bw + 12, ty + 18, "t", { size: 12, a: "start", fill: CL.ink2, w: 600 });
-
-  /* 结论 */
-  g += txt(X0, 168, `每 1 秒通过 ${fmt(v, 2)} m　→　v = s / t = ${fmt(v, 2)} m/s`,
-    { size: 14, w: 700, fill: CL.purple });
-  g += txt(X0, 190, `= ${fmt(v * 3.6, 1)} km/h　（换算：1 m/s = 3.6 km/h）`, { size: 13, fill: CL.ink2 });
-
-  return svgWrap({
-    content: g, w: X0 + SPD_W + 30, h: 202,
-    pad: 16, padTop: 14, maxW: 640
-  });
-}
-
-/* ---------------- 重绘 ---------------- */
-function speedDraw() {
-  const st = $("#speedStage");
-  if (!st) return;
-  st.innerHTML = speedScene();
-  $("#pSv").textContent = fmt1(SPD.s);
-  $("#pTv").textContent = String(SPD.t);
-  $("#pS").value = Math.round(SPD.s);
-  $("#pT").value = SPD.t;
-}
-
-/* ---------------- 锁定速度 ---------------- */
-function spdApplyLock() {
-  const el = $("#pLock"), sl = $("#pS");
-  el.classList.toggle("on", SPD.lock);
-  el.textContent = SPD.lock ? "🔓 解除锁定" : "🔒 锁定速度（让物体匀速）";
-  sl.disabled = SPD.lock;
-  if (SPD.lock) {
-    SPD.vLock = spdV();
-    /* 保证 s = v·t 始终落在画幅内 */
-    const tMin = Math.max(1, Math.ceil(5 / SPD.vLock));
-    const tMax = Math.min(10, Math.floor(SPD_MAX_S / SPD.vLock));
-    $("#pT").min = Math.max(1, tMin);
-    $("#pT").max = Math.max(tMin, tMax);
-    if (SPD.t < tMin) SPD.t = tMin;
-    if (SPD.t > tMax) SPD.t = tMax;
-    SPD.s = SPD.vLock * SPD.t;
-    $("#spdHint").innerHTML = `已锁定 v = <b>${fmt(SPD.vLock, 2)} m/s</b>：现在拖动时间 t，路程 s 会自动跟着变，注意每一份的长度不动。`;
-  } else {
-    $("#pT").min = 1; $("#pT").max = 10;
-    $("#spdHint").innerHTML = "";
-  }
-  speedDraw();
-}
-
-/* ---------------- 初始化 ---------------- */
-function initSpeed() {
-  const ctrl = $("#speedCtrl");
-  if (!ctrl) return;
-
-  ctrl.innerHTML = `
-    <div class="ctrl-block">
-      <div class="slider-row">
-        <label>路程 s：<b id="pSv">30</b> m　<span class="hint">把条子拉长</span></label>
-        <input type="range" id="pS" min="5" max="60" step="1" value="30">
-      </div>
-      <div class="slider-row">
-        <label>时间 t：<b id="pTv">5</b> s　<span class="hint">把条子切成几份</span></label>
-        <input type="range" id="pT" min="1" max="10" step="1" value="5">
-      </div>
-    </div>
-    <div class="quick">
-      <button class="btn-sm primary" id="pLock">🔒 锁定速度（让物体匀速）</button>
-      <button class="btn-sm" data-spd="1.1">步行 1.1</button>
-      <button class="btn-sm" data-spd="5">自行车 5.0</button>
-      <button class="btn-sm" data-spd="8.3">市区汽车 8.3</button>
-    </div>
-    <div class="note" id="spdHint"></div>`;
-
-  $("#pS").oninput = e => { SPD.s = +e.target.value; speedDraw(); };
-  $("#pT").oninput = e => {
-    SPD.t = +e.target.value;
-    if (SPD.lock) SPD.s = SPD.vLock * SPD.t;   // 锁定时路程随成正比变化
-    speedDraw();
+  // 发光色（RGB）
+  const GLOW = {
+    blue:  [86, 196, 255],
+    amber: [255, 186, 84]
   };
-  $("#pLock").onclick = () => { SPD.lock = !SPD.lock; spdApplyLock(); };
-  $$("#speedCtrl [data-spd]").forEach(b => {
-    b.onclick = () => {
-      const v = +b.dataset.spd;
-      /* 选一对整数（s, t），使 s/t 恰好等于该速度 */
-      const cand = [[11, 10], [30, 6], [50, 6], [25, 5], [12, 5], [22, 4]];
-      let best = cand[0], err = Infinity;
-      cand.forEach(c => { const e = Math.abs(c[0] / c[1] - v); if (e < err) { err = e; best = c; } });
-      SPD.lock = false; SPD.s = best[0]; SPD.t = best[1];
-      spdApplyLock();
-    };
-  });
+  function rgba(c,a){ return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'; }
 
-  speedDraw();
-}
-</script>
-<script>
-/* ---------- uniform.js ---------- */
-/* ============================================================
-   uniform.js —— 探究③：匀速还是变速？
+  // ---------- 运行状态 ----------
+  let mode = 'uniform';
+  let elapsed = 0;
+  let paused = false;
+  let lastTs = 0;
 
-   模型：把 3 s 分成 6 个 0.5 s，每一段内速度恒定（v1…v6 可单独拖动）。
-     Δs_i = v_i · Δt        x_i = Σ Δs        S = x_6
-   于是可以三处对照看同一件事：
-     · 轨道上的频闪点：相邻点间距是否相等
-     · s-t 图：是「一条倾斜直线」还是「折线」
-     · v-t 图：是「一条水平直线」还是「台阶」，且围成的面积 = 路程
+  function cycleTime(){
+    const m = MODES[mode];
+    if(mode==='uniform') return m.distance / m.v + m.pause;
+    return m.distance / m.vFast + m.pause;
+  }
+  function moveTime(){
+    const m = MODES[mode];
+    return mode==='uniform' ? m.distance / m.v : m.distance / m.vFast;
+  }
+  function reset(){ elapsed = 0; }
 
-   任意相等时间内通过的路程都相等 → 匀速直线运动（沿直线、快慢不变）
-   ============================================================ */
+  // ---------- 工具 ----------
+  function rr(x,y,w,h,r){
+    r = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
 
-const UNI = {
-  v: [3, 3, 3, 3, 3, 3],   // 6 段速度，m/s
-  DT: 0.5,                 // 每段时间，s
-  tau: 3,                  // 当前时刻；默认停在终态
-  playing: false, raf: null
-};
-const UNI_N = 6;
-const UNI_T = () => UNI_N * UNI.DT;          // 总时间 3.0 s
+  // ---------- 背景：深蓝科技风 ----------
+  function drawBackground(){
+    // 深色底渐变
+    const g = ctx.createLinearGradient(0,0,DW*.3,DH);
+    g.addColorStop(0,'#081734');
+    g.addColorStop(.45,'#0b2246');
+    g.addColorStop(1,'#061226');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,DW,DH);
 
-/* 各时刻的位置：X[0]=0 … X[6]=总路程 */
-function uniPos() {
-  const X = [0];
-  for (let i = 0; i < UNI_N; i++) X.push(X[i] + UNI.v[i] * UNI.DT);
-  return X;
-}
-function uniS() { return uniPos()[UNI_N]; }
+    // 柔和青蓝光晕（不遮挡主体）
+    const rg = ctx.createRadialGradient(DW*.62, DH*.30, 40, DW*.62, DH*.30, DW*.62);
+    rg.addColorStop(0,'rgba(38,120,205,.20)');
+    rg.addColorStop(.5,'rgba(24,86,160,.10)');
+    rg.addColorStop(1,'rgba(10,30,60,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(0,0,DW,DH);
 
-/* 任意时刻的位置（分段匀速积分） */
-function uniPosAt(tau) {
-  const X = uniPos();
-  const k = clamp(Math.floor(tau / UNI.DT + 1e-9), 0, UNI_N - 1);
-  const rem = clamp(tau - k * UNI.DT, 0, UNI.DT);
-  return X[k] + UNI.v[k] * rem;
-}
+    const rg2 = ctx.createRadialGradient(DW*.12, DH*.10, 20, DW*.12, DH*.10, DW*.5);
+    rg2.addColorStop(0,'rgba(60,150,220,.12)');
+    rg2.addColorStop(1,'rgba(10,30,60,0)');
+    ctx.fillStyle = rg2;
+    ctx.fillRect(0,0,DW,DH);
 
-function uniIsUniform() {
-  return UNI.v.every(x => Math.abs(x - UNI.v[0]) < 1e-6);
-}
+    // 顶部氛围光带
+    const tg = ctx.createLinearGradient(0,0,0,120);
+    tg.addColorStop(0,'rgba(90,180,255,.10)');
+    tg.addColorStop(1,'rgba(90,180,255,0)');
+    ctx.fillStyle = tg;
+    ctx.fillRect(0,0,DW,120);
 
-/* ---------------- 轨道 + 频闪点 ---------------- */
-function uniScene() {
-  const X = uniPos(), S = X[UNI_N], tau = UNI.tau;
-  const L = Math.max(S * 1.10, 6);
-  const X0 = 56, W = 470, px = W / L, gy = 104;
-  const uni = uniIsUniform();
-  const dotCol = uni ? CL.green : CL.purple;
-
-  let g = "";
-  g += txt(X0 - 52, 22, "频闪记录：每隔 0.5 s 记一次位置", { size: 12.5, w: 600, fill: CL.ink2 });
-
-  /* 轨道（直线路径） */
-  g += `<line x1="${X0 - 44}" y1="${gy}" x2="${round(X0 + L * px + 10, 2)}" y2="${gy}" stroke="${CL.slate}" stroke-width="2.4"/>`;
-  g += `<line x1="${X0}" y1="${gy - 16}" x2="${X0}" y2="${gy + 8}" stroke="${CL.ink}" stroke-width="2"/>`;
-  g += txt(X0, gy - 22, "起点", { size: 11, a: "middle", fill: CL.ink3 });
-
-  /* 频闪点：只显示已经发生的时刻 */
-  const shown = [];
-  for (let i = 0; i <= UNI_N; i++) if (i * UNI.DT <= tau + 1e-9) shown.push(i);
-  const lastShown = shown[shown.length - 1];
-  shown.forEach(i => {
-    const cx = X0 + X[i] * px;
-    g += `<circle cx="${round(cx, 2)}" cy="${gy}" r="5" fill="${dotCol}" stroke="#fff" stroke-width="1.6"/>`;
-    const wide = i < UNI_N && (X[i + 1] - X[i]) * px >= 26;
-    if (i === 0 || i === lastShown || wide) {
-      g += txt(cx, gy + 20, String(i), { size: 10.5, a: "middle", fill: CL.ink3 });
+    // 地面透视网格（极淡）
+    ctx.save();
+    ctx.strokeStyle='rgba(92,168,236,.07)';
+    ctx.lineWidth=1;
+    for(let y=DH*.64; y<DH; y+=44){
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(DW,y); ctx.stroke();
     }
+    for(let x=0; x<=DW; x+=88){
+      ctx.beginPath(); ctx.moveTo(x,DH*.64); ctx.lineTo(x,DH); ctx.stroke();
+    }
+    ctx.restore();
+
+    // 稀疏科技感光点
+    ctx.save();
+    for(let i=0;i<26;i++){
+      const px = ((i*173+90)%DW);
+      const py = 110 + ((i*97)%520);
+      const a = 0.05 + ((i*13)%9)/160;
+      ctx.fillStyle='rgba(150,210,255,'+a+')';
+      ctx.beginPath(); ctx.arc(px,py,1.3,0,7); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ---------- 轨道：深色玻璃科技平台 ----------
+  function drawTrack(faceTop, faceBottom){
+    const L=TRACK.left, R=TRACK.right;
+
+    // 落影
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,.42)'; ctx.filter='blur(20px)';
+    rr(L-6, faceBottom+8, R-L+12, 40, 20); ctx.fill();
+    ctx.restore();
+
+    // 前立面
+    const front = ctx.createLinearGradient(0,faceBottom,0,TRACK.frontBottom);
+    front.addColorStop(0,'#103257');
+    front.addColorStop(1,'#081d38');
+    ctx.fillStyle=front;
+    rr(L, faceBottom-2, R-L, TRACK.frontBottom-faceBottom+2, 12); ctx.fill();
+
+    // 顶面（深蓝玻璃，透光感）
+    const top = ctx.createLinearGradient(0,faceTop,0,faceBottom);
+    top.addColorStop(0,'#17395f');
+    top.addColorStop(.5,'#122f52');
+    top.addColorStop(1,'#0c2442');
+    ctx.fillStyle=top;
+    rr(L, faceTop, R-L, faceBottom-faceTop, 14); ctx.fill();
+
+    // 顶面顶部高光带
+    const hl = ctx.createLinearGradient(0,faceTop,0,faceTop+30);
+    hl.addColorStop(0,'rgba(140,210,255,.16)');
+    hl.addColorStop(1,'rgba(140,210,255,0)');
+    ctx.fillStyle=hl;
+    rr(L+2, faceTop+1, R-L-4, 30, 12); ctx.fill();
+
+    // 发光描边（把轨道从深背景中托出）
+    ctx.save();
+    ctx.shadowColor='rgba(80,180,255,.55)'; ctx.shadowBlur=16;
+    ctx.strokeStyle='rgba(110,200,255,.62)'; ctx.lineWidth=1.8;
+    rr(L, faceTop, R-L, faceBottom-faceTop, 14); ctx.stroke();
+    ctx.restore();
+
+    // 车行中线（淡青虚线）
+    ctx.save();
+    ctx.strokeStyle='rgba(120,200,255,.18)'; ctx.lineWidth=1.4;
+    ctx.setLineDash([16,14]);
+    ctx.beginPath(); ctx.moveTo(L+30, (faceTop+faceBottom)/2); ctx.lineTo(R-30, (faceTop+faceBottom)/2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // 起止端竖线
+    ctx.save();
+    ctx.strokeStyle='rgba(110,200,255,.5)'; ctx.setLineDash([5,6]); ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(X0, faceTop+10); ctx.lineTo(X0, faceBottom-10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X1, faceTop+10); ctx.lineTo(X1, faceBottom-10); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(120,215,255,.85)';
+    ctx.beginPath(); ctx.arc(X0, faceTop+14, 4, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(X1, faceTop+14, 4, 0, 7); ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------- 刻度尺 ----------
+  function drawRuler(){
+    const y = TRACK.rulerY;
+    ctx.save();
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    for(let m=0; m<=METERS; m++){
+      const x = X0 + m*PPM;
+      ctx.strokeStyle='rgba(120,205,255,.75)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+18); ctx.stroke();
+      ctx.fillStyle='#bfe4ff';
+      ctx.font='600 19px "Segoe UI","PingFang SC",sans-serif';
+      ctx.fillText(String(m), x, y+24);
+      if(m<METERS){
+        const hx = X0 + (m+0.5)*PPM;
+        ctx.strokeStyle='rgba(110,180,235,.4)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(hx,y); ctx.lineTo(hx,y+11); ctx.stroke();
+      }
+    }
+    ctx.strokeStyle='rgba(100,180,240,.4)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(X0-14,y); ctx.lineTo(X1+14,y); ctx.stroke();
+    ctx.fillStyle='#8fc6ee';
+    ctx.font='500 17px "Segoe UI","PingFang SC",sans-serif';
+    ctx.fillText('m', X1+34, y+2);
+    ctx.restore();
+  }
+
+  // ---------- 轨迹光带 ----------
+  function drawTrail(xFrom, xTo, yBase, color){
+    if(xTo<=xFrom+1) return;
+    const g = ctx.createLinearGradient(xFrom,0,xTo,0);
+    g.addColorStop(0,'rgba(120,200,255,0)');
+    g.addColorStop(1,color);
+    ctx.save();
+    ctx.shadowColor=color; ctx.shadowBlur=10;
+    ctx.strokeStyle=g;
+    ctx.lineWidth=5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(xFrom,yBase); ctx.lineTo(xTo,yBase); ctx.stroke();
+    ctx.restore();
+  }
+
+  // ---------- 每秒落点（可标注秒数，体现“相同时间”）----------
+  function drawDots(maxSeconds, speed, yBase, secColor, labelUp){
+    ctx.save();
+    for(let n=1; n<=maxSeconds; n++){
+      const x = X0 + speed*n*PPM;
+      if(x>X1+1) break;
+      const g = ctx.createRadialGradient(x,yBase,1,x,yBase,16);
+      g.addColorStop(0,'rgba(255,255,255,.95)');
+      g.addColorStop(.35,'rgba(120,205,255,.6)');
+      g.addColorStop(1,'rgba(120,205,255,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.arc(x,yBase,16,0,7); ctx.fill();
+      ctx.fillStyle='#ffffff';
+      ctx.beginPath(); ctx.arc(x,yBase,5.2,0,7); ctx.fill();
+      ctx.strokeStyle= secColor ? rgba(secColor,.9) : 'rgba(140,220,255,.85)';
+      ctx.lineWidth=1.3;
+      ctx.beginPath(); ctx.arc(x,yBase,5.2,0,7); ctx.stroke();
+
+      // 秒数标注（相同秒数 = 相同时间）
+      if(secColor){
+        const label = n + 's';
+        ctx.font='600 14px "Segoe UI","PingFang SC",sans-serif';
+        const tw = ctx.measureText(label).width;
+        const ly = labelUp===false ? yBase+13 : yBase-31;
+        ctx.fillStyle='rgba(6,22,44,.82)';
+        ctx.strokeStyle=rgba(secColor,.55); ctx.lineWidth=1;
+        rr(x-tw/2-6, ly, tw+12, 20, 10); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=rgba(secColor,1);
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(label, x, ly+10.5);
+      }
+    }
+    ctx.restore();
+  }
+
+  // ---------- 概念跑车（侧视，车头朝右）----------
+  function drawCar(cx, baseY, w, glow){
+    const S = w/150;
+    const P = (x,y)=>[cx+x*S, baseY+y*S];
+
+    ctx.save();
+
+    // 车底科技辉光
+    const ug = ctx.createRadialGradient(cx, baseY+3, 4, cx, baseY+3, 92*S);
+    ug.addColorStop(0, rgba(glow,.42));
+    ug.addColorStop(.45, rgba(glow,.16));
+    ug.addColorStop(1, rgba(glow,0));
+    ctx.save();
+    ctx.translate(cx, baseY+3); ctx.scale(1, .26); ctx.translate(-cx, -(baseY+3));
+    ctx.fillStyle=ug;
+    ctx.beginPath(); ctx.arc(cx, baseY+3, 92*S, 0, 7); ctx.fill();
+    ctx.restore();
+
+    // 地面接触阴影
+    ctx.fillStyle='rgba(0,0,0,.45)'; ctx.filter='blur(8px)';
+    ctx.beginPath(); ctx.ellipse(cx, baseY+2, 62*S, 8*S, 0,0,7); ctx.fill();
+    ctx.filter='none';
+
+    // ---- 车轮（先画，车身轮拱覆盖其上部）----
+    const wheels = [-30, 30];
+    wheels.forEach(wx=>{
+      const [px,py]=P(wx,-16);
+      const R=17*S;
+      // 轮胎
+      const tire=ctx.createRadialGradient(px,py,R*.3,px,py,R);
+      tire.addColorStop(0,'#1b2532'); tire.addColorStop(1,'#070d16');
+      ctx.fillStyle=tire;
+      ctx.beginPath(); ctx.arc(px,py,R,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(150,180,210,.35)'; ctx.lineWidth=1.2*S;
+      ctx.beginPath(); ctx.arc(px,py,R-1*S,0,7); ctx.stroke();
+      // 轮辋
+      const rim=ctx.createLinearGradient(px-R,py-R,px+R,py+R);
+      rim.addColorStop(0,'#9fb3c8'); rim.addColorStop(.5,'#5d7086'); rim.addColorStop(1,'#2b3b4e');
+      ctx.fillStyle=rim;
+      ctx.beginPath(); ctx.arc(px,py,R*.74,0,7); ctx.fill();
+      // 多辐条
+      ctx.save(); ctx.translate(px,py);
+      for(let i=0;i<9;i++){
+        ctx.rotate(Math.PI*2/9);
+        ctx.fillStyle='rgba(16,26,38,.85)';
+        ctx.beginPath();
+        ctx.moveTo(-1.6*S, -R*.20);
+        ctx.lineTo(1.6*S, -R*.20);
+        ctx.lineTo(2.6*S, -R*.70);
+        ctx.lineTo(-2.6*S, -R*.70);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+      // 发光轮圈
+      ctx.save();
+      ctx.shadowColor=rgba(glow,.9); ctx.shadowBlur=12*S;
+      ctx.strokeStyle=rgba(glow,.85); ctx.lineWidth=1.6*S;
+      ctx.beginPath(); ctx.arc(px,py,R*.78,0,7); ctx.stroke();
+      ctx.restore();
+      // 轮心
+      const hc=ctx.createRadialGradient(px,py,0,px,py,5*S);
+      hc.addColorStop(0,'#ffffff'); hc.addColorStop(.4,rgba(glow,.95)); hc.addColorStop(1,rgba(glow,0));
+      ctx.fillStyle=hc; ctx.beginPath(); ctx.arc(px,py,5*S,0,7); ctx.fill();
+    });
+
+    // ---- 车身主体（楔形，含轮拱）----
+    ctx.beginPath();
+    let p=P(-75,-16); ctx.moveTo(p[0],p[1]);
+    p=P(-75,-34); ctx.lineTo(p[0],p[1]);
+    let q=P(-72,-45), r=P(-50,-49); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]);
+    p=P(-8,-51); ctx.lineTo(p[0],p[1]);
+    q=P(15,-50); r=P(30,-40); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]);
+    p=P(58,-33); ctx.lineTo(p[0],p[1]);
+    q=P(75,-29); r=P(75,-21); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]);
+    p=P(74,-15); ctx.lineTo(p[0],p[1]);
+    // 底边：前轮拱
+    p=P(48,-15); ctx.lineTo(p[0],p[1]);
+    ctx.arc(...P(30,-15), 18*S, 0, Math.PI, true);
+    p=P(12,-15); ctx.lineTo(p[0],p[1]);
+    p=P(-12,-15); ctx.lineTo(p[0],p[1]);
+    // 后轮拱
+    ctx.arc(...P(-30,-15), 18*S, 0, Math.PI, true);
+    p=P(-75,-15); ctx.lineTo(p[0],p[1]);
+    ctx.closePath();
+
+    const body=ctx.createLinearGradient(0,baseY-52*S,0,baseY-12*S);
+    body.addColorStop(0,'#ffffff');
+    body.addColorStop(.30,'#eef5fb');
+    body.addColorStop(.62,'#c6d5e6');
+    body.addColorStop(.85,'#8ea3ba');
+    body.addColorStop(1,'#485e76');
+    ctx.fillStyle=body;
+    ctx.shadowColor='rgba(0,0,0,.35)'; ctx.shadowBlur=10*S; ctx.shadowOffsetY=3*S;
+    ctx.fill();
+    ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+    ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=1*S; ctx.stroke();
+
+    // 车身上部高光反射
+    ctx.save();
+    p=P(-72,-44); q=P(28,-41); r=P(70,-27);
+    const hg=ctx.createLinearGradient(p[0],p[1],r[0],r[1]);
+    hg.addColorStop(0,'rgba(255,255,255,.55)');
+    hg.addColorStop(.5,'rgba(255,255,255,.10)');
+    hg.addColorStop(1,'rgba(255,255,255,.32)');
+    ctx.strokeStyle=hg; ctx.lineWidth=2.2*S; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]); ctx.stroke();
+    ctx.restore();
+
+    // 侧腰线（明暗分割，结构清晰）
+    p=P(-70,-27); q=P(0,-26); r=P(66,-24);
+    ctx.strokeStyle='rgba(60,86,116,.55)'; ctx.lineWidth=1.4*S;
+    ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]); ctx.stroke();
+    p=P(-70,-25.4); q=P(0,-24.4); r=P(66,-22.4);
+    ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=1*S;
+    ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]); ctx.stroke();
+
+    // 车门分缝
+    p=P(-6,-46); r=P(-8,-18);
+    ctx.strokeStyle='rgba(70,96,124,.35)'; ctx.lineWidth=1*S;
+    ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(r[0],r[1]); ctx.stroke();
+
+    // ---- 深色玻璃座舱 ----
+    ctx.beginPath();
+    p=P(-44,-46.5); ctx.moveTo(p[0],p[1]);
+    p=P(-10,-48); ctx.lineTo(p[0],p[1]);
+    q=P(12,-46); r=P(22,-38.5); ctx.quadraticCurveTo(q[0],q[1],r[0],r[1]);
+    p=P(-40,-38.5); ctx.lineTo(p[0],p[1]);
+    ctx.closePath();
+    const glass=ctx.createLinearGradient(0,baseY-49*S,0,baseY-38*S);
+    glass.addColorStop(0,'#0d1b2e');
+    glass.addColorStop(.5,'#183350');
+    glass.addColorStop(1,'#0b1a2c');
+    ctx.fillStyle=glass; ctx.fill();
+    ctx.save(); ctx.clip();
+    // 玻璃斜向反光
+    p=P(-40,-48); r=P(-16,-38);
+    const gr=ctx.createLinearGradient(p[0],p[1],r[0],r[1]);
+    gr.addColorStop(0,'rgba(255,255,255,0)');
+    gr.addColorStop(.5,'rgba(200,230,255,.30)');
+    gr.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=gr;
+    ctx.beginPath();
+    let a=P(-34,-48), b=P(-20,-48), c=P(-4,-38), d=P(-18,-38);
+    ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]); ctx.lineTo(d[0],d[1]);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle='rgba(170,210,245,.5)'; ctx.lineWidth=1*S; ctx.stroke();
+
+    // ---- 前 LED 头灯（锐利灯带 + 光晕）----
+    ctx.save();
+    ctx.shadowColor=rgba(glow,1); ctx.shadowBlur=16*S;
+    ctx.fillStyle='#ffffff';
+    a=P(60,-28); b=P(74,-24.5); c=P(73,-21.8); d=P(60,-25);
+    ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]); ctx.lineTo(d[0],d[1]);
+    ctx.closePath(); ctx.fill();
+    // 头灯光束微芒
+    const hglow=ctx.createRadialGradient(...P(74,-24),1,...P(74,-24),24*S);
+    hglow.addColorStop(0,rgba(glow,.55)); hglow.addColorStop(1,rgba(glow,0));
+    ctx.fillStyle=hglow; ctx.beginPath(); ctx.arc(...P(74,-24),24*S,0,7); ctx.fill();
+    ctx.restore();
+
+    // ---- 尾灯 ----
+    ctx.save();
+    ctx.shadowColor='rgba(255,90,105,.9)'; ctx.shadowBlur=9*S;
+    ctx.fillStyle='#ff5a69';
+    a=P(-74,-31); b=P(-70,-31.5); c=P(-70,-28.8); d=P(-74,-28.3);
+    ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]); ctx.lineTo(d[0],d[1]);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+
+    // ---- 侧裙底光条（分段，避开车轮）----
+    ctx.save();
+    ctx.shadowColor=rgba(glow,.9); ctx.shadowBlur=10*S;
+    ctx.strokeStyle=rgba(glow,.85); ctx.lineWidth=2*S; ctx.lineCap='round';
+    [[-72,-49],[-11,11],[49,72]].forEach(seg=>{
+      const s0=P(seg[0],-14), s1=P(seg[1],-14);
+      ctx.beginPath(); ctx.moveTo(s0[0],s0[1]); ctx.lineTo(s1[0],s1[1]); ctx.stroke();
+    });
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  // ---------- 极简标签 ----------
+  function tag(text, x, y, anchor){
+    ctx.save();
+    ctx.font='600 17px "Segoe UI","PingFang SC",sans-serif';
+    const w = ctx.measureText(text).width + 22;
+    const h = 30;
+    let bx = x-w/2;
+    if(anchor==='left') bx = x;
+    if(anchor==='right') bx = x-w;
+    ctx.fillStyle='rgba(8,26,50,.88)';
+    ctx.strokeStyle='rgba(90,185,255,.45)'; ctx.lineWidth=1;
+    rr(bx,y,w,h,15); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#c9e4fb';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(text, bx+w/2, y+h/2+.5);
+    ctx.restore();
+  }
+
+  function leader(x1,y1,x2,y2){
+    ctx.save();
+    ctx.strokeStyle='rgba(110,190,250,.6)'; ctx.lineWidth=1.2;
+    ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(120,205,255,.9)';
+    ctx.beginPath(); ctx.arc(x2,y2,3,0,7); ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------- 看点提示 ----------
+  function drawHint(lead, text){
+    ctx.save();
+    ctx.font='600 20px "Segoe UI","PingFang SC",sans-serif';
+    const lw = ctx.measureText(lead).width;
+    ctx.font='500 19px "Segoe UI","PingFang SC",sans-serif';
+    const tw = ctx.measureText(text).width;
+    const padL=24, padR=26, barW=4, gapLead=14, gapText=12;
+    const w = padL + barW + gapLead + lw + gapText + tw + padR;
+    const h = 50;
+    const x = 800 - w/2;
+    const y = 104;
+
+    ctx.save();
+    ctx.fillStyle='rgba(50,150,240,.18)'; ctx.filter='blur(12px)';
+    rr(x,y,w,h,25); ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle='rgba(9,28,54,.92)';
+    ctx.strokeStyle='rgba(100,195,255,.5)'; ctx.lineWidth=1.5;
+    rr(x,y,w,h,25); ctx.fill(); ctx.stroke();
+
+    const barG = ctx.createLinearGradient(0,y+10,0,y+h-10);
+    barG.addColorStop(0,'#7fd4ff'); barG.addColorStop(1,'#2f86e6');
+    ctx.fillStyle=barG;
+    rr(x+padL, y+12, barW, h-24, 2); ctx.fill();
+
+    ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.font='600 20px "Segoe UI","PingFang SC",sans-serif';
+    ctx.fillStyle='#7fd4ff';
+    ctx.fillText(lead, x+padL+barW+gapLead, y+h/2+.5);
+    ctx.font='500 19px "Segoe UI","PingFang SC",sans-serif';
+    ctx.fillStyle='#cfe8ff';
+    ctx.fillText(text, x+padL+barW+gapLead+lw+gapText, y+h/2+.5);
+    ctx.restore();
+  }
+
+  // ---------- “同一时刻”读数牌（两车共用一个时间）----------
+  function drawSameTime(t){
+    const cx = 800, y = 176, h = 44;
+    ctx.save();
+    const head='同一时刻';
+    const num='t = '+t.toFixed(1)+' s';
+    ctx.font='600 17px "Segoe UI","PingFang SC",sans-serif';
+    const headW=ctx.measureText(head).width;
+    ctx.font='600 25px "Consolas","SF Mono",monospace';
+    const numW=ctx.measureText(num).width;
+    const gap=18, pad=22;
+    const w=pad+headW+gap+numW+pad;
+    const x=cx-w/2;
+
+    ctx.save();
+    ctx.fillStyle='rgba(50,150,240,.16)'; ctx.filter='blur(11px)';
+    rr(x,y,w,h,22); ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle='rgba(10,32,62,.94)';
+    ctx.strokeStyle='rgba(110,205,255,.55)'; ctx.lineWidth=1.5;
+    rr(x,y,w,h,22); ctx.fill(); ctx.stroke();
+
+    ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.font='600 17px "Segoe UI","PingFang SC",sans-serif';
+    ctx.fillStyle='#8fd6ff';
+    ctx.fillText(head, x+pad, y+h/2+.5);
+    ctx.font='600 25px "Consolas","SF Mono",monospace';
+    ctx.fillStyle='#eaf7ff';
+    ctx.fillText(num, x+pad+headW+gap, y+h/2+.5);
+    ctx.restore();
+  }
+
+  // ---------- 秒表 ----------
+  function drawStopwatch(t){
+    const cx=1408, cy=214, R=96;
+    ctx.save();
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.filter='blur(16px)';
+    ctx.beginPath(); ctx.arc(cx,cy+6,R,0,7); ctx.fill();
+    ctx.restore();
+
+    // 表壳
+    const shell=ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+    shell.addColorStop(0,'#1b3c64'); shell.addColorStop(1,'#0a1c38');
+    ctx.fillStyle=shell;
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
+    ctx.save();
+    ctx.shadowColor='rgba(90,190,255,.5)'; ctx.shadowBlur=14;
+    ctx.strokeStyle='rgba(110,200,255,.6)'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+    ctx.restore();
+
+    // 表盘
+    const face=ctx.createRadialGradient(cx-R*.3,cy-R*.35,10,cx,cy,R);
+    face.addColorStop(0,'#122c4b'); face.addColorStop(1,'#07172e');
+    ctx.fillStyle=face;
+    ctx.beginPath(); ctx.arc(cx,cy,R-12,0,7); ctx.fill();
+
+    // 刻度
+    for(let i=0;i<60;i++){
+      const a = i/60*Math.PI*2 - Math.PI/2;
+      const major = i%5===0;
+      const r1 = R-20, r2 = R-(major?34:28);
+      ctx.strokeStyle = major?'rgba(120,210,255,.85)':'rgba(90,165,225,.45)';
+      ctx.lineWidth = major?2.4:1.2;
+      ctx.beginPath();
+      ctx.moveTo(cx+Math.cos(a)*r1, cy+Math.sin(a)*r1);
+      ctx.lineTo(cx+Math.cos(a)*r2, cy+Math.sin(a)*r2);
+      ctx.stroke();
+    }
+
+    // 指针
+    const ang = (t/10)*Math.PI*2 - Math.PI/2;
+    ctx.save();
+    ctx.shadowColor='rgba(110,210,255,.9)'; ctx.shadowBlur=10;
+    ctx.strokeStyle='#7ad6ff'; ctx.lineWidth=3.4; ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(cx-Math.cos(ang)*12, cy-Math.sin(ang)*12);
+    ctx.lineTo(cx+Math.cos(ang)*(R-40), cy+Math.sin(ang)*(R-40));
+    ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle='#7ad6ff'; ctx.beginPath(); ctx.arc(cx,cy,6,0,7); ctx.fill();
+    ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(cx,cy,2.4,0,7); ctx.fill();
+
+    // 数字读数
+    ctx.fillStyle='#e2f4ff';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='600 26px "Consolas","SF Mono",monospace';
+    ctx.fillText(t.toFixed(1), cx, cy+R*.55);
+    ctx.font='600 14px "Segoe UI",sans-serif';
+    ctx.fillStyle='#8fc4ea';
+    ctx.fillText('s', cx+40, cy+R*.55+1);
+    ctx.restore();
+
+    tag('秒表', cx, cy+R+30);
+  }
+
+  // ---------- 主绘制 ----------
+  function render(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle='#061226';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    const s = dpr*viewScale;
+    ctx.setTransform(s,0,0,s, dpr*offX, dpr*offY);
+
+    drawBackground();
+
+    const m = MODES[mode];
+    const mt = moveTime();
+    const t = Math.min(elapsed, mt);
+
+    if(mode==='uniform'){
+      drawTrack(TRACK.faceTop, TRACK.faceBottom);
+      drawRuler();
+
+      const carX = X0 + m.v*t*PPM;
+      const fullX = X0 + m.distance*PPM;
+
+      drawTrail(X0, Math.min(carX,fullX), m.carBase+2, 'rgba(110,205,255,.5)');
+      const secs = Math.floor(t + 1e-6);
+      drawDots(secs, m.v, m.carBase+2, GLOW.blue, true);
+
+      drawCar(carX, m.carBase, 150, GLOW.blue);
+      drawSameTime(t);
+
+      tag('轨道', 196, TRACK.faceBottom+6, 'left');
+      leader(230, TRACK.faceBottom+16, 300, TRACK.faceBottom+26);
+      tag('刻度', 196, TRACK.rulerY-4, 'left');
+      // 运动轨迹标签固定在前立面区，避免与跟随小车的标签重叠
+      tag('运动轨迹', 440, TRACK.faceBottom+4);
+      leader(472, TRACK.faceBottom+8, X0+m.v*Math.min(secs,1)*PPM, m.carBase+2-8);
+      tag('小车', carX, m.carBase-96);
+      leader(carX, m.carBase-66, carX, m.carBase-54);
+
+    } else {
+      drawTrack(TRACK.faceTop-8, TRACK.faceBottom+2);
+      ctx.save();
+      ctx.strokeStyle='rgba(110,190,250,.35)'; ctx.lineWidth=1.6; ctx.setLineDash([12,10]);
+      ctx.beginPath(); ctx.moveTo(TRACK.left+24,520); ctx.lineTo(TRACK.right-24,520); ctx.stroke();
+      ctx.setLineDash([]); ctx.restore();
+      drawRuler();
+
+      const fastX = X0 + m.vFast*t*PPM;
+      const slowX = X0 + m.vSlow*t*PPM;
+      const fastFull = X0 + m.distance*PPM;
+
+      const tx = X0 + m.targetM*PPM;
+      ctx.save();
+      ctx.strokeStyle='rgba(110,200,255,.5)'; ctx.lineWidth=1.6; ctx.setLineDash([6,6]);
+      ctx.beginPath(); ctx.moveTo(tx,TRACK.faceTop-2); ctx.lineTo(tx,TRACK.rulerY-6); ctx.stroke();
+      ctx.setLineDash([]); ctx.restore();
+
+      drawTrail(X0, Math.min(fastX,fastFull), m.fastBase+2, 'rgba(90,190,255,.5)');
+      drawTrail(X0, slowX, m.slowBase+2, 'rgba(255,186,84,.45)');
+
+      const secsFast=Math.floor(t+1e-6);
+      const secsSlow=Math.floor(t+1e-6);
+      // 两车秒数都标在各自落点下方（车身在落点上方），避开车身遮挡；两排标签上下错开不重叠
+      drawDots(secsFast, m.vFast, m.fastBase+2, GLOW.blue, false);
+      drawDots(secsSlow, m.vSlow, m.slowBase+2, GLOW.amber, false);
+
+      drawCar(fastX, m.fastBase, 138, GLOW.blue);
+      drawCar(slowX, m.slowBase, 138, GLOW.amber);
+      drawSameTime(t);
+
+      tag('轨道', 196, TRACK.faceBottom+10, 'left');
+      tag('刻度', 196, TRACK.rulerY-4, 'left');
+      // 运动轨迹标签固定在前立面区，避免与跟随车辆的标签重叠
+      tag('运动轨迹', 440, TRACK.faceBottom+8);
+      leader(474, TRACK.faceBottom+4, X0+m.vFast*Math.min(secsFast,1)*PPM, m.fastBase+2-8);
+      tag('相同路程', tx, TRACK.faceTop-40);
+      leader(tx, TRACK.faceTop-10, tx, TRACK.faceTop+2);
+      tag('快速车', fastX, m.fastBase-96);
+      tag('慢速车', slowX, m.slowBase-96);
+    }
+
+    if(mode==='uniform'){
+      drawHint('看什么：','速度始终不变  →  每秒走过的路程都相等');
+    } else {
+      drawHint('看什么：','同时出发  →  相同时间，快车走得更远');
+    }
+
+    drawStopwatch(t);
+  }
+
+  // ---------- 循环 ----------
+  function frame(ts){
+    if(!lastTs) lastTs = ts;
+    let dt = (ts - lastTs)/1000;
+    lastTs = ts;
+    if(dt>0.05) dt = 0.05;
+    if(!paused){
+      elapsed += dt;
+      const ct = cycleTime();
+      if(elapsed >= ct) elapsed = elapsed % ct;
+    }
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---------- 交互 ----------
+  const tabU=document.getElementById('tabUniform');
+  const tabC=document.getElementById('tabCompare');
+  function setMode(next){
+    if(mode===next) return;
+    mode=next; reset();
+    const u = mode==='uniform';
+    tabU.classList.toggle('active',u); tabC.classList.toggle('active',!u);
+    tabU.setAttribute('aria-selected',u?'true':'false');
+    tabC.setAttribute('aria-selected',u?'false':'true');
+  }
+  tabU.addEventListener('click',()=>setMode('uniform'));
+  tabC.addEventListener('click',()=>setMode('compare'));
+
+  canvas.addEventListener('pointerdown',()=>{ paused=!paused; });
+  window.addEventListener('keydown',e=>{
+    if(e.code==='Space'){ e.preventDefault(); paused=!paused; }
+    if(e.key==='1') setMode('uniform');
+    if(e.key==='2') setMode('compare');
   });
-
-  /* 相邻点间距括注 */
-  for (let i = 1; i < shown.length; i++) {
-    const xa = X0 + X[i - 1] * px, xb = X0 + X[i] * px, d = X[i] - X[i - 1];
-    const y = gy + 40;
-    g += `<line x1="${round(xa, 2)}" y1="${y}" x2="${round(xb, 2)}" y2="${y}" stroke="${dotCol}" stroke-width="1.5"/>`;
-    g += `<line x1="${round(xa, 2)}" y1="${y - 5}" x2="${round(xa, 2)}" y2="${y + 5}" stroke="${dotCol}" stroke-width="1.5"/>`;
-    g += `<line x1="${round(xb, 2)}" y1="${y - 5}" x2="${round(xb, 2)}" y2="${y + 5}" stroke="${dotCol}" stroke-width="1.5"/>`;
-    if (d * px >= 34) g += txt((xa + xb) / 2, y - 8, fmt(d, 2), { size: 10.5, a: "middle", fill: dotCol, w: 700 });
-  }
-
-  /* 小车 */
-  g += car(X0 + uniPosAt(tau) * px, gy, 1, CL.blue);
-
-  /* 总路程 */
-  g += bracket(X0, X0 + S * px, gy + 74, `总路程 S = ${fmt(S, 2)} m`, CL.blue);
-
-  /* 匀速时点一下题 */
-  if (uni && tau >= UNI_T() - 1e-9) {
-    g += txt(X0 + S * px / 2, gy + 96, "各段间距都相等 → 任意相等时间内路程相等", { size: 12, a: "middle", fill: CL.green, w: 700 });
-  }
-
-  return svgWrap({ content: g, w: X0 + L * px + 30, h: gy + 108, pad: 16, padTop: 14, maxW: 640 });
-}
-
-/* ---------------- s-t 图 ---------------- */
-function uniChartST() {
-  const X = uniPos(), T = UNI_T(), S = X[UNI_N], tau = UNI.tau;
-  const uni = uniIsUniform();
-  const yMax = Math.max(4, Math.ceil(S * 1.15 * 2) / 2);
-  const yStep = yMax > 12 ? 4 : (yMax > 6 ? 2 : 1);
-  const A = axes({
-    x: 48, y: 18, w: 218, h: 148,
-    xMin: 0, xMax: T, yMin: 0, yMax: yMax,
-    xStep: 0.5, yStep,
-    xLabel: "t / s", yLabel: "s / m",
-    xFmt: v => fmt(v, 1), yFmt: v => fmt(v, 0)
-  });
-
-  /* 折线（只画到当前时刻） */
-  const pts = [[0, 0]];
-  let lastT = 0;
-  for (let i = 1; i <= UNI_N; i++) {
-    if (i * UNI.DT <= tau + 1e-9) { pts.push([i * UNI.DT, X[i]]); lastT = i * UNI.DT; }
-  }
-  if (tau > lastT + 1e-9) pts.push([tau, uniPosAt(tau)]);
-
-  let g = A.markup;
-  g += `<path d="${polyPath(pts, A.X, A.Y)}" fill="none" stroke="${uni ? CL.green : CL.blue}" stroke-width="2.4" stroke-linejoin="round"/>`;
-  pts.forEach(p => {
-    g += `<circle cx="${round(A.X(p[0]), 2)}" cy="${round(A.Y(p[1]), 2)}" r="3.2" fill="${uni ? CL.green : CL.blue}"/>`;
-  });
-  g += txt(A.x + A.w / 2, A.y - 2, "s-t 图像", { size: 12, a: "middle", fill: CL.ink2, w: 700 });
-  if (uni && tau >= T - 1e-9) {
-    g += txt(A.x + A.w / 2, A.y + A.h - 10, "一条过原点直线，斜率 = v", { size: 10.5, a: "middle", fill: CL.green, w: 700 });
-  }
-  return svgWrap({ content: g, w: A.x + A.w + 30, h: A.y + A.h + 46, pad: 14, padTop: 14, maxW: 330 });
-}
-
-/* ---------------- v-t 图 ---------------- */
-function uniChartVT() {
-  const T = UNI_T(), tau = UNI.tau, uni = uniIsUniform();
-  const A = axes({
-    x: 48, y: 18, w: 218, h: 148,
-    xMin: 0, xMax: T, yMin: 0, yMax: 6.5,
-    xStep: 0.5, yStep: 1,
-    xLabel: "t / s", yLabel: "v /(m·s⁻¹)",
-    xFmt: v => fmt(v, 1), yFmt: v => fmt(v, 0)
-  });
-
-  let g = A.markup;
-
-  /* 面积（= 路程）：逐段矩形 */
-  for (let i = 0; i < UNI_N; i++) {
-    const t1 = i * UNI.DT, t2 = Math.min((i + 1) * UNI.DT, tau);
-    if (t2 <= t1 + 1e-9) continue;
-    const xa = A.X(t1), xb = A.X(t2), yv = A.Y(UNI.v[i]);
-    g += `<rect x="${round(xa, 2)}" y="${round(yv, 2)}" width="${round(xb - xa, 2)}"`
-      + ` height="${round(A.Y(0) - yv, 2)}" fill="${uni ? CL.green : CL.amber}" fill-opacity=".22"/>`;
-  }
-
-  /* 阶梯线 */
-  const pts = [];
-  for (let i = 0; i < UNI_N; i++) {
-    const t1 = i * UNI.DT, t2 = (i + 1) * UNI.DT;
-    if (t1 > tau + 1e-9) break;
-    pts.push([t1, UNI.v[i]]);
-    if (t2 <= tau + 1e-9) pts.push([t2, UNI.v[i]]);
-    else pts.push([tau, UNI.v[i]]);
-  }
-  if (pts.length) {
-    g += `<path d="${polyPath(pts, A.X, A.Y)}" fill="none" stroke="${uni ? CL.green : CL.amber}" stroke-width="2.4"/>`;
-  }
-
-  g += txt(A.x + A.w / 2, A.y - 2, "v-t 图像", { size: 12, a: "middle", fill: CL.ink2, w: 700 });
-  if (uni && tau >= T - 1e-9) {
-    g += txt(A.x + A.w / 2, A.y + A.h - 10, "一条水平直线", { size: 10.5, a: "middle", fill: CL.green, w: 700 });
-  }
-  return svgWrap({ content: g, w: A.x + A.w + 30, h: A.y + A.h + 46, pad: 14, padTop: 14, maxW: 330 });
-}
-
-/* ---------------- 判定 ---------------- */
-function uniRead() {
-  const uni = uniIsUniform();
-  return uni
-    ? `<div class="verdict ok">✔ 各段间距都相等 → <b>任意相等时间内通过的路程都相等</b> → 这是<b>匀速直线运动</b>（路径是直线，快慢也不变）。</div>`
-    : `<div class="verdict no">✘ 各段间距不相等 → 相等时间内通过的路程不等 → 这是<b>变速直线运动</b>。s-t 图不再是直线，v-t 图不再是水平线。</div>`;
-}
-
-/* ---------------- 重绘 / 播放 ---------------- */
-function uniDraw() {
-  const st = $("#uniStage");
-  if (!st) return;
-  st.innerHTML = uniScene();
-  $("#chartST").innerHTML = uniChartST();
-  $("#chartVT").innerHTML = uniChartVT();
-  $("#uniRead").innerHTML = uniRead();
-  $("#uTau").textContent = fmt(UNI.tau, 2);
-}
-
-function uniStop() {
-  if (UNI.raf) { cancelAnimationFrame(UNI.raf); UNI.raf = null; }
-  UNI.playing = false;
-  const b = $("#uPlay");
-  if (b) b.textContent = "▶ 播放一遍";
-}
-
-function uniPlay() {
-  if (UNI.playing) { uniStop(); UNI.tau = UNI_T(); uniDraw(); return; }
-  const T = UNI_T(), wall = 4500;   // 3 s 物理时间慢放成 4.5 s
-  UNI.playing = true;
-  $("#uPlay").textContent = "⏸ 暂停";
-  UNI.tau = 0;
-  const t0 = performance.now();
-  const step = now => {
-    const p = clamp((now - t0) / wall, 0, 1);
-    UNI.tau = p * T;
-    uniDraw();
-    if (p < 1) UNI.raf = requestAnimationFrame(step);
-    else { uniStop(); UNI.tau = T; uniDraw(); }
-  };
-  UNI.raf = requestAnimationFrame(step);
-}
-
-/* ---------------- 初始化 ---------------- */
-function initUniform() {
-  const ctrl = $("#uniCtrl");
-  if (!ctrl) return;
-
-  ctrl.innerHTML = `
-    <div class="quick">
-      <button class="btn-sm" data-pre="3,3,3,3,3,3">匀速</button>
-      <button class="btn-sm" data-pre="1,2,3,4,5,6">越来越快</button>
-      <button class="btn-sm" data-pre="6,5,4,3,2,1">越来越慢</button>
-      <button class="btn-sm" data-pre="6,6,3,3,6,6">快—慢—快</button>
-    </div>
-    <div class="quick">
-      <button class="btn-sm primary" id="uPlay">▶ 播放一遍</button>
-      <button class="btn-sm" id="uEnd">跳到结束状态</button>
-      <span class="note" style="margin:0;align-self:center">当前时刻 <b id="uTau">3.00</b> s</span>
-    </div>`;
-
-  $$("#uniCtrl [data-pre]").forEach(b => {
-    b.onclick = () => {
-      UNI.v = b.dataset.pre.split(",").map(Number);
-      uniStop(); UNI.tau = UNI_T(); uniDraw();
-    };
-  });
-  $("#uPlay").onclick = uniPlay;
-  $("#uEnd").onclick = () => { uniStop(); UNI.tau = UNI_T(); uniDraw(); };
-
-  uniDraw();
-}
+  document.addEventListener('visibilitychange',()=>{ lastTs=0; });
+})();
 </script>
-<script>
-/* ---------- strobe.js ---------- */
-/* ============================================================
-   strobe.js —— 探究④：同屏两车的频闪照片，点距就是快慢
-
-   模型：A、B 两车各自做匀速直线运动，速度 vA / vB 恒定。
-   频闪照相机每隔 Δt 闪一次光（全程 T = 3 s），把每次曝光瞬间
-   小车的位置叠在同一张底片上 → 相邻两点间距 Δs = v · Δt。
-
-   教学落点（对着本节难点：比值定义法 + "速度不变"的含义）：
-     · Δt 被闪光间隔固定成一样 → 照片上只剩长度可比：点距大的跑得快
-     · 点距之比 = 速度之比：Δs_B / Δs_A = v_B / v_A，与 Δt 取多少无关
-     · 改闪光间隔，两条点距一起变长变短，但比值不变
-       → 快慢是物体本身的性质，不随拍照方式改变，所以要用 s/t 定义速度
-   ============================================================ */
-
-const STR = { vA: 2, vB: 5, dt: 0.5, tau: 3, playing: false, raf: null };
-const STR_T = 3;                                        // 拍摄总时长，s
-/* 曝光时刻：t = 0, Δt, 2Δt …（含起点这一次），照片上有几个点就是曝光了几次 */
-const strShots = () => Math.floor(STR_T / STR.dt + 1e-9) + 1;
-const strDS   = () => ({ a: STR.vA * STR.dt, b: STR.vB * STR.dt });
-
-/* ---------------- 一条轨道：轨道线 + 频闪点 + 点距 + 小车 ---------------- */
-function stroTrack(o) {
-  const { v, gy, color, name, tau, dt, x0, px, W } = o;
-  const d = v * dt, dpx = d * px;
-  const nmax = Math.floor(tau / dt + 1e-9);
-  const pos = i => x0 + v * dt * i * px;
-
-  let g = "";
-  /* 轨道 */
-  g += `<line x1="${x0 - 46}" y1="${gy}" x2="${round(x0 + W + 8, 2)}" y2="${gy}" stroke="${CL.slate}" stroke-width="2.2"/>`;
-  g += `<line x1="${x0}" y1="${gy - 13}" x2="${x0}" y2="${gy + 7}" stroke="${CL.ink}" stroke-width="2"/>`;
-  g += txt(x0 - 52, gy + 4, name, { size: 12.5, w: 700, fill: color });
-
-  /* 点距括注（点太密就只留最后一段） */
-  const by = gy + 26;
-  for (let i = 1; i <= nmax; i++) {
-    const last = i === nmax;
-    if (!last && dpx < 12) continue;
-    const xa = pos(i - 1), xb = pos(i);
-    const wd = last ? 2 : 1.4;
-    g += `<line x1="${round(xa, 2)}" y1="${by}" x2="${round(xb, 2)}" y2="${by}" stroke="${color}" stroke-width="${wd}"/>`;
-    g += `<line x1="${round(xa, 2)}" y1="${by - 5}" x2="${round(xa, 2)}" y2="${by + 5}" stroke="${color}" stroke-width="${wd}"/>`;
-    g += `<line x1="${round(xb, 2)}" y1="${by - 5}" x2="${round(xb, 2)}" y2="${by + 5}" stroke="${color}" stroke-width="${wd}"/>`;
-    if (last || dpx >= 34) g += txt((xa + xb) / 2, by - 8, fmt(d, 2), { size: 10.5, a: "middle", fill: color, w: 700 });
-  }
-
-  /* 频闪点：只显示已经闪光过的时刻 */
-  for (let i = 0; i <= nmax; i++) {
-    g += `<circle cx="${round(pos(i), 2)}" cy="${gy}" r="5" fill="${color}" stroke="#fff" stroke-width="1.6"/>`;
-  }
-
-  /* 小车（停在 tau 时刻的位置） */
-  g += car(x0 + v * tau * px, gy, 1, color);
-  return g;
-}
-
-/* ---------------- 主画面 ---------------- */
-function stroScene() {
-  const tau = STR.tau, dt = STR.dt, T = STR_T;
-  const vmax = Math.max(STR.vA, STR.vB, 0.5);
-  const L = Math.max(vmax * T * 1.05, 3);
-  const x0 = 62, W = 470, px = W / L;
-  const gyA = 96, gyB = 168;
-  const d = strDS();
-
-  let g = "";
-  g += txt(x0 - 56, 20, `频闪照相机：每隔 ${fmt(dt, 2)} s 闪一次光，全程 ${fmt(T, 1)} s 共曝光 ${strShots()} 次`,
-    { size: 12.5, w: 600, fill: CL.ink2 });
-
-  /* 闪光瞬间的提示：tau 刚跨过某次闪光时亮一下 */
-  const n = Math.floor(tau / dt + 1e-9);
-  const vis = clamp(1 - (tau - n * dt) / Math.min(0.25, dt * 0.7), 0, 1);
-  if (vis > 0.02) {
-    g += `<rect x="${x0 - 56}" y="28" width="${round(W + 66, 2)}" height="${gyB - 28 + 12}" rx="12"`
-      + ` fill="${CL.amber}" fill-opacity="${round(0.13 * vis, 2)}"/>`;
-    g += txt(x0 - 46, 46, `⚡ 第 ${n + 1} 次闪光　t = ${fmt(n * dt, 2)} s`, { size: 12, w: 700, fill: CL.amber });
-  }
-
-  /* 两条轨道 */
-  g += stroTrack({ v: STR.vA, gy: gyA, color: CL.blue,  name: "A 车", tau, dt, x0, px, W });
-  g += stroTrack({ v: STR.vB, gy: gyB, color: CL.amber, name: "B 车", tau, dt, x0, px, W });
-
-  /* 同屏对比：同一次闪光间隔内两车各走了多远 */
-  g += txt(x0 - 56, 226, "同屏对比：同样一次闪光间隔 Δt 内，两车各走了多远", { size: 12, w: 600, fill: CL.ink2 });
-  const bars = [
-    { y: 236, len: d.a * px, color: CL.blue,  tag: "A", s: d.a },
-    { y: 260, len: d.b * px, color: CL.amber, tag: "B", s: d.b }
-  ];
-  bars.forEach(b => {
-    g += `<rect x="${x0}" y="${b.y}" width="${round(Math.max(b.len, 2), 2)}" height="15" rx="7"`
-      + ` fill="${b.color}" fill-opacity=".9"/>`;
-    g += txt(x0 - 8, b.y + 12, b.tag, { size: 12, w: 700, a: "end", fill: b.color });
-    g += txt(x0 + b.len + 9, b.y + 12, `Δs = ${fmt(b.s, 2)} m`, { size: 11.5, w: 700, fill: b.color });
-  });
-
-  /* 比值一句话 */
-  const k = STR.vA > 0 ? STR.vB / STR.vA : 0;
-  g += txt(x0 - 56, 296,
-    `点距比 Δs_B : Δs_A = ${fmt(d.b, 2)} : ${fmt(d.a, 2)} = ${fmt(k, 2)} : 1，正好等于速度比 v_B : v_A`,
-    { size: 12, w: 700, fill: CL.purple });
-
-  return svgWrap({ content: g, w: x0 + W + 30, h: 302, pad: 16, padTop: 14, maxW: 640 });
-}
-
-/* ---------------- 重绘 / 播放 ---------------- */
-function stroDraw() {
-  const st = $("#stroStage");
-  if (!st) return;
-  st.innerHTML = stroScene();
-  $("#sVA").value = STR.vA;  $("#sLA").textContent = fmt1(STR.vA);
-  $("#sVB").value = STR.vB;  $("#sLB").textContent = fmt1(STR.vB);
-  $("#sDt").value = STR.dt;  $("#sLD").textContent = fmt(STR.dt, 2);
-  $("#sLN").textContent = strShots();
-  $("#sTau").textContent = fmt(STR.tau, 2);
-}
-
-function stroStop() {
-  if (STR.raf) { cancelAnimationFrame(STR.raf); STR.raf = null; }
-  STR.playing = false;
-  const b = $("#sPlay");
-  if (b) b.textContent = "▶ 播放一遍";
-}
-
-function stroPlay() {
-  if (STR.playing) { stroStop(); STR.tau = STR_T; stroDraw(); return; }
-  const T = STR_T, wall = 4500;      // 3 s 物理时间慢放成 4.5 s
-  STR.playing = true;
-  $("#sPlay").textContent = "⏸ 暂停";
-  STR.tau = 0;
-  const t0 = performance.now();
-  const step = now => {
-    const p = clamp((now - t0) / wall, 0, 1);
-    STR.tau = p * T;
-    stroDraw();
-    if (p < 1) STR.raf = requestAnimationFrame(step);
-    else { stroStop(); STR.tau = T; stroDraw(); }
-  };
-  STR.raf = requestAnimationFrame(step);
-}
-
-/* ---------------- 初始化 ---------------- */
-function initStrobe() {
-  const ctrl = $("#stroCtrl");
-  if (!ctrl) return;
-
-  ctrl.innerHTML = `
-    <div class="slider-row">
-      <label>A 车速度：<b id="sLA">2.0</b> m/s</label>
-      <input type="range" id="sVA" min="0.5" max="6" step="0.5" value="2">
-    </div>
-    <div class="slider-row">
-      <label>B 车速度：<b id="sLB">5.0</b> m/s</label>
-      <input type="range" id="sVB" min="0.5" max="6" step="0.5" value="5">
-    </div>
-    <div class="slider-row">
-      <label>闪光间隔 Δt：<b id="sLD">0.50</b> s　（全程 3 s 共曝光 <b id="sLN">7</b> 次）</label>
-      <input type="range" id="sDt" min="0.25" max="1" step="0.25" value="0.5">
-    </div>
-    <div class="quick">
-      <button class="btn-sm primary" id="sPlay">▶ 播放一遍</button>
-      <button class="btn-sm" id="sEnd">跳到结束状态</button>
-      <button class="btn-sm" data-pre="3,3">一样快</button>
-      <button class="btn-sm" data-pre="1,6">快慢悬殊</button>
-      <span class="note" style="margin:0;align-self:center">当前时刻 <b id="sTau">3.00</b> s</span>
-    </div>
-    <div class="formula">
-      读照片的口诀：<b>闪光间隔相同 → 时间已经相等 → 只比点距</b>。
-      点距 Δs = v · Δt，所以 <b>点距之比 = 速度之比</b>，与闪光间隔取多少无关。
-    </div>`;
-
-  $$("#stroCtrl [data-pre]").forEach(b => {
-    b.onclick = () => {
-      const [a, c] = b.dataset.pre.split(",").map(Number);
-      STR.vA = a; STR.vB = c;
-      stroStop(); STR.tau = STR_T; stroDraw();
-    };
-  });
-  $("#sVA").oninput = e => { STR.vA = +e.target.value; stroStop(); STR.tau = STR_T; stroDraw(); };
-  $("#sVB").oninput = e => { STR.vB = +e.target.value; stroStop(); STR.tau = STR_T; stroDraw(); };
-  $("#sDt").oninput = e => { STR.dt = +e.target.value; stroStop(); STR.tau = STR_T; stroDraw(); };
-  $("#sPlay").onclick = stroPlay;
-  $("#sEnd").onclick  = () => { stroStop(); STR.tau = STR_T; stroDraw(); };
-
-  stroDraw();
-}
-</script>
-<script>
-/* ---------- main.js ---------- */
-/* ============================================================
-   main.js —— 入口：初始化三个探究环节 + 导航跳转
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-
-  initRace();     // ① 谁跑得快：比较快慢的两种方法
-  initSpeed();    // ② 速度是个什么数：把路程按时间等分
-  initUniform();  // ③ 匀速还是变速：频闪 + s-t / v-t 图像
-  initStrobe();   // ④ 同屏两车频闪照片：点距就是快慢
-
-  /* 顶部导航平滑滚动（scroll-margin-top 已在 CSS 里避开吸顶条） */
-  $$(".nav-chip").forEach(a => {
-    a.onclick = e => {
-      e.preventDefault();
-      const target = $(a.getAttribute("href"));
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-    };
-  });
-});
-</script>
-
 </body>
 </html>

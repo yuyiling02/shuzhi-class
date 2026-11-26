@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电子衍射 · 波粒二象性虚拟实验</title>
+<style>
+  :root{
+    --bg1:#070d18; --bg2:#0c1626; --ink:#e6f2fc; --ink2:#8ba6c2;
+    --accent:#00e5ff; --accent2:#2ef0b8; --warn:#ff8a3c;
+    --card:rgba(12,24,40,.72); --line:rgba(120,180,240,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));}
+  #stage{position:absolute;inset:0}
+  canvas{display:block}
+
+  /* ---------- 顶栏 ---------- */
+  #topbar{position:absolute;top:0;left:0;right:0;height:56px;display:flex;align-items:center;
+    padding:0 22px;gap:14px;background:linear-gradient(180deg,rgba(10,20,36,.92),rgba(10,20,36,.62));
+    backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,229,255,.22);z-index:20}
+  #topbar .dot{width:12px;height:12px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#aef4ff,#00e5ff);box-shadow:0 0 12px #00e5ffcc}
+  #topbar h1{font-size:18px;font-weight:700;letter-spacing:.5px}
+  #topbar .sub{font-size:12px;color:var(--ink2)}
+  #modeBadge{margin-left:auto;font-size:13px;font-weight:600;padding:6px 14px;border-radius:20px;
+    background:rgba(0,229,255,.12);color:#35d6ff;border:1px solid rgba(0,229,255,.4)}
+
+  /* ---------- 3D 标签 ---------- */
+  .tag{position:absolute;transform:translate(-50%,-130%);pointer-events:none;z-index:15;
+    font-size:12px;font-weight:600;color:#d5efff;background:rgba(6,16,30,.85);
+    border:1px solid rgba(0,229,255,.55);border-radius:14px;padding:3px 10px;white-space:nowrap;
+    box-shadow:0 0 12px rgba(0,229,255,.3);transition:opacity .2s}
+  .tag::after{content:"";position:absolute;left:50%;bottom:-7px;width:1px;height:7px;background:rgba(0,229,255,.7)}
+  .tag.hidden{opacity:0}
+
+  /* ---------- 右侧面板 ---------- */
+  #panel{position:absolute;top:56px;right:0;bottom:76px;width:390px;z-index:18;
+    display:flex;flex-direction:column;padding:14px;gap:10px}
+  .card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);
+    border-radius:14px;box-shadow:0 4px 18px rgba(30,60,90,.08);padding:12px 14px}
+  #panelTitle{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+  #panelTitle small{font-size:11px;color:var(--ink2);font-weight:400}
+  #screenWrap{position:relative;width:100%;aspect-ratio:1/1;border-radius:10px;overflow:hidden;
+    background:#05080f;box-shadow:inset 0 0 40px rgba(0,10,30,.9),0 0 26px rgba(0,229,255,.28),0 0 0 3px #1d3450}
+  #dotsCanvas,#guideCanvas{position:absolute;inset:0;width:100%;height:100%}
+  #stats{font-size:12.5px;line-height:1.9;color:var(--ink2)}
+  #stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+  #stats .lam{color:var(--accent);font-weight:700}
+  .hint{font-size:11.5px;color:var(--ink2);line-height:1.7}
+  .legendRow{display:flex;gap:14px;font-size:11.5px;color:var(--ink2);margin-top:4px}
+  .legendRow i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+  /* ---------- 底部控制条 ---------- */
+  #controls{position:absolute;left:0;right:0;bottom:0;height:76px;z-index:20;
+    display:flex;align-items:center;gap:12px;padding:0 22px;
+    background:linear-gradient(0deg,rgba(10,20,36,.94),rgba(10,20,36,.6));
+    backdrop-filter:blur(10px);border-top:1px solid rgba(0,229,255,.22)}
+  button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 18px;border-radius:10px;
+    border:1px solid rgba(0,229,255,.45);background:rgba(14,28,46,.85);color:#35d6ff;cursor:pointer;
+    transition:.15s;display:flex;align-items:center;gap:7px}
+  button:hover{background:rgba(0,229,255,.14);transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  button.primary{background:linear-gradient(135deg,#00b3d9,#0fcf9a);color:#04121e;border:none;
+    box-shadow:0 3px 14px rgba(0,229,255,.4)}
+  button.primary:hover{filter:brightness(1.08)}
+  button.on{background:rgba(0,229,255,.18)}
+  button.ghost{border-color:var(--line);color:var(--ink2)}
+  .seg{display:flex;border:1px solid rgba(0,229,255,.45);border-radius:10px;overflow:hidden}
+  .seg button{border:none;border-radius:0;padding:9px 16px}
+  .seg button.active{background:linear-gradient(135deg,#00b3d9,#0fcf9a);color:#04121e}
+  .sliderBox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2)}
+  input[type=range]{width:120px;accent-color:#00e5ff}
+  .spacer{flex:1}
+
+  #toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);z-index:30;
+    background:rgba(6,18,32,.92);color:#bff2ff;font-size:13px;padding:8px 18px;border-radius:20px;
+    border:1px solid rgba(0,229,255,.35);
+    opacity:0;transition:opacity .3s;pointer-events:none}
+  #vignette{position:absolute;inset:0;pointer-events:none;z-index:12;
+    background:radial-gradient(ellipse at 50% 45%, transparent 52%, rgba(2,6,14,.6) 100%)}
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div id="vignette"></div>
+
+<div id="topbar">
+  <div class="dot"></div>
+  <div>
+    <h1>电子衍射 · 波粒二象性虚拟实验</h1>
+    <div class="sub">Electron Diffraction — de Broglie Wave–Particle Duality</div>
+  </div>
+  <div id="modeBadge">模式：电子（出现衍射）</div>
+</div>
+
+<!-- 3D 悬浮标签 -->
+<div class="tag" id="tagGun">电子枪</div>
+<div class="tag" id="tagCrystal">晶体靶</div>
+<div class="tag" id="tagScreen">荧光屏</div>
+<div class="tag" id="tagRing">衍射环</div>
+<div class="tag hidden" id="tagElectron">电子 e⁻</div>
+
+<!-- 右侧：接收屏正视图 -->
+<div id="panel">
+  <div class="card">
+    <div id="panelTitle">接收屏 · 正视图 <small>荧光屏累积成像</small></div>
+    <div id="screenWrap">
+      <canvas id="dotsCanvas"></canvas>
+      <canvas id="guideCanvas"></canvas>
+    </div>
+    <div class="legendRow">
+      <span><i style="background:#7dfcff"></i>电子命中点</span>
+      <span><i style="background:#ff9d5c"></i>宏观小球命中点</span>
+      <span><i style="background:#6ea8ff"></i>理论环位置</span>
+    </div>
+  </div>
+  <div class="card" id="stats">
+    已命中：<b id="stCount">0</b> 个粒子　　在飞：<b id="stFly">0</b><br>
+    加速电压 U = <b id="stV">1000</b> V<br>
+    德布罗意波长 λ = h/p ≈ <span class="lam" id="stLam">0.0387 nm</span><br>
+    <div class="hint" id="stHint">单个电子落点是随机的（粒子性）；大量电子累积后呈现衍射环（波动性）。</div>
+  </div>
+</div>
+
+<!-- 底部控制 -->
+<div id="controls">
+  <button class="primary" id="btnOne">发射 1 颗</button>
+  <button id="btnCont">▶ 连续发射</button>
+  <button class="ghost" id="btnClear">清空屏幕</button>
+  <div class="seg">
+    <button id="btnE" class="active">电子</button>
+    <button id="btnBall">宏观小球</button>
+  </div>
+  <div class="sliderBox">发射速率<input type="range" id="rngRate" min="2" max="120" value="40"><span id="rateVal">40/s</span></div>
+  <div class="sliderBox">加速电压<input type="range" id="rngV" min="200" max="3000" step="50" value="1000"><span id="vVal">1000V</span></div>
+  <div class="spacer"></div>
+  <div class="hint">🖱 拖拽旋转视角 · 滚轮缩放</div>
+</div>
+
+<div id="toast"></div>
+
+<script type="importmap">
+{"imports":{
+  "three":"../../../../vendor/three/0.160.0/build/three.module.js",
+  "three/addons/":"../../../../vendor/three/0.160.0/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+/* ================= 基础场景 ================= */
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x081020);
+scene.fog = new THREE.Fog(0x081020, 38, 85);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, .1, 100);
+camera.position.set(-0.5, 6.5, 26);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(-0.5, 0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = .06;
+controls.minDistance = 8; controls.maxDistance = 45;
+controls.maxPolarAngle = 1.52;
+
+/* 泛光后期：让发光体产生电影级光晕 */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .55, .5, .82);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* 深蓝科技光效：主光保证器材清晰，蓝色轮廓光勾边 */
+scene.add(new THREE.HemisphereLight(0xbfd9ff, 0x0a1424, .6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(8, 13, 9);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.left=-16; sun.shadow.camera.right=16;
+sun.shadow.camera.top=12; sun.shadow.camera.bottom=-8;
+sun.shadow.radius = 6;
+scene.add(sun);
+const rimBlue = new THREE.DirectionalLight(0x2f6fff, 1.1);   // 蓝色轮廓光
+rimBlue.position.set(-12, 5, -9);
+scene.add(rimBlue);
+const rimWarm = new THREE.DirectionalLight(0xff8c3a, 1.4);   // 琥珀暖光（参考图质感）
+rimWarm.position.set(11, 4, -7);
+scene.add(rimWarm);
+const rimCyan = new THREE.PointLight(0x00e5ff, 1.6, 30);     // 屏幕旁青色点光
+rimCyan.position.set(9, 3, 6);
+scene.add(rimCyan);
+
+/* 地面 + 网格 */
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(30,64),
+  new THREE.MeshStandardMaterial({color:0x0b1526, roughness:.9, metalness:.15})
+);
+floor.rotation.x = -Math.PI/2; floor.position.y = -2.3;
+floor.receiveShadow = true;
+scene.add(floor);
+const grid = new THREE.GridHelper(34, 34, 0x1d3a5c, 0x122540);
+grid.position.y = -2.29;
+scene.add(grid);
+
+/* ================= 实验装置 =================
+   电子枪 x=-8 → 狭缝 x=-4 → 晶体 x=0 → 荧光屏 x=7，束流沿 y=0,z=0 */
+const GUN_TIP=-6.6, CRYSTAL_X=0, SCREEN_X=7, HALF=3.0; // 屏幕半宽
+
+const gunGroup = new THREE.Group();
+{
+  const darkMetal  = new THREE.MeshStandardMaterial({color:0x2a3542, metalness:.95, roughness:.35});
+  const brightMetal= new THREE.MeshStandardMaterial({color:0x9fb2c8, metalness:.9, roughness:.28});
+  const amberHot   = new THREE.MeshStandardMaterial({color:0xffb050, emissive:0xff8c2a, emissiveIntensity:2.2, roughness:.4});
+
+  /* 主体（暗色金属）+ 剖视发光内芯（琥珀色，参考图涡轮核心质感） */
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,2.6,32), darkMetal);
+  body.rotation.z = Math.PI/2;
+  const core = new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,2.72,24),
+    new THREE.MeshStandardMaterial({color:0xd98a2e, emissive:0xff9a30, emissiveIntensity:1.5,
+      metalness:.6, roughness:.35}));
+  core.rotation.z = Math.PI/2;
+  gunGroup.add(body, core);
+
+  /* 条纹能量环 ×3：16 段明暗交替，模拟涡轮叶片环 */
+  for(const rx of [-1.0, -0.3, 0.4]){
+    const seg = new THREE.Group();
+    for(let i=0;i<16;i++){
+      const b = new THREE.Mesh(new THREE.BoxGeometry(.16,.14,.22), i%2===0 ? amberHot : darkMetal);
+      const a = i/16*Math.PI*2;
+      b.position.set(0, Math.cos(a)*.58, Math.sin(a)*.58);
+      b.rotation.x = -a;
+      seg.add(b);
+    }
+    seg.position.x = rx;
+    gunGroup.add(seg);
+  }
+
+  /* 两端亮色卡箍 */
+  for(const cx of [-1.32, 1.32]){
+    const clamp = new THREE.Mesh(new THREE.TorusGeometry(.6,.07,14,40), brightMetal);
+    clamp.rotation.y = Math.PI/2;
+    clamp.position.x = cx;
+    gunGroup.add(clamp);
+  }
+
+  /* 锥形喷嘴（朝右）+ 端口青色发光环 */
+  const tip = new THREE.Mesh(new THREE.CylinderGeometry(.55,.2,1.0,32), darkMetal);
+  tip.rotation.z = Math.PI/2;
+  tip.position.x = 1.4;
+  const muzzle = new THREE.Mesh(new THREE.TorusGeometry(.22,.05,12,32),
+    new THREE.MeshStandardMaterial({color:0x00e5ff, emissive:0x00e5ff, emissiveIntensity:2.6}));
+  muzzle.rotation.y = Math.PI/2;
+  muzzle.position.x = 1.92;
+  /* 阴极热点 + 暖光 */
+  const cathode = new THREE.Mesh(new THREE.SphereGeometry(.1,14,14), amberHot);
+  cathode.position.x = 1.7;
+  const cathodeLight = new THREE.PointLight(0xff8c2a, 3, 7);
+  cathodeLight.position.x = 1.9;
+  gunGroup.add(tip, muzzle, cathode, cathodeLight);
+  gunGroup.traverse(o=>{if(o.isMesh){o.castShadow=true;}});
+}
+gunGroup.position.set(-8.6,0,0);
+scene.add(gunGroup);
+
+/* 器材底座（参考图展台质感） */
+function makePedestal(x, w, d){
+  const g = new THREE.Group();
+  const dark = new THREE.MeshStandardMaterial({color:0x1c2634, metalness:.7, roughness:.5});
+  const base = new THREE.Mesh(new THREE.BoxGeometry(w, 1.1, d), dark);
+  base.position.y = -1.75;
+  const top = new THREE.Mesh(new THREE.BoxGeometry(w*.86, .12, d*.86),
+    new THREE.MeshStandardMaterial({color:0x2e3d50, metalness:.8, roughness:.4}));
+  top.position.y = -1.16;
+  const lamp = new THREE.Mesh(new THREE.BoxGeometry(.5,.06,.14),
+    new THREE.MeshStandardMaterial({color:0xffb050, emissive:0xff8c2a, emissiveIntensity:1.8}));
+  lamp.position.y = -1.09;
+  g.add(base, top, lamp);
+  g.position.x = x;
+  g.traverse(o=>{if(o.isMesh){o.castShadow=true; o.receiveShadow=true;}});
+  scene.add(g);
+  return g;
+}
+makePedestal(-8.6, 2.4, 1.8);
+makePedestal(0, 1.4, 1.8);
+{ /* 晶体支柱 */
+  const col = new THREE.Mesh(new THREE.BoxGeometry(.35,.5,.35),
+    new THREE.MeshStandardMaterial({color:0x2e3d50, metalness:.8, roughness:.4}));
+  col.position.set(0,-.9,0);
+  col.castShadow = true;
+  scene.add(col);
+}
+
+/* 狭缝（两块挡板） */
+{
+  const mat = new THREE.MeshStandardMaterial({color:0x8fa3b8, metalness:.8, roughness:.35,
+    emissive:0x16293e, emissiveIntensity:.4});
+  for(const s of [1,-1]){
+    const p = new THREE.Mesh(new THREE.BoxGeometry(.15,1.5,1.4), mat);
+    p.position.set(-4, s*0.85, 0);
+    p.castShadow = true;
+    scene.add(p);
+  }
+}
+
+/* 晶体靶（半透明 + 晶格线框） */
+const crystal = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.0,1.0,.22,48),
+  new THREE.MeshPhysicalMaterial({color:0x35e0d8, transparent:true, opacity:.55,
+    metalness:.15, roughness:.2, transmission:.4, thickness:.4,
+    emissive:0x0a5e58, emissiveIntensity:.5})
+);
+crystal.rotation.z = Math.PI/2;
+crystal.position.x = CRYSTAL_X;
+crystal.castShadow = true;
+scene.add(crystal);
+const lattice = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.0,1.0,.22,10,3),
+  new THREE.MeshBasicMaterial({color:0x2ee8d8, wireframe:true, transparent:true, opacity:.7})
+);
+lattice.rotation.z = Math.PI/2;
+lattice.position.x = CRYSTAL_X;
+scene.add(lattice);
+/* 电子-晶体作用点：白热光斑 + 光晕 */
+const hotCore = new THREE.Mesh(new THREE.SphereGeometry(.13,16,16),
+  new THREE.MeshStandardMaterial({color:0xfff2d0, emissive:0xffc060, emissiveIntensity:3}));
+hotCore.position.x = CRYSTAL_X;
+scene.add(hotCore);
+const hotLight = new THREE.PointLight(0xffb050, 2.2, 8);
+hotLight.position.x = CRYSTAL_X;
+scene.add(hotLight);
+
+/* 荧光屏（深色面板）+ 边框 */
+const screenPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(HALF*2, HALF*2),
+  new THREE.MeshStandardMaterial({color:0x111827, roughness:.5, metalness:.1})
+);
+screenPlane.rotation.y = -Math.PI/2;
+screenPlane.position.x = SCREEN_X;
+scene.add(screenPlane);
+{
+  const frame = new THREE.Mesh(
+    new THREE.BoxGeometry(.3, HALF*2+.5, HALF*2+.5),
+    new THREE.MeshStandardMaterial({color:0x54687e, metalness:.8, roughness:.35,
+      emissive:0x00e5ff, emissiveIntensity:.35})
+  );
+  frame.position.x = SCREEN_X+.12;
+  frame.castShadow = true;
+  scene.add(frame);
+  const stand = new THREE.Mesh(
+    new THREE.CylinderGeometry(.14,.2,2.2,20),
+    new THREE.MeshStandardMaterial({color:0x8fa3b8, metalness:.85, roughness:.3,
+      emissive:0x16293e, emissiveIntensity:.4})
+  );
+  stand.position.set(SCREEN_X+.12,-1.2,0);
+  stand.castShadow = true;
+  scene.add(stand);
+}
+
+/* 束流参考虚线 */
+{
+  const g = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(GUN_TIP,0,0), new THREE.Vector3(SCREEN_X,0,0)]);
+  const m = new THREE.LineDashedMaterial({color:0x3fd4ff, dashSize:.25, gapSize:.2, transparent:true, opacity:.8});
+  const line = new THREE.Line(g,m); line.computeLineDistances();
+  scene.add(line);
+}
+
+/* 体积光束：枪→晶体为琥珀色（热），晶体→屏为青色扩散锥 */
+{
+  const len1 = CRYSTAL_X - GUN_TIP;
+  const beam1 = new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,len1,12),
+    new THREE.MeshBasicMaterial({color:0xffa040, transparent:true, opacity:.35,
+      blending:THREE.AdditiveBlending, depthWrite:false}));
+  beam1.rotation.z = Math.PI/2;
+  beam1.position.x = (GUN_TIP+CRYSTAL_X)/2;
+  const beam1Glow = new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,len1,12),
+    new THREE.MeshBasicMaterial({color:0xff8c2a, transparent:true, opacity:.12,
+      blending:THREE.AdditiveBlending, depthWrite:false}));
+  beam1Glow.rotation.z = Math.PI/2;
+  beam1Glow.position.x = beam1.position.x;
+  const len2 = SCREEN_X - CRYSTAL_X;
+  const beam2 = new THREE.Mesh(new THREE.CylinderGeometry(.06, 1.7, len2, 24, 1, true),
+    new THREE.MeshBasicMaterial({color:0x35e0ff, transparent:true, opacity:.06,
+      blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+  beam2.rotation.z = -Math.PI/2;
+  beam2.position.x = (CRYSTAL_X+SCREEN_X)/2;
+  scene.add(beam1, beam1Glow, beam2);
+}
+
+/* ================= 3D 命中点（累积光点） ================= */
+const MAXHITS = 30000;
+const hitPos = new Float32Array(MAXHITS*3);
+let hitN = 0;
+const hitGeo = new THREE.BufferGeometry();
+hitGeo.setAttribute('position', new THREE.BufferAttribute(hitPos,3));
+hitGeo.setDrawRange(0,0);
+const hitMat = new THREE.PointsMaterial({color:0x8dfcff, size:.11, sizeAttenuation:true,
+  transparent:true, opacity:.95, blending:THREE.AdditiveBlending, depthWrite:false});
+const hitPoints = new THREE.Points(hitGeo,hitMat);
+hitPoints.position.x = SCREEN_X+.02;
+scene.add(hitPoints);
+
+function addHit3D(fy, fz, isBall){
+  if(hitN>=MAXHITS) return;
+  hitPos[hitN*3]=0; hitPos[hitN*3+1]=fy*HALF; hitPos[hitN*3+2]=fz*HALF;
+  hitN++;
+  hitGeo.setDrawRange(0,hitN);
+  hitGeo.attributes.position.needsUpdate = true;
+  if(isBall){ // 小球用暖色点：切换材质颜色由整体模式决定，这里单点不做区分
+  }
+}
+
+/* ================= 电子/小球在飞对象 ================= */
+const eGeo = new THREE.SphereGeometry(.07,12,12);
+const eMat = new THREE.MeshBasicMaterial({color:0x9ff3ff});
+const ballGeo = new THREE.SphereGeometry(.16,14,14);
+const ballMat = new THREE.MeshStandardMaterial({color:0xc98a55, roughness:.6, metalness:.1});
+const glowTex = makeGlowTexture();
+function makeGlowTexture(){
+  const c=document.createElement('canvas'); c.width=c.height=64;
+  const g=c.getContext('2d');
+  const gr=g.createRadialGradient(32,32,0,32,32,32);
+  gr.addColorStop(0,'rgba(140,240,255,.9)'); gr.addColorStop(.4,'rgba(90,200,255,.35)'); gr.addColorStop(1,'rgba(90,200,255,0)');
+  g.fillStyle=gr; g.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c);
+}
+const flights = [];
+/* 发光轨迹线：随电子移动，加色混合 + 泛光，非常醒目 */
+const TRAIL_N = 26;
+function makeTrail(color){
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TRAIL_N*3),3));
+  geo.setDrawRange(0,0);
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({color, transparent:true,
+    opacity:.9, blending:THREE.AdditiveBlending, depthWrite:false}));
+  line.frustumCulled = false;
+  scene.add(line);
+  return line;
+}
+function pushTrail(f){
+  const attr = f.trail.geometry.attributes.position, arr = attr.array;
+  for(let i=(TRAIL_N-1)*3;i>2;i-=3){ arr[i]=arr[i-3]; arr[i+1]=arr[i-2]; arr[i+2]=arr[i-1]; }
+  arr[0]=f.grp.position.x; arr[1]=f.grp.position.y; arr[2]=f.grp.position.z;
+  f.trailCount = Math.min((f.trailCount||1)+1, TRAIL_N);
+  f.trail.geometry.setDrawRange(0, f.trailCount);
+  attr.needsUpdate = true;
+}
+function spawn(){
+  if(flights.length>=320) return;
+  const isBall = mode==='ball';
+  const grp = new THREE.Group();
+  const core = new THREE.Mesh(isBall?ballGeo:eGeo, isBall?ballMat:eMat);
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, transparent:true, opacity:.9, depthWrite:false}));
+  glow.scale.setScalar(isBall?.7:.8);
+  grp.add(core,glow);
+  grp.position.set(GUN_TIP,0,0);
+  scene.add(grp);
+  flights.push({grp, x:GUN_TIP, isBall, target:null, switched:false,
+    trail:makeTrail(isBall?0xffb37a:0xffa040), trailCount:0});
+}
+
+/* ================= 物理抽样 ================= */
+/* λ = 1.226/√V nm；环半径 ∝ λ。默认 V=1000 时标定环位置 */
+function lambdaNm(V){ return 1.226/Math.sqrt(V); }
+function lambdaScale(){ return lambdaNm(state.V)/lambdaNm(1000); }
+const RINGS = [
+  {r:.34, w:.34, s:.030},
+  {r:.53, w:.28, s:.032},
+  {r:.71, w:.20, s:.034},
+  {r:.88, w:.10, s:.036},
+];
+function gauss(){ // Box-Muller
+  let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function sampleHit(){
+  if(mode==='ball'){ // 宏观小球：只打在中心小圆斑内，无衍射
+    const a=Math.random()*Math.PI*2, r=.11*Math.sqrt(Math.random());
+    return {y: r*Math.cos(a), z: r*Math.sin(a)};
+  }
+  const lam = lambdaScale();
+  // 中心透射斑 + 各级衍射环，按权重抽取
+  const comps = [{r:0, w:.24, s:.045, center:true}, ...RINGS];
+  const totW = comps.reduce((s,c)=>s+c.w,0);
+  let pick = Math.random()*totW, c = comps[0];
+  for(const cc of comps){ pick -= cc.w; if(pick<=0){ c=cc; break; } }
+  let fy,fz;
+  if(c.center){
+    fy = gauss()*c.s; fz = gauss()*c.s;
+    const r = Math.hypot(fy,fz); if(r>.14){ fy*=.14/r; fz*=.14/r; }
+  }else{
+    const a = Math.random()*Math.PI*2;
+    const r = Math.min(.88, c.r*lam + gauss()*c.s); // 钳制在屏内，避免低电压时出界
+    fy = r*Math.cos(a); fz = r*Math.sin(a);
+  }
+  return {y:fy, z:fz};
+}
+
+/* ================= 右侧 2D 面板 ================= */
+const wrap = document.getElementById('screenWrap');
+const dotsC = document.getElementById('dotsCanvas');
+const guideC = document.getElementById('guideCanvas');
+const dotsCtx = dotsC.getContext('2d');
+const guideCtx = guideC.getContext('2d');
+let panelR = 100, pcx=0, pcy=0, dpr=1;
+const hit2D = [];   // {fy,fz,ball}
+
+function sizePanel(){
+  dpr = Math.min(devicePixelRatio,2);
+  const w = wrap.clientWidth;
+  dotsC.width = guideC.width = w*dpr;
+  dotsC.height = guideC.height = w*dpr;
+  pcx = w*dpr/2; pcy = w*dpr/2;
+  panelR = w*dpr*.46;
+  redrawDots(); drawGuides();
+}
+function redrawDots(){
+  dotsCtx.clearRect(0,0,dotsC.width,dotsC.height);
+  for(const h of hit2D) drawDot2D(h);
+}
+function drawDot2D(h){
+  const x = pcx + h.fz*panelR, y = pcy - h.fy*panelR;
+  dotsCtx.save();
+  if(h.ball){
+    dotsCtx.shadowColor='#ff8a3c'; dotsCtx.shadowBlur=7*dpr;
+    dotsCtx.fillStyle='#ffd9b0';
+    dotsCtx.beginPath(); dotsCtx.arc(x,y,2.6*dpr,0,7); dotsCtx.fill();
+  }else{
+    dotsCtx.shadowColor='#57e6ff'; dotsCtx.shadowBlur=6*dpr;
+    dotsCtx.fillStyle='#c9fbff';
+    dotsCtx.beginPath(); dotsCtx.arc(x,y,1.7*dpr,0,7); dotsCtx.fill();
+  }
+  dotsCtx.restore();
+}
+function drawGuides(){
+  guideCtx.clearRect(0,0,guideC.width,guideC.height);
+  const g=guideCtx, lam=lambdaScale();
+  // 屏幕外圈
+  g.strokeStyle='rgba(110,150,200,.4)'; g.lineWidth=1.5*dpr;
+  g.beginPath(); g.arc(pcx,pcy,panelR+4*dpr,0,7); g.stroke();
+  if(mode==='electron'){
+    g.setLineDash([5*dpr,5*dpr]);
+    g.strokeStyle='rgba(110,168,255,.5)';
+    for(const ring of RINGS){
+      const r = ring.r*lam*panelR;
+      if(r>panelR*.96) continue; // 环超出屏幕则不绘制
+      g.beginPath(); g.arc(pcx,pcy,r,0,7); g.stroke();
+    }
+    g.setLineDash([]);
+  }
+  // 中心标记
+  g.strokeStyle='rgba(140,180,220,.5)';
+  g.beginPath(); g.moveTo(pcx-6*dpr,pcy); g.lineTo(pcx+6*dpr,pcy);
+  g.moveTo(pcx,pcy-6*dpr); g.lineTo(pcx,pcy+6*dpr); g.stroke();
+}
+
+/* ================= 状态与控制 ================= */
+const state = { V:1000, rate:40, continuous:false, acc:0 };
+let mode = 'electron';
+const $ = id=>document.getElementById(id);
+const toast = (msg)=>{ const t=$('toast'); t.textContent=msg; t.style.opacity=1;
+  clearTimeout(toast._h); toast._h=setTimeout(()=>t.style.opacity=0,1600); };
+
+function setMode(m){
+  mode = m;
+  $('btnE').classList.toggle('active', m==='electron');
+  $('btnBall').classList.toggle('active', m==='ball');
+  $('modeBadge').textContent = m==='electron' ? '模式：电子（出现衍射）' : '模式：宏观小球（无衍射）';
+  $('stHint').textContent = m==='electron'
+    ? '单个电子落点是随机的（粒子性）；大量电子累积后呈现衍射环（波动性）。'
+    : '宏观小球只打在中心小区域，永远不会出现衍射环 —— 衍射是波动性的标志。';
+  clearScreen(); // 模式切换清屏对比
+}
+function clearScreen(){
+  hitN = 0; hitGeo.setDrawRange(0,0);
+  hit2D.length = 0; redrawDots(); drawGuides();
+  $('stCount').textContent = 0;
+}
+$('btnOne').onclick = ()=>spawn();
+$('btnClear').onclick = ()=>{ clearScreen(); toast('屏幕已清空'); };
+$('btnCont').onclick = ()=>{
+  state.continuous = !state.continuous;
+  $('btnCont').classList.toggle('on', state.continuous);
+  $('btnCont').textContent = state.continuous ? '⏸ 暂停发射' : '▶ 连续发射';
+};
+$('btnE').onclick = ()=>setMode('electron');
+$('btnBall').onclick = ()=>setMode('ball');
+$('rngRate').oninput = e=>{ state.rate=+e.target.value; $('rateVal').textContent=state.rate+'/s'; };
+$('rngV').oninput = e=>{
+  state.V=+e.target.value;
+  $('vVal').textContent = state.V+'V';
+  $('stV').textContent = state.V;
+  $('stLam').textContent = lambdaNm(state.V).toFixed(4)+' nm';
+  drawGuides(); // 理论环随之缩放（已有命中点保留，可观察环半径变化）
+};
+$('stLam').textContent = lambdaNm(1000).toFixed(4)+' nm';
+
+/* ================= 标签投影 ================= */
+const tags = {
+  gun:      {el:$('tagGun'),      pos:new THREE.Vector3(-8.6, 1.0, 0)},
+  crystal:  {el:$('tagCrystal'),  pos:new THREE.Vector3(0, 1.35, 0)},
+  screen:   {el:$('tagScreen'),   pos:new THREE.Vector3(SCREEN_X, HALF+.4, 0)},
+  ring:     {el:$('tagRing'),     pos:new THREE.Vector3()},
+  electron: {el:$('tagElectron'), pos:new THREE.Vector3()},
+};
+const _v = new THREE.Vector3();
+function updateTags(){
+  const w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight;
+  const place = (t)=>{
+    _v.copy(t.pos).project(camera);
+    if(_v.z>1){ t.el.style.opacity=0; return; }
+    t.el.classList.remove('hidden');
+    t.el.style.left = ((_v.x*.5+.5)*w)+'px';
+    t.el.style.top  = ((-_v.y*.5+.5)*h)+'px';
+  };
+  place(tags.gun); place(tags.crystal); place(tags.screen);
+  // 衍射环标签：指到第一环上的一个点（仅电子模式且已有命中）
+  if(mode==='electron' && hit2D.length>40){
+    const r = Math.min(.88*HALF, RINGS[0].r*lambdaScale()*HALF);
+    tags.ring.pos.set(SCREEN_X, 0, r);
+    place(tags.ring);
+  } else tags.ring.el.classList.add('hidden');
+  // 电子标签：跟随一颗在飞的电子
+  if(flights.length && !flights[0].isBall){
+    tags.electron.pos.copy(flights[0].grp.position).add(new THREE.Vector3(0,.25,0));
+    place(tags.electron);
+  } else tags.electron.el.classList.add('hidden');
+}
+
+/* ================= 主循环 ================= */
+const clock = new THREE.Clock();
+function tick(){
+  requestAnimationFrame(tick);
+  const dt = Math.min(clock.getDelta(), .05);
+
+  // 连续发射（逐颗、按速率）
+  if(state.continuous){
+    state.acc += dt*state.rate;
+    while(state.acc>=1){ state.acc--; spawn(); }
+  }
+
+  // 电子飞行：x<0 直线前进；过晶体后偏转向目标命中点
+  const SPD = 6.5;
+  for(let i=flights.length-1;i>=0;i--){
+    const f = flights[i];
+    f.x += SPD*dt;
+    if(!f.target && f.x>=CRYSTAL_X) f.target = sampleHit();
+    if(f.x <= CRYSTAL_X){
+      f.grp.position.set(f.x,0,0);
+    }else{
+      const t = Math.min(1,(f.x-CRYSTAL_X)/(SCREEN_X-CRYSTAL_X));
+      f.grp.position.set(
+        CRYSTAL_X + (SCREEN_X-CRYSTAL_X)*t,
+        f.target.y*HALF*t,
+        f.target.z*HALF*t
+      );
+      if(!f.switched){ // 过晶体后轨迹变青色（被衍射）
+        f.switched = true;
+        f.trail.material.color.set(f.isBall?0xffb37a:0x66f0ff);
+      }
+    }
+    pushTrail(f);
+    if(f.x>=SCREEN_X){
+      scene.remove(f.grp);
+      scene.remove(f.trail);
+      f.trail.geometry.dispose(); f.trail.material.dispose();
+      flights.splice(i,1);
+      // 命中：3D 光点 + 2D 面板
+      addHit3D(f.target.y, f.target.z, f.isBall);
+      const h = {fy:f.target.y, fz:f.target.z, ball:f.isBall};
+      hit2D.push(h); drawDot2D(h);
+      $('stCount').textContent = hit2D.length;
+      if(hit2D.length===MAXHITS) toast('已达命中点上限，请清空屏幕');
+    }
+  }
+  $('stFly').textContent = flights.length;
+
+  controls.update();
+  composer.render();
+  updateTags();
+}
+
+/* ================= 自适应 ================= */
+function onResize(){
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+  composer.setSize(innerWidth,innerHeight);
+  sizePanel();
+}
+addEventListener('resize', onResize);
+
+sizePanel();
+tick();
+</script>
+</body>
+</html>

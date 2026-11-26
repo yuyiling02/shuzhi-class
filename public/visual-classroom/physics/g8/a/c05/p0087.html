@@ -1,924 +1,860 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-page-node-id="Dv6tmq9dVhBDfcKwDHn193"><head data-page-node-id="qvnuhNhmtecSFPicDjRdKF">
-<meta charset="UTF-8" data-page-node-id="EZFoaruITGWQJCl3hSxNBl">
-<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="uSkK9qOrLO7APTQ9luUwmS">
-<title>液化 · 升华与凝华 · 六种物态变化关系</title>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>物态变化 · 分子可视化实验室</title>
 <style>
-:root{
-  --blue:#2563EB; --blue-d:#1D4ED8; --blue-l:#EFF4FF;
-  --cyan:#0891B2;
-  --green:#10B981;
-  --amber:#F59E0B;
-  --red:#EF4444;
-  --ink:#1F2937; --ink-2:#4B5563; --ink-3:#6B7280;
-  --line:#E5E7EB; --bg:#F5F7FB; --card:#FFFFFF;
-  --radius:14px;
-  --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;
-}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:#06101f;font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  #scene{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 
-/* ---------- header ---------- */
-.site-header{background:linear-gradient(120deg,#1D4ED8,#2563EB 55%,#3B82F6);color:#fff;padding:22px 0 24px;}
-.header-inner{max-width:1180px;margin:0 auto;padding:0 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;}
-.header-text h1{margin:0;font-size:24px;font-weight:700;letter-spacing:.5px;}
-.header-text p{margin:6px 0 0;font-size:13.5px;color:rgba(255,255,255,.86);}
-.header-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.header-link{
-  border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:7px 16px;font-size:13px;
-  color:#fff;text-decoration:none;background:rgba(255,255,255,.08);white-space:nowrap;transition:.16s;
-}
-.header-link:hover{background:rgba(255,255,255,.2);}
-.header-badge{border-radius:999px;padding:7px 14px;font-size:12.5px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);white-space:nowrap;}
+  .title{position:fixed;top:24px;left:28px;z-index:10;pointer-events:none}
+  .title .main{display:flex;align-items:center;gap:10px;color:#dff1ff;font-size:17px;font-weight:600;letter-spacing:1.2px;text-shadow:0 0 24px rgba(60,180,255,.5)}
+  .title .gem{width:11px;height:11px;transform:rotate(45deg);background:linear-gradient(135deg,#7fe9ff,#1d8fe0);box-shadow:0 0 16px #35c6ff;border-radius:2px}
+  .title .sub{margin-top:7px;padding-left:21px;color:#6f9fc4;font-size:11px;letter-spacing:2.5px}
 
-/* ---------- layout ---------- */
-.wrap{max-width:1180px;margin:0 auto;padding:22px 22px 30px;}
-.card{
-  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-  padding:22px 24px;border:1px solid rgba(229,231,235,.7);margin-bottom:20px;
-}
-.chead{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-.idx{
-  flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:#E3ECFF;color:var(--blue);
-  font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center;margin-top:2px;
-}
-.chead .htxt{min-width:0;flex:1;}
-.chead h2{margin:0;font-size:18.5px;font-weight:700;letter-spacing:.3px;}
-.card h3{margin:0 0 10px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
-.card h3 i{width:5px;height:14px;border-radius:3px;display:inline-block;}
+  .dock{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:12;display:flex;align-items:center;gap:12px}
+  .tabs{display:flex;gap:8px;padding:7px;border-radius:18px;background:rgba(9,24,44,.66);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(80,180,240,.22);box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(140,210,255,.12)}
+  .tabs button{position:relative;border:0;background:transparent;color:#8fb4d0;font-size:14px;letter-spacing:2px;font-family:inherit;padding:11px 30px;border-radius:12px;cursor:pointer;transition:all .3s cubic-bezier(.2,.8,.2,1)}
+  .tabs button:hover{color:#cfeeff;background:rgba(60,160,230,.1)}
+  .tabs button.active{color:#eafaff;background:linear-gradient(135deg,rgba(46,180,255,.9),rgba(24,110,200,.9));box-shadow:0 0 22px rgba(50,180,255,.55),inset 0 1px 0 rgba(190,235,255,.5);font-weight:600}
 
-.grid2{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(320px,.94fr);gap:20px;align-items:start;}
-@media(max-width:940px){.grid2{grid-template-columns:minmax(0,1fr);}}
-.grid-h{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start;}
-@media(max-width:940px){.grid-h{grid-template-columns:minmax(0,1fr);}}
+  .playbtn{display:flex;align-items:center;justify-content:center;gap:9px;min-width:152px;border:1px solid rgba(90,205,255,.42);border-radius:16px;padding:13px 20px;background:linear-gradient(135deg,rgba(24,96,158,.82),rgba(14,52,96,.86));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#eafaff;font-family:inherit;font-size:13px;letter-spacing:1px;cursor:pointer;transition:all .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 20px rgba(50,180,255,.28),0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(160,225,255,.28);white-space:nowrap;user-select:none}
+  .playbtn:hover{color:#fff;border-color:rgba(120,225,255,.85);box-shadow:0 0 30px rgba(60,190,255,.5),0 10px 40px rgba(0,0,0,.45)}
+  .playbtn:active{transform:scale(.96)}
+  .playbtn .pico{flex:none;filter:drop-shadow(0 0 5px currentColor)}
+  .playbtn .pico-play{display:none}
+  .playbtn.paused .pico-pause{display:none}
+  .playbtn.paused .pico-play{display:block}
+  .playbtn.paused{background:linear-gradient(135deg,rgba(150,88,26,.82),rgba(92,48,16,.88));border-color:rgba(255,168,84,.5);color:#ffe0bd;box-shadow:0 0 18px rgba(255,150,60,.24),0 10px 40px rgba(0,0,0,.45)}
+  .playbtn.paused:hover{border-color:rgba(255,190,110,.9);box-shadow:0 0 28px rgba(255,160,70,.45),0 10px 40px rgba(0,0,0,.45)}
 
-svg{display:block;width:100%;height:auto;}
-.stage{background:#F8FAFC;border:1px solid var(--line);border-radius:12px;padding:4px;}
+  .sndbtn{width:48px;height:48px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid rgba(80,180,240,.3);border-radius:14px;background:rgba(9,24,44,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#7fa8c6;cursor:pointer;transition:all .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(140,210,255,.12);user-select:none}
+  .sndbtn:hover{color:#cfeeff;border-color:rgba(90,205,255,.65)}
+  .sndbtn:active{transform:scale(.94)}
+  .sndbtn.on{color:#8fe9ff;border-color:rgba(90,205,255,.5);background:rgba(20,70,110,.7);box-shadow:0 0 18px rgba(60,190,255,.3),0 10px 40px rgba(0,0,0,.45)}
+  .sndbtn .ico-off{display:none}
+  .sndbtn.off .ico-on{display:none}
+  .sndbtn.off .ico-off{display:block}
 
-/* ---------- 通用控件 ---------- */
-.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
-.seg button{
-  border:none;background:#fff;padding:8px 14px;font-size:13px;cursor:pointer;
-  font-family:inherit;color:var(--ink-2);border-right:1px solid var(--line);transition:.16s;white-space:nowrap;
-}
-.seg button:last-child{border-right:none;}
-.seg button:hover{background:#F8FAFC;}
-.seg button.active{background:#EFF4FF;color:var(--blue-d);font-weight:700;}
+  .tag{position:absolute;left:0;top:0;z-index:8;display:flex;align-items:center;gap:7px;padding:6px 10px 6px 8px;border-radius:9px;background:rgba(8,22,42,.72);border:1px solid rgba(90,180,235,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#d3ebff;font-size:11px;letter-spacing:.5px;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.4);pointer-events:none;will-change:transform}
+  .tag .ico{width:14px;height:14px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:9px;color:#06101f;font-weight:700}
+  .ico.vapor{background:radial-gradient(circle at 35% 30%,#dff8ff,#4fc9ff);box-shadow:0 0 10px #4fc9ff}
+  .ico.liquid{background:radial-gradient(circle at 35% 30%,#bfe6ff,#2f8fe0);box-shadow:0 0 10px #2f8fe0}
+  .ico.solid{background:radial-gradient(circle at 35% 30%,#d9b6ff,#7b3fd6);box-shadow:0 0 10px #8b4fe0}
+  .ico.gas2{background:radial-gradient(circle at 35% 30%,#f0c8ff,#b15cf0);box-shadow:0 0 10px #b15cf0}
+  .ico.cold{background:radial-gradient(circle at 35% 30%,#eaffff,#57d8e8);box-shadow:0 0 10px #57d8e8}
+  .ico.gear{background:linear-gradient(135deg,#8fa9bd,#5b7387)}
 
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.btn{
-  border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:9px;
-  padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit;transition:.16s;
-}
-.btn:hover{background:var(--blue-l);}
-.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
-.btn.primary:hover{background:var(--blue-d);}
+  .hint{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);color:#4f7796;font-size:11px;letter-spacing:1.5px;z-index:9;pointer-events:none;transition:opacity 1s}
 
-.ctl{margin-bottom:14px;}
-.ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink-3);margin-bottom:4px;}
-.ctl label b{color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums;font-weight:700;}
-input[type=range]{
-  width:100%;height:24px;accent-color:var(--blue);cursor:pointer;background:transparent;margin:0;
-}
+  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#06101f;color:#7fb6d8;font-size:13px;letter-spacing:2px;z-index:30;transition:opacity .6s}
+  #loading.hide{opacity:0;pointer-events:none}
+  .spinner{width:34px;height:34px;border-radius:50%;border:3px solid rgba(70,190,255,.16);border-top-color:#4fc9ff;animation:spin .9s linear infinite;box-shadow:0 0 20px rgba(70,190,255,.3)}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-.chip{
-  display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 13px;
-  font-size:12.5px;font-weight:700;background:#F1F5F9;color:var(--ink-2);transition:.2s;
-}
-.chip i{width:7px;height:7px;border-radius:50%;background:currentColor;}
-
-/* ---------- ① 关系图 ---------- */
-.legend{display:flex;gap:14px;align-items:center;margin-top:4px;font-size:12.5px;color:var(--ink-3);}
-.legend b{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink-2);}
-.legend b i{width:16px;height:3px;border-radius:2px;display:inline-block;}
-
-.info-top{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:12px;}
-.info-name{font-size:23px;font-weight:800;letter-spacing:1px;}
-.info-path{font-size:13.5px;color:var(--ink-2);}
-.micro{background:#F8FAFC;border:1px solid var(--line);border-radius:12px;padding:4px;}
-.ex-title{font-size:12px;color:var(--ink-3);margin:12px 0 7px;}
-.ex-row{display:flex;gap:8px;flex-wrap:wrap;}
-.ex-chip{
-  background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:6px 11px;
-  font-size:12.5px;color:var(--ink-2);
-}
-
-/* ---------- ② 碘锤读数 ---------- */
-.readout{margin-top:14px;display:flex;flex-direction:column;gap:11px;}
-.ro-row .ro-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink-2);margin-bottom:5px;}
-.ro-row .ro-top b{font-size:13.5px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:800;}
-.track{height:9px;border-radius:5px;background:#EEF2F7;overflow:hidden;}
-.track i{display:block;height:100%;width:0;border-radius:5px;transition:width .1s linear;}
-
-/* ---------- ③ 液化两方式 ---------- */
-.sub-scene{position:relative;}
-.hint{font-size:11.5px;color:var(--ink-3);display:flex;align-items:center;gap:6px;}
-.step{font-size:12.5px;color:var(--ink-2);margin:7px 0 10px;line-height:1.55;}
-.step b{color:var(--blue-d);font-weight:700;}
-.site-footer{text-align:center;padding:6px 0 30px;color:var(--ink-3);font-size:12.5px;}
+  @media(max-width:640px){
+    .title{top:16px;left:16px}.title .main{font-size:14px}.title .sub{font-size:9px}
+    .dock{bottom:16px;gap:8px;max-width:calc(100% - 16px);flex-wrap:wrap;justify-content:center}
+    .tabs{padding:5px;gap:4px}
+    .tabs button{padding:10px 12px;font-size:12px;letter-spacing:1px}
+    .playbtn{min-width:auto;padding:11px 12px;font-size:11px;letter-spacing:0}
+    .sndbtn{width:42px;height:42px}
+    .hint{bottom:92px}
+  }
 </style>
-<style id="__dm_no_drag_style__">* { -webkit-user-drag: none !important; }</style><style id="__dm_bindable_badge_style__">[data-sp-bindable="database"]{outline:1px dashed #0088ff;outline-offset:2px;border-radius:4px;}[data-sp-bindable="database"] *{pointer-events:none !important;transition:none !important;animation:none !important;}[data-sp-bindable="database"]{transition:none !important;animation:none !important;}</style></head>
-<body data-page-node-id="hOYTRaLsNRdSNFGE22SGF7" style="">
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div id="labels"></div>
 
-<header class="site-header" data-page-node-id="qaqCdtvtyw8a6IdPeF4wGa">
-  <div class="header-inner" data-page-node-id="EFTGLa9VW9opIHpOi71LNh">
-    <div class="header-text" data-page-node-id="FGsqr0pNzPaqJc4KPMSirb">
-      <h1 data-page-node-id="Se5x7jpVCAl0E0q0Uk0aS7" style="white-space: pre-wrap;">液化 、升华与凝华​</h1>
-      <p data-page-node-id="nKIYc7vaxjgoXOp7YofsQy">点开三角图上的每一个箭头 · 给碘锤加热再冷却 · 把注射器的活塞推到底</p>
-    </div>
-    <div class="header-nav" data-page-node-id="0uNt5SgPVDK3o5yaec78cY">
-      <a class="header-link" href="#" data-page-node-id="uoeG1K7OqcdpBFAa6fn61C">« 返回实验目录</a>
-      <span class="header-badge" data-page-node-id="fTOPDciBPgEQPun74RQ3d0">人教版八年级上册 · §3.3 汽化和液化、升华和凝华</span>
-    </div>
+  <div class="title">
+    <div class="main"><span class="gem"></span><span>物态变化 · 分子可视化实验室</span></div>
+    <div class="sub">MOLECULAR PHASE TRANSITION LAB</div>
   </div>
-</header>
 
-<div class="wrap" data-page-node-id="GWIS5HUJUQDraUNE4XC4a9">
+  <div class="dock">
+    <nav class="tabs">
+      <button data-key="liq" class="active">液化</button>
+      <button data-key="sub">升华</button>
+      <button data-key="dep">凝华</button>
+    </nav>
+    <button class="playbtn" id="playBtn" type="button" title="开始 / 停止当前实验动画">
+      <svg class="pico pico-pause" width="11" height="12" viewBox="0 0 11 12" aria-hidden="true"><rect x="1" y="1" width="3.2" height="10" rx="1" fill="currentColor"/><rect x="6.8" y="1" width="3.2" height="10" rx="1" fill="currentColor"/></svg>
+      <svg class="pico pico-play" width="11" height="12" viewBox="0 0 11 12" aria-hidden="true"><path d="M1.5 1 L10 6 L1.5 11 Z" fill="currentColor"/></svg>
+      <span id="playTxt">停止凝华</span>
+    </button>
+    <button class="sndbtn on" id="sndBtn" type="button" title="关闭音效" aria-label="音效开关">
+      <svg class="ico-on" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <svg class="ico-off" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+    </button>
+  </div>
+  <div class="hint" id="hint">拖拽旋转 · 滚轮缩放</div>
+  <div id="loading"><div class="spinner"></div><span>正在初始化实验装置…</span></div>
 
-  <!-- ① 六种物态变化 -->
-  <section class="card" data-page-node-id="FgZBLQ3xeC50MCdT7Oh8Ts">
-    <div class="chead" data-page-node-id="6O79xs3WzEJP8BCfsxb8vy">
-      <div class="idx" data-page-node-id="ANP3OamIjWpp9isemGPdpn">01</div>
-      <div class="htxt" data-page-node-id="PSFqIAKwCG0w2eDMeH4nSX"><h2 data-page-node-id="qibrSuaYPcEk9Xvo3dPcFg">六种物态变化的关系</h2></div>
-      <div class="seg" id="filter" data-page-node-id="FV6ylOi80bSlNvLlmcqPXa">
-        <button data-f="all" class="active" data-page-node-id="hnVms6DcJ005uIpdOMCn3g">全部</button>
-        <button data-f="in" data-page-node-id="oncPzT1N6MGysdCQorxDQv">吸热</button>
-        <button data-f="out" data-page-node-id="oD6YXhHvZV2SQEWWqiA5F3">放热</button>
-      </div>
-    </div>
-
-    <div class="grid2" data-page-node-id="Gf9ee0K0JnOGpcEZcThIEL">
-      <div data-page-node-id="LWDCY5Vx9EDPtFmQsAYVRA">
-        <div class="stage" data-page-node-id="aNZGVWuDVufVPLJlDHjq34"><svg id="diag" viewBox="0 0 620 440" aria-label="六种物态变化关系图" data-page-node-id="PAjYVkybphqY0gdG3oS3cG" data-pin="sub"><g><rect x="40" y="69" width="160" height="62" rx="14" fill="#EFF5FF" stroke="#2563EB" stroke-width="1.6"></rect><rect x="62" y="86" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="73" y="86" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="84" y="86" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="62" y="97" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="73" y="97" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="84" y="97" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="62" y="108" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="73" y="108" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><rect x="84" y="108" width="8" height="8" rx="2" fill="#2563EB" opacity="0.85"></rect><text x="102" y="107" font-size="20" font-weight="800" fill="#2563EB" letter-spacing="1">固态</text></g><g><rect x="420" y="69" width="160" height="62" rx="14" fill="#ECFEFF" stroke="#0891B2" stroke-width="1.6"></rect><circle cx="446" cy="88" r="4" fill="#0891B2" opacity="0.85"></circle><circle cx="457" cy="88" r="4" fill="#0891B2" opacity="0.85"></circle><circle cx="468" cy="88" r="4" fill="#0891B2" opacity="0.85"></circle><circle cx="479" cy="88" r="4" fill="#0891B2" opacity="0.85"></circle><circle cx="446" cy="101" r="4" fill="#0891B2" opacity="0.85"></circle><circle cx="457" cy="101" r="4" fill="#0891B2" opacity="0.85"></circle><circle cx="468" cy="101" r="4" fill="#0891B2" opacity="0.85"></circle><text x="482" y="107" font-size="20" font-weight="800" fill="#0891B2" letter-spacing="1">液态</text></g><g><rect x="230" y="329" width="160" height="62" rx="14" fill="#FFF7ED" stroke="#F59E0B" stroke-width="1.6"></rect><circle cx="270.1330441236496" cy="348.67278361320496" r="3.6" fill="#F59E0B" opacity="0.8"></circle><circle cx="274.42255091667175" cy="350.6233253479004" r="3.6" fill="#F59E0B" opacity="0.8"></circle><circle cx="274.60233306884766" cy="347.4938061237335" r="3.6" fill="#F59E0B" opacity="0.8"></circle><circle cx="272.11727643013" cy="350.88464403152466" r="3.6" fill="#F59E0B" opacity="0.8"></circle><circle cx="275.4696545600891" cy="363.7225511074066" r="3.6" fill="#F59E0B" opacity="0.8"></circle><circle cx="277.0310037136078" cy="369.38809180259705" r="3.6" fill="#F59E0B" opacity="0.8"></circle><circle cx="275.79206442832947" cy="346.29623198509216" r="3.6" fill="#F59E0B" opacity="0.8"></circle><text x="292" y="367" font-size="20" font-weight="800" fill="#F59E0B" letter-spacing="1">气态</text></g><g class="arc" data-id="sub" opacity="1" style="cursor:pointer"><path d="M 148.0 138.3 Q 172.4 259.9 280.9 320.1" fill="none" stroke="#EF4444" stroke-width="15" stroke-linecap="round" opacity="0.16" class="halo"></path><path d="M 148.0 138.3 Q 172.4 259.9 280.9 320.1" fill="none" stroke="#EF4444" stroke-width="2.6" stroke-linecap="round"></path><path d="M 280.9 320.1 L 263.4 318.2 L 275.5 309.4 Z" fill="#EF4444" stroke="none"></path><path d="M 148.0 138.3 Q 172.4 259.9 280.9 320.1" fill="none" stroke="none" stroke-width="24" pointer-events="stroke" style="pointer-events:stroke"></path><text x="249.32508430737238" y="265.0501472570093" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none"><tspan font-size="15.5" font-weight="800" fill="#EF4444">升华</tspan><tspan font-size="11.5" font-weight="700" fill="#EF4444" dx="5">吸热</tspan></text></g><g class="arc" data-id="dep" opacity="0.26" style="cursor:pointer"><path d="M 280.9 320.1 Q 256.4 198.5 148.0 138.3" fill="none" stroke="#2563EB" stroke-width="15" stroke-linecap="round" opacity="0" class="halo"></path><path d="M 280.9 320.1 Q 256.4 198.5 148.0 138.3" fill="none" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round"></path><path d="M 148.0 138.3 L 165.4 140.2 L 153.3 149.0 Z" fill="#2563EB" stroke="none"></path><path d="M 280.9 320.1 Q 256.4 198.5 148.0 138.3" fill="none" stroke="none" stroke-width="24" pointer-events="stroke" style="pointer-events:stroke"></path><text x="179.494882513943" y="193.33507049847495" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none"><tspan font-size="15.5" font-weight="800" fill="#2563EB">凝华</tspan><tspan font-size="11.5" font-weight="700" fill="#2563EB" dx="5">放热</tspan></text></g><g class="arc" data-id="melt" opacity="0.26" style="cursor:pointer"><path d="M 209.0 100.0 Q 309.0 48.0 409.0 100.0" fill="none" stroke="#EF4444" stroke-width="15" stroke-linecap="round" opacity="0" class="halo"></path><path d="M 209.0 100.0 Q 309.0 48.0 409.0 100.0" fill="none" stroke="#EF4444" stroke-width="2.6" stroke-linecap="round"></path><path d="M 409.0 100.0 L 397.5 101.5 L 397.5 86.5 Z" fill="#EF4444" stroke="none"></path><path d="M 209.0 100.0 Q 309.0 48.0 409.0 100.0" fill="none" stroke="none" stroke-width="24" pointer-events="stroke" style="pointer-events:stroke"></path><text x="353" y="51.03359999999999" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none"><tspan font-size="15.5" font-weight="800" fill="#EF4444">熔化</tspan><tspan font-size="11.5" font-weight="700" fill="#EF4444" dx="5">吸热</tspan></text></g><g class="arc" data-id="frz" opacity="0.26" style="cursor:pointer"><path d="M 409.0 100.0 Q 309.0 152.0 209.0 100.0" fill="none" stroke="#2563EB" stroke-width="15" stroke-linecap="round" opacity="0" class="halo"></path><path d="M 409.0 100.0 Q 309.0 152.0 209.0 100.0" fill="none" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round"></path><path d="M 209.0 100.0 L 220.5 98.5 L 220.5 113.5 Z" fill="#2563EB" stroke="none"></path><path d="M 409.0 100.0 Q 309.0 152.0 209.0 100.0" fill="none" stroke="none" stroke-width="24" pointer-events="stroke" style="pointer-events:stroke"></path><text x="265" y="148.9664" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none"><tspan font-size="15.5" font-weight="800" fill="#2563EB">凝固</tspan><tspan font-size="11.5" font-weight="700" fill="#2563EB" dx="5">放热</tspan></text></g><g class="arc" data-id="vap" opacity="0.26" style="cursor:pointer"><path d="M 472.0 138.3 Q 447.6 259.9 339.1 320.1" fill="none" stroke="#EF4444" stroke-width="15" stroke-linecap="round" opacity="0" class="halo"></path><path d="M 472.0 138.3 Q 447.6 259.9 339.1 320.1" fill="none" stroke="#EF4444" stroke-width="2.6" stroke-linecap="round"></path><path d="M 339.1 320.1 L 344.5 309.4 L 356.6 318.2 Z" fill="#EF4444" stroke="none"></path><path d="M 472.0 138.3 Q 447.6 259.9 339.1 320.1" fill="none" stroke="none" stroke-width="24" pointer-events="stroke" style="pointer-events:stroke"></path><text x="415.88881853906986" y="298.0910762601787" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none"><tspan font-size="15.5" font-weight="800" fill="#EF4444">汽化</tspan><tspan font-size="11.5" font-weight="700" fill="#EF4444" dx="5">吸热</tspan></text></g><g class="arc" data-id="liq" opacity="0.26" style="cursor:pointer"><path d="M 339.1 320.1 Q 363.6 198.5 472.0 138.3" fill="none" stroke="#2563EB" stroke-width="15" stroke-linecap="round" opacity="0" class="halo"></path><path d="M 339.1 320.1 Q 363.6 198.5 472.0 138.3" fill="none" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round"></path><path d="M 472.0 138.3 L 466.7 149.0 L 454.6 140.2 Z" fill="#2563EB" stroke="none"></path><path d="M 339.1 320.1 Q 363.6 198.5 472.0 138.3" fill="none" stroke="none" stroke-width="24" pointer-events="stroke" style="pointer-events:stroke"></path><text x="395.29121463961474" y="160.29414149530558" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none"><tspan font-size="15.5" font-weight="800" fill="#2563EB">液化</tspan><tspan font-size="11.5" font-weight="700" fill="#2563EB" dx="5">放热</tspan></text></g></svg></div>
-        <div class="legend" data-page-node-id="0R2t1yy0VWugDQKuT4SJFd">
-          <b data-page-node-id="UxEctdDbXfE7w4dFtjLXMV"><i style="background:#EF4444" data-page-node-id="COS4L4fifAaB6iCSI8maVQ"></i>吸热</b>
-          <b data-page-node-id="1qQAsbeR4Woc6EVq20O4iq"><i style="background:#2563EB" data-page-node-id="hAmwGVYS7H1E49dRlGtFgo"></i>放热</b>
-        </div>
-      </div>
-
-      <div data-page-node-id="pmjXtcX2mTBvgPyZYAxKwk">
-        <div class="info-top" data-page-node-id="m4MP3xvaGLHYNvFmyd40oC">
-          <span class="info-name" id="iName" data-page-node-id="p7vZhNcBWxIieR5GbVUAcN" style="color: rgb(239, 68, 68);">升华</span>
-          <span class="info-path" id="iPath" data-page-node-id="gim4F8HhGDiJM6RsuvJ7xO">固态 → 气态</span>
-          <span class="chip" id="iHeat" style="color:#EF4444;background:#FEF2F2" data-page-node-id="Aro1tAn3XYDmqqrEbi8Vso"><i data-page-node-id="vW45tIuU38RTDzxTBtAPAs"></i><span data-page-node-id="8kLrluYTiSggbgp319o5fK">吸热</span></span>
-        </div>
-        <div class="micro" data-page-node-id="1bTK1b1s0p0EnW8WtO1B32"><svg id="micro" viewBox="0 0 380 240" aria-label="微观示意" data-page-node-id="KY0h6oVH9aoyKlGw9Ct9iY"><rect x="20" y="16" width="340" height="208" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6"></rect><circle r="5.4" cx="78.4" cy="119.1" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="110.2" cy="117.9" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="139.8" cy="119.5" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="172.3" cy="122.5" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="199.4" cy="120.6" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="231.3" cy="117.4" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="79.0" cy="147.1" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="111.1" cy="148.1" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="138.7" cy="144.8" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="170.7" cy="145.0" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="199.2" cy="144.1" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="231.3" cy="144.2" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="82.7" cy="174.1" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="110.7" cy="172.8" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="140.3" cy="171.9" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="170.9" cy="172.0" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="197.7" cy="171.2" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="231.7" cy="173.2" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="82.6" cy="200.4" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="110.3" cy="198.9" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="139.9" cy="199.5" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="172.2" cy="197.2" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="197.4" cy="197.2" fill="rgb(37,99,235)"></circle><circle r="5.4" cx="229.8" cy="196.5" fill="rgb(37,99,235)"></circle></svg></div>
-        <div class="ex-title" data-page-node-id="mitbpKZHOfOOt6K4F04uZd">生活里的它</div>
-        <div class="ex-row" id="iEx" data-page-node-id="E6F9o1B9jJztm1WpXKDsAx"><span class="ex-chip">樟脑丸变小</span><span class="ex-chip">干冰直接消失</span><span class="ex-chip">冻硬的衣服也会干</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ② 碘锤 -->
-  <section class="card" data-page-node-id="gZuBzAP6VTsxX9tbtCFNf3">
-    <div class="chead" data-page-node-id="mRl3CLFceKnZoEl02EViFO">
-      <div class="idx" data-page-node-id="mc33rDQExC25toOejLDxPn">02</div>
-      <div class="htxt" data-page-node-id="HbUA46uGfln7FJAirFc390"><h2 data-page-node-id="4q4dXj4CgDflstb3cLcsFN">碘锤 · 升华与凝华</h2></div>
-    </div>
-
-    <div class="grid2" data-page-node-id="vVwCB9P1btebnaH1QO2TVY">
-      <div class="stage" data-page-node-id="vXrHmnNBQHTsIL9fWB51YO"><svg id="iode" viewBox="0 0 620 440" aria-label="碘锤升华凝华实验" data-page-node-id="BAH3oulA8pPtdW07AgkUUY"><defs><clipPath id="iodClip"><path d="M 272 180 L 272 50 Q 272 34 300 34 Q 328 34 328 50 L 328 180 A 76 76 0 1 1 272 180 Z"></path></clipPath><radialGradient id="iodGlow" cx="50%" cy="62%" r="62%"><stop offset="0%" stop-color="#A855F7" stop-opacity="0.85"></stop><stop offset="100%" stop-color="#6D28D9" stop-opacity="0.55"></stop></radialGradient></defs><g><path d="M 300 300 C 319 326 328 348 321 361 C 317 371 307 376 300 376 C 293 376 283 371 279 361 C 272 348 281 326 300 300 Z" fill="#F59E0B" opacity="0" transform="translate(300 376) scale(0.500) translate(-300 -376)"></path><path d="M 300 330 C 311 346 314 358 309 368 C 306 373 297 373 294 368 C 289 358 294 346 300 336 Z" fill="#FEF3C7" opacity="0" transform="translate(300 376) scale(0.340) translate(-300 -376)"></path><rect x="289" y="374" width="22" height="14" rx="3" fill="#64748B"></rect><path d="M 268 436 L 268 400 Q 268 388 282 388 L 318 388 Q 332 388 332 400 L 332 436 Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"></path><path d="M 276 436 L 276 412 Q 300 407 324 412 L 324 436 Z" fill="#FFEDD5"></path><text x="344" y="428" font-size="13" fill="#64748B">酒精灯</text></g><path d="M 272 180 L 272 50 Q 272 34 300 34 Q 328 34 328 50 L 328 180 A 76 76 0 1 1 272 180 Z" fill="#FFFFFF"></path><g clip-path="url(#iodClip)"><rect x="200" y="20" width="200" height="340" fill="url(#iodGlow)" opacity="0.000"></rect><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><circle r="4.2" fill="#E9D5FF" stroke="#C084FC" stroke-width="0.9" opacity="0"></circle><rect x="219.4372148513794" y="277.5032126903534" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-28.972352743148804 223.9372148513794 282.0032126903534)"></rect><rect x="249.30849504470825" y="280.50691843032837" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(24.4180691242218 253.80849504470825 285.00691843032837)"></rect><rect x="269.28514671325684" y="279.98045587539673" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-1.3729548454284668 273.78514671325684 284.48045587539673)"></rect><rect x="294.33206272125244" y="281.523725271225" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(17.373411655426025 298.83206272125244 286.023725271225)"></rect><rect x="321.249942779541" y="277.3259229660034" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(19.423649311065674 325.749942779541 281.8259229660034)"></rect><rect x="345.40723037719727" y="277.2971489429474" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-11.704938411712646 349.90723037719727 281.7971489429474)"></rect><rect x="374.2708158493042" y="280.9200415611267" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(20.88935136795044 378.7708158493042 285.4200415611267)"></rect><rect x="228.81594276428223" y="294.1996932029724" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-7.304742336273193 233.31594276428223 298.6996932029724)"></rect><rect x="255.66916418075562" y="298.2788521051407" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-8.87404203414917 260.1691641807556 302.7788521051407)"></rect><rect x="285.9974994659424" y="293.5351176261902" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(10.545923709869385 290.4974994659424 298.0351176261902)"></rect><rect x="311.3254871368408" y="294.4498839378357" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(6.448166370391846 315.8254871368408 298.9498839378357)"></rect><rect x="329.0098056793213" y="295.1629048585892" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-7.975938320159912 333.5098056793213 299.6629048585892)"></rect><rect x="359.4170069694519" y="296.1711039543152" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-29.475810527801514 363.9170069694519 300.6711039543152)"></rect><rect x="381.9221668243408" y="297.69503355026245" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-16.160123348236084 386.4221668243408 302.19503355026245)"></rect><rect x="217.50149726867676" y="312.60803174972534" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-9.274470806121826 222.00149726867676 317.10803174972534)"></rect><rect x="243.1767659187317" y="313.96267211437225" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-3.8625311851501465 247.6767659187317 318.46267211437225)"></rect><rect x="275.4601364135742" y="313.9941158294678" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-27.10076093673706 279.9601364135742 318.4941158294678)"></rect><rect x="294.6513900756836" y="312.3439464569092" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(-24.789483547210693 299.1513900756836 316.8439464569092)"></rect><rect x="317.71739959716797" y="311.79881858825684" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(3.215693235397339 322.21739959716797 316.29881858825684)"></rect><rect x="344.218994140625" y="310.68405532836914" width="9" height="9" rx="2" fill="#1F2937" opacity="1" transform="rotate(8.504676818847656 348.718994140625 315.18405532836914)"></rect><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(238.4 236.9) rotate(33.39683532714844)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(243.9 221.4) rotate(38.263206481933594)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(253.2 207.8) rotate(15.396881103515625)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(265.7 197.2) rotate(3.1822586059570312)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.5 190.1) rotate(5.2063751220703125)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(319.5 190.1) rotate(31.632696390151978)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(334.3 197.2) rotate(6.9895219802856445)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(346.8 207.8) rotate(20.50814151763916)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(356.1 221.4) rotate(24.571616649627686)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(361.6 236.9) rotate(7.160317897796631)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 62.0) rotate(19.26527738571167)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 62.0) rotate(47.52593994140625)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 86.0) rotate(58.296546936035156)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 86.0) rotate(14.773178100585938)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 110.0) rotate(51.097068786621094)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 110.0) rotate(40.850372314453125)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 134.0) rotate(12.925300598144531)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 134.0) rotate(16.260452270507812)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 158.0) rotate(24.33960199356079)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 158.0) rotate(57.12706804275513)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 172.0) rotate(7.332937717437744)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 172.0) rotate(21.828396320343018)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(280.0 178.0) rotate(6.6397905349731445)"></path><path d="M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z" fill="#0F766E" opacity="0" transform="translate(320.0 178.0) rotate(18.94991397857666)"></path></g><path d="M 272 180 L 272 50 Q 272 34 300 34 Q 328 34 328 50 L 328 180 A 76 76 0 1 1 272 180 Z" fill="none" stroke="#94A3B8" stroke-width="3"></path><path d="M 285 60 Q 280 120 280 175" fill="none" stroke="#FFFFFF" stroke-width="5" opacity="0.8"></path><path d="M 240 232 Q 232 250 240 268" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.7"></path><text x="352" y="120" font-size="13" fill="#7C3AED" font-weight="700">紫红色碘蒸气</text><path d="M 344 116 L 322 108" stroke="#A78BFA" stroke-width="1.4" fill="none"></path><text x="352" y="318" font-size="13" fill="#334155" font-weight="700">碘晶体</text><path d="M 348 314 L 330 310" stroke="#94A3B8" stroke-width="1.4" fill="none"></path><text x="120" y="70" font-size="13" fill="#0F766E" font-weight="700">壁上凝华出的碘晶体</text><path d="M 208 74 L 268 66" stroke="#5EEAD4" stroke-width="1.4" fill="none"></path></svg></div>
-      <div data-page-node-id="OAHId3fGL1QSdGDlENxMey">
-        <div class="ctl" data-page-node-id="GnxfAKT3DC50TAEEqYtAXo">
-          <label data-page-node-id="GtHIvtEuJcZnUlpKYqdysp">碘锤温度 <b data-page-node-id="XqXdVp7CgKzqSNusboyhH0"><span id="tVal" data-page-node-id="wQaq380GPHYHjecFyOtwvs">20</span> ℃</b></label>
-          <input type="range" id="temp" min="0" max="220" step="1" value="20" data-page-node-id="pFMdDprQfgfsqTG7bsMdQg">
-        </div>
-        <div class="btn-row" style="margin-bottom:14px" data-page-node-id="Wp0TF4I1Wqz82TCrAwUjHu">
-          <button class="btn primary" id="btnHot" data-page-node-id="ZzaAoq6Zkh9sxX0nZDU2gl">加热</button>
-          <button class="btn" id="btnCold" data-page-node-id="ZE7YLHtTJOuK5GeVsx9P91">冷却</button>
-          <button class="btn" id="btnReset" data-page-node-id="K39fHBYL4Tlo0w7ei3EKwh">复位</button>
-        </div>
-        <div class="chip" id="iodChip" data-page-node-id="5htGhYKgAQMuPExAMgPZTB" style="color: rgb(100, 116, 139); background: rgb(241, 245, 249);"><i data-page-node-id="G6CsAABg5VvfCY6fA5IqJ1" style="background: rgb(100, 116, 139);"></i><span data-page-node-id="idreYgG1zGfDGNb2HsUoDt">基本不变</span></div>
-        <div class="readout" data-page-node-id="AeOAx3EivUx1RR4z4kmL0W">
-          <div class="ro-row" data-page-node-id="NOzUj9dIuuKSxqGEn2vNVF">
-            <div class="ro-top" data-page-node-id="6SyMEtCkgtbdeHdNKf09Ou"><span data-page-node-id="8tNnyQtRXYxbaIhui4b8LY">底部碘晶体</span><b id="p3" data-page-node-id="ZaVDT7LoWhnUsv6EAQWeAZ">100%</b></div>
-            <div class="track" data-page-node-id="3IGHMtEBxbPwidtJyZ8qjT"><i id="b3" style="background: rgb(51, 65, 85); width: 100%;" data-page-node-id="tNCkOP0qPm1q83MAxIlIRR"></i></div>
-          </div>
-          <div class="ro-row" data-page-node-id="LtpWmyXQ6HFaXqDkG92hy7">
-            <div class="ro-top" data-page-node-id="nXcAv4viNNFuhiWUY2FtVH"><span data-page-node-id="1tAKNL1uFPN5iDaowMO5MO">紫红色碘蒸气</span><b id="p2" data-page-node-id="1xDICCYOWwkoXuN84mmUSL">0%</b></div>
-            <div class="track" data-page-node-id="9ejmbj8glxj9KCRDBhDYBS"><i id="b2" style="background: rgb(124, 58, 237); width: 0%;" data-page-node-id="55pz78V2fCSNLTyuoIGqGm"></i></div>
-          </div>
-          <div class="ro-row" data-page-node-id="cF5bBlITea1M6EILskykUj">
-            <div class="ro-top" data-page-node-id="lBGbHarAb0xViy4zCX4CKW"><span data-page-node-id="58rL3EREKdBqIkbE6r70BY">壁上凝华晶体</span><b id="p1" data-page-node-id="8AU16BZluW0sRQDARiVsCK">0%</b></div>
-            <div class="track" data-page-node-id="CZvuN778OLtaYjcfVNqd94"><i id="b1" style="background: rgb(15, 118, 110); width: 0%;" data-page-node-id="H1alNwcEqo0K4Utj5JYxUs"></i></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ③ 液化两种方式 -->
-  <section class="card" data-page-node-id="g3ptcr3SJ9YprBtGodE5o5">
-    <div class="chead" data-page-node-id="a5CgkPRNT5fvBZs6dJIHBK">
-      <div class="idx" data-page-node-id="t8c77pggogJeYDaXntHre8">03</div>
-      <div class="htxt" data-page-node-id="BG4aqHkLbJoYYvVAyfaBCr"><h2 data-page-node-id="mjVbwOQBvwSSrqEWAuHcPO">液化的两种方式</h2></div>
-    </div>
-
-    <div class="grid-h" data-page-node-id="k2s3vxCcAgPxmttpZ2CIJl">
-      <div data-page-node-id="IAaE8gHIuqviMxtEQvVtWk">
-        <h3 data-page-node-id="6fLgA0Fky9Uyk6H2uiBDzx"><i style="background:#0EA5E9" data-page-node-id="T0O6tfWV3oSLjd4tU7O5Dd"></i>降低温度</h3>
-        <p class="step" data-page-node-id="VYFZDv1hTMYjGTm5Gh87W5">水蒸气上升<b data-page-node-id="zaUThCgfsuwyMdQrWXwgcd">遇冷放热</b> → <b data-page-node-id="BbFOHPRwvOqSaKpaDUfnax">液化</b>成小水珠挂在玻璃片下面</p>
-        <div class="stage" data-page-node-id="9arWuTR78Aw5mAc9GCArdm"><svg id="sceneA" viewBox="0 0 520 340" aria-label="冷玻璃片上的液化" data-page-node-id="WhRDHJjOG1awENAhYEQXLu"><path d="M 168 214 L 168 306 Q 168 316 178 316 L 342 316 Q 352 316 352 306 L 352 214 Z" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"></path><path d="M 174 250 L 174 306 Q 174 310 179 310 L 341 310 Q 346 310 346 306 L 346 250 Z" fill="#BAE6FD"></path><path d="M 174 250 L 346 250" stroke="#7DD3FC" stroke-width="2" fill="none"></path><path d="M 352 246 Q 372 246 372 262 Q 372 278 352 278" fill="none" stroke="#94A3B8" stroke-width="2.5"></path><text x="376" y="288" font-size="13" fill="#0284C7" font-weight="700">热水</text><path d="M 200 248 L 191.1 232 L 191.7 216 L 194.7 200 L 199.2 184 L 204.0 168 L 207.6 152 L 209.0 136 L 207.7 120 L 204.1 104" fill="none" stroke="#93C5FD" stroke-width="2.4" stroke-linecap="round" opacity="0.70"></path><path d="M 236 248 L 229.3 232 L 233.5 216 L 238.4 200 L 242.5 184 L 244.8 168 L 244.5 152 L 241.6 136 L 237.1 120 L 232.3 104" fill="none" stroke="#93C5FD" stroke-width="2.4" stroke-linecap="round" opacity="0.68"></path><path d="M 272 248 L 272.6 232 L 277.2 216 L 280.3 200 L 280.9 184 L 278.9 168 L 274.9 152 L 270.0 136 L 265.7 120 L 263.3 104" fill="none" stroke="#93C5FD" stroke-width="2.4" stroke-linecap="round" opacity="0.66"></path><path d="M 308 248 L 315.4 232 L 317.0 216 L 315.9 200 L 312.5 184 L 307.8 168 L 303.1 152 L 299.9 136 L 299.0 120 L 300.8 104" fill="none" stroke="#93C5FD" stroke-width="2.4" stroke-linecap="round" opacity="0.64"></path><path d="M 344 248 L 352.6 232 L 350.0 216 L 345.6 200 L 340.7 184 L 336.8 168 L 335.0 152 L 335.9 136 L 339.2 120 L 343.8 104" fill="none" stroke="#93C5FD" stroke-width="2.4" stroke-linecap="round" opacity="0.62"></path><rect x="88" y="96" width="344" height="15" rx="4" fill="#E0F2FE" stroke="#7DD3FC" stroke-width="2"></rect><rect x="88" y="96" width="344" height="5" rx="2.5" fill="#FFFFFF" opacity="0.9"></rect><text x="88" y="88" font-size="13" fill="#0284C7" font-weight="700">冷玻璃片 20 ℃</text><circle cx="94.00248765945435" cy="119.6" r="5.62" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="1.00"></circle><circle cx="105.83226175308228" cy="119.5" r="5.54" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="1.00"></circle><circle cx="113.41780652999878" cy="120.9" r="6.95" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="1.00"></circle><circle cx="124.41422567367553" cy="119.4" r="5.41" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="1.00"></circle><circle cx="134.17698316574098" cy="119.5" r="5.48" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="1.00"></circle><circle cx="146.00354146957397" cy="119.0" r="4.98" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.98"></circle><circle cx="155.36460752487181" cy="119.8" r="5.78" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.95"></circle><circle cx="162.03779973983762" cy="119.8" r="5.81" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.92"></circle><circle cx="173.26789960861205" cy="119.4" r="5.37" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.89"></circle><circle cx="182.08223323822023" cy="117.9" r="3.88" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.87"></circle><circle cx="194.521746635437" cy="117.9" r="3.87" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.84"></circle><circle cx="201.48149080276488" cy="117.4" r="3.44" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.81"></circle><circle cx="213.07836999893186" cy="117.6" r="3.62" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.78"></circle><circle cx="221.22125968933105" cy="117.1" r="3.07" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.76"></circle><circle cx="230.58080558776854" cy="115.9" r="1.87" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.73"></circle><circle cx="240.98380851745605" cy="115.6" r="1.55" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.70"></circle><circle cx="252.42289609909056" cy="115.4" r="1.36" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.68"></circle><circle cx="261.2975043296814" cy="115.1" r="1.13" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.65"></circle><circle cx="270.35694990158083" cy="115.0" r="0.97" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.62"></circle><circle cx="279.3956969261169" cy="114.5" r="0.45" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.59"></circle><circle cx="289.8697085380554" cy="114.2" r="0.23" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0.57"></circle><circle cx="301.15084142684935" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="310.0058497428894" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="318.5578108787537" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="327.8315356254577" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="336.95327520370483" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="347.6687876701355" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="357.1118444442749" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="368.4259305953979" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="376.63358669281" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="387.04505443573" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="397.38292903900145" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="408.19133892059324" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><circle cx="415.9365316390991" cy="114" r="0" fill="#38BDF8" stroke="#0284C7" stroke-width="1" opacity="0"></circle><ellipse cx="94.0" cy="122.3" rx="3.43" ry="4.75" fill="#38BDF8" opacity="0.84"></ellipse><ellipse cx="201.5" cy="136.6" rx="3.43" ry="4.75" fill="#38BDF8" opacity="0.76"></ellipse><ellipse cx="310.0" cy="181.9" rx="3.43" ry="4.75" fill="#38BDF8" opacity="0.52"></ellipse><text x="186" y="202" font-size="12.5" fill="#60A5FA" text-anchor="end">水蒸气</text><text x="96" y="146" font-size="12.5" fill="#0284C7" opacity="1">小水珠</text></svg></div>
-        <div class="ctl" style="margin-top:12px" data-page-node-id="T5wnXzBdsDnePvIPv1SuiH">
-          <label data-page-node-id="95eOJUdL6gFvZKEO0tKUZQ">玻璃片温度 <b data-page-node-id="jaJNNZCKnY1T5rBGWzvlKC"><span id="gVal" data-page-node-id="a0OS5OSZvYwyMa6gGF8TFD">20</span> ℃</b></label>
-          <input type="range" id="gTemp" min="-10" max="90" step="1" value="20" data-page-node-id="DFmJyy24h3g8XyN1n1rPb5">
-        </div>
-        <div class="info-top" style="margin:0" data-page-node-id="9nEGwSRyyjHZ7PhVM20vVG">
-          <span class="chip" id="chipA" data-page-node-id="NcMHaQoh9CtXfErN8jCygG" style="color: rgb(14, 165, 233); background: rgb(224, 242, 254);"><i data-page-node-id="hjPz04SJzvtBMH2cJ1lBE1" style="background: rgb(14, 165, 233);"></i><span data-page-node-id="UkFQm1EoE0FFZ9fQFm9cvz">开始液化</span></span>
-          <span class="hint" data-page-node-id="T8g8BVs6kVQql4fHjWmotI">已结水珠 <b id="dropN" data-page-node-id="FPsiumtkHLHLdcFDsO50MZ">21</b> 滴</span>
-        </div>
-      </div>
-
-      <div data-page-node-id="Ck9pG30Ls8XTPg9Fk3gx66">
-        <h3 data-page-node-id="YR8q06w6ZeWtqnozCHswqZ"><i style="background:#F59E0B" data-page-node-id="azZoS3CHBecWmLgviujAJy"></i>压缩体积</h3>
-        <p class="step" data-page-node-id="vwHzZnPMI5WU51C7nAqe6K">活塞往右推<b data-page-node-id="DZWQRTog9Aio1E3blYm5zz">减小体积</b> → 一部分气体<b data-page-node-id="34O6NPQTJJs0zT11SydNsG">液化</b>，在筒底积成液体</p>
-        <div class="stage" data-page-node-id="oDa56erE2PaQIEyTTf4IuF"><svg id="sceneB" viewBox="0 0 520 340" aria-label="压缩气体使液化" data-page-node-id="ytA4WMiNsAoyuOhJFyAlRy"><path d="M 12 166 L 44 160 L 44 192 L 12 186 Z" fill="#CBD5E1" stroke="#94A3B8" stroke-width="2"></path><rect x="36" y="150" width="12" height="52" rx="3" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"></rect><rect x="44" y="120" width="376" height="112" rx="6" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"></rect><g><path d="" fill="#38BDF8" opacity="0"></path><path d="" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0"></path><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle><circle cx="0" cy="0" r="0" fill="#7DD3FC" opacity="0"></circle></g><circle r="5.4" cx="71.4" cy="131.1" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="101.1" cy="136.4" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="133.7" cy="139.3" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="191.2" cy="130.2" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="235.4" cy="136.9" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="253.4" cy="131.5" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="284.4" cy="139.3" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="330.4" cy="135.7" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="370.0" cy="146.2" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="65.9" cy="158.5" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="111.1" cy="156.3" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="149.1" cy="150.8" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="189.9" cy="157.6" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="228.6" cy="157.6" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="264.0" cy="164.9" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="303.1" cy="159.9" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="349.6" cy="156.4" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="366.4" cy="156.4" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="76.3" cy="175.7" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="118.2" cy="179.3" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="135.1" cy="179.0" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="188.3" cy="181.0" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="221.4" cy="177.0" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="248.5" cy="184.4" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="289.9" cy="181.5" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="348.8" cy="184.1" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="376.4" cy="182.7" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="75.8" cy="200.4" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="115.4" cy="192.3" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="149.5" cy="196.8" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="195.0" cy="198.2" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="215.4" cy="197.1" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="251.5" cy="196.0" fill="#F59E0B" opacity="0.92"></circle><circle r="5.4" cx="303.4" cy="204.5" fill="#F59E0B" opacity="0.92"></circle><g style="cursor:grab;touch-action:none" transform="translate(400 0)"><rect x="0" y="126" width="20" height="100" rx="3" fill="#475569"></rect><rect x="20" y="172" width="56" height="14" rx="4" fill="#64748B"></rect><rect x="74" y="150" width="32" height="52" rx="6" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2.5"></rect><text x="90" y="104" font-size="12.5" fill="#94A3B8" text-anchor="middle">拖动</text></g><text x="44" y="258" font-size="13" fill="#64748B">注射器（嘴已封住）</text></svg></div>
-        <div class="info-top" style="margin-top:12px" data-page-node-id="utEU4KznsVc6FwbKFeNE7f">
-          <span class="chip" id="chipB" data-page-node-id="m7GjIdjjS4SCHoRAbF3YTM" style="color: rgb(100, 116, 139); background: rgb(241, 245, 249);"><i data-page-node-id="Fy2lhkYifcXa1gsfU8wGbR" style="background: rgb(100, 116, 139);"></i><span data-page-node-id="Mmfiqc7wxCpFPc8LJvC6KK">仍是气体</span></span>
-          <span class="hint" data-page-node-id="GE9xj51a7alNMtaESCFgKz">体积 <b id="vVal" data-page-node-id="1Ytm3Xy2fpB1ODCscaimGx">100</b> mL</span>
-          <span class="hint" data-page-node-id="8tAZssa4GtPKEHXdaT5QVH">液化分子 <b id="nLiq" data-page-node-id="WjiIyQBkcpvjzB3uNLxPtn">0</b> / 34</span>
-        </div>
-        <div class="hint" style="margin-top:6px" data-page-node-id="jHvZSpriGuFKdBibFdNsFe">拖动手柄向右推 → 压缩</div>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<div class="site-footer" data-page-node-id="hFqrAuTfKkzB7QNFZFEbi0">可交互探究 · 拖动看连续变化</div>
-
-<script>
-/* ============================================================
-   0. 小工具
-   ============================================================ */
-const $  = (s) => document.querySelector(s);
-const NS = 'http://www.w3.org/2000/svg';
-const clamp = (v,a,b) => v<a?a:(v>b?b:v);
-const lerp  = (a,b,t) => a+(b-a)*t;
-const ease  = (x) => x*x*(3-2*x);
-
-function txt(el, v){ if(el) el.textContent = v; }
-function html(parent, s){ if(parent) parent.insertAdjacentHTML('beforeend', s); }
-function mk(tag, attrs, parent){
-  const e = document.createElementNS(NS, tag);
-  for(const k in attrs) e.setAttribute(k, attrs[k]);
-  if(parent) parent.appendChild(e);
-  return e;
-}
-function hex2rgb(h){ return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)]; }
-function mixColor(a,b,t){
-  const A=hex2rgb(a), B=hex2rgb(b);
-  return 'rgb('+Math.round(lerp(A[0],B[0],t))+','+Math.round(lerp(A[1],B[1],t))+','+Math.round(lerp(A[2],B[2],t))+')';
-}
-let _seed = 20261030;
-function rnd(a,b){
-  _seed = (_seed*1103515245 + 12345) & 0x7fffffff;
-  return a + ((_seed>>>7)/16777216)*(b-a);
-}
-
-/* ============================================================
-   1. 六种物态变化关系图
-   ============================================================ */
-const HEAT_IN = '#EF4444', HEAT_OUT = '#2563EB';
-const NODES = {
-  s:{cx:120, cy:100, w:160, h:62, name:'固态', c:'#2563EB', t:'#EFF5FF', key:'s'},
-  l:{cx:500, cy:100, w:160, h:62, name:'液态', c:'#0891B2', t:'#ECFEFF', key:'l'},
-  g:{cx:310, cy:360, w:160, h:62, name:'气态', c:'#F59E0B', t:'#FFF7ED', key:'g'}
-};
-/* 六种变化：from → to，heat：in 吸热 / out 放热 */
-const CHANGES = [
-  {id:'sub',  from:'s', to:'g', name:'升华', heat:'in',
-   ex:['樟脑丸变小','干冰直接消失','冻硬的衣服也会干']},
-  {id:'dep',  from:'g', to:'s', name:'凝华', heat:'out',
-   ex:['霜','窗上的冰花','雾凇']},
-  {id:'melt', from:'s', to:'l', name:'熔化', heat:'in',
-   ex:['冰化成水','蜡烛受热滴蜡']},
-  {id:'frz',  from:'l', to:'s', name:'凝固', heat:'out',
-   ex:['水结成冰','铁水浇铸成零件']},
-  {id:'vap',  from:'l', to:'g', name:'汽化', heat:'in',
-   ex:['水烧开翻滚','湿衣服晾干']},
-  {id:'liq',  from:'g', to:'l', name:'液化', heat:'out',
-   ex:['壶嘴附近的“白气”','冰镇饮料瓶外的水珠']}
-];
-const CHANGE = {}; CHANGES.forEach(c => CHANGE[c.id] = c);
-
-/* ---------- 几何：在三态节点之间生成成对的曲线箭头 ---------- */
-function borderPoint(n, dx, dy){
-  const tx = Math.abs(dx) < 1e-6 ? 1e9 : (n.w/2)/Math.abs(dx);
-  const ty = Math.abs(dy) < 1e-6 ? 1e9 : (n.h/2)/Math.abs(dy);
-  const t  = Math.min(tx, ty);
-  return [n.cx + dx*t, n.cy + dy*t];
-}
-/* A→B 的二次贝塞尔，ctrl 为控制点偏移量（曲线的最大偏移为其一半） */
-function makeArrow(A, B, ctrl){
-  const ux = B[0]-A[0], uy = B[1]-A[1], L = Math.hypot(ux,uy);
-  const u = [ux/L, uy/L];
-  const n = [u[1], -u[0]];
-  const cx = (A[0]+B[0])/2 + n[0]*ctrl, cy = (A[1]+B[1])/2 + n[1]*ctrl;
-  const d = 'M '+A[0].toFixed(1)+' '+A[1].toFixed(1)+' Q '+cx.toFixed(1)+' '+cy.toFixed(1)+' '+B[0].toFixed(1)+' '+B[1].toFixed(1);
-  const tx = B[0]-cx, ty = B[1]-cy, tl = Math.hypot(tx,ty) || 1;
-  const dx = tx/tl, dy = ty/tl, ang = Math.atan2(dy,dx);
-  const back = [B[0]-dx*13, B[1]-dy*13];
-  const p1 = [back[0] - n[0]*7.5, back[1] - n[1]*7.5];
-  const p2 = [back[0] + n[0]*7.5, back[1] + n[1]*7.5];
-  const head = 'M '+B[0].toFixed(1)+' '+B[1].toFixed(1)+' L '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)+' L '+p2[0].toFixed(1)+' '+p2[1].toFixed(1)+' Z';
-  const qx = 0.25*A[0] + 0.5*cx + 0.25*B[0], qy = 0.25*A[1] + 0.5*cy + 0.25*B[1];
-  /* 标签放在靠箭头尖端处：成对的两个箭头天然被拉到两端，不会挤在一起 */
-  const T = 0.72, OT = 1-T;
-  const tx2 = OT*OT*A[0] + 2*OT*T*cx + T*T*B[0];
-  const ty2 = OT*OT*A[1] + 2*OT*T*cy + T*T*B[1];
-  return {d, head, lx: tx2 + n[0]*28, ly: ty2 + n[1]*28};
-}
-function edgeAnchors(pa, pb){
-  const dx = pb.cx-pa.cx, dy = pb.cy-pa.cy, L = Math.hypot(dx,dy);
-  const u = [dx/L, dy/L];
-  const A0 = borderPoint(pa,  u[0],  u[1]);
-  const B0 = borderPoint(pb, -u[0], -u[1]);
-  return [[A0[0]+u[0]*9, A0[1]+u[1]*9], [B0[0]-u[0]*11, B0[1]-u[1]*11]];
-}
-
-const diag = $('#diag');
-/* 三态节点 */
-for(const k in NODES){
-  const n = NODES[k];
-  const g = mk('g',{},diag);
-  mk('rect',{x:n.cx-n.w/2, y:n.cy-n.h/2, width:n.w, height:n.h, rx:14,
-             fill:n.t, stroke:n.c, 'stroke-width':1.6}, g);
-  /* 图标 */
-  const iconX = n.cx-n.w/2+22;
-  if(k==='s'){
-    for(let r=0;r<3;r++) for(let c=0;c<3;c++)
-      mk('rect',{x:iconX+c*11, y:n.cy-14+r*11, width:8, height:8, rx:2, fill:n.c, opacity:.85}, g);
-  }else if(k==='l'){
-    for(let i=0;i<7;i++)
-      mk('circle',{cx:iconX+4+ (i%4)*11, cy:n.cy-12+Math.floor(i/4)*13, r:4, fill:n.c, opacity:.85}, g);
-  }else{
-    for(let i=0;i<7;i++)
-      mk('circle',{cx:iconX+5+rnd(0,22), cy:n.cy-16+rnd(0,30), r:3.6, fill:n.c, opacity:.8}, g);
+  <script>
+    window.__labReady=false;
+    setTimeout(function(){if(!window.__labReady){var l=document.getElementById('loading');if(l)l.innerHTML='<span style="color:#e0816a">3D 引擎加载失败，请检查网络后刷新</span>';}},12000);
+  </script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../../../vendor/three/0.160.0/build/three.module.js",
+      "three/addons/": "../../../../vendor/three/0.160.0/examples/jsm/"
+    }
   }
-  const t = mk('text',{x:iconX+40, y:n.cy+7, 'font-size':20, 'font-weight':800, fill:n.c, 'letter-spacing':1}, g);
-  t.textContent = n.name;
-}
-/* 六条箭头 */
-/* 三条边用固定的先后次序算端点，保证一对箭头的两个方向共用同一组端点 */
-const arcG = {};
-const PAIR_ORDER = {'s-l':['s','l'], 's-g':['s','g'], 'l-g':['l','g']};
-function pairKey(f,t){ return PAIR_ORDER[f+'-'+t] ? f+'-'+t : t+'-'+f; }
-const pairAnchors = {};
-CHANGES.forEach(c => {
-  const key = pairKey(c.from, c.to);
-  if(!pairAnchors[key]){
-    const ab = PAIR_ORDER[key];
-    pairAnchors[key] = edgeAnchors(NODES[ab[0]], NODES[ab[1]]);
+  </script>
+
+  <script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+  import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+  import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+  import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+  import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+  /* ============ 工具 ============ */
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const smoothstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+  const TAU=Math.PI*2;
+
+  function softTex(){
+    const c=document.createElement('canvas');c.width=c.height=128;
+    const x=c.getContext('2d');
+    const g=x.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,255,255,0.9)');g.addColorStop(0.35,'rgba(255,255,255,0.4)');
+    g.addColorStop(0.7,'rgba(255,255,255,0.08)');g.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=g;x.fillRect(0,0,128,128);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
   }
-});
-/* 让成对的箭头向两侧分开；左下那条边反向，使升华朝外 */
-const PAIR_CTRL = {'s-g':-52, 's-l':52, 'l-g':52};
-CHANGES.forEach(c => {
-  const key = pairKey(c.from, c.to);
-  const pair = pairAnchors[key];
-  const kf = PAIR_ORDER[key][0];
-  const A = (kf === c.from) ? pair[0] : pair[1];
-  const B = (kf === c.from) ? pair[1] : pair[0];
-  const ar = makeArrow(A, B, PAIR_CTRL[key]);
-  const col = c.heat==='in' ? HEAT_IN : HEAT_OUT;
+  const SOFT=softTex();
 
-  const g = mk('g',{class:'arc', 'data-id':c.id, opacity:.34, style:'cursor:pointer'}, diag);
-  mk('path',{d:ar.d, fill:'none', stroke:col, 'stroke-width':15, 'stroke-linecap':'round',
-             opacity:0, class:'halo'}, g);
-  mk('path',{d:ar.d, fill:'none', stroke:col, 'stroke-width':2.6, 'stroke-linecap':'round'}, g);
-  mk('path',{d:ar.head, fill:col, stroke:'none'}, g);
-  mk('path',{d:ar.d, fill:'none', stroke:'transparent', 'stroke-width':24,
-             'pointer-events':'stroke', stroke:'none'}, g).setAttribute('style','pointer-events:stroke');
+  /* ============ 渲染器 / 场景 ============ */
+  const canvas=document.getElementById('scene');
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.0;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
 
-  const lab = mk('text',{x:ar.lx, y:ar.ly, 'text-anchor':'middle', 'dominant-baseline':'middle',
-                         style:'pointer-events:none'}, g);
-  const t1 = mk('tspan',{'font-size':15.5,'font-weight':800, fill:col}, lab); t1.textContent = c.name;
-  const t2 = mk('tspan',{'font-size':11.5,'font-weight':700, fill:col, dx:5}, lab);
-  t2.textContent = (c.heat==='in'?'吸热':'放热');
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x24405c,0.03);
 
-  arcG[c.id] = g;
-  g.addEventListener('pointerenter', () => showChange(c.id, false));
-  g.addEventListener('click', () => showChange(c.id, true));
-});
+  // 深蓝渐变背景
+  const bg=new THREE.Mesh(new THREE.SphereGeometry(70,32,16),new THREE.ShaderMaterial({
+    side:THREE.BackSide,depthWrite:false,fog:false,
+    vertexShader:'varying vec3 vP; void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+    fragmentShader:'varying vec3 vP; void main(){float h=normalize(vP).y;vec3 top=vec3(0.008,0.02,0.05);vec3 mid=vec3(0.026,0.062,0.12);vec3 bot=vec3(0.045,0.10,0.17);vec3 c=h>0.0?mix(mid,top,smoothstep(0.0,0.7,h)):mix(mid,bot,smoothstep(0.0,-0.6,h));gl_FragColor=vec4(c,1.0);}'
+  }));
+  scene.add(bg);
 
-/* ---------- 右侧信息卡 ---------- */
-let curId = 'sub', pinnedId = 'sub', filterMode = 'all';
-function showChange(id, pin){
-  curId = id;
-  if(pin){ pinnedId = id; $('#diag').dataset.pin = id; }
-  const c = CHANGE[id];
-  const heatCol = c.heat==='in' ? HEAT_IN : HEAT_OUT;
-  txt($('#iName'), c.name);
-  $('#iName').style.color = heatCol;
-  txt($('#iPath'), NODES[c.from].name+' → '+NODES[c.to].name);
-  const chip = $('#iHeat');
-  chip.style.color = heatCol;
-  chip.style.background = c.heat==='in' ? '#FEF2F2' : '#EFF4FF';
-  txt(chip.querySelector('span') || chip, c.heat==='in'?'吸热':'放热');
-  const ex = $('#iEx');
-  if(ex){ ex.innerHTML = ''; c.ex.forEach(e => html(ex, '<span class="ex-chip">'+e+'</span>')); }
-  for(const k in arcG){
-    const on = (k===id);
-    arcG[k].setAttribute('opacity', on ? 1 : .26);
-    const halo = arcG[k].querySelector('.halo');
-    if(halo) halo.setAttribute('opacity', on ? .16 : 0);
+  // 环境反射（深色带霓虹亮条）
+  const pmrem=new THREE.PMREMGenerator(renderer);
+  (function(){
+    const c=document.createElement('canvas');c.width=512;c.height=256;
+    const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,0,256);
+    g.addColorStop(0,'#0a1a30');g.addColorStop(0.5,'#12294a');g.addColorStop(0.52,'#0a1628');g.addColorStop(1,'#050c18');
+    x.fillStyle=g;x.fillRect(0,0,512,256);
+    x.fillStyle='rgba(120,225,255,0.95)';x.fillRect(40,36,150,12);x.fillRect(330,48,130,9);
+    x.fillStyle='rgba(255,170,100,0.7)';x.fillRect(200,158,110,7);
+    x.fillStyle='rgba(90,150,220,0.6)';x.fillRect(20,120,60,6);
+    const t=new THREE.CanvasTexture(c);t.mapping=THREE.EquirectangularReflectionMapping;t.colorSpace=THREE.SRGBColorSpace;
+    scene.environment=pmrem.fromEquirectangular(t).texture;t.dispose();
+  })();
+
+  const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.1,120);
+  camera.position.set(0.7,3.6,9.4);
+
+  const controls=new OrbitControls(camera,renderer.domElement);
+  controls.enableDamping=true;controls.dampingFactor=0.06;
+  controls.target.set(0,1.75,0);
+  controls.minDistance=6;controls.maxDistance=18;
+  controls.minPolarAngle=Math.PI*0.16;controls.maxPolarAngle=Math.PI*0.52;
+  controls.enablePan=false;controls.rotateSpeed=0.6;controls.zoomSpeed=0.8;
+
+  /* ============ 灯光 ============ */
+  scene.add(new THREE.HemisphereLight(0x9ec9ff,0x06101f,0.65));
+  const key=new THREE.DirectionalLight(0xdcefff,1.5);key.position.set(5,10,7);
+  key.castShadow=true;key.shadow.mapSize.set(2048,2048);
+  Object.assign(key.shadow.camera,{near:1,far:34,left:-8,right:8,top:9,bottom:-8});
+  key.shadow.camera.updateProjectionMatrix();key.shadow.bias=-0.0006;key.shadow.normalBias=0.02;
+  scene.add(key);
+  const cyanL=new THREE.PointLight(0x36c8ff,26,16,2);cyanL.position.set(-5,3.5,3);scene.add(cyanL);
+  const cyanR=new THREE.PointLight(0x2fa6ff,20,16,2);cyanR.position.set(5,3,2);scene.add(cyanR);
+  const backL=new THREE.PointLight(0x7a5cff,14,14,2);backL.position.set(0,4,-5);scene.add(backL);
+  const heatL=new THREE.PointLight(0xff8a3d,0,8,2);heatL.position.set(0,0.6,0);scene.add(heatL);
+
+  /* ============ 后处理辉光 ============ */
+  const composer=new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene,camera));
+  const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.7,0.45,1.0);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+
+  /* ============ 通用材质 ============ */
+  const M={
+    metal:new THREE.MeshStandardMaterial({color:0x9fb3c6,metalness:0.92,roughness:0.28}),
+    darkMetal:new THREE.MeshStandardMaterial({color:0x1c2b3e,metalness:0.8,roughness:0.35}),
+    base:new THREE.MeshStandardMaterial({color:0x142036,metalness:0.7,roughness:0.4}),
+    ceramic:new THREE.MeshStandardMaterial({color:0xc9dbe8,metalness:0.05,roughness:0.38}),
+    knob:new THREE.MeshStandardMaterial({color:0xd98b45,metalness:0.6,roughness:0.35}),
+    rubber:new THREE.MeshStandardMaterial({color:0x14202c,metalness:0.1,roughness:0.75}),
+    glass:()=>new THREE.MeshPhysicalMaterial({color:0xeaf6ff,metalness:0,roughness:0.045,transmission:0.97,thickness:0.35,ior:1.5,clearcoat:1,clearcoatRoughness:0.03,envMapIntensity:1.8,transparent:true,side:THREE.DoubleSide,depthWrite:false}),
+    water:()=>new THREE.MeshPhysicalMaterial({color:0x5fc8f5,metalness:0,roughness:0.12,transmission:0.75,thickness:0.5,ior:1.33,transparent:true,opacity:0.78,envMapIntensity:1.4,side:THREE.DoubleSide,depthWrite:false})
+  };
+  const neon=(hex,mul=2.2)=>new THREE.MeshBasicMaterial({color:new THREE.Color(hex).multiplyScalar(mul),toneMapped:false});
+  const CYAN=neon(0x39d4ff,1.35), DEEP_CYAN=neon(0x1e9fe0,1.15), ORANGE=neon(0xff8a3c,1.4), PURPLE=neon(0xb164ff,1.4);
+
+  function edgeOutline(geo,color=0x6fe0ff,opacity=0.5){
+    return new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color,transparent:true,opacity}));
   }
-  setMicroTransition(c.from, c.to);
-}
-$('#diag').addEventListener('pointerleave', () => showChange(pinnedId, false));
-$('#filter').addEventListener('click', (ev) => {
-  const b = ev.target.closest('button'); if(!b) return;
-  filterMode = b.dataset.f;
-  [].forEach.call($('#filter').children, x => x.classList.toggle('active', x===b));
-  CHANGES.forEach(c => {
-    const keep = filterMode==='all' || c.heat===filterMode;
-    arcG[c.id].style.display = keep ? '' : 'none';
-  });
-});
 
-/* ---------- 微观动画 ---------- */
-const micro = $('#micro');
-const X0=20, Y0=16, X1=360, Y1=224;
-mk('rect',{x:X0, y:Y0, width:X1-X0, height:Y1-Y0, rx:12, fill:'#FFFFFF', stroke:'#CBD5E1', 'stroke-width':1.6}, micro);
-const NMOL = 24;
-const LAY = {s:[], l:[], g:[]};
-for(let i=0;i<NMOL;i++){
-  const col = i%6, row = (i/6)|0;
-  LAY.s.push([80 + col*30, 120 + row*26]);
-  const r2 = (i/8)|0, c2 = i%8;
-  LAY.l.push([60 + c2*34 + (r2%2?14:0) + rnd(-4,4), 150 + r2*28 + rnd(-4,4)]);
-  LAY.g.push([52 + col*54 + rnd(-13,13), 44 + row*48 + rnd(-13,13)]);
-}
-const LAYC = {s:'#2563EB', l:'#0891B2', g:'#F59E0B'};
-const LAYA = {s:1.8, l:7.5, g:21};
-const LAYR = {s:3.4, l:1.5, g:2.0};
-const PHA = [];
-for(let i=0;i<NMOL;i++) PHA.push([rnd(0,6.28), rnd(0,6.28), rnd(0,6.28), rnd(0,6.28)]);
-const mols = [];
-for(let i=0;i<NMOL;i++){
-  mols.push(mk('circle',{r:5.4, cx:LAY.s[i][0], cy:LAY.s[i][1], fill:LAYC.s}, micro));
-}
-let microFrom = 's', microTo = 'g', mBusy = false;
-function setMicroTransition(f, t){
-  microFrom = f; microTo = t; mBusy = true;
-}
-/* 微观布局之间来回切换的过渡（3.6 s 一个循环） */
-function microPhase(t){
-  const CYC = 3.8, ph = (t % CYC)/CYC;
-  if(ph < 0.16) return 0;
-  if(ph < 0.5)  return ease((ph-0.16)/0.34);
-  if(ph < 0.66) return 1;
-  return 1 - ease((ph-0.66)/0.34);
-}
-function updateMicro(t){
-  const s = microPhase(t);
-  const amp  = lerp(LAYA[microFrom],  LAYA[microTo],  s);
-  const rate = lerp(LAYR[microFrom],  LAYR[microTo],  s);
-  const col  = mixColor(LAYC[microFrom], LAYC[microTo], s);
-  for(let i=0;i<NMOL;i++){
-    const A = LAY[microFrom][i], B = LAY[microTo][i], p = PHA[i];
-    let x = lerp(A[0], B[0], s);
-    let y = lerp(A[1], B[1], s);
-    x += amp*(Math.sin(rate*t + p[0]) + 0.5*Math.sin(rate*1.73*t + p[1]));
-    y += amp*(Math.cos(rate*1.07*t + p[2]) + 0.5*Math.cos(rate*1.61*t + p[3]));
-    mols[i].setAttribute('cx', clamp(x, X0+7, X1-7).toFixed(1));
-    mols[i].setAttribute('cy', clamp(y, Y0+7, Y1-7).toFixed(1));
-    mols[i].setAttribute('fill', col);
+  /* ============ 器材组件 ============ */
+  // 加热底座：深色机身 + 陶瓷台面 + 青色霓虹边 + 橙色加热光
+  function buildHeater(){
+    const g=new THREE.Group();
+    const body=new THREE.Mesh(new RoundedBoxGeometry(3.0,0.5,2.4,4,0.12),M.base);
+    body.position.y=0.3;body.castShadow=true;body.receiveShadow=true;g.add(body);
+    // 霓虹边条
+    const strip=(w,h,d,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),CYAN);m.position.set(x,y,z);g.add(m);};
+    strip(3.02,0.05,0.05,0,0.1,1.21);strip(3.02,0.05,0.05,0,0.1,-1.21);
+    strip(0.05,0.05,2.4,1.51,0.1,0);strip(0.05,0.05,2.4,-1.51,0.1,0);
+    // 陶瓷台面
+    const top=new THREE.Mesh(new RoundedBoxGeometry(2.4,0.12,1.9,4,0.06),M.ceramic);
+    top.position.y=0.61;top.castShadow=true;g.add(top);
+    // 加热盘（橙色发光环）
+    const ringMat=neon(0xff7a30,1.0);
+    const heaterRing=new THREE.Mesh(new THREE.TorusGeometry(0.72,0.032,12,64),ringMat);
+    heaterRing.rotation.x=Math.PI/2;heaterRing.position.y=0.68;g.add(heaterRing);
+    const heatDisc=new THREE.Mesh(new THREE.CircleGeometry(0.7,48),new THREE.MeshBasicMaterial({color:0xff6a22,transparent:true,opacity:0.25,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending}));
+    heatDisc.rotation.x=-Math.PI/2;heatDisc.position.y=0.675;g.add(heatDisc);
+    // 侧面散热槽 + 指示灯
+    for(let i=0;i<5;i++){const s=new THREE.Mesh(new THREE.BoxGeometry(0.02,0.14,0.5),M.darkMetal);s.position.set(-1.51,0.32,-0.6+i*0.3);g.add(s);}
+    const led=new THREE.Mesh(new THREE.SphereGeometry(0.035,10,8),ORANGE);led.position.set(1.0,0.34,1.21);g.add(led);
+    g.userData={heaterRing,heatDisc,led};
+    return g;
   }
-}
 
-/* ============================================================
-   2. 碘锤
-   ============================================================ */
-const iode = $('#iode');
-const IOD = {cx:300, cy:250, r:76, top:34, hw:28};   // 球体 + 颈部
-const SHAPE = 'M 272 180 L 272 50 Q 272 34 300 34 Q 328 34 328 50 L 328 180 '
-            + 'A 76 76 0 1 1 272 180 Z';
-/* 剪裁： letting 所有内容留在玻璃内 */
-const defs = mk('defs',{}, iode);
-const cp = mk('clipPath',{id:'iodClip'}, defs);
-mk('path',{d:SHAPE}, cp);
-const glow = mk('radialGradient',{id:'iodGlow', cx:'50%', cy:'62%', r:'62%'}, defs);
-mk('stop',{offset:'0%',   'stop-color':'#A855F7', 'stop-opacity':.85}, glow);
-mk('stop',{offset:'100%', 'stop-color':'#6D28D9', 'stop-opacity':.55}, glow);
-
-/* 酒精灯（画在玻璃之前，火焰正对着锤底） */
-const lampG = mk('g',{}, iode);
-const flame = mk('path',{d:'M 300 300 C 319 326 328 348 321 361 C 317 371 307 376 300 376 '
-  + 'C 293 376 283 371 279 361 C 272 348 281 326 300 300 Z', fill:'#F59E0B', opacity:0}, lampG);
-const flame2 = mk('path',{d:'M 300 330 C 311 346 314 358 309 368 C 306 373 297 373 294 368 '
-  + 'C 289 358 294 346 300 336 Z', fill:'#FEF3C7', opacity:0}, lampG);
-mk('rect',{x:289, y:374, width:22, height:14, rx:3, fill:'#64748B'}, lampG);   // 灯芯座
-mk('path',{d:'M 268 436 L 268 400 Q 268 388 282 388 L 318 388 Q 332 388 332 400 L 332 436 Z',
-           fill:'#E2E8F0', stroke:'#94A3B8', 'stroke-width':2}, lampG);
-mk('path',{d:'M 276 436 L 276 412 Q 300 407 324 412 L 324 436 Z', fill:'#FFEDD5'}, lampG);
-const tLamp = mk('text',{x:344, y:428, 'font-size':13, fill:'#64748B'}, lampG); tLamp.textContent = '酒精灯';
-
-/* 玻璃外壳（内容之下先画底，内容之后再画描边与高光） */
-mk('path',{d:SHAPE, fill:'#FFFFFF'}, iode);
-const bodyG = mk('g',{'clip-path':'url(#iodClip)'}, iode);
-const vaporRect = mk('rect',{x:200, y:20, width:200, height:340, fill:'url(#iodGlow)', opacity:0}, bodyG);
-
-/* 蒸气分子 */
-const NV = 30, vap = [];
-for(let i=0;i<NV;i++){
-  const inTube = i >= 22;
-  const ang = rnd(0,6.28), rr = Math.sqrt(Math.random())*62;
-  vap.push({
-    x: inTube ? rnd(282,318) : IOD.cx + Math.cos(ang)*rr,
-    y: inTube ? rnd(46,170)  : IOD.cy + Math.sin(ang)*rr,
-    vx: rnd(-26,26), vy: rnd(-26,26), el:0
-  });
-}
-const vapEls = [];
-for(let i=0;i<NV;i++) vapEls.push(mk('circle',{r:4.2, fill:'#E9D5FF', stroke:'#C084FC', 'stroke-width':.9, opacity:0}, bodyG));
-
-/* 底部碘晶体 */
-const NCR = 20, crEls = [], crP = [];
-for(let i=0;i<NCR;i++){
-  const row = (i/7)|0, k = i%7;
-  crP.push([IOD.cx - 74 + k*25 + (row%2?11:0) + rnd(-4,4), IOD.cy + 34 + row*17 + rnd(-3,3)]);
-}
-for(let i=0;i<NCR;i++)
-  crEls.push(mk('rect',{x:crP[i][0]-4.5, y:crP[i][1]-4.5, width:9, height:9, rx:2,
-                        fill:'#1F2937', opacity:0, transform:'rotate('+rnd(-30,30)+' '+crP[i][0]+' '+crP[i][1]+')'}, bodyG));
-
-/* 壁上凝华晶体（沿内壁布置） */
-const ND = 26, depEls = [], depP = [];
-(function(){
-  const angs = [];
-  for(let a=192;a<=252;a+=15) angs.push(a);
-  for(let a=288;a<=348;a+=15) angs.push(a);
-  for(let i=0;i<angs.length;i++){
-    const th = angs[i]*Math.PI/180, rr = IOD.r-13;
-    depP.push([IOD.cx + Math.cos(th)*rr, IOD.cy + Math.sin(th)*rr]);
+  // 铁架台：底座 + 立杆 + 横杆 + 夹具 + 橙色旋钮
+  function buildStand(rodH=4.2,clampY=2.0,armLen=2.1){
+    const g=new THREE.Group();
+    const foot=new THREE.Mesh(new THREE.CylinderGeometry(0.95,1.05,0.16,40),M.darkMetal);
+    foot.position.y=0.1;foot.castShadow=true;g.add(foot);
+    const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,rodH,16),M.metal);
+    rod.position.y=rodH/2+0.16;rod.castShadow=true;g.add(rod);
+    // 夹具滑块
+    const boss=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,0.26,20),M.metal);
+    boss.position.y=clampY;g.add(boss);
+    const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,armLen,12),M.metal);
+    arm.rotation.z=Math.PI/2;arm.position.set(armLen/2,clampY,0);g.add(arm);
+    const knob=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.16,16),M.knob);
+    knob.rotation.z=Math.PI/2;knob.position.set(-0.16,clampY,0);g.add(knob);
+    const jaw1=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.3,0.1),M.metal);jaw1.position.set(armLen,clampY+0.15,0);g.add(jaw1);
+    const jaw2=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.3,0.1),M.metal);jaw2.position.set(armLen,clampY-0.15,0);g.add(jaw2);
+    g.userData={clampY};
+    return g;
   }
-  [62,86,110,134,158,172,178].forEach(y => {
-    depP.push([280, y]); depP.push([320, y]);
-  });
-})();
-for(let i=0;i<ND && i<depP.length;i++)
-  depEls.push(mk('path',{d:'M 0 0 L 3.6 4 L 0 8 L -3.6 4 Z', fill:'#0F766E', opacity:0,
-                         transform:'translate('+depP[i][0].toFixed(1)+' '+depP[i][1].toFixed(1)+') rotate('+rnd(0,60)+')'}, bodyG));
 
-/* 玻璃描边与高光 */
-mk('path',{d:SHAPE, fill:'none', stroke:'#94A3B8', 'stroke-width':3}, iode);
-mk('path',{d:'M 285 60 Q 280 120 280 175', fill:'none', stroke:'#FFFFFF', 'stroke-width':5, opacity:.8}, iode);
-mk('path',{d:'M 240 232 Q 232 250 240 268', fill:'none', stroke:'#FFFFFF', 'stroke-width':6, opacity:.7}, iode);
-const labV = mk('text',{x:352, y:120, 'font-size':13, fill:'#7C3AED', 'font-weight':700}, iode);
-labV.textContent = '紫红色碘蒸气';
-mk('path',{d:'M 344 116 L 322 108', stroke:'#A78BFA', 'stroke-width':1.4, fill:'none'}, iode);
-const labC = mk('text',{x:352, y:318, 'font-size':13, fill:'#334155', 'font-weight':700}, iode);
-labC.textContent = '碘晶体';
-mk('path',{d:'M 348 314 L 330 310', stroke:'#94A3B8', 'stroke-width':1.4, fill:'none'}, iode);
-const labD = mk('text',{x:120, y:70, 'font-size':13, fill:'#0F766E', 'font-weight':700}, iode);
-labD.textContent = '壁上凝华出的碘晶体';
-mk('path',{d:'M 208 74 L 268 66', stroke:'#5EEAD4', 'stroke-width':1.4, fill:'none'}, iode);
-
-/* ---------- 动力学：三份质量守恒 ---------- */
-const iod = {mB:1, mV:0, mW:0, T:20, target:null};
-function updateIod(dt){
-  const T = iod.T;
-  if(iod.target !== null){
-    const d = iod.target - iod.T;
-    const step = 110*dt;           // ℃/s
-    iod.T = Math.abs(d) <= step ? iod.target : iod.T + Math.sign(d)*step;
-    if(iod.T === iod.target){ iod.target = null; }
-    const el = $('#temp');
-    if(el) el.value = Math.round(iod.T);
-    txt($('#tVal'), Math.round(iod.T));
+  // 亚克力防护罩（U 形透明板 + 青色发光边框）
+  function buildShield(w=4.0,h=3.3,d=2.6){
+    const g=new THREE.Group();
+    const panelMat=new THREE.MeshPhysicalMaterial({color:0x9fdfff,metalness:0,roughness:0.06,transmission:0.96,thickness:0.08,ior:1.48,transparent:true,opacity:0.5,side:THREE.DoubleSide,depthWrite:false});
+    const frameT=0.035;
+    const panel=(pw,ph,x,y,z,ry=0)=>{
+      const p=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),panelMat);p.position.set(x,y,z);p.rotation.y=ry;g.add(p);
+    };
+    const bar=(bw,bh,bd,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(bw,bh,bd),DEEP_CYAN);m.position.set(x,y,z);g.add(m);};
+    // 背板
+    panel(w,h,0,h/2+0.4,-d/2);
+    // 左右侧板
+    panel(d,h,-w/2,h/2+0.4,0,Math.PI/2);
+    panel(d,h,w/2,h/2+0.4,0,Math.PI/2);
+    // 发光边框（Π 形，前开口）
+    bar(w,frameT,frameT,0,h+0.4,-d/2);
+    bar(frameT,h,frameT,-w/2,h/2+0.4,-d/2);
+    bar(frameT,h,frameT,w/2,h/2+0.4,-d/2);
+    bar(frameT,frameT,d,-w/2,h+0.4,0);
+    bar(frameT,frameT,d,w/2,h+0.4,0);
+    bar(frameT,h,frameT,-w/2,h/2+0.4,d/2);
+    bar(frameT,h,frameT,w/2,h/2+0.4,d/2);
+    bar(w,frameT,frameT,0,h+0.4,d/2);
+    return g;
   }
-  const sub   = 0.62 * Math.pow(clamp((T-28)/92, 0, 1), 1.2);      // 底部 → 蒸气
-  const wallS = 0.42 * Math.pow(clamp((T-42)/86, 0, 1), 1.1);      // 壁上 → 蒸气
-  const depW  = 0.95 * Math.pow(clamp((72-T)/72, 0, 1), 1.1);      // 蒸气 → 壁上
-  const depB  = 0.30 * Math.pow(clamp((45-T)/50, 0, 1), 1.0);      // 蒸气 → 底部
-  const dtm = Math.min(dt, 0.05);
-  let dB = iod.mB*sub*dtm;
-  let dW = iod.mW*wallS*dtm;
-  let dVw = iod.mV*depW*dtm;
-  let dVb = iod.mV*depB*dtm;
-  iod.mB = clamp(iod.mB - dB + dVb, 0, 1);
-  iod.mW = clamp(iod.mW - dW + dVw, 0, 1);
-  iod.mV = clamp(1 - iod.mB - iod.mW, 0, 1);
 
-  const pct = (v) => Math.round(v*100);
-  txt($('#p1'), pct(iod.mW)+'%');  $('#b1').style.width = pct(iod.mW)+'%';
-  txt($('#p2'), pct(iod.mV)+'%');  $('#b2').style.width = pct(iod.mV)+'%';
-  txt($('#p3'), pct(iod.mB)+'%');  $('#b3').style.width = pct(iod.mB)+'%';
+  // 地面（径向渐隐圆盘，避免与背景产生硬边）
+  const floorMat=new THREE.MeshStandardMaterial({color:0x0a1a30,metalness:0.5,roughness:0.55,transparent:true,depthWrite:false});
+  floorMat.onBeforeCompile=(sh)=>{
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec2 vUvF;').replace('#include <begin_vertex>','#include <begin_vertex>\nvUvF=uv;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec2 vUvF;').replace('#include <dithering_fragment>','#include <dithering_fragment>\nfloat d=distance(vUvF,vec2(0.5));gl_FragColor.a*=1.0-smoothstep(0.28,0.49,d);');
+  };
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(46,46),floorMat);
+  floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+  const floorGrid=new THREE.GridHelper(24,24,0x1b4a6e,0x123253);
+  floorGrid.material.transparent=true;floorGrid.material.opacity=0.14;floorGrid.position.y=0.005;scene.add(floorGrid);
 
-  /* 状态判定 */
-  let st = '基本不变', col = '#64748B', bg = '#F1F5F9';
-  if(dB + dW > Math.max(dVw + dVb, 0.004)){ st = '正在升华'; col = '#EF4444'; bg = '#FEF2F2'; }
-  else if(dVw + dVb > Math.max(dB + dW, 0.004)){ st = '正在凝华'; col = '#2563EB'; bg = '#EFF4FF'; }
-  const chip = $('#iodChip');
-  if(chip){ chip.firstElementChild.style.background = col; txt(chip.querySelector('span'), st);
-            chip.style.color = col; chip.style.background = bg; }
-}
-function updateIodDraw(t, dt){
-  /* 蒸气ิลล์ */
-  vaporRect.setAttribute('opacity', (0.86*Math.pow(iod.mV, .75)).toFixed(3));
-  const nShow = Math.round(NV*clamp(iod.mV*1.15, 0, 1));
-  const dtc = Math.min(dt, 0.05);
-  for(let i=0;i<NV;i++){
-    const p = vap[i];
-    if(i < nShow){
-      p.x += p.vx*dtc; p.y += p.vy*dtc;
-      if(Math.abs(p.vx) < 6) p.vx += rnd(-24,24)*dtc*4;
-      if(Math.abs(p.vy) < 6) p.vy += rnd(-24,24)*dtc*4;
-      if(p.y < 44){ p.y = 44; p.vy = Math.abs(p.vy); }
-      if(p.y < 180){
-        if(p.x < 281){ p.x = 281; p.vx = Math.abs(p.vx); }
-        if(p.x > 319){ p.x = 319; p.vx = -Math.abs(p.vx); }
-      }else{
-        const dx = p.x-IOD.cx, dy = p.y-IOD.cy, d = Math.hypot(dx,dy);
-        if(d > 64){
-          const nx = dx/d, ny = dy/d;
-          p.x = IOD.cx + nx*64; p.y = IOD.cy + ny*64;
-          const dot = p.vx*nx + p.vy*ny;
-          p.vx -= 2*dot*nx; p.vy -= 2*dot*ny;
+  /* ============ 发光分子云（InstancedMesh） ============ */
+  class MolCloud{
+    constructor(parent,count,{color=0xffffff,radius=0.05,glow=2.2}={}){
+      this.count=count;this.parent=parent;
+      const geo=new THREE.SphereGeometry(radius,10,8);
+      const col=new THREE.Color(color).multiplyScalar(glow);
+      const mat=new THREE.MeshBasicMaterial({color:col,toneMapped:false,transparent:true,opacity:1});
+      this.mesh=new THREE.InstancedMesh(geo,mat,count);
+      this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      this.mesh.frustumCulled=false;
+      this.mesh.renderOrder=4;
+      parent.add(this.mesh);
+      this.data=Array.from({length:count},()=>({p:new THREE.Vector3(),v:new THREE.Vector3(),scale:0,life:0,ttl:1,seed:Math.random()*100,delay:Math.random()}));
+      this.dummy=new THREE.Object3D();
+    }
+    update(dt,fn){
+      for(let i=0;i<this.count;i++){
+        const d=this.data[i];fn(d,i,dt);
+        this.dummy.position.copy(d.p);
+        this.dummy.scale.setScalar(Math.max(0.0001,d.scale));
+        this.dummy.updateMatrix();
+        this.mesh.setMatrixAt(i,this.dummy.matrix);
+      }
+      this.mesh.instanceMatrix.needsUpdate=true;
+    }
+    reset(fn){this.data.forEach((d,i)=>fn(d,i));}
+  }
+
+  // 柔和雾团（Sprite 池）
+  class Wisps{
+    constructor(parent,count,color,opacity){
+      this.items=[];
+      for(let i=0;i<count;i++){
+        const s=new THREE.Sprite(new THREE.SpriteMaterial({map:SOFT,color,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));
+        s.renderOrder=3;s.visible=false;parent.add(s);
+        this.items.push({s,on:false,life:0,ttl:1,p:new THREE.Vector3(),v:new THREE.Vector3(),size:1,seed:Math.random()*10});
+      }
+    }
+    spawn(p,v,ttl,size){const it=this.items.find(i=>!i.on);if(!it)return;it.on=true;it.life=0;it.ttl=ttl;it.p.copy(p);it.v.copy(v);it.size=size;it.s.visible=true;}
+    update(dt,t,mode){
+      for(const it of this.items){
+        if(!it.on)continue;
+        it.life+=dt;
+        if(it.life>=it.ttl){it.on=false;it.s.visible=false;it.s.material.opacity=0;continue;}
+        const q=it.life/it.ttl;
+        it.v.x+=Math.sin(t*0.8+it.seed)*dt*0.08;
+        it.v.z+=Math.cos(t*0.7+it.seed)*dt*0.07;
+        if(mode==='rise')it.v.y+=dt*0.04;
+        it.p.addScaledVector(it.v,dt);
+        it.s.position.copy(it.p);
+        const sc=it.size*(0.5+q*1.1);it.s.scale.set(sc,sc,1);
+        it.s.material.opacity=0.5*smoothstep(0,0.18,q)*(1-smoothstep(0.55,1,q));
+      }
+    }
+    reset(){this.items.forEach(it=>{it.on=false;it.s.visible=false;it.s.material.opacity=0;});}
+  }
+
+  /* ============ 场景 1：液化 ============ */
+  function buildLiquefaction(){
+    const g=new THREE.Group();
+    const heater=buildHeater();g.add(heater);
+    const stand=buildStand(4.4,3.18,2.1);stand.position.set(-1.9,0,0);g.add(stand);
+    g.add(buildShield());
+
+    // 烧杯（在加热台上）
+    const beaker=new THREE.Group();beaker.position.y=0.68;g.add(beaker);
+    const bGeo=new THREE.CylinderGeometry(0.92,0.88,1.7,56,1,true);
+    const wall=new THREE.Mesh(bGeo,M.glass());wall.position.y=0.85;beaker.add(wall);
+    beaker.add(edgeOutline(bGeo,0x8fe6ff,0.35).translateY(0.85));
+    const bBase=new THREE.Mesh(new THREE.CylinderGeometry(0.88,0.88,0.055,56),M.glass());bBase.position.y=0.03;beaker.add(bBase);
+    const lip=new THREE.Mesh(new THREE.TorusGeometry(0.92,0.035,12,56),neon(0x59c9ff,1.2));lip.rotation.x=Math.PI/2;lip.position.y=1.7;beaker.add(lip);
+    // 杯嘴
+    const spout=new THREE.Mesh(new THREE.ConeGeometry(0.13,0.26,16,1,true),M.glass());spout.position.set(0.86,1.66,0);spout.rotation.z=-Math.PI/2.6;beaker.add(spout);
+    // 水
+    const waterTop=0.78;
+    const water=new THREE.Mesh(new THREE.CylinderGeometry(0.86,0.84,waterTop,48),M.water());water.position.y=waterTop/2+0.03;beaker.add(water);
+    const waterSurf=new THREE.Mesh(new THREE.CircleGeometry(0.86,48),new THREE.MeshPhysicalMaterial({color:0x8fe0ff,transparent:true,opacity:0.4,roughness:0.1,metalness:0.1,side:THREE.DoubleSide,depthWrite:false}));
+    waterSurf.rotation.x=-Math.PI/2;waterSurf.position.y=waterTop+0.035;beaker.add(waterSurf);
+    // 沸腾气泡
+    const bubbles=new MolCloud(beaker,16,{color:0xcdefff,radius:0.035,glow:1.2});
+    bubbles.reset((d)=>{d.seed=Math.random()*TAU;d.life=Math.random()*1.5;d.p.set(rand(-0.6,0.6),rand(0.1,waterTop),rand(-0.6,0.6));});
+
+    // 冷玻璃片（夹在夹具上，位于烧杯上方）
+    const plateY=3.18;
+    const plateGroup=new THREE.Group();plateGroup.position.set(0,plateY,0);plateGroup.rotation.x=-0.38;g.add(plateGroup);
+    const pGeo=new RoundedBoxGeometry(2.6,0.09,1.5,3,0.04);
+    const plate=new THREE.Mesh(pGeo,M.glass());plateGroup.add(plate);
+    plateGroup.add(edgeOutline(pGeo,0x7fe4ff,0.6));
+    // 玻璃片上的冷雾光带
+    const coldBar=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.02,0.02),neon(0x63d9ff,1.2));coldBar.position.set(0,-0.05,0.7);plateGroup.add(coldBar);
+
+    // 水蒸气分子（青白发光球）
+    const vapor=new MolCloud(g,64,{color:0x9fe8ff,radius:0.052,glow:2.6});
+    vapor.reset((d)=>{d.life=rand(0,3);d.ttl=rand(2.6,4.2);d.p.set(rand(-0.65,0.65),waterTop+0.75+rand(0,1.4),rand(-0.65,0.65));d.v.set(rand(-0.12,0.12),rand(0.35,0.7),rand(-0.12,0.12));d.scale=rand(0.6,1.0);});
+    // 蒸汽柔雾
+    const wisp=new Wisps(g,30,0x9fdcff,0.5);
+    let dropAcc=0;
+    // 水珠池（写实高光小球）
+    const dropGeo=new THREE.SphereGeometry(1,16,12);
+    const dropMat=new THREE.MeshPhysicalMaterial({color:0xbfe8ff,roughness:0.04,metalness:0.05,transmission:0.35,thickness:0.3,ior:1.33,clearcoat:1,clearcoatRoughness:0.02,envMapIntensity:2.4,emissive:0x2a6f9a,emissiveIntensity:0.45,transparent:true,opacity:0.95});
+    const drops=[];
+    for(let i=0;i<34;i++){
+      const m=new THREE.Mesh(dropGeo,dropMat);m.visible=false;m.renderOrder=5;plateGroup.add(m);
+      drops.push({m,on:false,phase:0,x:0,z:0,r:0,hold:0,vy:0});
+    }
+    function spawnDrop(x,z){
+      const d=drops.find(v=>!v.on);if(!d)return;
+      d.on=true;d.phase=0;d.x=clamp(x,-1.15,1.15);d.z=clamp(z,-0.6,0.6);d.r=rand(0.055,0.085);d.hold=rand(0.6,2.4);d.vy=0;d.m.visible=true;
+    }
+    function update(dt,t){
+      // 加热呼吸光
+      const pulse=0.85+0.15*Math.sin(t*2.4);
+      heater.userData.heatDisc.material.opacity=0.12*pulse;
+      heatL.intensity=3*pulse;heatL.position.set(0,0.7,0);
+      // 气泡
+      bubbles.update(dt,(d,i,dd)=>{
+        d.life+=dd;d.p.y+=dd*(0.35+d.life*0.12);
+        d.p.x+=Math.sin(t*3+d.seed)*dd*0.05;
+        if(d.p.y>waterTop+0.02){d.p.y=0.1;d.p.x=rand(-0.6,0.6);d.p.z=rand(-0.6,0.6);d.life=0;}
+        d.scale=0.6+0.4*Math.sin(d.life*4+d.seed);
+      });
+      // 水蒸气：上升 → 撞冷片 → 液化成水珠
+      vapor.update(dt,(d,i,dd)=>{
+        d.life+=dd;
+        d.p.addScaledVector(d.v,dd);
+        d.v.x+=Math.sin(t*1.4+d.seed)*dd*0.1;
+        d.v.z+=Math.cos(t*1.2+d.seed*1.7)*dd*0.08;
+        const fade=smoothstep(0,0.5,d.life)*(1-smoothstep(d.ttl-1,d.ttl,d.life));
+        // 接近冷片：吸附并生成水珠
+        if(d.p.y>=plateY-0.12&&Math.abs(d.p.x)<1.25&&Math.abs(d.p.z)<0.72){
+          d.life=0;d.ttl=rand(2.6,4.2);
+          d.p.set(rand(-0.65,0.65),waterTop+0.85,rand(-0.65,0.65));
+          d.v.set(rand(-0.12,0.12),rand(0.35,0.7),rand(-0.12,0.12));
+          if(Math.random()<0.55)spawnDrop(d.p.x,d.p.z);
+        }
+        d.scale=(0.55+0.45*fade)*(0.85+0.15*Math.sin(t*5+d.seed));
+      });
+      wisp.acc=(wisp.acc||0)+dt;
+      if(wisp.acc>0.28){wisp.acc=0;wisp.spawn(new THREE.Vector3(rand(-0.5,0.5),waterTop+0.85,rand(-0.5,0.5)),new THREE.Vector3(rand(-0.08,0.08),rand(0.3,0.55),rand(-0.08,0.08)),rand(2.5,4),rand(0.7,1.2));}
+      wisp.update(dt,t,'rise');
+      // 水珠：长大 → 停留 → 滑落
+      for(const d of drops){
+        if(!d.on)continue;
+        d.r+=dt*0.012;
+        if(d.phase===0){d.hold-=dt;if(d.hold<=0)d.phase=1;}
+        if(d.phase===1){d.vy+=dt*0.5;d.z-=d.vy*dt*0.25;if(d.z<-0.8){d.on=false;d.m.visible=false;}}
+        const stretch=d.phase===1?1+d.vy*0.25:1;
+        d.m.scale.set(d.r,d.r*stretch,d.r);
+        d.m.position.set(d.x,0.055+d.r*0.35,d.z);
+      }
+    }
+    function reset(){
+      bubbles.reset((d)=>{d.life=Math.random()*1.5;d.p.set(rand(-0.6,0.6),rand(0.1,waterTop),rand(-0.6,0.6));});
+      vapor.reset((d)=>{d.life=rand(0,3);d.ttl=rand(2.6,4.2);d.p.set(rand(-0.65,0.65),waterTop+0.75+rand(0,1.4),rand(-0.65,0.65));d.v.set(rand(-0.12,0.12),rand(0.35,0.7),rand(-0.12,0.12));});
+      wisp.reset();drops.forEach(d=>{d.on=false;d.m.visible=false;});
+    }
+    return {group:g,update,reset,labels:[
+      {pos:new THREE.Vector3(0.75,2.5,0.4),ico:'vapor',text:'水蒸气分子'},
+      {obj:plateGroup,local:[1.0,0.05,0.3],ico:'gear',text:'冷玻璃片'},
+      {obj:plateGroup,local:[-0.5,-0.12,0.35],ico:'liquid',text:'水珠（液化）'}
+    ]};
+  }
+
+  /* ============ 场景 2：升华 ============ */
+  function buildSublimation(){
+    const g=new THREE.Group();
+    const heater=buildHeater();g.add(heater);
+    const stand=buildStand(4.4,2.15,2.0);stand.position.set(-1.9,0,0);g.add(stand);
+    g.add(buildShield());
+
+    // 密封试管（竖直，夹在夹具上，底部坐在加热盘上）
+    const tube=new THREE.Group();tube.position.set(0.2,0.6,0);g.add(tube);
+    const tGeo=new THREE.CylinderGeometry(0.72,0.72,2.5,56,1,true);
+    const tw=new THREE.Mesh(tGeo,M.glass());tw.position.y=0.95;tube.add(tw);
+    tube.add(edgeOutline(tGeo,0x8fe6ff,0.32).translateY(0.95));
+    const tBase=new THREE.Mesh(new THREE.CylinderGeometry(0.72,0.72,0.06,56),M.glass());tBase.position.y=-0.3;tube.add(tBase);
+    const tLip=new THREE.Mesh(new THREE.TorusGeometry(0.72,0.04,12,56),neon(0x59c9ff,1.1));tLip.rotation.x=Math.PI/2;tLip.position.y=2.2;tube.add(tLip);
+    // 橡胶塞
+    const stopper=new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.72,0.26,40),M.rubber);stopper.position.y=2.3;tube.add(stopper);
+    // 温度计/玻璃棒（斜插）
+    const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,2.2,12),M.glass());rod.position.set(0.25,2.4,0);rod.rotation.z=0.38;tube.add(rod);
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.09,12,10),neon(0xff7a4a,1.4));bulb.position.set(-0.15,1.4,0);tube.add(bulb);
+
+    // 固态碘颗粒（堆积在底部，暗紫带微光）
+    const grainGeo=new THREE.OctahedronGeometry(1,0);
+    const grainMat=new THREE.MeshStandardMaterial({color:0x4b2378,metalness:0.45,roughness:0.32,emissive:0x2a0f4a,emissiveIntensity:0.5,flatShading:true});
+    const grains=new THREE.InstancedMesh(grainGeo,grainMat,110);
+    grains.instanceMatrix.setUsage(THREE.DynamicDrawUsage);grains.castShadow=true;tube.add(grains);
+    const grainData=[];
+    for(let i=0;i<110;i++){
+      const a=Math.random()*TAU,rr=Math.sqrt(Math.random())*0.6;
+      grainData.push({x:Math.cos(a)*rr,z:Math.sin(a)*rr,y:0.0+rand(0,0.32),s:rand(0.045,0.085),rot:rand(0,TAU),delay:Math.random()*0.5});
+    }
+    const gDummy=new THREE.Object3D();
+
+    // 紫色碘蒸气分子
+    const vapor=new MolCloud(tube,80,{color:0xc07bff,radius:0.055,glow:2.8});
+    vapor.reset((d)=>{d.life=rand(0,3);d.ttl=rand(3,5.5);const a=Math.random()*TAU,rr=Math.sqrt(Math.random())*0.6;d.p.set(Math.cos(a)*rr,rand(0.1,2.0),Math.sin(a)*rr);d.v.set(rand(-0.12,0.12),rand(0.18,0.5),rand(-0.12,0.12));});
+    // 紫色雾团
+    const wisp=new Wisps(tube,26,0xa855f7,0.6);
+    let spawnAcc=0;
+
+    function update(dt,t){
+      const pulse=0.85+0.15*Math.sin(t*2.6);
+      heater.userData.heatDisc.material.opacity=0.16*pulse;
+      heatL.intensity=4.5*pulse;heatL.position.set(0.2,0.85,0);
+      // 碘颗粒逐渐减少（升华）
+      for(let i=0;i<grainData.length;i++){
+        const d=grainData[i];
+        const remain=clamp(1-((t%20)/20)*1.0+d.delay*0.25,0.12,1);
+        gDummy.position.set(d.x,d.y,d.z);
+        gDummy.rotation.set(d.rot,d.rot*0.7,d.rot*1.3);
+        gDummy.scale.setScalar(d.s*remain*(0.94+0.06*Math.sin(t*3+i)));
+        gDummy.updateMatrix();grains.setMatrixAt(i,gDummy.matrix);
+      }
+      grains.instanceMatrix.needsUpdate=true;
+      // 碘蒸气：直接由固态扩散，无液滴
+      vapor.update(dt,(d,i,dd)=>{
+        d.life+=dd;
+        d.p.addScaledVector(d.v,dd);
+        d.v.x+=Math.sin(t*1.6+d.seed)*dd*0.12;
+        d.v.z+=Math.cos(t*1.3+d.seed*1.4)*dd*0.1;
+        d.v.y+=(d.p.y<1.6?dd*0.05:-dd*0.03);
+        // 撞壁反弹（限制在试管内）
+        const rr=Math.hypot(d.p.x,d.p.z);
+        if(rr>0.64){d.v.x-=d.p.x/rr*dd*0.5;d.v.z-=d.p.z/rr*dd*0.5;}
+        if(d.p.y>2.1||d.p.y<0.0){d.v.y*=-0.55;d.p.y=clamp(d.p.y,0.02,2.08);}
+        const density=smoothstep(0.5,3,t%20+0.5);
+        d.scale=(0.6+0.4*Math.sin(d.life*3+d.seed))*smoothstep(0,0.4,d.life)*density;
+      });
+      spawnAcc+=dt;
+      if(spawnAcc>0.22){spawnAcc=0;const a=Math.random()*TAU,rr=Math.sqrt(Math.random())*0.5;wisp.spawn(new THREE.Vector3(0.2+Math.cos(a)*rr,rand(0.05,0.4),Math.sin(a)*rr),new THREE.Vector3(rand(-0.06,0.06),rand(0.25,0.5),rand(-0.06,0.06)),rand(3,5),rand(0.7,1.25));}
+      wisp.update(dt,t,'rise');
+    }
+    function reset(){
+      vapor.reset((d)=>{d.life=rand(0,3);d.ttl=rand(3,5.5);const a=Math.random()*TAU,rr=Math.sqrt(Math.random())*0.6;d.p.set(Math.cos(a)*rr,rand(0.1,2.0),Math.sin(a)*rr);d.v.set(rand(-0.12,0.12),rand(0.18,0.5),rand(-0.12,0.12));});
+      wisp.reset();
+    }
+    return {group:g,update,reset,labels:[
+      {obj:tube,local:[-0.45,-0.18,0.5],ico:'solid',text:'固态碘颗粒'},
+      {obj:tube,local:[0.55,1.5,0.35],ico:'gas2',text:'碘蒸气（气态）'}
+    ]};
+  }
+
+  /* ============ 场景 3：凝华 ============ */
+  function buildDeposition(){
+    const g=new THREE.Group();
+    const heater=buildHeater();g.add(heater);
+    const stand=buildStand(4.4,1.55,2.0);stand.position.set(-1.9,0,0);g.add(stand);
+    g.add(buildShield());
+
+    // 外层容器（广口瓶）
+    const jar=new THREE.Group();jar.position.y=0.68;g.add(jar);
+    const jGeo=new THREE.CylinderGeometry(1.0,0.96,2.4,56,1,true);
+    const jw=new THREE.Mesh(jGeo,M.glass());jw.position.y=1.2;jar.add(jw);
+    jar.add(edgeOutline(jGeo,0x8fe6ff,0.3).translateY(1.2));
+    const jBase=new THREE.Mesh(new THREE.CylinderGeometry(0.96,0.96,0.06,56),M.glass());jBase.position.y=0.02;jar.add(jBase);
+    const jLip=new THREE.Mesh(new THREE.TorusGeometry(1.0,0.04,12,56),neon(0x59c9ff,1.1));jLip.rotation.x=Math.PI/2;jLip.position.y=2.4;jar.add(jLip);
+    // 底部少量碘（升华来源）
+    const src=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.85,0.12,40),new THREE.MeshStandardMaterial({color:0x3d1c66,metalness:0.4,roughness:0.4,emissive:0x1d0a38,emissiveIntensity:0.6}));src.position.y=0.08;jar.add(src);
+
+    // 中央冷指（低温管壁，青色冷光）
+    const cold=new THREE.Group();cold.position.y=1.2;jar.add(cold);
+    const cGeo=new THREE.CylinderGeometry(0.42,0.42,1.7,40);
+    const cw=new THREE.Mesh(cGeo,M.glass());cold.add(cw);
+    cold.add(edgeOutline(cGeo,0x8ff0ff,0.6));
+    const coldGlow=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,1.6,40,1,true),new THREE.MeshBasicMaterial({color:0x4fd8ff,transparent:true,opacity:0.09,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false}));cold.add(coldGlow);
+    const coldCap=new THREE.Mesh(new THREE.CylinderGeometry(0.48,0.48,0.1,40),neon(0x5fe0ff,1.2));coldCap.position.y=0.9;cold.add(coldCap);
+
+    // 碘晶粒环（在冷管壁周围直接凝华成固态晶体）
+    const cryGeo=new THREE.OctahedronGeometry(1,0);
+    const cryMat=new THREE.MeshStandardMaterial({color:0x7d3fc4,metalness:0.5,roughness:0.25,emissive:0x3a1566,emissiveIntensity:0.7,flatShading:true});
+    const crystals=new THREE.InstancedMesh(cryGeo,cryMat,150);
+    crystals.instanceMatrix.setUsage(THREE.DynamicDrawUsage);crystals.castShadow=true;jar.add(crystals);
+    const cryData=[];
+    for(let i=0;i<150;i++){
+      const a=Math.random()*TAU,y=rand(-0.7,0.7),ring=0.46+rand(0,0.1);
+      cryData.push({x:Math.cos(a)*ring,y,z:Math.sin(a)*ring,s:rand(0.03,0.07),rot:rand(0,TAU),delay:Math.random()*0.65});
+    }
+    const cDummy=new THREE.Object3D();
+
+    // 碘蒸气分子（朝冷管壁运动并被吸附）
+    const vapor=new MolCloud(jar,76,{color:0xc07bff,radius:0.05,glow:2.8});
+    vapor.reset((d)=>{d.life=rand(0,3);d.ttl=rand(3,5);const a=Math.random()*TAU,rr=rand(0.55,0.85);d.p.set(Math.cos(a)*rr,rand(-0.9,1.0),Math.sin(a)*rr);d.v.set(rand(-0.1,0.1),rand(0.1,0.35),rand(-0.1,0.1));});
+    const wisp=new Wisps(jar,22,0xa855f7,0.5);
+    let acc=0;
+
+    function update(dt,t){
+      const pulse=0.85+0.15*Math.sin(t*2.2);
+      heater.userData.heatDisc.material.opacity=0.1*pulse;
+      heatL.intensity=2.5*pulse;heatL.position.set(0,0.7,0);
+      coldCap.material.color.setHex(0x5fe0ff).multiplyScalar(1.1+0.15*Math.sin(t*3));
+      // 晶粒逐渐凝华成型
+      const prog=(t%18)/18;
+      for(let i=0;i<cryData.length;i++){
+        const d=cryData[i];
+        const grow=smoothstep(d.delay,d.delay+0.32,prog)*(1-smoothstep(0.92,1,prog));
+        cDummy.position.set(d.x,d.y+0.05,d.z);
+        cDummy.rotation.set(d.rot,d.rot*0.6,d.rot*1.2);
+        cDummy.scale.setScalar(d.s*grow*(0.92+0.08*Math.sin(t*4+i)));
+        cDummy.updateMatrix();crystals.setMatrixAt(i,cDummy.matrix);
+      }
+      crystals.instanceMatrix.needsUpdate=true;
+      // 碘蒸气：被冷管壁吸附
+      vapor.update(dt,(d,i,dd)=>{
+        d.life+=dd;
+        const rr=Math.hypot(d.p.x,d.p.z);
+        // 向管壁靠拢
+        if(rr>0.52){d.v.x-=d.p.x/rr*dd*0.22;d.v.z-=d.p.z/rr*dd*0.22;}
+        d.p.addScaledVector(d.v,dd);
+        d.v.x+=Math.sin(t*1.5+d.seed)*dd*0.1;
+        d.v.z+=Math.cos(t*1.2+d.seed)*dd*0.1;
+        d.v.y+=Math.sin(t+d.seed)*dd*0.05;
+        // 触及冷指表面 → 凝华，重新从底部生成
+        if(rr<0.5&&d.p.y>-0.75&&d.p.y<0.75){
+          d.life=0;const a=Math.random()*TAU;d.p.set(Math.cos(a)*rand(0.6,0.85),rand(-0.8,0.9),Math.sin(a)*rand(0.6,0.85));
+          d.v.set(rand(-0.1,0.1),rand(0.1,0.3),rand(-0.1,0.1));
+        }
+        if(d.p.y<-0.95||d.p.y>1.1)d.v.y*=-0.6;
+        d.scale=(0.55+0.45*Math.sin(d.life*3+d.seed))*smoothstep(0,0.4,d.life)*smoothstep(0,1.5,t%18+0.5);
+      });
+      acc+=dt;
+      if(acc>0.28){acc=0;const a=Math.random()*TAU;wisp.spawn(new THREE.Vector3(Math.cos(a)*0.7,rand(-0.7,0.7),Math.sin(a)*0.7),new THREE.Vector3(rand(-0.05,0.05),rand(0.15,0.35),rand(-0.05,0.05)),rand(3,5),rand(0.6,1.0));}
+      wisp.update(dt,t,'rise');
+    }
+    function reset(){
+      vapor.reset((d)=>{d.life=rand(0,3);d.ttl=rand(3,5);const a=Math.random()*TAU,rr=rand(0.55,0.85);d.p.set(Math.cos(a)*rr,rand(-0.9,1.0),Math.sin(a)*rr);d.v.set(rand(-0.1,0.1),rand(0.1,0.35),rand(-0.1,0.1));});
+      wisp.reset();
+    }
+    return {group:g,update,reset,labels:[
+      {obj:jar,local:[-0.8,1.7,0.45],ico:'gas2',text:'碘蒸气'},
+      {obj:cold,local:[0.0,0.15,0.55],ico:'solid',text:'碘晶粒（凝华）'},
+      {obj:jar,local:[0.6,1.85,0.4],ico:'cold',text:'低温管壁'}
+    ]};
+  }
+
+  /* ============ 装配 ============ */
+  const scenes={liq:buildLiquefaction(),sub:buildSublimation(),dep:buildDeposition()};
+  Object.values(scenes).forEach(s=>{s.group.visible=false;scene.add(s.group);s.time=0;});
+
+  /* ============ 音效引擎（Web Audio 拟真合成 + 卷积混响，无外部音频） ============ */
+  const Sound=(()=>{
+    let ctx=null,master=null,dry=null,revSend=null,layers={},started=false;
+    let on=true,running=true,sceneKey='liq';
+    let nextDrop=0,nextGrain=0,nextChime=0,modT=0;
+    const CFG={
+      liq:{type:'bandpass',freq:640,q:0.65,gain:0.050},
+      sub:{type:'lowpass', freq:820,q:0.70,gain:0.070},
+      dep:{type:'highpass',freq:2400,q:0.70,gain:0.026}
+    };
+    // 粉红噪声（Paul Kellet 近似）—— 比白噪声更接近自然气流
+    function pinkBuffer(sec){
+      const len=Math.floor(ctx.sampleRate*sec),b=ctx.createBuffer(2,len,ctx.sampleRate);
+      for(let c=0;c<2;c++){
+        const d=b.getChannelData(c);let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+        for(let i=0;i<len;i++){
+          const w=Math.random()*2-1;
+          b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;b2=0.96900*b2+w*0.1538520;
+          b3=0.86650*b3+w*0.3104856;b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
+          b6=w*0.115926;
+          d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;
         }
       }
-      /* 从球体进入颈部时给个向上的推力，让蒸气真的往上冒 */
-      if(p.y > 150 && p.y < 185 && p.vy > -14) p.vy -= 26*dtc;
+      return b;
     }
-    const vis = i < nShow ? 0.9 : 0;
-    vapEls[i].setAttribute('opacity', vis);
-    if(vis){ vapEls[i].setAttribute('cx', p.x.toFixed(1)); vapEls[i].setAttribute('cy', p.y.toFixed(1)); }
+    // 卷积混响脉冲响应：指数衰减噪声 + 少量早期反射，营造实验室空间感
+    function irBuffer(sec){
+      const len=Math.floor(ctx.sampleRate*sec),b=ctx.createBuffer(2,len,ctx.sampleRate);
+      for(let c=0;c<2;c++){
+        const d=b.getChannelData(c);
+        for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)*0.6;
+        [0.011,0.023,0.037,0.056].forEach((tt,k)=>{const idx=Math.floor(tt*ctx.sampleRate);if(idx<len)d[idx]+=(k%2?1:-1)*(0.42-k*0.07);});
+      }
+      return b;
+    }
+    function boot(){
+      if(started)return true;
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return false;
+      try{
+        ctx=new AC();
+        master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+        dry=ctx.createGain();dry.gain.value=1;dry.connect(master);
+        const conv=ctx.createConvolver();conv.buffer=irBuffer(1.7);
+        const ret=ctx.createGain();ret.gain.value=0.4;conv.connect(ret);ret.connect(master);
+        revSend=ctx.createGain();revSend.gain.value=1;revSend.connect(conv);
+        const nb=pinkBuffer(3);
+        Object.keys(CFG).forEach(k=>{
+          const c=CFG[k],src=ctx.createBufferSource();src.buffer=nb;src.loop=true;
+          const f=ctx.createBiquadFilter();f.type=c.type;f.frequency.value=c.freq;f.Q.value=c.q;
+          const g=ctx.createGain();g.gain.value=(k==='liq'?c.gain:0);
+          src.connect(f);f.connect(g);g.connect(dry);
+          const s=ctx.createGain();s.gain.value=0.22;g.connect(s);s.connect(revSend);
+          src.start();layers[k]={f,g};
+        });
+        started=true;applyGain();return true;
+      }catch(e){return false;}
+    }
+    const now=()=>ctx?ctx.currentTime:0;
+    function applyGain(){if(started)master.gain.setTargetAtTime(on?1:0,now(),0.09);}
+    // 短噪声瞬态（冲击 / 沙沙颗粒），带混响发送
+    function burst(dur,vol,type,freq,q,bus,when){
+      if(!started||!on)return;
+      const t=when||now(),len=Math.max(1,Math.floor(ctx.sampleRate*dur));
+      const buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);
+      for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,1.5);
+      const src=ctx.createBufferSource();src.buffer=buf;
+      const f=ctx.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=freq||2000;f.Q.value=q||1;
+      const g=ctx.createGain();g.gain.value=vol;const s=ctx.createGain();s.gain.value=0.5;
+      src.connect(f);f.connect(g);g.connect(bus||dry);g.connect(s);s.connect(revSend);src.start(t);
+      src.onended=()=>{try{src.disconnect();f.disconnect();g.disconnect();s.disconnect();}catch(e){}};
+    }
+    // 带音量包络与频率滑落的振荡器（模拟共振体）
+    function tone(freq,dur,type,vol,glideTo,bus,when,atk){
+      if(!started||!on)return;
+      const t=when||now(),o=ctx.createOscillator(),g=ctx.createGain(),s=ctx.createGain();
+      o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+      if(glideTo)o.frequency.exponentialRampToValueAtTime(glideTo,t+dur);
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(vol,t+(atk||0.004));
+      g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      s.gain.value=0.55;o.connect(g);g.connect(bus||dry);g.connect(s);s.connect(revSend);
+      o.start(t);o.stop(t+dur+0.03);
+      o.onended=()=>{try{o.disconnect();g.disconnect();s.disconnect();}catch(e){}};
+    }
+    // 真实水滴：高频瞬态冲击 + 快速下滑的共振 + 小回弹
+    function droplet(){
+      const t=now(),f=760+Math.random()*420;
+      burst(0.010,0.10,'highpass',2600,0.7,dry,t);
+      tone(f,0.085+Math.random()*0.05,'sine',0.075,f*0.32,dry,t);
+      if(Math.random()<0.7)tone(f*1.35,0.05,'sine',0.028,f*0.6,dry,t+0.055+Math.random()*0.03);
+    }
+    // 结晶微颗粒：密集细碎的沙沙 / 噼啪
+    function frostGrain(){burst(0.006+Math.random()*0.008,0.012+Math.random()*0.016,'bandpass',4200+Math.random()*3200,2.2,dry);}
+    function chime(){const t=now(),f=1800+Math.random()*1600;tone(f,0.28,'sine',0.032,f*1.01,dry,t);tone(f*2.4,0.14,'triangle',0.011,null,dry,t);}
+    function ui(kind){
+      if(!boot())return;
+      const t=now();
+      burst(0.008,0.045,'bandpass',1800,1.6,dry,t); // 机械开关轻"咔哒"
+      if(kind==='tab')tone(880,0.055,'sine',0.05,1120,dry,t);
+      else if(kind==='on')tone(620,0.09,'sine',0.05,940,dry,t);
+      else if(kind==='stop')tone(520,0.10,'sine',0.045,340,dry,t);
+      else if(kind==='start')tone(480,0.09,'sine',0.045,760,dry,t);
+    }
+    function setScene(k){
+      sceneKey=k;if(!started)return;
+      Object.keys(layers).forEach(key=>layers[key].g.gain.setTargetAtTime(key===k?CFG[key].gain:0,now(),0.35));
+      if(on&&running)burst(0.06,0.02,'highpass',3000,0.7,dry);
+    }
+    function setRunning(v){
+      running=v;if(!started)return;
+      Object.keys(layers).forEach(key=>layers[key].g.gain.setTargetAtTime(v&&key===sceneKey?CFG[key].gain:0,now(),0.25));
+    }
+    function setOn(v){on=v;if(v&&!boot())on=false;applyGain();return on;}
+    function tick(dt){
+      if(!started||!on||!running)return;
+      const t=now();
+      // 缓慢起伏：调制当前气流层的滤波频率与音量，避免机械感
+      modT+=dt;const L=layers[sceneKey],c=CFG[sceneKey];
+      if(L){
+        L.f.frequency.setTargetAtTime(c.freq*(0.82+0.30*(0.5+0.5*Math.sin(modT*0.9))),t,0.2);
+        L.g.gain.setTargetAtTime(c.gain*(0.75+0.35*(0.5+0.5*Math.sin(modT*0.55+1.3))),t,0.25);
+      }
+      if(sceneKey==='liq'){
+        nextDrop-=dt;if(nextDrop<=0){droplet();nextDrop=0.9+Math.random()*1.8;}
+      }else if(sceneKey==='dep'){
+        nextGrain-=dt;if(nextGrain<=0){frostGrain();nextGrain=0.045+Math.random()*0.12;}
+        nextChime-=dt;if(nextChime<=0){if(Math.random()<0.6)chime();nextChime=1.6+Math.random()*2.6;}
+      }else{
+        nextGrain-=dt;if(nextGrain<=0){burst(0.02,0.008,'bandpass',2600+Math.random()*1800,1.2,dry);nextGrain=0.12+Math.random()*0.3;}
+      }
+    }
+    return {boot,ui,setScene,setRunning,setOn,tick,getOn:()=>on};
+  })();
+  addEventListener('pointerdown',()=>Sound.boot(),{once:true});
+
+  let active='liq';
+  let playing=true;
+  const PLAY_NAMES={liq:'液化',sub:'升华',dep:'凝华'};
+  const playBtn=document.getElementById('playBtn');
+  const playTxt=document.getElementById('playTxt');
+  function syncPlayBtn(){
+    playTxt.textContent=(playing?'停止':'开始')+PLAY_NAMES[active];
+    playBtn.classList.toggle('paused',!playing);
   }
-  /* 晶体数量 */
-  const nCr = Math.round(NCR*clamp(iod.mB*1.05, 0, 1));
-  for(let i=0;i<NCR;i++) crEls[i].setAttribute('opacity', i<nCr ? 1 : 0);
-  const nD  = Math.round(ND*clamp(iod.mW*1.05, 0, 1));
-  for(let i=0;i<depEls.length;i++) depEls[i].setAttribute('opacity', i<nD ? .95 : 0);
-  /* 火焰大小 */
-  const heat = clamp((iod.T-25)/120, 0, 1);
-  const sc = 0.5 + 0.6*heat;
-  const op = heat <= 0.01 ? 0 : (0.55 + 0.45*heat);
-  [flame, flame2].forEach((f,k) => {
-    f.setAttribute('opacity', op*(k? .95 : .85));
-    f.setAttribute('transform', 'translate(300 376) scale('+(sc*(k? .68 : 1)).toFixed(3)+') translate(-300 -376)');
+  function setActive(key){
+    if(!scenes[key])return;
+    active=key;
+    Object.keys(scenes).forEach(k=>{scenes[k].group.visible=(k===key);scenes[k].time=0;scenes[k].reset();});
+    document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.key===key));
+    heatL.intensity=0;
+    playing=true;syncPlayBtn();
+    Sound.setScene(key);Sound.setRunning(true);
+  }
+  document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{Sound.ui('tab');setActive(b.dataset.key);}));
+  playBtn.addEventListener('click',()=>{
+    playing=!playing;syncPlayBtn();
+    Sound.setRunning(playing);Sound.ui(playing?'start':'stop');
   });
-}
-const elT = $('#temp');
-elT.addEventListener('input', () => { iod.T = +elT.value; iod.target = null; txt($('#tVal'), elT.value); });
-$('#btnHot').addEventListener('click', () => { iod.target = 215; });
-$('#btnCold').addEventListener('click', () => { iod.target = 2; });
-$('#btnReset').addEventListener('click', () => {
-  iod.target = null; iod.T = 20; elT.value = 20; txt($('#tVal'), 20);
-  iod.mB = 1; iod.mV = 0; iod.mW = 0;
-});
+  const sndBtn=document.getElementById('sndBtn');
+  sndBtn.addEventListener('click',()=>{
+    const on=Sound.setOn(!Sound.getOn());
+    sndBtn.classList.toggle('on',on);sndBtn.classList.toggle('off',!on);
+    sndBtn.title=on?'关闭音效':'开启音效';
+    if(on)Sound.ui('on');
+  });
 
-/* ============================================================
-   3. 液化方式 A — 降低温度
-   ============================================================ */
-const sA = $('#sceneA');
-/* 热水烧杯 */
-mk('path',{d:'M 168 214 L 168 306 Q 168 316 178 316 L 342 316 Q 352 316 352 306 L 352 214 Z',
-           fill:'#FFFFFF', stroke:'#94A3B8', 'stroke-width':2.5}, sA);
-mk('path',{d:'M 174 250 L 174 306 Q 174 310 179 310 L 341 310 Q 346 310 346 306 L 346 250 Z',
-           fill:'#BAE6FD'}, sA);
-mk('path',{d:'M 174 250 L 346 250', stroke:'#7DD3FC', 'stroke-width':2, fill:'none'}, sA);
-mk('path',{d:'M 352 246 Q 372 246 372 262 Q 372 278 352 278', fill:'none', stroke:'#94A3B8', 'stroke-width':2.5}, sA);
-const tw = mk('text',{x:376, y:288, 'font-size':13, fill:'#0284C7', 'font-weight':700}, sA); tw.textContent = '热水';
-/* 上升的水蒸气 */
-const steamP = [];
-for(let i=0;i<5;i++) steamP.push(mk('path',{d:'', fill:'none', stroke:'#93C5FD', 'stroke-width':2.4,
-                                            'stroke-linecap':'round', opacity:.75}, sA));
-/* 玻璃片（fill 随冷热变） */
-const glassPlate = mk('rect',{x:88, y:96, width:344, height:15, rx:4, fill:'#E0F2FE', stroke:'#7DD3FC', 'stroke-width':2}, sA);
-mk('rect',{x:88, y:96, width:344, height:5, rx:2.5, fill:'#FFFFFF', opacity:.9}, sA);
-const tGlass = mk('text',{x:88, y:88, 'font-size':13, fill:'#0284C7', 'font-weight':700}, sA);
-tGlass.textContent = '玻璃片';
-/* 水珠 */
-const NDR = 34, drEls = [], drP = [];
-(function(){
-  const arr = [];
-  for(let i=0;i<NDR;i++) arr.push(96 + i*9.7 + rnd(-2,2));
-  arr.sort((a,b)=>a-b);
-  for(let i=0;i<NDR;i++) drP.push({x:arr[i], th:i/NDR*0.86, sz:0.7 + rnd(0,0.8), ph:rnd(0,1)});
-})();
-for(let i=0;i<NDR;i++){
-  drEls.push(mk('circle',{cx:drP[i].x, cy:114, r:0, fill:'#38BDF8', stroke:'#0284C7',
-                          'stroke-width':1, opacity:0}, sA));
-}
-/* 滴落的大水珠 */
-const dripEls = [];
-for(let i=0;i<3;i++){
-  dripEls.push(mk('ellipse',{cx:0, cy:0, rx:3.4, ry:4.6, fill:'#38BDF8', opacity:0}, sA));
-}
-/* 图上必要的两处标注 */
-const tSteam = mk('text',{x:186, y:202, 'font-size':12.5, fill:'#60A5FA', 'text-anchor':'end'}, sA);
-tSteam.textContent = '水蒸气';
-const tDrop = mk('text',{x:96, y:146, 'font-size':12.5, fill:'#0284C7'}, sA);
-tDrop.textContent = '小水珠';
-let glassT = 20;
-function updateA(t, dt){
-  const DEW = 45;
-  const amt = clamp((DEW - glassT)/48, 0, 1);
-  /* 玻璃片标签与颜色随温度变：热了就不能再叫「冷玻璃片」 */
-  const cold = glassT < DEW;
-  txt(tGlass, (cold ? '冷玻璃片 ' : '玻璃片 ') + glassT + ' ℃'
-      + (cold ? '' : '（不够冷，不液化）'));
-  tGlass.setAttribute('fill', cold ? '#0284C7' : '#EA580C');
-  glassPlate.setAttribute('fill', cold ? '#E0F2FE' : '#FFE0C7');
-  glassPlate.setAttribute('stroke', cold ? '#7DD3FC' : '#FDBA74');
-  let n = 0, shown = 0;
-  for(let i=0;i<NDR;i++){
-    const d = drP[i];
-    if(amt <= d.th){ drEls[i].setAttribute('opacity', 0); continue; }
-    const grow = clamp((amt - d.th)*2.4, 0, 1);
-    const r = grow*(2.1 + 3.4*d.sz);
-    drEls[i].setAttribute('r', r.toFixed(2));
-    drEls[i].setAttribute('cy', (114 + r).toFixed(1));
-    drEls[i].setAttribute('opacity', (0.55 + 0.45*grow).toFixed(2));
-    n++;
-    if(r > 4.2) shown++;
-  }
-  txt($('#dropN'), n);
-  tDrop.setAttribute('opacity', n > 0 ? 1 : 0);   // 没结出水珠时别挂着这个标注
-  const chip = $('#chipA');
-  let s = '尚未液化', c = '#64748B', b = '#F1F5F9';
-  if(amt > 0.02 && amt < 0.55){ s = '开始液化'; c = '#0EA5E9'; b = '#E0F2FE'; }
-  else if(amt >= 0.55){ s = '大量液化'; c = '#0284C7'; b = '#DBEAFE'; }
-  if(chip){ chip.firstElementChild.style.background = c; chip.style.color = c; chip.style.background = b;
-            txt(chip.querySelector('span'), s); }
-  /* 滴落 */
-  for(let i=0;i<3;i++){
-    if(amt < 0.35){ dripEls[i].setAttribute('opacity', 0); continue; }
-    const base = drP[(i*11)%NDR].x;
-    let ph = ((t*0.5 + drP[(i*11)%NDR].ph) % 1);
-    const y = 120 + ph*160;
-    dripEls[i].setAttribute('cx', base.toFixed(1));
-    dripEls[i].setAttribute('cy', y.toFixed(1));
-    dripEls[i].setAttribute('opacity', (0.85*(1-ph)).toFixed(2));
-    dripEls[i].setAttribute('rx', (2.6 + 1.6*amt).toFixed(2));
-    dripEls[i].setAttribute('ry', (3.6 + 2.2*amt).toFixed(2));
-  }
-  /* 水蒸气波纹 */
-  for(let k=0;k<steamP.length;k++){
-    const x = 200 + k*36;
-    let d = 'M '+x+' 248';
-    for(let j=1;j<=9;j++){
-      const yy = 248 - j*16;
-      const xx = x + Math.sin(t*1.5 + k*0.9 + j*0.55)*9;
-      d += ' L '+xx.toFixed(1)+' '+yy;
+  // 极简图标标注（投影跟随）
+  const labelLayer=document.getElementById('labels');
+  const items=[];
+  Object.keys(scenes).forEach(k=>scenes[k].labels.forEach(def=>{
+    const el=document.createElement('div');el.className='tag';
+    el.innerHTML='<span class="ico '+def.ico+'"></span><span>'+def.text+'</span>';
+    labelLayer.appendChild(el);items.push({key:k,def,el});
+  }));
+  const v3=new THREE.Vector3();
+  function updateLabels(){
+    scene.updateMatrixWorld();
+    const w=innerWidth,h=innerHeight;
+    for(const L of items){
+      if(L.key!==active){L.el.style.display='none';continue;}
+      v3.copy(L.def.obj?L.def.obj.localToWorld(new THREE.Vector3(...L.def.local)):L.def.pos);
+      v3.project(camera);
+      if(v3.z>1||v3.z<-1){L.el.style.display='none';continue;}
+      L.el.style.display='flex';
+      L.el.style.transform='translate(-50%,-50%) translate('+((v3.x*0.5+0.5)*w).toFixed(1)+'px,'+((-v3.y*0.5+0.5)*h).toFixed(1)+'px)';
     }
-    steamP[k].setAttribute('d', d);
-    steamP[k].setAttribute('opacity', (0.7 - k*0.02).toFixed(2));
   }
-}
-const elG = $('#gTemp');
-elG.addEventListener('input', () => { glassT = +elG.value; txt($('#gVal'), elG.value); });
-updateA(0, 0);   // 首帧之前先把标签写对
 
-/* ============================================================
-   4. 液化方式 B — 压缩体积
-   ============================================================ */
-const sB = $('#sceneB');
-const BX0 = 44, BX1 = 420, BY0 = 120, BY1 = 232;     // 筒身外框
-const PI0 = 48, PI1 = 400;                            // 活塞前缘行程（V = 100 / 11 mL）
-/* 喷嘴 */
-mk('path',{d:'M 12 166 L 44 160 L 44 192 L 12 186 Z', fill:'#CBD5E1', stroke:'#94A3B8', 'stroke-width':2}, sB);
-mk('rect',{x:36, y:150, width:12, height:52, rx:3, fill:'#E2E8F0', stroke:'#94A3B8', 'stroke-width':2}, sB);
-/* 筒身 */
-mk('rect',{x:BX0, y:BY0, width:BX1-BX0, height:BY1-BY0, rx:6, fill:'#FFFFFF',
-           stroke:'#94A3B8', 'stroke-width':2.5}, sB);
-/* 液体（先于分子绘制） */
-const liqG = mk('g',{}, sB);
-const liqPool = mk('path',{d:'', fill:'#38BDF8', opacity:.9}, liqG);
-const liqLine = mk('path',{d:'', stroke:'#FFFFFF', 'stroke-width':2, fill:'none', opacity:.9}, liqG);
-const dropB = [];
-for(let i=0;i<7;i++) dropB.push(mk('circle',{cx:0, cy:0, r:0, fill:'#7DD3FC', opacity:0}, liqG));
-/* 气体分子 */
-const NMO = 34, moEls = [], moP = [];
-for(let i=0;i<NMO;i++){
-  const col = i%9, row = (i/9)|0;
-  moP.push({u:0.06 + col*0.11 + rnd(-0.035,0.035), v:0.1 + row*0.22 + rnd(-0.05,0.05),
-            p1:rnd(0,6.28), p2:rnd(0,6.28)});
-  moEls.push(mk('circle',{r:5.4, cx:0, cy:0, fill:'#F59E0B', opacity:0}, sB));
-}
-/* 活塞（可拖） */
-const pist = mk('g',{style:'cursor:grab;touch-action:none'}, sB);
-const pStop = mk('rect',{x:0, y:BY0+6, width:20, height:BY1-BY0-12, rx:3, fill:'#475569'}, pist);
-const pRod = mk('rect',{x:20, y:BY0+52, width:56, height:14, rx:4, fill:'#64748B'}, pist);
-const pPad = mk('rect',{x:74, y:BY0+30, width:32, height:BY1-BY0-60, rx:6,
-                        fill:'#E2E8F0', stroke:'#94A3B8', 'stroke-width':2.5}, pist);
-const dragHint = mk('text',{x:90, y:BY0-16, 'font-size':12.5, fill:'#94A3B8', 'text-anchor':'middle'}, pist);
-dragHint.textContent = '拖动';
-let px = PI1;                                  // 活塞前缘
-function setPx(v){ px = clamp(v, 88, PI1); }
-function updatePist(){
-  pist.setAttribute('transform','translate('+px+' 0)');
-}
-const tbVol = mk('text',{x:BX0, y:BY1+26, 'font-size':13, fill:'#64748B'}, sB);
-tbVol.textContent = '注射器（嘴已封住）';
-/* 拖动 */
-(function bindPiston(){
-  const svg = sB;
-  let dragging = false;
-  function local(ev){
-    const pt = svg.createSVGPoint();
-    pt.x = ev.clientX; pt.y = ev.clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  /* ============ 循环 ============ */
+  const clock=new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const dt=Math.min(clock.getDelta(),0.05);
+    controls.update();
+    const S=scenes[active];
+    if(playing){S.time+=dt;S.update(dt,S.time);}
+    Sound.tick(dt);
+    updateLabels();
+    composer.render();
   }
-  function down(ev){
-    dragging = true; pStop.setAttribute('fill','#334155');
-    pist.style.cursor = 'grabbing';
-    if(ev.cancelable) ev.preventDefault();
-    move(ev);
-  }
-  function move(ev){
-    if(!dragging) return;
-    const p = local(ev);
-    setPx(p.x - 10);
-    updatePist();
-  }
-  function up(){ dragging = false; pStop.setAttribute('fill','#475569'); pist.style.cursor = 'grab'; }
-  pist.addEventListener('pointerdown', down);
-  pist.addEventListener('pointerenter', () => { if(!dragging) pStop.setAttribute('fill','#334155'); });
-  pist.addEventListener('pointerleave', () => { if(!dragging) pStop.setAttribute('fill','#475569'); });
-  window.addEventListener('pointermove', move);
-  window.addEventListener('pointerup', up);
-  window.addEventListener('pointercancel', up);
-})();
+  addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+    composer.setSize(innerWidth,innerHeight);
+  });
+  setTimeout(()=>{const h=document.getElementById('hint');if(h)h.style.opacity=0;},6500);
 
-function updateB(t, dt){
-  updatePist();
-  const V = clamp((px - PI0)/(PI1 - PI0), 0, 1);          // 0..1 → 0..100 mL
-  const Vml = Math.round(V*100);
-  txt($('#vVal'), Vml);
-  /* 饱和模型：低于 100 mL 气体始终是饱和蒸气（密度不变），多出来的变成液体 */
-  const nMolGas = Math.round(NMO*V);
-  txt($('#nLiq'), NMO - nMolGas);
-  const chip = $('#chipB');
-  let s = '仍是气体', c = '#64748B', b = '#F1F5F9';
-  if(V < 0.985 && V > 0.6){ s = '开始出现液体'; c = '#F59E0B'; b = '#FFF7ED'; }
-  else if(V <= 0.6){ s = '大量气体已液化'; c = '#D97706'; b = '#FEF3C7'; }
-  if(chip){ chip.firstElementChild.style.background = c; chip.style.color = c; chip.style.background = b;
-            txt(chip.querySelector('span'), s); }
-
-  const top = BY0+8, botFull = BY1-8;
-  const hLiq = (botFull - top) * 0.62 * (1 - V);
-  const liqTop = botFull - hLiq;
-  if(hLiq > 1.5){
-    const x0 = BX0+3, x1 = px;
-    liqPool.setAttribute('d',
-      'M '+x0+' '+botFull+' L '+x0+' '+liqTop.toFixed(1)+' L '+x1.toFixed(1)+' '+liqTop.toFixed(1)+' L '+x1.toFixed(1)+' '+botFull+' Z');
-    liqPool.setAttribute('opacity', .9);
-    liqLine.setAttribute('d','M '+x0+' '+liqTop.toFixed(1)+' L '+x1.toFixed(1)+' '+liqTop.toFixed(1));
-    liqLine.setAttribute('opacity', .9);
-  }else{
-    liqPool.setAttribute('opacity', 0); liqLine.setAttribute('opacity', 0);
-  }
-  /* 壁上的小液滴 */
-  for(let i=0;i<dropB.length;i++){
-    if(hLiq < 3 || V > 0.9){ dropB[i].setAttribute('opacity', 0); continue; }
-    const u = (i+0.5)/dropB.length;
-    const cx = lerp(BX0+14, px-8, u);
-    const cy = lerp(top+10, liqTop+8, (i%2)? .25 : .62);
-    dropB[i].setAttribute('cx', cx.toFixed(1));
-    dropB[i].setAttribute('cy', cy.toFixed(1));
-    dropB[i].setAttribute('r', (1.6 + 3.2*(1-V)*(0.6+0.5*(i%3)/2)).toFixed(2));
-    dropB[i].setAttribute('opacity', (0.85*clamp((1-V)*1.6,0,1)).toFixed(2));
-  }
-  /* 气体分子：区域随活塞移动，但数密度保持不变 */
-  const gTop = top, gBot = liqTop - 4;
-  const gL = BX0+6, gR = px - 6;
-  for(let i=0;i<NMO;i++){
-    if(i >= nMolGas){ moEls[i].setAttribute('opacity', 0); continue; }
-    const m = moP[i];
-    let x = lerp(gL, gR, clamp(m.u,0,1));
-    let y = lerp(gTop, gBot, clamp(m.v,0,1));
-    x += 4.5*Math.sin(t*1.5 + m.p1);
-    y += 4.5*Math.cos(t*1.7 + m.p2);
-    moEls[i].setAttribute('cx', x.toFixed(1));
-    moEls[i].setAttribute('cy', y.toFixed(1));
-    moEls[i].setAttribute('opacity', .92);
-  }
-}
-
-/* ============================================================
-   5. 主循环
-   ============================================================ */
-let last = performance.now(), tAcc = 0;
-function loop(now){
-  requestAnimationFrame(loop);
-  const dt = Math.min((now - last)/1000, 0.05);
-  last = now; tAcc += dt;
-  try{ updateMicro(tAcc); }catch(e){}
-  try{ updateIod(dt); updateIodDraw(tAcc, dt); }catch(e){}
-  try{ updateA(tAcc, dt); }catch(e){}
-  try{ updateB(tAcc, dt); }catch(e){}
-}
-showChange('sub', true);
-updatePist();
-requestAnimationFrame(loop);
-</script>
-
-
-</body></html>
+  const params=new URLSearchParams(location.search);
+  const ini=params.get('scene');
+  setActive(scenes[ini]?ini:'liq');
+  const pt=parseFloat(params.get('t'));
+  if(!isNaN(pt)){const S=scenes[active];S.time=pt;for(let i=0;i<Math.min(pt*60,900);i++)S.update(1/60,i/60);}
+  animate();
+  window.__labReady=true;
+  const loading=document.getElementById('loading');loading.classList.add('hide');setTimeout(()=>loading.remove(),700);
+  </script>
+</body>
+</html>

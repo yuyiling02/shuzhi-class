@@ -2408,14 +2408,14 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ message: '服务器错误' });
 });
 
-startTeacherStudioService()
-  .then(() => initializeDatabase())
-  .then(() => {
-    startLearningMemoryJobs(() => pool);
-    httpServer.listen(PORT, () => {
-      console.log(`API and TTS WebSocket listening on http://localhost:${PORT}`);
-    });
-  })
+initializeDatabase()
+.then(() => {
+  startLearningMemoryJobs(() => pool);
+  httpServer.listen(PORT, () => {
+    console.log(`API and TTS WebSocket listening on http://localhost:${PORT}`);
+  });
+})
+
   .catch((error) => {
     console.error('Failed to start auth API:', explainStartupError(error));
     process.exit(1);

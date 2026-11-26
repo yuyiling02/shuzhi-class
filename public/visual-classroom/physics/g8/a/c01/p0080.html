@@ -3,724 +3,1666 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>声的利用 · 传递信息与能量</title>
+<title>声学探究实验台 · 声音的产生、传播与噪声控制</title>
 <style>
-:root{
-  --blue:#2563EB;
-  --blue-d:#1D4ED8;
-  --amber:#F59E0B;
-  --amber-d:#C2410C;
-  --pink:#DB2777;
-  --ink:#1F2937;
-  --ink-2:#4B5563;
-  --ink-3:#6B7280;
-  --line:#E5E7EB;
-  --bg:#F5F7FB;
-  --card:#FFFFFF;
-  --radius:14px;
-  --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;
-}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#04060c;
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+  #app { position:fixed; inset:0; }
+  canvas { display:block; }
+  #labels { position:fixed; inset:0; pointer-events:none; z-index:5; }
 
-/* ---------- header ---------- */
-.site-header{background:linear-gradient(135deg,#1E40AF 0%,#2563EB 55%,#3B82F6 100%);color:#fff;padding:26px 0 28px;}
-.header-inner{max-width:1140px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
-.header-text h1{margin:0;font-size:25px;letter-spacing:.4px;font-weight:700;}
-.header-text p{margin:6px 0 0;font-size:14px;opacity:.92;}
-.header-badge{border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:7px 16px;font-size:13px;background:rgba(255,255,255,.12);white-space:nowrap;}
+  /* 3D 极简标签 */
+  .tag {
+    color:rgba(190,225,255,.92); font-size:12px; letter-spacing:3px;
+    padding:3px 10px 3px 13px; border-radius:99px; white-space:nowrap;
+    background:rgba(8,16,30,.55); border:1px solid rgba(110,175,255,.28);
+    backdrop-filter:blur(4px); text-shadow:0 0 8px rgba(80,180,255,.5);
+  }
+  /* 控制台说明标签（主标题 + 作用副标题） */
+  .tag.console-tag {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:6px 14px 7px; border-radius:10px; letter-spacing:1px;
+    background:rgba(8,16,30,.82); border-color:rgba(255,196,90,.45);
+    box-shadow:0 0 14px rgba(255,170,60,.18);
+  }
+  .tag.console-tag .t-main { color:#ffd98a; font-size:12px; letter-spacing:3px; text-shadow:0 0 10px rgba(255,180,70,.6); }
+  .tag.console-tag .t-sub  { color:rgba(200,225,255,.85); font-size:10px; letter-spacing:1px; text-shadow:none; }
 
-/* ---------- layout ---------- */
-.wrap{max-width:1140px;margin:0 auto;padding:26px 24px 40px;}
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;border:1px solid rgba(229,231,235,.7);margin-bottom:20px;}
+  /* 暗角 */
+  #vignette { position:fixed; inset:0; pointer-events:none; z-index:2;
+    background:radial-gradient(ellipse at 50% 42%, transparent 52%, rgba(1,3,9,.62) 100%); }
 
-.chead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
-.chead h2{margin:0;font-size:19px;font-weight:700;}
-.tag{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.5px;white-space:nowrap;}
-.tag-e{background:#FFF7ED;color:var(--amber-d);border:1px solid #FED7AA;}
-.tag-i{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;}
+  /* 顶部课题标签栏 */
+  #tabs {
+    position:fixed; top:20px; left:50%; transform:translateX(-50%);
+    z-index:10; display:flex; gap:10px;
+  }
+  .tab {
+    pointer-events:auto; cursor:pointer; user-select:none; white-space:nowrap;
+    color:rgba(180,210,250,.75); font-size:13px; letter-spacing:2px;
+    padding:8px 18px; border-radius:99px;
+    background:rgba(8,16,30,.6); border:1px solid rgba(110,175,255,.25);
+    backdrop-filter:blur(6px); transition:all .2s ease;
+  }
+  .tab:hover { color:#d5eaff; border-color:rgba(140,200,255,.6); }
+  .tab.active {
+    color:#031018; font-weight:600;
+    background:linear-gradient(135deg,#39c0ff,#2b8dff);
+    border-color:transparent; box-shadow:0 0 20px rgba(56,160,255,.45);
+  }
 
-/* ---------- 舞台 ---------- */
-.stage{border:1px solid var(--line);border-radius:12px;background:#F8FAFC;overflow:hidden;}
-.stage svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none;}
+  /* 声呐探测流程指示（极简图示，随过程点亮） */
+  #process {
+    position:fixed; top:72px; left:50%; transform:translateX(-50%);
+    z-index:10; display:none; align-items:center; gap:10px;
+    padding:7px 14px; border-radius:99px;
+    background:rgba(6,12,22,.55); border:1px solid rgba(80,145,230,.18);
+    backdrop-filter:blur(6px);
+  }
+  .step {
+    display:flex; align-items:center; gap:6px;
+    color:rgba(150,185,225,.35); font-size:12px; letter-spacing:2px;
+    padding:3px 10px; border-radius:99px; border:1px solid transparent;
+    transition:all .25s ease;
+  }
+  .step .ico { font-family:Consolas,monospace; font-size:15px; letter-spacing:-3px; }
+  .step.on {
+    color:#eaf6ff; border-color:rgba(90,190,255,.6);
+    background:rgba(40,130,220,.35); box-shadow:0 0 16px rgba(60,160,255,.45);
+  }
+  .step.done { color:rgba(150,220,255,.75); background:rgba(40,90,150,.18); }
+  .flow { color:rgba(120,170,230,.4); font-size:15px; }
+  .dist {
+    color:#ffd166; font-family:Consolas,monospace; font-size:14px;
+    opacity:0; transform:translateX(-6px); transition:all .3s ease;
+    padding-left:4px;
+  }
+  .dist.show { opacity:1; transform:translateX(0); }
 
-/* ---------- 控制区 ---------- */
-.controls{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:center;margin-top:16px;}
-.ctrl{display:flex;align-items:center;gap:12px;flex:1 1 250px;min-width:220px;}
-.ctrl label{font-size:13px;color:var(--ink-2);white-space:nowrap;}
-.ctrl label b{color:var(--ink);font-variant-numeric:tabular-nums;}
-.ctrl input[type=range]{flex:1;min-width:0;}
+  /* 品牌铭牌（左上） */
+  #brand {
+    position:fixed; left:24px; top:20px; z-index:10;
+    font-family:Consolas,Menlo,monospace; pointer-events:none;
+  }
+  #brand .b1 { color:rgba(190,225,255,.9); font-size:13px; letter-spacing:4px; font-weight:600; }
+  #brand .b2 { color:rgba(110,160,215,.6); font-size:9px; letter-spacing:3px; margin-top:3px; }
+  #brand .b1 em { font-style:normal; color:#4dc3ff; }
 
-input[type=range]{
-  -webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;cursor:pointer;margin:0;
-}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:#E2E8F0;}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
-  background:var(--blue);border:2px solid #fff;margin-top:-6px;
-  box-shadow:0 1px 4px rgba(37,99,235,.35);
-}
-input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#E2E8F0;}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border:2px solid #fff;border-radius:50%;background:var(--blue);}
-input[type=range].amber::-webkit-slider-thumb{background:var(--amber);box-shadow:0 1px 4px rgba(245,158,11,.4);}
-input[type=range].amber::-moz-range-thumb{background:var(--amber);}
+  /* 视图切换（右上） */
+  #view-switch {
+    position:fixed; right:24px; top:18px; z-index:10; display:flex; gap:3px;
+    background:rgba(8,14,24,.8); border:1px solid rgba(90,140,200,.3);
+    border-radius:7px; padding:3px; backdrop-filter:blur(6px);
+  }
+  .vbtn {
+    cursor:pointer; user-select:none; color:rgba(160,195,235,.65);
+    font:11px Consolas,monospace; letter-spacing:1px; padding:5px 12px;
+    border-radius:5px; transition:all .2s;
+  }
+  .vbtn:hover { color:#cfe6ff; background:rgba(40,80,130,.3); }
+  .vbtn.active { color:#eaf6ff; background:rgba(45,130,220,.5); box-shadow:0 0 12px rgba(60,160,255,.35) inset; }
 
-.seg{display:flex;gap:5px;background:#F1F5F9;padding:3px;border-radius:9px;}
-.seg button{
-  border:0;background:transparent;padding:5px 13px;border-radius:7px;font-size:12.5px;
-  color:var(--ink-3);cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;
-}
-.seg button:hover{color:var(--ink);}
-.seg button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(16,24,40,.13);}
+  /* 数据气泡（参考图风格） */
+  .bubble {
+    position:relative; display:flex; align-items:center; gap:6px;
+    background:rgba(8,13,22,.92); border:1px solid rgba(120,165,215,.5);
+    border-left:3px solid var(--bc,#4dc3ff); border-radius:4px;
+    padding:4px 10px; color:#dcecff; font:11px Consolas,Menlo,monospace;
+    letter-spacing:1px; white-space:nowrap;
+    box-shadow:0 4px 18px rgba(0,0,0,.6), 0 0 10px rgba(70,150,230,.18);
+  }
+  .bubble::before {
+    content:''; position:absolute; left:-5px; top:50%; margin-top:-3px;
+    border-top:3px solid transparent; border-bottom:3px solid transparent;
+    border-right:5px solid var(--bc,#4dc3ff);
+  }
+  .bubble .dot {
+    width:5px; height:5px; border-radius:50%; background:var(--bc,#4dc3ff);
+    box-shadow:0 0 8px var(--bc,#4dc3ff);
+  }
+  .bubble b { color:var(--bc,#4dc3ff); font-weight:600; }
 
-.btn{
-  border:1px solid var(--line);background:#fff;color:var(--ink-2);border-radius:9px;
-  padding:7px 15px;font-size:13px;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;
-}
-.btn:hover{border-color:#93C5FD;color:var(--blue);}
+  /* 示波器面板（左下） */
+  #wave-panel {
+    position:fixed; left:24px; bottom:24px; z-index:10; width:372px;
+    background:linear-gradient(155deg,#171e29,#0a0f17 70%);
+    border:1px solid #303d50; border-radius:8px; padding:11px 12px 9px;
+    box-shadow:0 14px 40px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .scope-head {
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:9px;
+    font-family:Consolas,monospace;
+  }
+  .scope-title { color:rgba(175,210,250,.85); font-size:10px; letter-spacing:3px; }
+  .scope-title em { font-style:normal; color:#5ec8ff; }
+  .scope-led { display:flex; align-items:center; gap:5px; color:rgba(120,170,220,.7); font-size:9px; letter-spacing:1px; }
+  .scope-led i {
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:#4ade80; box-shadow:0 0 9px #4ade80; animation:blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 50% { opacity:.35; } }
+  .scope-screen {
+    position:relative; background:#040910; border:1px solid #1e2c3e; border-radius:4px;
+    box-shadow:inset 0 0 22px rgba(0,0,0,.9); overflow:hidden;
+  }
+  #wave { display:block; width:100%; height:124px; }
+  .scope-foot {
+    display:flex; justify-content:space-between; margin-top:7px;
+    font:9px Consolas,monospace; color:rgba(120,165,215,.55); letter-spacing:1px;
+  }
+  .screw {
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:linear-gradient(135deg,#6b7789,#2a3444);
+    box-shadow:inset 0 0 2px #000, 0 1px 1px rgba(255,255,255,.1);
+  }
+  .screw.tl { left:5px; top:5px; } .screw.tr { right:5px; top:5px; }
+  .screw.bl { left:5px; bottom:5px; } .screw.br { right:5px; bottom:5px; }
 
-.readout{display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-3);}
-.readout b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:14px;}
-.readout .hi{color:var(--amber-d);}
-.readout .bi{color:var(--blue-d);}
-.hint{font-size:12.5px;color:#94A3B8;}
+  /* 状态读数（右下，仪表风格） */
+  #readout {
+    position:fixed; right:24px; bottom:26px; z-index:10;
+    background:linear-gradient(160deg,#171e29,#0a0f17);
+    border:1px solid #303d50; border-radius:7px; padding:10px 16px;
+    font:12px Consolas,Menlo,monospace; letter-spacing:1px;
+    color:rgba(150,195,250,.85);
+    box-shadow:0 12px 34px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  #readout b { color:#eaf6ff; font-weight:600; margin:0 2px; }
+  #readout::before {
+    content:'◉'; color:#4ade80; margin-right:8px; font-size:9px; text-shadow:0 0 8px #4ade80;
+  }
 
-/* ---------- 落点 ---------- */
-.callout{
-  margin-top:16px;padding:11px 15px;border-radius:10px;font-size:13.5px;line-height:1.65;
-  color:var(--ink-2);
-}
-.callout b{color:var(--ink);font-weight:600;}
-.callout.e{background:#FFFBEB;border-left:3px solid var(--amber);}
-.callout.i{background:#EFF6FF;border-left:3px solid var(--blue);}
-
-/* ---------- footer ---------- */
-.foot{
-  margin-top:6px;padding:20px 24px;border-radius:var(--radius);background:#0F172A;
-  font-size:14px;line-height:1.85;
-}
-.foot .row2{display:flex;gap:26px;flex-wrap:wrap;}
-.foot .col{flex:1 1 320px;}
-.foot .k{font-weight:700;margin-bottom:2px;}
-.foot .k.e{color:#FBBF24;}
-.foot .k.i{color:#60A5FA;}
-.foot p{margin:0;font-size:13px;color:#94A3B8;}
-.foot p b{color:#CBD5E1;}
+  /* 操作按钮（底部居中） */
+  #controls {
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+    z-index:10; display:flex; gap:12px;
+  }
+  .btn {
+    pointer-events:auto; cursor:pointer; user-select:none;
+    color:rgba(200,230,255,.9); font-size:14px; letter-spacing:6px; text-indent:6px;
+    padding:10px 22px; border-radius:99px;
+    background:rgba(10,20,36,.75); border:1px solid rgba(110,175,255,.35);
+    backdrop-filter:blur(6px); transition:all .2s ease;
+  }
+  .btn:hover { border-color:rgba(140,200,255,.7); background:rgba(16,32,55,.85); }
+  .btn.active {
+    color:#031018; background:linear-gradient(135deg,#39c0ff,#2b8dff);
+    border-color:transparent; box-shadow:0 0 22px rgba(56,160,255,.5);
+  }
 </style>
 </head>
 <body>
+<div id="app"></div>
+<div id="labels"></div>
+<div id="vignette"></div>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-text">
-      <h1>声的利用：传递信息与能量</h1>
-      <p>同一束声波 —— 让它做功，或者让它带回消息</p>
-    </div>
-    <div class="header-badge">八年级物理 · §2.3 声的利用</div>
-  </div>
-</header>
-
-<div class="wrap">
-
-  <!-- ==================== ① 声波推动火焰 ==================== -->
-  <section class="card">
-    <div class="chead">
-      <span class="tag tag-e">传递能量</span>
-      <h2>声波把火焰推歪了</h2>
-    </div>
-
-    <div class="stage"><svg id="svg1" viewBox="0 0 1040 300" xmlns="http://www.w3.org/2000/svg"></svg></div>
-
-    <div class="controls">
-      <div class="ctrl">
-        <label>音量 <b id="r1vv">60</b></label>
-        <input id="r1v" type="range" min="0" max="100" value="60" class="amber">
-      </div>
-      <div class="ctrl">
-        <label>距离 <b id="r1dd">1.9 m</b></label>
-        <input id="r1d" type="range" min="10" max="30" value="19" class="amber">
-      </div>
-      <div class="seg" id="spd1">
-        <button data-sp="1">1×</button>
-        <button data-sp="0.5" class="on">慢镜头 0.5×</button>
-        <button data-sp="0.25">0.25×</button>
-      </div>
-      <button class="btn" id="play1">暂停</button>
-    </div>
-
-    <div class="controls" style="margin-top:10px;">
-      <div class="readout">
-        <span>火焰处声强：<b id="v1i" class="hi">—</b></span>
-        <span>最大偏角：<b id="v1a" class="hi">—</b></span>
-      </div>
-    </div>
-
-    <div class="callout e">火焰没有被加热，却被<b>推动</b>了 —— 这就是声音带着能量。</div>
-  </section>
-
-  <!-- ==================== ② 超声波清洗 ==================== -->
-  <section class="card">
-    <div class="chead">
-      <span class="tag tag-e">传递能量 · 做功</span>
-      <h2>超声波把污渍「震」了下来</h2>
-    </div>
-
-    <div class="stage"><svg id="svg2" viewBox="0 0 1040 300" xmlns="http://www.w3.org/2000/svg"></svg></div>
-
-    <div class="controls">
-      <div class="ctrl">
-        <label>超声功率 <b id="r2pp">55</b> %</label>
-        <input id="r2p" type="range" min="0" max="100" value="55" class="amber">
-      </div>
-      <div class="readout"><span>已清除污渍：<b id="v2n" class="hi">0</b> / 12</span></div>
-      <button class="btn" id="reset2">重新弄脏</button>
-    </div>
-
-    <div class="callout e">功率归零，气泡消失，污渍一块也不掉 —— 要让它动起来，必须持续输入能量。</div>
-  </section>
-
-  <!-- ==================== ③ 超声回波 ==================== -->
-  <section class="card">
-    <div class="chead">
-      <span class="tag tag-i">传递信息</span>
-      <h2>从回波里量出深度</h2>
-    </div>
-
-    <div class="stage"><svg id="svg3" viewBox="0 0 1040 360" xmlns="http://www.w3.org/2000/svg"></svg></div>
-
-    <div class="controls">
-      <div class="ctrl">
-        <label>界面深度 <b id="r3dd">7.0 cm</b></label>
-        <input id="r3d" type="range" min="20" max="140" value="70">
-      </div>
-      <div class="readout">
-        <span>回波往返时间 Δt：<b id="v3t" class="bi">—</b></span>
-        <span>算出深度 s：<b id="v3d" class="bi">—</b></span>
-        <span class="hint">（或直接拖动图里那根粉色界面）</span>
-      </div>
-    </div>
-
-    <div class="callout i">界面一动没动，我们却知道了它在哪 —— <b>s = v·Δt ÷ 2</b>，v ≈ 1540 m/s。</div>
-  </section>
-
-  <footer class="foot">
-    <div class="row2">
-      <div class="col">
-        <div class="k e">传递能量</div>
-        <p>让物体动了、变了 —— 判据：<b>别的东西真的变了</b>。</p>
-      </div>
-      <div class="col">
-        <div class="k i">传递信息</div>
-        <p>知道位置、距离、形状 —— 判据：<b>我们知道了什么</b>。</p>
-      </div>
-    </div>
-  </footer>
-
+<div id="brand">
+  <div class="b1">ACOUSTIC <em>RESEARCH</em> LAB</div>
+  <div class="b2">MODEL AR-5 · INTERACTIVE RIG</div>
 </div>
 
-<script>
-(function(){
-"use strict";
+<div id="view-switch">
+  <div class="vbtn active" data-v="lab">LAB</div>
+  <div class="vbtn" data-v="exploded">EXPLODED</div>
+  <div class="vbtn" data-v="studio">STUDIO</div>
+</div>
 
-/* ==================== 通用 ==================== */
-var NS = 'http://www.w3.org/2000/svg';
-var TAU = Math.PI*2;
-var $ = function(s){ return document.querySelector(s); };
-var clamp = function(v,a,b){ return v<a?a:(v>b?b:v); };
-var lerp = function(a,b,t){ return a+(b-a)*t; };
-/* 写文本时容忍元素缺失，避免一个空节点把整条动画循环打断 */
-function txt(sel, v){ var e = $(sel); if(e) e.textContent = v; }
+<div id="tabs">
+  <div class="tab" data-m="produce">声音的产生与传播</div>
+  <div class="tab active" data-m="vacuum">真空铃实验</div>
+  <div class="tab" data-m="noise">噪声控制与隔音房间</div>
+  <div class="tab" data-m="info">声音传递信息</div>
+  <div class="tab" data-m="energy">声音传递能量</div>
+</div>
 
-/* 对象池：预建 SVG 节点，每帧只改属性，不再反复创建销毁 */
-function Pool(parent, tag, size, base){
-  var els = [];
-  for(var i=0;i<size;i++){
-    var el = document.createElementNS(NS, tag);
-    for(var k in base) el.setAttribute(k, base[k]);
-    el.setAttribute('opacity','0');
-    parent.appendChild(el);
-    els.push(el);
+<div id="process">
+  <div class="step" id="st0"><span class="ico">))</span>发射</div>
+  <span class="flow">›</span>
+  <div class="step" id="st1"><span class="ico">▣</span>反射</div>
+  <span class="flow">›</span>
+  <div class="step" id="st2"><span class="ico">((</span>接收</div>
+  <span class="dist" id="pdist">3.0 m</span>
+</div>
+
+<div id="wave-panel">
+  <i class="screw tl"></i><i class="screw tr"></i><i class="screw bl"></i><i class="screw br"></i>
+  <div class="scope-head">
+    <div class="scope-title">OSCILLOSCOPE · <em id="cap">CH-01</em></div>
+    <div class="scope-led"><i></i>REC</div>
+  </div>
+  <div class="scope-screen"><canvas id="wave" width="744" height="248"></canvas></div>
+  <div class="scope-foot">
+    <span>VOLTS / DIV 0.5</span><span id="scope-mode">TIME 20 ms</span><span>CH-01 ≥</span>
+  </div>
+</div>
+
+<div id="readout"></div>
+<div id="controls"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "../../../../vendor/three/0.160.0/build/three.module.js",
+    "three/addons/": "../../../../vendor/three/0.160.0/examples/jsm/"
   }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* ================= 基础 ================= */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x04060c);
+scene.fog = new THREE.FogExp2(0x04060c, 0.022);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(6.4, 3.8, 7.8);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.getElementById('app').appendChild(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+document.getElementById('labels').appendChild(labelRenderer.domElement);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.25, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 4;
+controls.maxDistance = 16;
+controls.maxPolarAngle = 1.46;
+
+/* ================= 光照 ================= */
+scene.add(new THREE.HemisphereLight(0x35507a, 0x0a0e16, 0.55));
+const key = new THREE.DirectionalLight(0xeaf2ff, 1.6);
+key.position.set(6, 9, 4);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -10; key.shadow.camera.right = 10;
+key.shadow.camera.top = 10;  key.shadow.camera.bottom = -10;
+key.shadow.radius = 6;
+scene.add(key);
+const rimL = new THREE.PointLight(0x2f8fff, 30, 22); rimL.position.set(-6, 4, -5); scene.add(rimL);
+const fillL = new THREE.PointLight(0x66d9ff, 12, 16); fillL.position.set(4, 2.5, -6); scene.add(fillL);
+
+/* ================= 地面 ================= */
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(18, 64),
+  new THREE.MeshStandardMaterial({ color:0x0a0f19, roughness:0.9, metalness:0.1 })
+);
+ground.rotation.x = -Math.PI/2;
+ground.receiveShadow = true;
+scene.add(ground);
+const grid = new THREE.GridHelper(34, 34, 0x1c3d63, 0x0e2138);
+grid.material.transparent = true; grid.material.opacity = 0.5;
+grid.position.y = 0.002;
+scene.add(grid);
+
+/* ================= 公共材质 ================= */
+const metal = new THREE.MeshStandardMaterial({ color:0xb7c2cf, roughness:0.28, metalness:0.9 });
+const dark  = new THREE.MeshStandardMaterial({ color:0x1c2027, roughness:0.6, metalness:0.4 });
+
+/* ============================================================
+   高度仿真仪器组件工厂
+============================================================ */
+const panelMat = new THREE.MeshStandardMaterial({ color:0x1b222d, roughness:0.55, metalness:0.75 });
+const panelDark = new THREE.MeshStandardMaterial({ color:0x0d121a, roughness:0.5, metalness:0.6 });
+const boltMat = new THREE.MeshStandardMaterial({ color:0x8592a4, roughness:0.3, metalness:0.95 });
+const boltGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.02, 8);
+
+/* 螺丝（面板四角细节） */
+function addBolts(parent, w, h, z, step=1){
+  for (const sx of [-1,1]) for (const sy of [-1,1]){
+    const b = new THREE.Mesh(boltGeo, boltMat);
+    b.rotation.x = Math.PI/2;
+    b.position.set(sx*w/2*step, sy*h/2*step, z);
+    parent.add(b);
+  }
+}
+
+/* 发光圆形仪表（带刻度 + 指针） */
+function makeGauge(parent, x, y, z, text, color, radius=0.28){
+  const g = new THREE.Group();
+  g.position.set(x,y,z);
+  parent.add(g);
+  const bezel = new THREE.Mesh(new THREE.CylinderGeometry(radius*1.14, radius*1.14, 0.06, 40), boltMat);
+  bezel.rotation.x = Math.PI/2; g.add(bezel);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(radius, 40),
+    new THREE.MeshBasicMaterial({ color:0x05090f }));
+  face.position.z = 0.032; g.add(face);
+  // 刻度环（分 3 色区域）
+  const ring = new THREE.Mesh(new THREE.RingGeometry(radius*0.80, radius*0.86, 48),
+    new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.85, side:THREE.DoubleSide }));
+  ring.position.z = 0.033; g.add(ring);
+  const seg = new THREE.Mesh(new THREE.RingGeometry(radius*0.86, radius*0.95, 48, 1, 0, Math.PI*0.42),
+    new THREE.MeshBasicMaterial({ color:0xff5c5c, transparent:true, opacity:0.9, side:THREE.DoubleSide }));
+  seg.rotation.z = -Math.PI*0.42; seg.position.z = 0.033; g.add(seg);
+  // 刻度线
+  for (let i=0;i<=10;i++){
+    const a = Math.PI*0.75 - i*(Math.PI*1.5/10);
+    const r1 = radius*0.56, r2 = radius*(i%5===0?0.74:0.67);
+    const tick = new THREE.Mesh(new THREE.BoxGeometry(0.012, r2-r1, 0.005),
+      new THREE.MeshBasicMaterial({ color: i>7 ? 0xff7a7a : 0x9db8d4 }));
+    tick.position.set(Math.cos(a)*(r1+r2)/2, Math.sin(a)*(r1+r2)/2, 0.035);
+    tick.rotation.z = a - Math.PI/2;
+    g.add(tick);
+  }
+  // 指针
+  const needle = new THREE.Group();
+  const nd = new THREE.Mesh(new THREE.BoxGeometry(0.018, radius*0.66, 0.006),
+    new THREE.MeshBasicMaterial({ color }));
+  nd.position.y = radius*0.33; needle.add(nd);
+  needle.position.z = 0.038; g.add(needle);
+  const hub = new THREE.Mesh(new THREE.CircleGeometry(0.032, 16),
+    new THREE.MeshBasicMaterial({ color:0xdceaff }));
+  hub.position.z = 0.04; g.add(hub);
+  // 仪表文字（CanvasTexture）
+  const c = document.createElement('canvas'); c.width=256; c.height=64;
+  const cx = c.getContext('2d');
+  cx.fillStyle='rgba(0,0,0,0)'; cx.fillRect(0,0,256,64);
+  cx.font='bold 26px Consolas,monospace'; cx.fillStyle='rgba(190,220,255,.9)';
+  cx.textAlign='center'; cx.fillText(text,128,40);
+  const tex = new THREE.CanvasTexture(c);
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(radius*1.6, radius*0.4),
+    new THREE.MeshBasicMaterial({ map:tex, transparent:true }));
+  label.position.set(0, -radius*1.35, 0.02); g.add(label);
+  return { set(v){ needle.rotation.z = Math.PI*0.75 - Math.max(0,Math.min(1,v))*Math.PI*1.5; },
+           ring, bezel };
+}
+
+/* 指示灯组 */
+function makeLamps(parent, x, y, z, colors){
+  const lamps = [];
+  colors.forEach((col,i)=>{
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.03,16), boltMat);
+    base.rotation.x = Math.PI/2; base.position.set(x+i*0.17, y, z); parent.add(base);
+    const bulb = new THREE.Mesh(new THREE.CircleGeometry(0.042,16),
+      new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0.3 }));
+    bulb.position.set(x+i*0.17, y, z+0.018); parent.add(bulb);
+    lamps.push(bulb);
+  });
   return {
-    els: els, n: 0, prev: 0,
-    reset: function(){ this.n = 0; },
-    get: function(){ return this.n < this.els.length ? this.els[this.n++] : null; },
-    finish: function(){
-      var end = this.n > this.prev ? this.n : this.prev;
-      for(var i=this.n;i<end;i++) this.els[i].setAttribute('opacity','0');
-      this.prev = this.n;
+    set(index, on){
+      lamps.forEach((b,i)=> b.material.opacity = (i===index && on) ? 1 : 0.25);
     }
   };
 }
 
-/* ==================== ① 声波推动火焰 ==================== */
-var S1 = { vol:60, dist:1.9, speed:0.5, playing:true, t:0 };
-
-var svg1 = $('#svg1');
-svg1.innerHTML = [
-'<defs>',
-  '<linearGradient id="gFlame" x1="0" y1="1" x2="0" y2="0">',
-    '<stop offset="0" stop-color="#EA580C"/>',
-    '<stop offset=".42" stop-color="#F59E0B"/>',
-    '<stop offset="1" stop-color="#FEF08A"/>',
-  '</linearGradient>',
-  '<clipPath id="clipStage1"><rect x="0" y="0" width="1040" height="252"/></clipPath>',
-'</defs>',
-'<rect x="0" y="0" width="1040" height="300" fill="#F8FAFC"/>',
-'<rect x="0" y="252" width="1040" height="48" fill="#F1F5F9"/>',
-'<line x1="0" y1="252" x2="1040" y2="252" stroke="#CBD5E1" stroke-width="2"/>',
-'<g id="waves1" clip-path="url(#clipStage1)"></g>',
-'<rect x="96" y="180" width="76" height="72" rx="7" fill="#475569"/>',
-'<rect x="96" y="180" width="76" height="18" rx="7" fill="#64748B"/>',
-'<path d="M172 192 L214 152 L214 250 L172 210 Z" fill="#334155"/>',
-'<ellipse cx="214" cy="201" rx="12" ry="50" fill="#1E293B"/>',
-'<ellipse cx="214" cy="201" rx="7.5" ry="35" fill="#334155"/>',
-'<ellipse cx="214" cy="201" rx="3.5" ry="16" fill="#7B8CA3"/>',
-'<text x="140" y="274" text-anchor="middle" font-size="12" fill="#94A3B8">扬声器</text>',
-'<g id="candle1" transform="translate(600,0)">',
-  '<rect x="-13" y="208" width="26" height="44" rx="3" fill="#FEF9C3" stroke="#FDE68A" stroke-width="1.5"/>',
-  '<line x1="0" y1="208" x2="0" y2="199" stroke="#44403C" stroke-width="2.6" stroke-linecap="round"/>',
-  '<g id="flame1">',
-    '<path d="M0 202 C -18 182, -19 158, 0 136 C 19 158, 18 182, 0 202 Z" fill="url(#gFlame)"/>',
-    '<path d="M0 197 C -8 184, -9 168, 0 152 C 9 168, 8 184, 0 197 Z" fill="#FFFBEB" opacity=".95"/>',
-  '</g>',
-  '<text x="0" y="274" text-anchor="middle" font-size="12" fill="#94A3B8">火焰</text>',
-'</g>'
-].join('');
-
-var waves1 = $('#waves1'), candle1 = $('#candle1'), flame1 = $('#flame1');
-var W1 = Pool(waves1, 'path', 8, {fill:'none', stroke:'#F59E0B', 'stroke-width':'2.4', 'stroke-linecap':'round'});
-
-function flameX(){ return 420 + (S1.dist-1)/2*480; }
-
-function update1(dt){
-  if(S1.playing) S1.t += dt*S1.speed;
-
-  var fx = flameX();
-  var att = Math.pow(1/S1.dist, 0.85);
-  var A = (S1.vol/100)*att;
-  var thMax = A*32;
-
-  var w = TAU*1.45;
-  var th = thMax*Math.sin(S1.t*w) + thMax*0.3*Math.sin(S1.t*w*1.71+1.2);
-  if(S1.vol < 2) th = 0;
-
-  candle1.setAttribute('transform','translate('+fx.toFixed(1)+',0)');
-  flame1.setAttribute('transform','rotate('+th.toFixed(2)+',0,202)');
-
-  var maxR = Math.max(70, fx-214), N = 8;
-  var a1 = -14*Math.PI/180, a2 = 14*Math.PI/180;
-  W1.reset();
-  for(var i=0;i<N;i++){
-    var u = ((S1.t*0.62 + i/N) % 1);
-    var R = 22 + u*(maxR-22);
-    var op = (1-u)*(1-u*0.5)*0.9*Math.min(1, S1.vol/55);
-    if(op < 0.015) continue;
-    var e = W1.get(); if(!e) break;
-    e.setAttribute('d', 'M'+(214+R*Math.cos(a1)).toFixed(1)+' '+(201+R*Math.sin(a1)).toFixed(1)+
-      ' A'+R.toFixed(1)+' '+R.toFixed(1)+' 0 0 1 '+(214+R*Math.cos(a2)).toFixed(1)+' '+(201+R*Math.sin(a2)).toFixed(1));
-    e.setAttribute('opacity', op.toFixed(3));
-  }
-  W1.finish();
-
-  txt('#v1i', Math.round(A*A*100)+'%');
-  txt('#v1a', thMax.toFixed(1)+'°');
-}
-
-$('#r1v').addEventListener('input', function(){ S1.vol = +this.value; txt('#r1vv', S1.vol); });
-$('#r1d').addEventListener('input', function(){
-  S1.dist = +this.value/10;
-  txt('#r1dd', S1.dist.toFixed(1)+' m');
-});
-$('#spd1').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
-  S1.speed = +b.getAttribute('data-sp');
-  [].forEach.call(this.children, function(c){ c.classList.remove('on'); });
-  b.classList.add('on');
-});
-$('#play1').addEventListener('click', function(){
-  S1.playing = !S1.playing;
-  this.textContent = S1.playing ? '暂停' : '继续';
-});
-
-/* ==================== ② 超声波清洗 ==================== */
-var S2 = { power:55, t:0, bubbles:[], shocks:[], stains:[], spawn:0, cleaned:0 };
-
-var svg2 = $('#svg2');
-svg2.innerHTML = [
-'<defs>',
-  '<linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0" stop-color="#E0F2FE" stop-opacity=".9"/>',
-    '<stop offset="1" stop-color="#BAE6FD" stop-opacity=".95"/>',
-  '</linearGradient>',
-  '<linearGradient id="gMetal" x1="0" y1="0" x2="1" y2="1">',
-    '<stop offset="0" stop-color="#E2E8F0"/>',
-    '<stop offset=".45" stop-color="#94A3B8"/>',
-    '<stop offset="1" stop-color="#CBD5E1"/>',
-  '</linearGradient>',
-'</defs>',
-'<rect x="0" y="0" width="1040" height="300" fill="#F8FAFC"/>',
-'<rect x="190" y="50" width="680" height="210" rx="10" fill="url(#gWater)" stroke="#7DD3FC" stroke-width="3"/>',
-'<rect x="190" y="50" width="680" height="38" fill="#F0F9FF" opacity=".45"/>',
-'<path d="M193 88 Q 260 81 327 88 T 461 88 T 595 88 T 729 88 T 863 88" fill="none" stroke="#38BDF8" stroke-width="2" opacity=".6"/>',
-'<text x="208" y="74" font-size="12" fill="#0284C7">水</text>',
-'<g id="sonic2"></g>',
-'<g transform="translate(640,145) rotate(-8)">',
-  '<rect x="-75" y="-52" width="150" height="104" rx="11" fill="url(#gMetal)" stroke="#64748B" stroke-width="2"/>',
-  '<circle cx="-56" cy="-36" r="6.5" fill="#64748B" opacity=".38"/>',
-  '<circle cx="-56" cy="-36" r="2.6" fill="#94A3B8"/>',
-  '<circle cx="56" cy="-36" r="6.5" fill="#64748B" opacity=".38"/>',
-  '<circle cx="56" cy="-36" r="2.6" fill="#94A3B8"/>',
-  '<circle cx="-56" cy="36" r="6.5" fill="#64748B" opacity=".38"/>',
-  '<circle cx="-56" cy="36" r="2.6" fill="#94A3B8"/>',
-  '<circle cx="56" cy="36" r="6.5" fill="#64748B" opacity=".38"/>',
-  '<circle cx="56" cy="36" r="2.6" fill="#94A3B8"/>',
-'</g>',
-'<g id="stains2"></g>',
-'<g id="bubbles2"></g>',
-'<rect x="498" y="240" width="64" height="18" rx="3" fill="#1E293B"/>',
-'<rect x="504" y="236" width="52" height="6" rx="2" fill="#475569"/>',
-'<text x="530" y="284" text-anchor="middle" font-size="12" fill="#94A3B8">超声换能器</text>'
-].join('');
-
-var SN2 = Pool($('#sonic2'), 'path', 5, {fill:'none', stroke:'#FFFFFF', 'stroke-width':'2'});
-var KB2 = Pool($('#bubbles2'), 'circle', 44, {fill:'none', stroke:'#F0F9FF'});
-var BB2 = Pool($('#bubbles2'), 'circle', 80, {fill:'#FFFFFF'});
-
-var stainEls = (function(){
-  var g = $('#stains2'), arr = [];
-  for(var i=0;i<12;i++){
-    var el = document.createElementNS(NS, 'ellipse');
-    el.setAttribute('fill', '#4B3226');
-    el.setAttribute('opacity', '0');
-    g.appendChild(el);
-    arr.push(el);
-  }
-  return arr;
-})();
-
-function mkBub(P){
-  var near = Math.random() < 0.6;
-  var x, y;
-  if(near){
-    var a = Math.random()*TAU, rr = 40 + Math.random()*62;
-    x = 640 + Math.cos(a)*rr*1.35;
-    y = 145 + Math.sin(a)*rr*0.85;
-  } else {
-    x = 208 + Math.random()*644;
-    y = 94 + Math.random()*144;
-  }
+/* 数字读数小屏 */
+function makeReadout(parent, x, y, z, w, h){
+  const c = document.createElement('canvas'); c.width=256; c.height=96;
+  const cx = c.getContext('2d');
+  const tex = new THREE.CanvasTexture(c);
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w,h),
+    new THREE.MeshBasicMaterial({ map:tex }));
+  mesh.position.set(x,y,z); parent.add(mesh);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(w+0.08,h+0.08,0.03), panelDark);
+  frame.position.set(x,y,z-0.02); parent.add(frame);
   return {
-    x: clamp(x, 206, 854),
-    y: clamp(y, 94, 240),
-    near: near,
-    age: 0,
-    life: 0.45 + Math.random()*0.45,
-    r0: 4.2 + Math.random()*5.6,
-    r: 0.4,
-    p: P
+    set(line1, line2, col='#7fe3ff'){
+      cx.fillStyle='#050a11'; cx.fillRect(0,0,256,96);
+      cx.strokeStyle='rgba(80,140,200,.35)'; cx.lineWidth=2; cx.strokeRect(3,3,250,90);
+      cx.textAlign='left';
+      cx.fillStyle='rgba(140,185,235,.7)'; cx.font='16px Consolas,monospace';
+      cx.fillText(line1,14,28);
+      cx.fillStyle=col; cx.font='bold 40px Consolas,monospace';
+      cx.fillText(line2,14,74);
+      tex.needsUpdate=true;
+    }
   };
 }
 
-function cleanAt(x, y, P){
-  for(var i=0;i<S2.stains.length;i++){
-    var s = S2.stains[i];
-    if(s.hp <= 0) continue;
-    var dx = s.x-x, dy = s.y-y;
-    if(dx*dx + dy*dy < 1296){
-      s.hp -= 0.03*(0.3 + P);
-      if(s.hp <= 0){ s.hp = 0; S2.cleaned++; }
+/* 通用仪器控制台（金属机箱 + 楔形面板 + 仪表 + 灯 + 数字屏） */
+function makeConsole(parent, opts){
+  const g = new THREE.Group();
+  g.position.set(opts.x, opts.y, opts.z);
+  if (opts.ry) g.rotation.y = opts.ry;
+  if (opts.scale) g.scale.setScalar(opts.scale);
+  parent.add(g);
+  const W = opts.w || 3.0, H = 1.0, D = 0.75;
+  // 机箱主体
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), panelMat);
+  body.position.y = H/2; body.castShadow = true; body.receiveShadow = true; g.add(body);
+  // 上盖
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(W+0.06, 0.06, D+0.06),
+    new THREE.MeshStandardMaterial({ color:0x2a3341, roughness:0.4, metalness:0.85 }));
+  lid.position.y = H+0.02; lid.castShadow = true; g.add(lid);
+  // 倾斜面板（朝上前方）
+  const face = new THREE.Mesh(new THREE.BoxGeometry(W-0.12, 0.62, 0.05), panelDark);
+  face.position.set(0, H+0.24, -D/2+0.18);
+  face.rotation.x = -0.42;
+  g.add(face);
+  // 竖直仪表背板（仪表盘安装面）
+  const backboard = new THREE.Mesh(new THREE.BoxGeometry(W-0.16, 0.68, 0.1),
+    new THREE.MeshStandardMaterial({ color:0x161d27, roughness:0.5, metalness:0.7 }));
+  backboard.position.set(0, 1.3, 0.32);
+  backboard.castShadow = true;
+  g.add(backboard);
+  // 背板顶部横梁 + 铆钉
+  const rail = new THREE.Mesh(new THREE.BoxGeometry(W-0.1, 0.06, 0.14),
+    new THREE.MeshStandardMaterial({ color:0x2d3746, roughness:0.4, metalness:0.85 }));
+  rail.position.set(0, 1.66, 0.32);
+  g.add(rail);
+  for (let i=0;i<Math.floor(W*3);i++){
+    const rv = new THREE.Mesh(boltGeo, boltMat);
+    rv.rotation.x = Math.PI/2;
+    rv.position.set(-W/2+0.25+i*(W-0.5)/Math.max(1,Math.floor(W*3)-1), 1.66, 0.4);
+    g.add(rv);
+  }
+  // 面板铭牌
+  const nameC = document.createElement('canvas'); nameC.width=256; nameC.height=40;
+  const nx = nameC.getContext('2d');
+  nx.fillStyle='rgba(0,0,0,0)'; nx.fillRect(0,0,256,40);
+  nx.font='bold 20px Consolas,monospace'; nx.fillStyle='rgba(255,205,90,.9)';
+  nx.textAlign='center'; nx.fillText(opts.title||'ACOUSTIC RIG',128,28);
+  const nameTex = new THREE.CanvasTexture(nameC);
+  const namePlate = new THREE.Mesh(new THREE.PlaneGeometry(1.6,0.25),
+    new THREE.MeshBasicMaterial({ map:nameTex, transparent:true }));
+  namePlate.position.set(0, 0.62, D/2+0.006); g.add(namePlate);
+  // 侧面散热格栅
+  const ventMat = new THREE.MeshStandardMaterial({ color:0x05080d, roughness:0.9 });
+  for (const sx of [-1,1]){
+    for (let i=0;i<6;i++){
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.32), ventMat);
+      vent.position.set(sx*(W/2+0.005), 0.32+i*0.09, 0.05);
+      g.add(vent);
+    }
+  }
+  // 四角螺栓
+  for (const sx of [-1,1]) for (const sy of [-1,1]){
+    const b = new THREE.Mesh(boltGeo, boltMat);
+    b.rotation.x = Math.PI/2;
+    b.position.set(sx*(W/2-0.09), sy*0.35+0.5, D/2+0.02);
+    g.add(b);
+  }
+  return g;
+}
+
+/* 数据气泡（参考图风格，CSS2D） */
+function makeBubble(pool, text, x, y, z, color='#4dc3ff'){
+  const el = document.createElement('div');
+  el.className = 'bubble';
+  el.style.setProperty('--bc', color);
+  el.innerHTML = `<span class="dot"></span><span>${text}</span>`;
+  const o = new CSS2DObject(el);
+  o.position.set(x,y,z);
+  o.setText = (html)=>{ el.lastElementChild.innerHTML = html; };
+  pool.push(o);
+  return o;
+}
+
+/* ================= 极简标签 ================= */
+const labelVac = [], labelPro = [], labelNoi = [];
+function makeLabel(text, x, y, z, pool){
+  const el = document.createElement('div');
+  el.className = 'tag';
+  el.textContent = text;
+  const o = new CSS2DObject(el);
+  o.position.set(x, y, z);
+  pool.push(o);
+  return o;
+}
+/* 控制台说明标签：主标题 + 在每个实验中的作用 */
+function makeConsoleTag(sub, x, y, z, pool){
+  const el = document.createElement('div');
+  el.className = 'tag console-tag';
+  el.innerHTML = `<span class="t-main">控制台</span><span class="t-sub">${sub}</span>`;
+  const o = new CSS2DObject(el);
+  o.position.set(x, y, z);
+  pool.push(o);
+  return o;
+}
+
+/* ================= 环形涟漪工具 ================= */
+function makeRingPool(group, color, y, n, inner=0.46, outer=0.52){
+  const pool = [];
+  for (let i=0;i<n;i++){
+    const r = new THREE.Mesh(
+      new THREE.RingGeometry(inner, outer, 48),
+      new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0, side:THREE.DoubleSide, depthWrite:false })
+    );
+    r.rotation.x = -Math.PI/2;
+    r.position.y = y;
+    group.add(r);
+    pool.push({ mesh:r, life:0 });
+  }
+  return pool;
+}
+function spawnRing(pool){
+  for (const r of pool){
+    if (r.life <= 0){ r.life = 1; r.mesh.scale.setScalar(1); break; }
+  }
+}
+function updateRings(pool, dt, strength, expand, speed){
+  for (const r of pool){
+    if (r.life > 0){
+      r.life -= dt * speed;
+      const s = 1 + (1 - Math.max(r.life,0)) * expand;
+      r.mesh.scale.setScalar(s);
+      r.mesh.material.opacity = Math.max(0, r.life) * 0.55 * strength;
     }
   }
 }
 
-function initStains(){
-  var sd = 987654321;
-  var rnd = function(){ sd = (sd*1664525 + 1013904223) >>> 0; return sd/4294967296; };
-  var cx = 640, cy = 145, a = -8*Math.PI/180, ca = Math.cos(a), sa = Math.sin(a);
-  S2.stains = [];
-  for(var i=0;i<12;i++){
-    var lx = (rnd()-0.5)*124, ly = (rnd()-0.5)*80;
-    var x = cx + lx*ca - ly*sa, y = cy + lx*sa + ly*ca;
-    S2.stains.push({ x:x, y:y, r:3.4+rnd()*3.4, sq:0.55+rnd()*0.5, rot:rnd()*180, hp:1 });
-    var el = stainEls[i];
-    el.setAttribute('cx', x.toFixed(1));
-    el.setAttribute('cy', y.toFixed(1));
-    el.setAttribute('transform', 'rotate('+S2.stains[i].rot.toFixed(0)+' '+x.toFixed(1)+' '+y.toFixed(1)+')');
-  }
-  S2.cleaned = 0;
-  S2.bubbles = [];
-  S2.shocks = [];
-  S2.spawn = 0;
-  /* 预热：打开页面水里就已经在空化，不从空缸开始等 */
-  var P0 = S2.power/100;
-  if(P0 > 0.01){
-    for(var k=0;k<22;k++){
-      var nb = mkBub(P0);
-      nb.age = Math.random()*nb.life*0.9;
-      nb.r = nb.r0*Math.sin(Math.PI*nb.age/nb.life);
-      S2.bubbles.push(nb);
-    }
-  }
-  txt('#v2n', '0');
+/* ============================================================
+   模块一：真空铃实验
+============================================================ */
+const gVac = new THREE.Group(); scene.add(gVac);
+
+const base = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.05, 2.15, 0.36, 64),
+  new THREE.MeshStandardMaterial({ color:0x2a2f38, roughness:0.45, metalness:0.65 })
+);
+base.position.y = 0.18; base.castShadow = true; base.receiveShadow = true;
+gVac.add(base);
+const topPlate = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.95, 1.95, 0.05, 64),
+  new THREE.MeshStandardMaterial({ color:0x3a4250, roughness:0.3, metalness:0.8 })
+);
+topPlate.position.y = 0.385; topPlate.castShadow = true;
+gVac.add(topPlate);
+
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color:0xcfe9ff, metalness:0, roughness:0.05,
+  transmission:0.9, thickness:0.4, ior:1.5,
+  transparent:true, side:THREE.DoubleSide
+});
+const dome = new THREE.Mesh(
+  new THREE.SphereGeometry(1.82, 64, 32, 0, Math.PI*2, 0, Math.PI/2), glassMat
+);
+dome.position.y = 0.41; dome.castShadow = true;
+gVac.add(dome);
+const clampRing = new THREE.Mesh(
+  new THREE.TorusGeometry(1.82, 0.055, 16, 80),
+  new THREE.MeshStandardMaterial({ color:0x8b95a5, roughness:0.3, metalness:0.9 })
+);
+clampRing.rotation.x = Math.PI/2; clampRing.position.y = 0.42;
+gVac.add(clampRing);
+
+const bellGroup = new THREE.Group(); gVac.add(bellGroup);
+const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 0.55, 16), metal);
+stand.position.y = 0.68; stand.castShadow = true; bellGroup.add(stand);
+const shelf = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.05, 32), dark);
+shelf.position.y = 0.97; shelf.castShadow = true; bellGroup.add(shelf);
+const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 12), metal);
+post.position.y = 1.24; post.castShadow = true; bellGroup.add(post);
+const gong = new THREE.Mesh(
+  new THREE.SphereGeometry(0.42, 40, 20, 0, Math.PI*2, 0, Math.PI/2),
+  new THREE.MeshStandardMaterial({ color:0xd8a24a, roughness:0.22, metalness:0.95 })
+);
+gong.position.y = 1.5; gong.castShadow = true; bellGroup.add(gong);
+const coil = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.16, 20),
+  new THREE.MeshStandardMaterial({ color:0x8c3232, roughness:0.5, metalness:0.3 }));
+coil.position.y = 1.62; bellGroup.add(coil);
+const circuit = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.2),
+  new THREE.MeshStandardMaterial({ color:0x14353f, roughness:0.4, metalness:0.3 }));
+circuit.position.set(0.5, 1.05, 0); circuit.castShadow = true; bellGroup.add(circuit);
+const armPivot = new THREE.Group();
+armPivot.position.set(0.52, 1.56, 0);
+bellGroup.add(armPivot);
+const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.045, 0.045), metal);
+arm.position.x = -0.22; arm.castShadow = true; armPivot.add(arm);
+const hammer = new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 12), dark);
+hammer.position.x = -0.46; armPivot.add(hammer);
+
+const vacRipples = makeRingPool(gVac, 0x7fd4ff, 1.56, 3);
+
+/* 抽气阀 + 抽气泵 */
+const valveGroup = new THREE.Group(); gVac.add(valveGroup);
+const pipeMat = new THREE.MeshStandardMaterial({ color:0x9aa5b5, roughness:0.35, metalness:0.85 });
+const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.6, 20), pipeMat);
+pipe.rotation.z = Math.PI/2; pipe.position.set(-2.32, 0.62, 0); pipe.castShadow = true;
+valveGroup.add(pipe);
+const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 12), pipeMat);
+elbow.position.set(-2.62, 0.62, 0); valveGroup.add(elbow);
+const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.18, 12), pipeMat);
+stem.rotation.z = Math.PI/2; stem.position.set(-2.72, 0.62, 0); valveGroup.add(stem);
+const wheel = new THREE.Group();
+wheel.position.set(-2.78, 0.62, 0);
+valveGroup.add(wheel);
+const rimT = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.045, 14, 40), pipeMat);
+rimT.rotation.y = Math.PI/2; rimT.castShadow = true; wheel.add(rimT);
+for (let i=0;i<3;i++){
+  const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.44, 8), pipeMat);
+  sp.rotation.z = Math.PI/2; sp.rotation.y = i*Math.PI/3;
+  wheel.add(sp);
+}
+const hub = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 10), metal);
+wheel.add(hub);
+
+const hoseCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-2.9, 0.6, 0),
+  new THREE.Vector3(-3.6, 0.28, 0.3),
+  new THREE.Vector3(-4.1, 0.22, 0.9),
+  new THREE.Vector3(-4.35, 0.42, 1.1)
+]);
+const hose = new THREE.Mesh(new THREE.TubeGeometry(hoseCurve, 40, 0.055, 10),
+  new THREE.MeshStandardMaterial({ color:0x20303e, roughness:0.7, metalness:0.2 }));
+hose.castShadow = true; gVac.add(hose);
+const pump = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.62, 0.75),
+  new THREE.MeshStandardMaterial({ color:0x2b3440, roughness:0.5, metalness:0.6 }));
+pump.position.set(-4.45, 0.31, 1.2); pump.castShadow = true; gVac.add(pump);
+const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.5, 20), pipeMat);
+motor.rotation.z = Math.PI/2; motor.position.set(-4.45, 0.75, 1.2); motor.castShadow = true;
+gVac.add(motor);
+const gauge = new THREE.Mesh(new THREE.CircleGeometry(0.1, 24),
+  new THREE.MeshStandardMaterial({ color:0x0d1b2c, roughness:0.4, metalness:0.4,
+    emissive:0x1c4f7a, emissiveIntensity:0.6 }));
+gauge.position.set(-4.45, 0.45, 1.585); gVac.add(gauge);
+
+/* 分贝仪（真空模块） */
+const mCan = document.createElement('canvas');
+mCan.width = 256; mCan.height = 160;
+const mCtx = mCan.getContext('2d');
+const mTex = new THREE.CanvasTexture(mCan);
+
+function drawScreen(ctx, tex, db, barPct){
+  const w=256, h=160;
+  ctx.fillStyle = '#07101d'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = 'rgba(90,165,255,.4)'; ctx.lineWidth = 3;
+  ctx.strokeRect(4,4,w-8,h-8);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#e8f5ff';
+  ctx.font = 'bold 62px Consolas,monospace';
+  ctx.fillText(Math.round(db), w/2, 84);
+  ctx.font = '16px Consolas,monospace';
+  ctx.fillStyle = 'rgba(130,190,255,.8)';
+  ctx.fillText('dB', w/2, 108);
+  const bw = 200, bx = (w-bw)/2, by = 126;
+  ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fillRect(bx, by, bw, 10);
+  const g = ctx.createLinearGradient(bx,0,bx+bw,0);
+  g.addColorStop(0,'#2fd6a8'); g.addColorStop(0.6,'#ffd166'); g.addColorStop(1,'#ff5c5c');
+  ctx.fillStyle = g;
+  ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, barPct)), 10);
+  tex.needsUpdate = true;
+}
+drawScreen(mCtx, mTex, 82, 1);
+
+const vacMeter = new THREE.Group(); gVac.add(vacMeter);
+const vacPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.0, 14), metal);
+vacPole.position.set(3.6, 0.5, 1.3); vacPole.castShadow = true; vacMeter.add(vacPole);
+const vacFoot = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.38, 0.06, 32), dark);
+vacFoot.position.set(3.6, 0.03, 1.3); vacMeter.add(vacFoot);
+const vacHead = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.85, 0.42),
+  new THREE.MeshStandardMaterial({ color:0x232b38, roughness:0.45, metalness:0.55 }));
+vacHead.position.set(3.6, 1.35, 1.3); vacHead.rotation.y = -0.55;
+vacHead.castShadow = true; vacMeter.add(vacHead);
+const vacScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 0.62),
+  new THREE.MeshBasicMaterial({ map:mTex }));
+vacScreen.position.set(3.6, 1.36, 1.3);
+vacScreen.rotation.y = -0.55;
+vacScreen.translateZ(0.216);
+vacMeter.add(vacScreen);
+const vacMic = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.16, 0.22, 20), dark);
+vacMic.position.set(3.28, 1.9, 1.42); vacMic.rotation.z = 0.5; vacMeter.add(vacMic);
+
+/* 空气粒子 */
+const N = 500;
+const posArr = new Float32Array(N*3);
+for (let i=0;i<N;i++){
+  const r = Math.sqrt(Math.random())*1.6;
+  const a = Math.random()*Math.PI*2;
+  posArr[i*3]   = Math.cos(a)*r;
+  posArr[i*3+1] = 0.5 + Math.random()*1.6;
+  posArr[i*3+2] = Math.sin(a)*r;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+const airPoints = new THREE.Points(pGeo, new THREE.PointsMaterial({
+  color:0x8fd8ff, size:0.032, transparent:true, opacity:0.55, depthWrite:false
+}));
+gVac.add(airPoints);
+
+/* 真空模块标签 */
+makeLabel('电铃', 0, 2.55, 0, labelVac);
+makeLabel('抽气阀', -2.78, 1.25, 0, labelVac);
+makeLabel('分贝仪', 3.6, 2.25, 1.3, labelVac);
+const vacConsoleTag = makeConsoleTag('抽气 / 充气 · 监测声压', -4.2, 2.05, 0.5, labelVac);
+labelVac.forEach(o => gVac.add(o));
+const vacBubble = makeBubble(labelVac, '真空度 <b>0%</b>', -1.3, 2.85, 0, '#4dc3ff');
+const vacBubble2 = makeBubble(labelVac, '声压 <b>82 dB</b>', 1.2, 2.15, 0.6, '#ffb347');
+gVac.add(vacBubble); gVac.add(vacBubble2);
+
+/* 真空模块：仿真控制仪表台 */
+const vacConsole = makeConsole(gVac, { x:-4.2, y:0, z:0.5, ry:0.72, w:3.6, scale:0.8, title:'VACUUM PUMP CONTROL' });
+const vacGaugeP = makeGauge(vacConsole, -1.4, 1.42, 0.41, 'VACUUM', 0x4dc3ff, 0.29);
+const vacGaugeD = makeGauge(vacConsole, 0, 1.42, 0.41, 'SOUND dB', 0xffb347, 0.29);
+const vacGaugeV = makeGauge(vacConsole, 1.4, 1.42, 0.41, 'FLOW', 0x8ef0c0, 0.29);
+const vacLamps = makeLamps(vacConsole, -0.28, 0.62, 0.41, [0x4ade80,0xffd166,0xff5c5c]);
+const vacReadout = makeReadout(vacConsole, 0, 0.35, 0.41, 1.5, 0.5);
+// 旋钮
+for (const kx of [-0.95, 0.95]){
+  const knobBase = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,0.05,24), panelDark);
+  knobBase.rotation.x=Math.PI/2; knobBase.position.set(kx,0.35,0.41); vacConsole.add(knobBase);
+  const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,0.07,24),
+    new THREE.MeshStandardMaterial({ color:0x3b4759, roughness:0.35, metalness:0.85 }));
+  knob.rotation.x=Math.PI/2; knob.position.set(kx,0.35,0.44); vacConsole.add(knob);
+  const mark = new THREE.Mesh(new THREE.BoxGeometry(0.012,0.09,0.006),
+    new THREE.MeshBasicMaterial({ color:0xffd166 }));
+  mark.position.set(kx,0.39,0.48); vacConsole.add(mark);
+}
+// 玻璃罩法兰螺栓环（机械细节）
+for (let i=0;i<20;i++){
+  const a = i/20*Math.PI*2;
+  const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,0.06,8), boltMat);
+  bolt.position.set(Math.cos(a)*1.88, 0.44, Math.sin(a)*1.88);
+  gVac.add(bolt);
 }
 
-function update2(dt){
-  S2.t += dt;
-  var P = S2.power/100;
+/* 真空模块状态 */
+let air = 100;
+let pumpMode = 'idle';
+let hitTimer = 0, lastShownDb = -1;
 
-  if(P > 0.01){
-    S2.spawn += 90*P*dt;
-    while(S2.spawn >= 1){ S2.spawn -= 1; S2.bubbles.push(mkBub(P)); }
-  }
+/* ============================================================
+   模块二：声音的产生与传播（音叉）
+============================================================ */
+const gPro = new THREE.Group(); scene.add(gPro);
 
-  for(var i=S2.bubbles.length-1;i>=0;i--){
-    var b = S2.bubbles[i];
-    b.age += dt;
-    if(b.age >= b.life){
-      S2.shocks.push({x:b.x, y:b.y, t:0});
-      if(b.near) cleanAt(b.x, b.y, b.p);
-      S2.bubbles.splice(i,1);
-      continue;
-    }
-    b.r = b.r0*Math.sin(Math.PI*b.age/b.life);
-  }
+const steel = new THREE.MeshStandardMaterial({ color:0xc8d2dc, roughness:0.22, metalness:0.92 });
+const forkGroup = new THREE.Group(); gPro.add(forkGroup);
+const fBase = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.09, 32),
+  new THREE.MeshStandardMaterial({ color:0x2a2f38, roughness:0.45, metalness:0.65 }));
+fBase.position.y = 0.045; fBase.castShadow = true; forkGroup.add(fBase);
+const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.62, 16), steel);
+handle.position.y = 0.4; handle.castShadow = true; forkGroup.add(handle);
+const yoke = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.15), steel);
+yoke.position.y = 0.74; yoke.castShadow = true; forkGroup.add(yoke);
+const prongL = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.72, 0.14), steel);
+prongL.position.set(-0.105, 1.15, 0); prongL.castShadow = true; forkGroup.add(prongL);
+const prongR = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.72, 0.14), steel);
+prongR.position.set(0.105, 1.15, 0); prongR.castShadow = true; forkGroup.add(prongR);
+forkGroup.position.x = -0.8;
 
-  for(var j=S2.shocks.length-1;j>=0;j--){
-    S2.shocks[j].t += dt;
-    if(S2.shocks[j].t > 0.45) S2.shocks.splice(j,1);
-  }
+/* 音锤 */
+const mallet = new THREE.Group(); gPro.add(mallet);
+const mStick = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 10),
+  new THREE.MeshStandardMaterial({ color:0x6b4f34, roughness:0.7 }));
+mStick.rotation.z = Math.PI/2; mallet.add(mStick);
+const mBall = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12),
+  new THREE.MeshStandardMaterial({ color:0x2e4757, roughness:0.5 }));
+mBall.position.x = 0.28; mallet.add(mBall);
+mallet.position.set(0.3, 1.35, 0.55);
+const malletRest = new THREE.Vector3(0.3, 1.35, 0.55);
+const malletHit  = new THREE.Vector3(-0.5, 1.42, 0.06);
+let malletActive = false, malletT = 0;
 
-  SN2.reset();
-  if(P > 0.01){
-    for(var k=0;k<5;k++){
-      var u = ((S2.t*0.62 + k/5) % 1);
-      var R = 8 + u*200;
-      var e = SN2.get(); if(!e) break;
-      e.setAttribute('d', 'M'+(530-R).toFixed(1)+' 240 A'+R.toFixed(1)+' '+R.toFixed(1)+' 0 0 1 '+(530+R).toFixed(1)+' 240');
-      e.setAttribute('opacity', ((1-u)*0.55*Math.min(1, P*1.6)).toFixed(3));
-    }
-  }
-  SN2.finish();
-
-  KB2.reset();
-  for(var m=0;m<S2.shocks.length;m++){
-    var s2 = S2.shocks[m], uu = s2.t/0.45;
-    var ke = KB2.get(); if(!ke) break;
-    ke.setAttribute('cx', s2.x.toFixed(1));
-    ke.setAttribute('cy', s2.y.toFixed(1));
-    ke.setAttribute('r', (2+uu*30).toFixed(1));
-    ke.setAttribute('stroke-width', (2.6*(1-uu)).toFixed(2));
-    ke.setAttribute('opacity', (0.9*(1-uu)).toFixed(2));
-  }
-  KB2.finish();
-
-  BB2.reset();
-  for(var n=0;n<S2.bubbles.length;n++){
-    var bb = S2.bubbles[n];
-    if(bb.r < 0.35) continue;
-    var be = BB2.get(); if(!be) break;
-    be.setAttribute('cx', bb.x.toFixed(1));
-    be.setAttribute('cy', bb.y.toFixed(1));
-    be.setAttribute('r', bb.r.toFixed(1));
-    be.setAttribute('opacity', '0.62');
-  }
-  BB2.finish();
-
-  for(var p=0;p<S2.stains.length;p++){
-    var st = S2.stains[p], el = stainEls[p];
-    if(st.hp <= 0){ el.setAttribute('opacity','0'); continue; }
-    var kk = clamp(st.hp, 0, 1);
-    el.setAttribute('rx', (st.r*(0.55+0.45*kk)).toFixed(1));
-    el.setAttribute('ry', (st.r*st.sq*(0.55+0.45*kk)).toFixed(1));
-    el.setAttribute('opacity', (0.5+0.4*kk).toFixed(2));
-  }
-
-  txt('#v2n', S2.cleaned);
+/* 纵波演示：空气粒子列（疏密相间） */
+const ROW = 26;
+const rowSpheres = [];
+for (let i=0;i<ROW;i++){
+  const s = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8),
+    new THREE.MeshBasicMaterial({ color:0x8fd8ff, transparent:true, opacity:0.7, depthWrite:false }));
+  s.position.set(0.3 + i*(4.3/(ROW-1)), 1.42, 0);
+  gPro.add(s);
+  rowSpheres.push({ mesh:s, bx:0.3 + i*(4.3/(ROW-1)) });
 }
 
-$('#r2p').addEventListener('input', function(){ S2.power = +this.value; txt('#r2pp', S2.power); });
-$('#reset2').addEventListener('click', initStains);
-initStains();
+/* 传播方向箭头 */
+const arrow = new THREE.Group(); gPro.add(arrow);
+const aShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 10), metal);
+aShaft.rotation.z = -Math.PI/2; arrow.add(aShaft);
+const aHead = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.24, 14),
+  new THREE.MeshStandardMaterial({ color:0x4dc3ff, roughness:0.4, metalness:0.3,
+    emissive:0x1c6fa8, emissiveIntensity:0.7 }));
+aHead.rotation.z = -Math.PI/2; aHead.position.x = 0.42; arrow.add(aHead);
+arrow.position.set(5.0, 1.42, 0);
 
-/* ==================== ③ 超声回波 ==================== */
-var S3 = { d:7.0, t:0, drag:false };
-var X0 = 100, US_PX = 4.2, BASE = 285;
+/* 音叉涟漪 */
+const forkRipples = makeRingPool(gPro, 0x5ee8d0, 1.42, 4);
 
-var svg3 = $('#svg3');
-svg3.innerHTML = [
-'<rect x="0" y="0" width="1040" height="360" fill="#F8FAFC"/>',
-'<rect x="112" y="58" width="888" height="108" fill="#FBD9E8"/>',
-'<rect x="112" y="58" width="300" height="108" id="tissue3" fill="#FCE7F3"/>',
-'<line x1="112" y1="58" x2="112" y2="166" stroke="#F9A8D4" stroke-width="3"/>',
-'<line x1="112" y1="112" x2="600" y2="112" id="beam3" stroke="#FBCFE8" stroke-width="2" stroke-dasharray="3 5"/>',
-'<g id="iface3">',
-  '<rect x="-1" y="50" width="9" height="128" rx="4.5" fill="#DB2777" opacity=".9"/>',
-  '<rect x="-13" y="98" width="33" height="32" rx="10" fill="#FFFFFF" opacity=".95"/>',
-  '<rect x="-4" y="106" width="15" height="2.6" rx="1.3" fill="#DB2777"/>',
-  '<rect x="-4" y="112.7" width="15" height="2.6" rx="1.3" fill="#DB2777"/>',
-  '<rect x="-4" y="119.4" width="15" height="2.6" rx="1.3" fill="#DB2777"/>',
-'</g>',
-'<path id="pulse3" fill="none" stroke="#DB2777" stroke-width="2.4" stroke-linecap="round" opacity="0"/>',
-'<rect x="60" y="66" width="42" height="92" rx="7" fill="#334155"/>',
-'<rect x="96" y="76" width="16" height="72" rx="4" fill="#64748B"/>',
-'<text x="81" y="180" text-anchor="middle" font-size="12" fill="#94A3B8">探头</text>',
-'<text x="118" y="44" font-size="11" fill="#F472B6">皮肤</text>',
-'<text id="lbliface" x="300" y="40" font-size="11" font-weight="700" fill="#BE185D" text-anchor="middle">界面</text>',
-'<rect x="60" y="200" width="940" height="145" rx="10" fill="#0B1220"/>',
-'<g id="grid3"></g>',
-'<line x1="100" y1="285" x2="940" y2="285" stroke="#1E3A5F" stroke-width="1.5"/>',
-'<path id="spk0" fill="#38BDF8" opacity=".95"/>',
-'<path id="spk1" fill="#F472B6" opacity=".95"/>',
-'<line id="dtl" y1="302" y2="302" x1="100" stroke="#334155" stroke-width="1"/>',
-'<line id="dte0" y1="296" y2="308" x1="100" x2="100" stroke="#334155" stroke-width="1.5"/>',
-'<line id="dte1" y1="296" y2="308" stroke="#334155" stroke-width="1.5"/>',
-'<text id="dtt" y="318" font-size="11" fill="#64748B" text-anchor="middle">Δt</text>',
-'<text x="100" y="332" font-size="10" fill="#475569" text-anchor="middle">0</text>',
-'<text x="310" y="332" font-size="10" fill="#475569" text-anchor="middle">50</text>',
-'<text x="520" y="332" font-size="10" fill="#475569" text-anchor="middle">100</text>',
-'<text x="730" y="332" font-size="10" fill="#475569" text-anchor="middle">150</text>',
-'<text x="940" y="332" font-size="10" fill="#475569" text-anchor="middle">200  t / μs</text>',
-'<rect x="836" y="205" width="11" height="11" rx="2" fill="#38BDF8"/>',
-'<text x="853" y="215" font-size="11" fill="#94A3B8">发射脉冲</text>',
-'<rect x="922" y="205" width="11" height="11" rx="2" fill="#F472B6"/>',
-'<text x="939" y="215" font-size="11" fill="#94A3B8">回波</text>'
-].join('');
+/* 模块二标签 */
+makeLabel('音叉', -0.8, 2.15, 0, labelPro);
+makeLabel('传播方向', 5.0, 1.95, 0, labelPro);
+const proConsoleTag = makeConsoleTag('敲击音叉 · 测振动', -3.6, 2.05, 1.2, labelPro);
+labelPro.forEach(o => gPro.add(o));
+const proBubble = makeBubble(labelPro, '振动 <b>0%</b>', -0.8, 2.65, 0, '#5ee8d0');
+gPro.add(proBubble);
 
-(function(){
-  var g = $('#grid3'), s = '';
-  for(var k=1;k<=4;k++){
-    var x = X0 + k*210;
-    s += '<line x1="'+x+'" y1="210" x2="'+x+'" y2="285" stroke="#16233A" stroke-width="1"/>';
+/* 模块二：仿真控制仪表台 */
+const proConsole = makeConsole(gPro, { x:-3.6, y:0, z:1.2, ry:0.15, w:3.4, scale:0.8, title:'FORK RESONANCE' });
+const proGaugeF = makeGauge(proConsole, -1.2, 1.42, 0.41, 'FREQ Hz', 0x5ee8d0, 0.27);
+const proGaugeA = makeGauge(proConsole, 0.4, 1.42, 0.41, 'AMPLITUDE', 0x4dc3ff, 0.27);
+const proLamps = makeLamps(proConsole, 1.35, 0.75, 0.41, [0x4ade80,0xffd166]);
+const proReadout = makeReadout(proConsole, 1.0, 0.32, 0.41, 1.1, 0.4);
+proGaugeF.set(0.73); // 440Hz 对应刻度
+
+/* 模块二状态 */
+let forkAmp = 0;
+let forkRingTimer = 0;
+
+/* ============================================================
+   模块三：噪声控制与隔音房间
+============================================================ */
+const gNoi = new THREE.Group(); scene.add(gNoi);
+
+const wallSolid = new THREE.MeshStandardMaterial({ color:0x2d3646, roughness:0.75, metalness:0.15 });
+const wallGlass = new THREE.MeshPhysicalMaterial({
+  color:0xaad4ff, roughness:0.08, metalness:0, transmission:0.75, thickness:0.2,
+  transparent:true, opacity:0.55, side:THREE.DoubleSide, depthWrite:false
+});
+
+const rFloor = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.15, 4.4),
+  new THREE.MeshStandardMaterial({ color:0x242c3a, roughness:0.7, metalness:0.3 }));
+rFloor.position.y = 0.075; rFloor.receiveShadow = true; rFloor.castShadow = true;
+gNoi.add(rFloor);
+const wBack = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.8, 0.15), wallSolid);
+wBack.position.set(0, 1.55, -2.2); wBack.castShadow = true; gNoi.add(wBack);
+const wLeft = new THREE.Mesh(new THREE.BoxGeometry(0.15, 2.8, 4.4), wallSolid);
+wLeft.position.set(-2.2, 1.55, 0); wLeft.castShadow = true; gNoi.add(wLeft);
+const wRight = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.8, 4.4), wallGlass);
+wRight.position.set(2.2, 1.55, 0); gNoi.add(wRight);
+const wFront = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.8, 0.12), wallGlass);
+wFront.position.set(0, 1.55, 2.2); gNoi.add(wFront);
+
+/* 吸音棉（后墙 + 左墙内衬，可开关） */
+const foamMat = new THREE.MeshStandardMaterial({ color:0xd9c9a3, roughness:0.95, metalness:0.05 });
+const foamPanels = [];
+for (let i=0;i<3;i++){
+  for (let j=0;j<2;j++){
+    const p = new THREE.Mesh(new THREE.BoxGeometry(1.15, 1.05, 0.07), foamMat);
+    p.position.set(-1.45 + i*1.45, 0.75 + j*1.15, -2.08);
+    p.castShadow = true; gNoi.add(p); foamPanels.push(p);
+    const q = new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.05, 1.15), foamMat);
+    q.position.set(-2.08, 0.75 + j*1.15, -1.45 + i*1.45);
+    q.castShadow = true; gNoi.add(q); foamPanels.push(q);
   }
-  g.innerHTML = s;
-})();
-
-var iface3 = $('#iface3'), tissue3 = $('#tissue3'), beam3 = $('#beam3'),
-    pulse3 = $('#pulse3'), lbliface = $('#lbliface'),
-    spk0 = $('#spk0'), spk1 = $('#spk1'),
-    dtl = $('#dtl'), dte1 = $('#dte1'), dtt = $('#dtt');
-
-function ifaceX(){ return 240 + (S3.d-2)/12*520; }
-
-function pulsePath(cx, base, span, h){
-  var n = 44, d = '';
-  for(var i=0;i<=n;i++){
-    var u = i/n;
-    var x = cx - span/2 + u*span;
-    var env = Math.exp(-Math.pow((u-0.5)/0.2, 2));
-    d += (i?'L':'M') + x.toFixed(1) + ' ' + (base - h*env*Math.sin(u*TAU*3)).toFixed(1);
-  }
-  return d;
 }
 
-function spikePath(x, base, h, w){
-  return 'M'+(x-w)+' '+base+' L'+(x-w*0.3)+' '+(base-3)+' L'+x+' '+(base-h)+
-         ' L'+(x+w*0.3)+' '+(base-3)+' L'+(x+w)+' '+base+' Z';
+/* 双层玻璃（右墙内两块玻璃 + 边框） */
+const dgGroup = new THREE.Group(); dgGroup.visible = false; gNoi.add(dgGroup);
+const dgMat = new THREE.MeshPhysicalMaterial({
+  color:0xbfe6ff, roughness:0.05, transmission:0.85, thickness:0.1,
+  transparent:true, opacity:0.6, side:THREE.DoubleSide
+});
+const dg1 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.7, 1.7), dgMat);
+dg1.position.set(2.13, 1.55, 0.4); dgGroup.add(dg1);
+const dg2 = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.7, 1.7), dgMat);
+dg2.position.set(2.27, 1.55, 0.4); dgGroup.add(dg2);
+const dgFrameMat = new THREE.MeshStandardMaterial({ color:0x8b95a5, roughness:0.3, metalness:0.9 });
+const dgFrameA = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.86, 0.08), dgFrameMat);
+dgFrameA.position.set(2.2, 1.55, -0.49); dgGroup.add(dgFrameA);
+const dgFrameB = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.86, 0.08), dgFrameMat);
+dgFrameB.position.set(2.2, 1.55, 1.29); dgGroup.add(dgFrameB);
+
+/* 密封门（前墙，可开合） */
+const doorGroup = new THREE.Group();
+doorGroup.position.set(1.65, 0, 2.2);
+gNoi.add(doorGroup);
+const doorMatClosed = new THREE.MeshStandardMaterial({ color:0x3b4a63, roughness:0.5, metalness:0.5 });
+const doorMatOpen   = new THREE.MeshStandardMaterial({ color:0x39414f, roughness:0.6, metalness:0.4 });
+const door = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.3, 0.09), doorMatOpen);
+door.position.set(-0.55, 1.15, 0); door.castShadow = true;
+doorGroup.add(door);
+const sealFrame = new THREE.Mesh(new THREE.BoxGeometry(1.26, 2.46, 0.14),
+  new THREE.MeshStandardMaterial({ color:0x2fd6a8, roughness:0.4,
+    emissive:0x0e6e57, emissiveIntensity:0.8 }));
+sealFrame.position.set(-0.55, 1.15, 0); sealFrame.visible = false;
+doorGroup.add(sealFrame);
+
+/* 噪声源（音箱） */
+const speaker = new THREE.Group(); gNoi.add(speaker);
+const spBox = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.95, 0.55),
+  new THREE.MeshStandardMaterial({ color:0x1e2530, roughness:0.55, metalness:0.35 }));
+spBox.position.y = 0.55; spBox.castShadow = true; speaker.add(spBox);
+const spCone = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.16, 24, 1, true),
+  new THREE.MeshStandardMaterial({ color:0x39465a, roughness:0.5, metalness:0.4, side:THREE.DoubleSide }));
+spCone.rotation.x = -Math.PI/2; spCone.position.set(0, 0.6, 0.3); speaker.add(spCone);
+const spRing = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.025, 10, 32), metal);
+spRing.position.set(0, 0.6, 0.31); speaker.add(spRing);
+speaker.position.set(-1.2, 0, -1.2);
+speaker.rotation.y = Math.PI/4;
+
+/* 噪声涟漪（橙红色） */
+const noiRipples = makeRingPool(gNoi, 0xff8a50, 1.0, 4);
+noiRipples.forEach(r => r.mesh.position.set(-0.6, 1.0, -0.6));
+
+/* 分贝仪（房间外，噪声模块） */
+const nCan = document.createElement('canvas');
+nCan.width = 256; nCan.height = 160;
+const nCtx = nCan.getContext('2d');
+const nTex = new THREE.CanvasTexture(nCan);
+drawScreen(nCtx, nTex, 76, 0.76);
+
+const noiMeter = new THREE.Group(); gNoi.add(noiMeter);
+const noiPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.0, 14), metal);
+noiPole.position.set(4.4, 0.5, 3.6); noiPole.castShadow = true; noiMeter.add(noiPole);
+const noiFoot = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.38, 0.06, 32), dark);
+noiFoot.position.set(4.4, 0.03, 3.6); noiMeter.add(noiFoot);
+const noiHead = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.85, 0.42),
+  new THREE.MeshStandardMaterial({ color:0x232b38, roughness:0.45, metalness:0.55 }));
+noiHead.position.set(4.4, 1.35, 3.6); noiHead.rotation.y = -0.7;
+noiHead.castShadow = true; noiMeter.add(noiHead);
+const noiScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 0.62),
+  new THREE.MeshBasicMaterial({ map:nTex }));
+noiScreen.position.set(4.4, 1.36, 3.6);
+noiScreen.rotation.y = -0.7;
+noiScreen.translateZ(0.216);
+noiMeter.add(noiScreen);
+const noiMic = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.16, 0.22, 20), dark);
+noiMic.position.set(4.05, 1.9, 3.68); noiMic.rotation.z = 0.5; noiMeter.add(noiMic);
+
+/* 模块三标签 */
+makeLabel('噪声源', -1.2, 2.0, -1.2, labelNoi);
+makeLabel('分贝仪', 4.4, 2.35, 3.6, labelNoi);
+const noiConsoleTag = makeConsoleTag('切换隔音 · 测分贝', -4.2, 2.05, 2.0, labelNoi);
+labelNoi.forEach(o => gNoi.add(o));
+const noiBubble = makeBubble(labelNoi, '隔声量 <b>0 dB</b>', 0, 3.15, 0, '#ffb347');
+gNoi.add(noiBubble);
+
+/* 模块三：仿真控制仪表台 */
+const noiConsole = makeConsole(gNoi, { x:-4.2, y:0, z:2.0, ry:0.85, w:3.6, scale:0.8, title:'ACOUSTIC INSULATION TEST' });
+const noiGaugeIn = makeGauge(noiConsole, -1.3, 1.42, 0.41, 'IN dB', 0xff8a50, 0.27);
+const noiGaugeOut = makeGauge(noiConsole, 0.1, 1.42, 0.41, 'OUT dB', 0x4dc3ff, 0.27);
+const noiGaugeR = makeGauge(noiConsole, 1.4, 1.42, 0.41, 'REDUCE', 0x8ef0c0, 0.27);
+const noiLamps = makeLamps(noiConsole, -0.3, 0.65, 0.41, [0x4ade80,0xffd166,0x60a5fa]);
+const noiReadout = makeReadout(noiConsole, 0.85, 0.34, 0.41, 1.4, 0.46);
+noiGaugeIn.set(0.92);
+
+/* 模块三状态 */
+let cottonOn = false, glassOn = false, doorOn = false;
+const DB_IN = 92;
+let lastShownOut = -1;
+function outDb(){ return Math.max(30, 76 - (cottonOn?14:0) - (glassOn?11:0) - (doorOn?8:0)); }
+
+/* ============================================================
+   模块四：声音传递能量（扬声器 + 烛焰）
+============================================================ */
+const gEnergy = new THREE.Group(); scene.add(gEnergy);
+const labelEnergy = [];
+
+const eSpeaker = new THREE.Group(); gEnergy.add(eSpeaker);
+const eBox = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.95, 0.55),
+  new THREE.MeshStandardMaterial({ color:0x1e2530, roughness:0.55, metalness:0.35 }));
+eBox.position.y = 0.55; eBox.castShadow = true; eSpeaker.add(eBox);
+const eCone = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.18, 24, 1, true),
+  new THREE.MeshStandardMaterial({ color:0x39465a, roughness:0.5, metalness:0.4, side:THREE.DoubleSide }));
+eCone.rotation.x = -Math.PI/2; eCone.position.set(0, 0.6, 0.3); eSpeaker.add(eCone);
+const eRingM = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.025, 10, 32), metal);
+eRingM.position.set(0, 0.6, 0.31); eSpeaker.add(eRingM);
+eSpeaker.position.set(-3.2, 0, 0);
+eSpeaker.rotation.y = Math.PI/2;
+
+const candle = new THREE.Group(); gEnergy.add(candle);
+const cBody = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.55, 20),
+  new THREE.MeshStandardMaterial({ color:0xe8e4d8, roughness:0.6, metalness:0.05 }));
+cBody.position.y = 0.275; cBody.castShadow = true; candle.add(cBody);
+const cWick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.08, 6), dark);
+cWick.position.y = 0.58; candle.add(cWick);
+const flameOuter = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.5, 16),
+  new THREE.MeshBasicMaterial({ color:0xff8c3a, transparent:true, opacity:0.85,
+    blending:THREE.AdditiveBlending, depthWrite:false }));
+flameOuter.position.y = 0.8; candle.add(flameOuter);
+const flameInner = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.3, 16),
+  new THREE.MeshBasicMaterial({ color:0xffe9a8, transparent:true, opacity:0.9,
+    blending:THREE.AdditiveBlending, depthWrite:false }));
+flameInner.position.y = 0.72; candle.add(flameInner);
+candle.position.set(-1.1, 0, 0);
+
+/* 能量声波涟漪（加粗加亮） */
+const eRings = makeRingPool(gEnergy, 0x7fd4ff, 1.0, 4, 0.4, 0.62);
+eRings.forEach(r => r.mesh.position.set(-2.6, 1.0, 0));
+
+/* 模块四标签 */
+makeLabel('扬声器', -3.2, 1.75, 0, labelEnergy);
+makeLabel('烛焰', -1.1, 1.85, 0, labelEnergy);
+const energyConsoleTag = makeConsoleTag('驱动声波 · 测偏角', 2.2, 2.05, 1.5, labelEnergy);
+labelEnergy.forEach(o => gEnergy.add(o));
+const energyBubble = makeBubble(labelEnergy, '声能 <b>OFF</b>', -2.2, 2.35, 0, '#ff8c3a');
+gEnergy.add(energyBubble);
+
+/* 模块四：仿真控制仪表台 */
+const energyConsole = makeConsole(gEnergy, { x:2.2, y:0, z:1.5, ry:-0.7, w:3.4, scale:0.8, title:'WAVE ENERGY DRIVE' });
+const energyGaugeP = makeGauge(energyConsole, -1.1, 1.42, 0.41, 'POWER', 0xff8c3a, 0.27);
+const energyGaugeL = makeGauge(energyConsole, 0.8, 1.42, 0.41, 'DEFLECT', 0xffd166, 0.27);
+const energyLamps = makeLamps(energyConsole, -0.3, 0.65, 0.41, [0x4ade80,0xff5c5c]);
+const energyReadout = makeReadout(energyConsole, 0.9, 0.34, 0.41, 1.3, 0.44);
+
+/* 模块四状态 */
+let energyOn = false, eRingTimer = 0;
+
+/* ============================================================
+   模块五：声音传递信息（声呐回声定位）
+============================================================ */
+const gInfoM = new THREE.Group(); scene.add(gInfoM);
+const labelInfoM = [];
+
+const sonar = new THREE.Group(); gInfoM.add(sonar);
+const sPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.25, 14), metal);
+sPole.position.y = 0.625; sPole.castShadow = true; sonar.add(sPole);
+const sFoot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.34, 0.06, 24), dark);
+sFoot.position.y = 0.03; sonar.add(sFoot);
+const sHead = new THREE.Group(); sHead.position.y = 1.3; sonar.add(sHead);
+const sDish = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 14, 0, Math.PI*2, 0, Math.PI/2), metal);
+sDish.rotation.z = Math.PI/2; sDish.castShadow = true; sHead.add(sDish);
+const sEmitterMat = new THREE.MeshStandardMaterial({ color:0x4dc3ff, emissive:0x2b8dff,
+  emissiveIntensity:1.0, roughness:0.4 });
+const sEmitter = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 10), sEmitterMat);
+sHead.add(sEmitter);
+sonar.position.set(2.4, 0, 0);
+
+const rockMat = new THREE.MeshStandardMaterial({ color:0x56606e, roughness:0.9, metalness:0.1 });
+const rockMatA = new THREE.MeshStandardMaterial({ color:0x56606e, roughness:0.9, metalness:0.1,
+  emissive:0x2fd6a8, emissiveIntensity:0 });
+const rockA = new THREE.Mesh(new THREE.IcosahedronGeometry(0.7, 0), rockMatA);
+rockA.position.set(5.5, 0.5, 0); rockA.castShadow = true; gInfoM.add(rockA);
+const rockB = new THREE.Mesh(new THREE.IcosahedronGeometry(0.45, 0), rockMat);
+rockB.position.set(5.2, 0.3, 0.75); rockB.castShadow = true; gInfoM.add(rockB);
+const rockC = new THREE.Mesh(new THREE.IcosahedronGeometry(0.4, 0), rockMat);
+rockC.position.set(5.9, 0.35, -0.65); rockC.castShadow = true; gInfoM.add(rockC);
+
+/* 声呐脉冲 / 回声涟漪（加粗加亮） */
+const pingRings = makeRingPool(gInfoM, 0x6db8ff, 1.3, 3, 0.4, 0.62);
+pingRings.forEach(r => r.mesh.position.set(2.4, 1.3, 0));
+const echoRings = makeRingPool(gInfoM, 0xffd166, 1.3, 3, 0.4, 0.62);
+echoRings.forEach(r => r.mesh.position.set(5.5, 1.3, 0));
+
+/* 测距虚线（回声返回后显示，纯图形说明"测距离"） */
+const measureGeo = new THREE.BufferGeometry().setFromPoints([
+  new THREE.Vector3(2.5, 1.3, 0), new THREE.Vector3(5.4, 1.3, 0)
+]);
+const measureLine = new THREE.Line(measureGeo, new THREE.LineDashedMaterial({
+  color:0x6db8ff, dashSize:0.12, gapSize:0.08, transparent:true, opacity:0.85
+}));
+measureLine.computeLineDistances();
+measureLine.visible = false;
+gInfoM.add(measureLine);
+
+/* 模块五标签 */
+makeLabel('声呐', 2.4, 2.0, 0, labelInfoM);
+makeLabel('礁石', 5.5, 1.55, 0, labelInfoM);
+const infoConsoleTag = makeConsoleTag('发射接收 · 测距离', -1.2, 2.05, 1.4, labelInfoM);
+labelInfoM.forEach(o => gInfoM.add(o));
+const infoBubble = makeBubble(labelInfoM, '回波 <b>— m</b>', 3.9, 2.75, 0, '#6db8ff');
+gInfoM.add(infoBubble);
+
+/* 模块五：仿真控制仪表台 */
+const infoConsole = makeConsole(gInfoM, { x:-1.2, y:0, z:1.4, ry:0.3, w:3.4, scale:0.8, title:'SONAR RANGING UNIT' });
+const infoGaugeS = makeGauge(infoConsole, -1.2, 1.42, 0.41, 'SIGNAL', 0x6db8ff, 0.27);
+const infoGaugeE = makeGauge(infoConsole, 0.5, 1.42, 0.41, 'ECHO', 0xffd166, 0.27);
+const infoLamps = makeLamps(infoConsole, 1.5, 0.75, 0.41, [0x4ade80,0x6db8ff]);
+const infoReadout = makeReadout(infoConsole, 1.05, 0.32, 0.41, 1.2, 0.42);
+
+const distTag = makeLabel('3.0 m', 3.95, 1.6, 0, labelInfoM);
+gInfoM.add(distTag);
+distTag.visible = false;
+
+/* 模块五状态 */
+let pingT = -1, pTimer = 0, echoSpawned = false, echoArrived = false;
+let distShown = null, pingPulse = 0, rockFlash = 0, sGlow = 0.25;
+
+/* 流程指示：发射 › 反射 › 接收，随探测过程点亮 */
+const procEl = document.getElementById('process');
+const stepEls = [0,1,2].map(i=>document.getElementById('st'+i));
+const pdistEl = document.getElementById('pdist');
+let lastProcKey = '';
+function updateProcess(){
+  let cur;
+  if (pingT >= 0) cur = pingT < 1 ? 0 : pingT < 2 ? 1 : 2;
+  else cur = (distShown !== null) ? 3 : -1;
+  const key = cur + '|' + (distShown !== null);
+  if (key === lastProcKey) return;
+  lastProcKey = key;
+  stepEls.forEach((el,i)=>{
+    el.classList.toggle('on', cur===i);
+    el.classList.toggle('done', cur===3 || cur>i);
+  });
+  pdistEl.classList.toggle('show', distShown !== null);
 }
 
-function update3(dt){
-  S3.t += dt;
-  var xf = ifaceX();
-  var T = 2.6, ph = (S3.t % T)/T;
+/* ============================================================
+   音频（合成铃声 / 音叉纯音 / 噪声）
+============================================================ */
+let actx = null, master = null, noiseGain = null, energyGain = null, soundOn = true;
+function ensureAudio(){
+  if (actx) return;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  master = actx.createGain();
+  master.gain.value = soundOn ? 1 : 0;
+  master.connect(actx.destination);
+  // 低频嗡鸣（能量模块）
+  const eo1 = actx.createOscillator(); eo1.type = 'sine'; eo1.frequency.value = 110;
+  const eo2 = actx.createOscillator(); eo2.type = 'sine'; eo2.frequency.value = 220;
+  energyGain = actx.createGain(); energyGain.gain.value = 0;
+  eo1.connect(energyGain); eo2.connect(energyGain); energyGain.connect(master);
+  eo1.start(); eo2.start();
+  // 白噪声源（噪声模块）
+  const buf = actx.createBuffer(1, actx.sampleRate*2, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+  const src = actx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  const filt = actx.createBiquadFilter();
+  filt.type = 'lowpass'; filt.frequency.value = 1100;
+  noiseGain = actx.createGain(); noiseGain.gain.value = 0;
+  src.connect(filt); filt.connect(noiseGain); noiseGain.connect(master);
+  src.start();
+}
+addEventListener('pointerdown', ()=>{ ensureAudio(); if(actx.state==='suspended') actx.resume(); });
 
-  var px;
-  if(ph < 0.4) px = lerp(112, xf, ph/0.4);
-  else if(ph < 0.8) px = lerp(xf, 112, (ph-0.4)/0.4);
-  else px = 112;
+function ding(){
+  if (!actx || air <= 1) return;
+  const t = actx.currentTime;
+  const vol = Math.pow(air/100, 2) * 0.5;
+  [[1244,1],[1867,0.6],[2794,0.35],[622,0.5]].forEach(([f,g])=>{
+    const o = actx.createOscillator(), gn = actx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    gn.gain.setValueAtTime(vol*g, t);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+    o.connect(gn); gn.connect(master);
+    o.start(t); o.stop(t + 1.15);
+  });
+}
+function forkTone(strength){
+  if (!actx) return;
+  const t = actx.currentTime;
+  const dur = strength > 0.7 ? 2.6 : 1.6;
+  [[440,1],[884,0.35],[1796,0.12]].forEach(([f,g])=>{
+    const o = actx.createOscillator(), gn = actx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    gn.gain.setValueAtTime(strength*0.35*g, t);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(gn); gn.connect(master);
+    o.start(t); o.stop(t + dur + 0.1);
+  });
+}
+function sonarBeep(freq, dur){
+  if (!actx) return;
+  const t0 = actx.currentTime;
+  const o = actx.createOscillator(), gn = actx.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  gn.gain.setValueAtTime(0.25, t0);
+  gn.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(gn); gn.connect(master);
+  o.start(t0); o.stop(t0 + dur + 0.05);
+}
 
-  if(ph < 0.8){
-    pulse3.setAttribute('d', pulsePath(px, 112, 86, 21));
-    pulse3.setAttribute('opacity', (ph > 0.7 ? Math.max(0, 1-(ph-0.7)/0.1) : 1).toFixed(2));
+/* ============================================================
+   模块切换
+============================================================ */
+let activeMod = 'vacuum';
+const presets = {
+  vacuum:  { pos:new THREE.Vector3(6.4, 3.8, 7.8),  look:new THREE.Vector3(0, 1.25, 0) },
+  produce: { pos:new THREE.Vector3(-2.2, 2.8, 8.4), look:new THREE.Vector3(1.8, 1.15, 0) },
+  noise:   { pos:new THREE.Vector3(7.6, 4.9, 7.6),  look:new THREE.Vector3(0.1, 1.15, 0) },
+  info:    { pos:new THREE.Vector3(1.2, 2.9, 8.6),  look:new THREE.Vector3(3.8, 1.1, 0) },
+  energy:  { pos:new THREE.Vector3(-3.4, 2.6, 6.4), look:new THREE.Vector3(-2.0, 0.95, 0) }
+};
+const camDestPos = presets.vacuum.pos.clone();
+const camDestLook = presets.vacuum.look.clone();
+let camMoving = false;
+function setCam(p, l){
+  camDestPos.copy(p); camDestLook.copy(l); camMoving = true;
+}
+
+/* 控制台显示/隐藏（避免遮挡实验主体） */
+const consoleOf = { vacuum:vacConsole, produce:proConsole, noise:noiConsole, energy:energyConsole, info:infoConsole };
+const consoleTagOf = { vacuum:vacConsoleTag, produce:proConsoleTag, noise:noiConsoleTag, energy:energyConsoleTag, info:infoConsoleTag };
+let consolesVisible = true;
+function toggleConsoles(){
+  consolesVisible = !consolesVisible;
+  for (const k in consoleOf) consoleOf[k].visible = consolesVisible;
+  for (const k in consoleTagOf) consoleTagOf[k].visible = consolesVisible;
+  buildControls();
+}
+
+const caps = { vacuum:'BELL / dB', produce:'TUNING 440 Hz', noise:'NOISE / dB', info:'PULSE / ECHO', energy:'WAVE / ENERGY' };
+const scopeModes = { vacuum:'TIME 20 ms', produce:'TIME 5 ms', noise:'TIME 50 ms', info:'TIME 200 ms', energy:'TIME 10 ms' };
+const readoutEl = document.getElementById('readout');
+const capEl = document.getElementById('cap');
+const scopeModeEl = document.getElementById('scope-mode');
+const tabsEl = document.querySelectorAll('.tab');
+
+function buildControls(){
+  const c = document.getElementById('controls');
+  c.innerHTML = '';
+  const mk = (txt, fn, active)=>{
+    const d = document.createElement('div');
+    d.className = 'btn' + (active ? ' active' : '');
+    d.textContent = txt;
+    d.onclick = fn;
+    c.appendChild(d);
+    return d;
+  };
+  const soundBtn = ()=> mk('声音', toggleSound, soundOn);
+  const consoleBtn = ()=> mk('仪表台', toggleConsoles, consolesVisible);
+  if (activeMod === 'vacuum'){
+    mk('抽气', ()=>{ pumpMode = pumpMode==='out' ? 'idle' : 'out'; buildControls(); }, pumpMode==='out');
+    mk('充气', ()=>{ pumpMode = pumpMode==='in'  ? 'idle' : 'in';  buildControls(); }, pumpMode==='in');
+    soundBtn(); consoleBtn();
+  } else if (activeMod === 'produce'){
+    mk('轻敲', ()=>forkStrike(0.45));
+    mk('重敲', ()=>forkStrike(1));
+    soundBtn(); consoleBtn();
+  } else if (activeMod === 'noise'){
+    mk('吸音棉',  ()=>{ cottonOn = !cottonOn; buildControls(); }, cottonOn);
+    mk('双层玻璃', ()=>{ glassOn  = !glassOn;  buildControls(); }, glassOn);
+    mk('密封门',  ()=>{ doorOn   = !doorOn;   buildControls(); }, doorOn);
+    soundBtn(); consoleBtn();
+  } else if (activeMod === 'energy'){
+    mk('声波能量', ()=>{ energyOn = !energyOn; buildControls(); }, energyOn);
+    soundBtn(); consoleBtn();
   } else {
-    pulse3.setAttribute('opacity', '0');
+    mk('声呐探测', ()=>{
+      if (pingT < 0){
+        pingT = 0; pTimer = 0;
+        echoSpawned = false; echoArrived = false; distShown = null;
+        measureLine.visible = false;
+        distTag.visible = false;
+        sonarBeep(1500, 0.3);
+        buildControls();
+      }
+    }, pingT >= 0);
+    soundBtn(); consoleBtn();
   }
-
-  tissue3.setAttribute('width', Math.max(0, xf-112).toFixed(1));
-  iface3.setAttribute('transform', 'translate('+(xf-3.5).toFixed(1)+',0)');
-  lbliface.setAttribute('x', xf.toFixed(1));
-  beam3.setAttribute('x2', Math.max(112, xf-14).toFixed(1));
-
-  var dtUs = S3.d*12.987;
-  var xe = X0 + dtUs*US_PX;
-
-  spk0.setAttribute('d', spikePath(X0, BASE, 72, 9));
-  spk1.setAttribute('d', spikePath(xe, BASE, 48, 9));
-  dtl.setAttribute('x2', xe.toFixed(1));
-  dte1.setAttribute('x1', xe.toFixed(1));
-  dte1.setAttribute('x2', xe.toFixed(1));
-  dtt.setAttribute('x', ((X0+xe)/2).toFixed(1));
-
-  txt('#v3t', Math.round(dtUs)+' μs');
-  txt('#v3d', S3.d.toFixed(1)+' cm');
+}
+function toggleSound(){
+  soundOn = !soundOn;
+  if (master) master.gain.setTargetAtTime(soundOn?1:0, actx.currentTime, 0.05);
+  buildControls();
+}
+function forkStrike(strength){
+  forkAmp = Math.max(forkAmp, strength);
+  malletActive = true; malletT = 0;
+  forkTone(strength);
 }
 
-function setDfromX(px){
-  S3.d = clamp(2 + (px-240)/520*12, 2, 14);
-  var r = $('#r3d'); if(r) r.value = Math.round(S3.d*10);
-  txt('#r3dd', S3.d.toFixed(1)+' cm');
+function switchModule(m){
+  activeMod = m;
+  gVac.visible = (m==='vacuum');
+  gPro.visible = (m==='produce');
+  gNoi.visible = (m==='noise');
+  gInfoM.visible = (m==='info');
+  gEnergy.visible = (m==='energy');
+  labelVac.forEach(o=>o.visible = m==='vacuum');
+  labelPro.forEach(o=>o.visible = m==='produce');
+  labelNoi.forEach(o=>o.visible = m==='noise');
+  labelInfoM.forEach(o=>o.visible = m==='info');
+  labelEnergy.forEach(o=>o.visible = m==='energy');
+  consoleTagOf[m].visible = consolesVisible;
+  distTag.visible = false;
+  procEl.style.display = (m==='info') ? 'flex' : 'none';
+  lastProcKey = '';
+  tabsEl.forEach(t=>t.classList.toggle('active', t.dataset.m===m));
+  capEl.textContent = caps[m];
+  scopeModeEl.textContent = scopeModes[m];
+  buildControls();
+  applyView();
+  lastShownDb = -1; lastShownOut = -1;
 }
+tabsEl.forEach(t=> t.onclick = ()=> switchModule(t.dataset.m));
 
-function toLocal(svg, evt){
-  var pt = svg.createSVGPoint();
-  pt.x = evt.clientX; pt.y = evt.clientY;
-  return pt.matrixTransform(svg.getScreenCTM().inverse());
+/* 视图模式：LAB 标准 / EXPLODED 全景俯视 / STUDIO 近景特写 */
+let viewMode = 'lab';
+const viewBtns = document.querySelectorAll('.vbtn');
+function applyView(){
+  const base = presets[activeMod];
+  let p = base.pos.clone(), l = base.look.clone();
+  if (viewMode === 'exploded'){
+    p.multiplyScalar(1.35); p.y += 3.2;
+    l.y += 0.3;
+  } else if (viewMode === 'studio'){
+    const dir = p.clone().sub(l).normalize();
+    p = l.clone().addScaledVector(dir, Math.max(4.2, p.distanceTo(l)*0.62));
+    p.y = l.y + Math.max(1.6, (p.y-l.y)*0.7);
+  }
+  setCam(p, l);
 }
-
-svg3.addEventListener('pointerdown', function(e){
-  var p = toLocal(svg3, e);
-  if(p.y > 190 || p.x < 180) return;
-  S3.drag = true;
-  try{ svg3.setPointerCapture(e.pointerId); }catch(err){}
-  setDfromX(p.x);
-  e.preventDefault();
-});
-svg3.addEventListener('pointermove', function(e){
-  if(!S3.drag) return;
-  setDfromX(toLocal(svg3, e).x);
-});
-svg3.addEventListener('pointerup', function(){ S3.drag = false; });
-svg3.addEventListener('pointercancel', function(){ S3.drag = false; });
-$('#r3d').addEventListener('input', function(){
-  S3.d = +this.value/10;
-  txt('#r3dd', S3.d.toFixed(1)+' cm');
+viewBtns.forEach(b=> b.onclick = ()=>{
+  viewMode = b.dataset.v;
+  viewBtns.forEach(x=>x.classList.toggle('active', x===b));
+  applyView();
 });
 
-/* ==================== 主循环 ==================== */
-var svgs = [svg1, svg2, svg3];
-var vis = [true, true, true];
-var ups = [update1, update2, update3];
+/* 初始化可见性 */
+procEl.style.display = 'none';
+gPro.visible = false; gNoi.visible = false; gInfoM.visible = false; gEnergy.visible = false;
+labelPro.forEach(o=>o.visible = false);
+labelNoi.forEach(o=>o.visible = false);
+labelInfoM.forEach(o=>o.visible = false);
+labelEnergy.forEach(o=>o.visible = false);
+buildControls();
 
-/* 屏幕外的卡片先不渲染，长页面里能省掉大半开销 */
-if(window.IntersectionObserver){
-  var io = new IntersectionObserver(function(es){
-    for(var i=0;i<es.length;i++){
-      var idx = svgs.indexOf(es[i].target);
-      if(idx >= 0) vis[idx] = es[i].isIntersecting;
+/* ============================================================
+   波形图
+============================================================ */
+const waveCan = document.getElementById('wave');
+const wCtx = waveCan.getContext('2d');
+let phase = 0, hitPulse = 0;
+let nph1 = 0, nph2 = 0, nph3 = 0;
+
+function drawWave(dt, amp, style){
+  phase += dt * (4 + amp*8);
+  nph1 += dt*3.7; nph2 += dt*2.3; nph3 += dt*5.1;
+  const w = waveCan.width, h = waveCan.height;
+  wCtx.clearRect(0,0,w,h);
+
+  /* 网格（示波器刻度） */
+  wCtx.lineWidth = 1;
+  wCtx.strokeStyle = 'rgba(60,110,165,.13)';
+  wCtx.beginPath();
+  for (let x=0; x<=w; x+=w/12){ wCtx.moveTo(x,0); wCtx.lineTo(x,h); }
+  for (let y=0; y<=h; y+=h/6){ wCtx.moveTo(0,y); wCtx.lineTo(w,y); }
+  wCtx.stroke();
+  wCtx.strokeStyle = 'rgba(80,145,215,.28)';
+  wCtx.beginPath();
+  wCtx.moveTo(0,h/2); wCtx.lineTo(w,h/2);
+  wCtx.moveTo(w/2,0); wCtx.lineTo(w/2,h);
+  wCtx.stroke();
+
+  let color, color2;
+  if (style==='noise'){ color = `rgba(255,140,95,${0.3+amp*0.7})`; color2 = 'rgba(255,200,110,.28)'; }
+  else if (style==='tone'){ color = `rgba(94,232,208,${0.3+amp*0.7})`; color2 = 'rgba(110,170,255,.3)'; }
+  else { color = `rgba(90,205,255,${0.25+amp*0.75})`; color2 = 'rgba(180,130,255,.3)'; }
+
+  const A = amp * (h*0.36) * (1 + (hitPulse + pingPulse)*0.6);
+  function trace(offset, phaseShift, scale, stroke, lw, blur){
+    wCtx.beginPath();
+    for (let x=0; x<=w; x+=2){
+      const u = x/w;
+      const env = Math.sin(u*Math.PI);
+      let y;
+      if (style==='noise'){
+        y = h/2 + offset + A*env*(0.45*Math.sin(u*50+nph1+phaseShift) + 0.3*Math.sin(u*83+nph2) + 0.25*Math.sin(u*131+nph3));
+      } else if (style==='tone'){
+        y = h/2 + offset + (Math.sin(u*26+phase+phaseShift)*A*env*0.85 + Math.sin(u*52+phase*1.9)*A*env*0.15)*scale;
+      } else {
+        y = h/2 + offset + (Math.sin(u*22+phase+phaseShift)*A*env*0.75 + Math.sin(u*44+phase*1.7)*A*env*0.25)*scale;
+      }
+      x===0 ? wCtx.moveTo(x,y) : wCtx.lineTo(x,y);
     }
-  }, {rootMargin:'120px'});
-  io.observe(svg1); io.observe(svg2); io.observe(svg3);
-}
-
-var last = 0;
-function loop(now){
-  requestAnimationFrame(loop);
-  if(!last) last = now;
-  var dt = Math.min(0.05, (now-last)/1000);
-  last = now;
-  /* 单个模块出错只停它自己，不牵连另外两个 */
-  for(var i=0;i<3;i++){
-    if(!vis[i]) continue;
-    try{ ups[i](dt); }catch(err){ vis[i] = false; }
+    wCtx.strokeStyle = stroke;
+    wCtx.lineWidth = lw;
+    wCtx.shadowColor = stroke;
+    wCtx.shadowBlur = blur;
+    wCtx.stroke();
+    wCtx.shadowBlur = 0;
   }
-}
-requestAnimationFrame(loop);
+  // 副通道（参考波形）+ 主通道
+  trace(-h*0.22, 1.4, 0.55, color2, 1.4, 4);
+  trace(h*0.14, 0, 0.45, color2, 1.4, 4);
+  trace(0, 0, 1, color, 2.6, 8 + amp*12);
 
-})();
+  // 扫描亮线
+  const sx = (clock.elapsedTime*140) % w;
+  const grad = wCtx.createLinearGradient(sx-30,0,sx,0);
+  grad.addColorStop(0,'rgba(120,210,255,0)');
+  grad.addColorStop(1,`rgba(150,225,255,${0.12+amp*0.1})`);
+  wCtx.fillStyle = grad;
+  wCtx.fillRect(sx-30,0,30,h);
+}
+
+/* ============================================================
+   主循环
+============================================================ */
+const clock = new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.elapsedTime;
+
+  /* 相机平滑过渡 */
+  if (camMoving){
+    const k = 1 - Math.pow(0.004, dt);
+    camera.position.lerp(camDestPos, k);
+    controls.target.lerp(camDestLook, k);
+    if (camera.position.distanceTo(camDestPos) < 0.04) camMoving = false;
+  }
+
+  let waveStyle = 'bell', waveAmp = 0;
+
+  /* ---- 真空铃 ---- */
+  if (activeMod === 'vacuum'){
+    if (pumpMode==='out') air = Math.max(0, air - dt*9);
+    if (pumpMode==='in')  air = Math.min(100, air + dt*14);
+
+    const db = 12 + 70 * Math.pow(air/100, 1.4);
+    if (Math.round(db) !== lastShownDb){
+      drawScreen(mCtx, mTex, db, air/100);
+      lastShownDb = Math.round(db);
+    }
+    readoutEl.innerHTML = `分贝 <b>${Math.round(db)}</b> dB · 空气 <b>${Math.round(air)}%</b>`;
+
+    if (pumpMode==='out') wheel.rotation.x -= dt*7;
+    if (pumpMode==='in')  wheel.rotation.x += dt*9;
+
+    const count = Math.floor(N * air/100);
+    pGeo.setDrawRange(0, count);
+    airPoints.rotation.y += dt*0.15;
+    airPoints.material.opacity = 0.2 + 0.35*(air/100);
+
+    armPivot.rotation.z = Math.sin(t*9) * 0.55;
+    hitTimer += dt;
+    if (hitTimer >= 0.72){
+      hitTimer = 0;
+      hitPulse = 1;
+      ding();
+      spawnRing(vacRipples);
+    }
+    updateRings(vacRipples, dt, air/100, 1.6, 1.6);
+    hitPulse = Math.max(0, hitPulse - dt*4);
+
+    // 仪表台
+    vacGaugeP.set(1 - air/100);
+    vacGaugeD.set((db-12)/70);
+    vacGaugeV.set(pumpMode==='out' ? 0.8 : (pumpMode==='in' ? 0.6 : 0.05));
+    vacLamps.set(pumpMode==='out' ? 0 : (pumpMode==='in' ? 1 : 2), true);
+    vacReadout.set('CHAMBER PRESSURE', `${Math.round(air)}%`, '#4dc3ff');
+    vacBubble.setText(`真空度 <b>${Math.round(100-air)}%</b>`);
+    vacBubble2.setText(`声压 <b>${Math.round(db)} dB</b>`);
+
+    waveStyle = 'bell';
+    waveAmp = Math.max(0, (db - 15) / 70);
+  }
+
+  /* ---- 音叉 ---- */
+  if (activeMod === 'produce'){
+    forkAmp = Math.max(0, forkAmp - dt*0.55);
+
+    // 音叉振动（可见摆动）
+    const disp = Math.sin(t*14) * forkAmp * 0.05;
+    prongL.position.x = -0.105 - disp;
+    prongR.position.x =  0.105 + disp;
+
+    // 音锤动作
+    if (malletActive){
+      malletT += dt;
+      const f = Math.sin(Math.PI * Math.min(malletT/0.35, 1));
+      mallet.position.lerpVectors(malletRest, malletHit, f);
+      if (malletT >= 0.35){ malletActive = false; mallet.position.copy(malletRest); }
+    }
+
+    // 纵波粒子列（疏密相间，向右传播）
+    rowSpheres.forEach(p=>{
+      p.mesh.position.x = p.bx + forkAmp * 0.14 * Math.sin(4.5*(p.bx-0.3) - t*14);
+      p.mesh.material.opacity = 0.15 + forkAmp*0.6;
+    });
+
+    // 涟漪持续发射
+    forkRingTimer += dt;
+    if (forkAmp > 0.08 && forkRingTimer >= 0.22){
+      forkRingTimer = 0;
+      spawnRing(forkRipples);
+    }
+    updateRings(forkRipples, dt, forkAmp, 4.5, 0.9);
+
+    // 仪表台
+    proGaugeA.set(forkAmp);
+    proLamps.set(forkAmp>0.05 ? 0 : 1, true);
+    proReadout.set('TUNING FORK 440Hz', `${Math.round(forkAmp*100)}%`, '#5ee8d0');
+    proBubble.setText(`振动 <b>${Math.round(forkAmp*100)}%</b>`);
+
+    readoutEl.innerHTML = `频率 <b>440</b> Hz · 振幅 <b>${Math.round(forkAmp*100)}%</b>`;
+    waveStyle = 'tone';
+    waveAmp = forkAmp;
+  }
+
+  /* ---- 声音传递能量：声波"吹"动烛焰 ---- */
+  if (activeMod === 'energy'){
+    const flick = Math.sin(t*13)*0.22 + Math.sin(t*29)*0.12;
+    const lean = energyOn ? 0.78 + 0.22*Math.sin(t*8) : 0.05;
+    flameOuter.rotation.z = -lean;
+    flameInner.rotation.z = -lean;
+    flameOuter.scale.set(1+flick*0.5, 1+flick, 1+flick*0.5);
+    flameInner.scale.set(1+flick*0.5, 1+flick*1.4, 1+flick*0.5);
+    eCone.scale.setScalar(1 + (energyOn?0.4:0.04)*Math.abs(Math.sin(t*26)));
+    eSpeaker.position.y = energyOn ? Math.sin(t*40)*0.025 : 0;
+
+    // 能量声波涟漪（更密更亮）
+    if (energyOn){
+      eRingTimer += dt;
+      if (eRingTimer >= 0.2){
+        eRingTimer = 0;
+        eRings.forEach(r=>{ if(r.life<=0) r.mesh.position.set(-2.6, 1.0, 0); });
+        spawnRing(eRings);
+      }
+    }
+    updateRings(eRings, dt, energyOn?1.6:0, 2.6, 1.5);
+
+    // 仪表台
+    energyGaugeP.set(energyOn ? 0.85 : 0.02);
+    energyGaugeL.set(Math.min(1, Math.abs(lean)/1.1));
+    energyLamps.set(energyOn ? 1 : 0, true);
+    energyReadout.set('ACOUSTIC OUTPUT', energyOn?'ACTIVE':'IDLE', '#ff8c3a');
+    energyBubble.setText(`声能 <b>${energyOn?'ON':'OFF'}</b>`);
+
+    readoutEl.innerHTML = `声波能量 <b>${energyOn?'开':'关'}</b> · 烛焰偏角 <b>${Math.round(lean*57)}°</b>`;
+    if (actx && energyGain){
+      energyGain.gain.setTargetAtTime(energyOn?0.2:0, actx.currentTime, 0.2);
+    }
+    waveStyle = 'tone';
+    waveAmp = energyOn ? 0.9 : 0.05;
+  } else if (actx && energyGain){
+    energyGain.gain.setTargetAtTime(0, actx.currentTime, 0.15);
+  }
+
+  /* ---- 声音传递信息：声呐回声定位 ---- */
+  if (activeMod === 'info'){
+    sGlow += (((pingT>=0 && pingT<1.2) ? 1 : 0.25) - sGlow) * Math.min(1, dt*6);
+    sEmitterMat.emissiveIntensity = 0.6 + sGlow*2.2;
+
+    // 脉冲 → 碰到礁石 → 回声返回 → 读出距离
+    if (pingT >= 0){
+      pingT += dt;
+      if (pingT < 1.0 && !echoSpawned){
+        pTimer += dt;
+        if (pTimer >= 0.22){
+          pTimer = 0;
+          pingRings.forEach(r=>{ if(r.life<=0) r.mesh.position.set(2.4, 1.3, 0); });
+          spawnRing(pingRings);
+        }
+      }
+      if (pingT >= 1.0 && !echoSpawned){
+        echoSpawned = true;
+        rockFlash = 1;               // 礁石被声波"照亮"
+        echoRings.forEach(r=>{ if(r.life<=0) r.mesh.position.set(5.5, 1.3, 0); });
+        spawnRing(echoRings);
+      }
+      if (pingT >= 2.0 && !echoArrived){
+        echoArrived = true;
+        pingPulse = 1;
+        distShown = 3.0;
+        measureLine.visible = true;   // 测距虚线出现
+        distTag.visible = true;       // 3.0 m 标签出现
+        sonarBeep(900, 0.5);
+        buildControls();
+      }
+      if (pingT > 3.2){ pingT = -1; buildControls(); }
+    }
+    updateRings(pingRings, dt, 1.6, 5, 1.0);
+    updateRings(echoRings, dt, 1.6, 4.5, 0.9);
+    pingPulse = Math.max(0, pingPulse - dt*2.5);
+    rockFlash = Math.max(0, rockFlash - dt*1.2);
+    rockMatA.emissiveIntensity = rockFlash*1.8;
+    updateProcess();
+
+    // 仪表台
+    infoGaugeS.set(pingT>=0 && pingT<1.2 ? 0.85 : 0.1);
+    infoGaugeE.set(echoArrived ? 0.9 : 0.05);
+    infoLamps.set(echoArrived ? 0 : (pingT>=0 ? 1 : 0), pingT>=0 || echoArrived);
+    infoReadout.set('TARGET RANGE', distShown===null?'——':distShown.toFixed(1)+' m', '#6db8ff');
+    infoBubble.setText(`回波 <b>${distShown===null?'—':distShown.toFixed(1)+' m'}</b>`);
+
+    readoutEl.innerHTML = `回声距离 <b>${distShown===null?'—':distShown.toFixed(1)}</b> m`;
+    waveStyle = 'tone';
+    waveAmp = pingT>=0 ? 0.6 : 0.08;
+  }
+
+  /* ---- 隔音房间 ---- */
+  if (activeMod === 'noise'){
+    foamPanels.forEach(p=>{ p.visible = cottonOn; });
+    dgGroup.visible = glassOn;
+    const targetRot = doorOn ? 0 : 1.15;
+    doorGroup.rotation.y += (targetRot - doorGroup.rotation.y) * Math.min(1, dt*5);
+    door.material = doorOn ? doorMatClosed : doorMatOpen;
+    sealFrame.visible = doorOn;
+
+    // 音箱锥盆脉动 + 噪声涟漪
+    spCone.scale.setScalar(1 + 0.12*Math.sin(t*14));
+    noiRipples.forEach(r=>{ if (r.life<=0) r.mesh.position.set(-0.6, 1.0, -0.6); });
+
+    const odb = outDb();
+    if (Math.round(odb) !== lastShownOut){
+      drawScreen(nCtx, nTex, odb, odb/100);
+      lastShownOut = Math.round(odb);
+    }
+    const reduction = DB_IN - odb;
+    // 仪表台
+    noiGaugeIn.set(DB_IN/100);
+    noiGaugeOut.set(odb/100);
+    noiGaugeR.set(reduction/60);
+    noiLamps.set(reduction>25 ? 0 : (reduction>10 ? 1 : 2), true);
+    noiReadout.set('NOISE REDUCTION', '-'+Math.round(reduction)+' dB', '#8ef0c0');
+    noiBubble.setText(`隔声量 <b>${Math.round(reduction)} dB</b>`);
+
+    readoutEl.innerHTML = `室内 <b>${DB_IN}</b> dB · 室外 <b>${Math.round(odb)}</b> dB`;
+
+    if (actx && noiseGain){
+      const target = Math.pow(odb/100, 1.6) * 0.4;
+      noiseGain.gain.setTargetAtTime(target, actx.currentTime, 0.15);
+    }
+
+    waveStyle = 'noise';
+    waveAmp = odb/100;
+  } else if (actx && noiseGain){
+    noiseGain.gain.setTargetAtTime(0, actx.currentTime, 0.1);
+  }
+
+  drawWave(dt, waveAmp, waveStyle);
+  controls.update();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+}
+animate();
+
+/* 噪声模块涟漪发射 */
+setInterval(()=>{
+  if (activeMod === 'noise' && gNoi.visible) spawnRing(noiRipples);
+}, 480);
+
+/* ================= 自适应 ================= */
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  labelRenderer.setSize(innerWidth, innerHeight);
+});
 </script>
 </body>
 </html>

@@ -3,971 +3,1046 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>探究眼睛的成像原理与近视远视矫正 · 交互式可视化（人教版八年级 §5.4）</title>
+<title>眼睛成像与视力矫正模拟器 · 初二物理虚拟实验</title>
 <style>
-:root{
-  --blue:#2563EB; --blue-d:#1D4ED8; --blue-l:#EFF4FF;
-  --green:#10B981; --red:#EF4444; --amber:#F59E0B; --purple:#7C3AED;
-  --ink:#1F2937; --ink-2:#4B5563; --ink-3:#6B7280;
-  --line:#E5E7EB; --bg:#F5F7FB; --card:#FFFFFF;
-  --radius:14px;
-  --shadow:0 1px 2px rgba(16,24,40,.04), 0 10px 28px -14px rgba(16,24,40,.26);
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:var(--bg); color:var(--ink); line-height:1.68; -webkit-font-smoothing:antialiased;
-}
-svg{display:block; font-family:inherit;}
+  :root{
+    --bg:#0b1524; --panel:rgba(18,32,50,.72); --line:rgba(110,170,225,.22);
+    --ink:#dce9f7; --sub:#8aa4c0; --accent:#5fb6f5; --accent2:#ffc25c;
+    --shadow:0 10px 34px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+       background:radial-gradient(120% 90% at 50% 0%,#15243a 0%,#0c1728 55%,#070e1a 100%);
+       color:var(--ink);-webkit-font-smoothing:antialiased}
+  #app{position:relative;width:100vw;height:100vh}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
 
-/* ---------- header ---------- */
-.site-header{background:linear-gradient(120deg,#1D4ED8,#2563EB 55%,#3B82F6);color:#fff;padding:22px 0 24px;}
-.header-inner{max-width:1120px;margin:0 auto;padding:0 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;}
-.header-text h1{margin:0;font-size:24px;font-weight:700;letter-spacing:.5px;}
-.header-text p{margin:6px 0 0;font-size:13.5px;color:rgba(255,255,255,.88);}
-.header-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.header-link{border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:7px 16px;font-size:13px;color:#fff;text-decoration:none;background:rgba(255,255,255,.08);white-space:nowrap;}
-.header-link:hover{background:rgba(255,255,255,.2);}
-.header-badge{border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:7px 16px;font-size:13px;background:rgba(255,255,255,.12);white-space:nowrap;}
+  /* 顶部标题 */
+  #header{position:absolute;top:22px;left:0;right:0;text-align:center;pointer-events:none;z-index:5}
+  #header h1{font-size:20px;font-weight:650;letter-spacing:1px;color:#eef6ff;
+             text-shadow:0 2px 14px rgba(95,182,245,.45)}
+  #header p{font-size:12px;color:var(--sub);margin-top:5px;letter-spacing:.5px}
 
-/* ---------- layout ---------- */
-.wrap{max-width:1120px;margin:0 auto;padding:24px 22px 40px;}
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 26px;margin-bottom:20px;border:1px solid rgba(229,231,235,.7);}
-.chead{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px;}
-.idx{flex:0 0 auto;width:34px;height:34px;border-radius:11px;background:var(--blue-l);color:var(--blue);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-top:2px;}
-.chead h2{margin:0 0 3px;font-size:19px;font-weight:700;letter-spacing:.2px;}
-.chead p{margin:0;color:var(--ink-3);font-size:13.3px;}
+  /* 模式切换标签 */
+  #modes{position:absolute;top:78px;left:50%;transform:translateX(-50%);
+         display:flex;gap:6px;padding:5px;background:var(--panel);
+         border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+         backdrop-filter:blur(12px);z-index:6}
+  .mode{pointer-events:auto;cursor:pointer;border:0;background:transparent;color:var(--sub);
+        font-size:13px;font-weight:600;padding:9px 20px;border-radius:10px;transition:.22s;
+        white-space:nowrap;font-family:inherit}
+  .mode:hover{color:var(--accent);background:rgba(63,142,208,.08)}
+  .mode.active{color:#fff;background:linear-gradient(135deg,#3d8fd0,#2b6fa8);
+               box-shadow:0 5px 16px rgba(95,182,245,.4)}
 
-.split{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(286px,.82fr);gap:24px;align-items:start;}
-@media(max-width:920px){ .split{grid-template-columns:1fr;} }
-.stage{border:1px solid #1E293B;border-radius:12px;background:#0E1729;padding:6px;overflow:hidden;}
-.stage svg{width:100%;height:auto;border-radius:8px;touch-action:none;}
-.stage svg.grab{cursor:grab;}
-.stage svg.grab:active{cursor:grabbing;}
+  /* 镜片托盘 */
+  #tray{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+        display:flex;gap:14px;align-items:center;z-index:6}
+  .chip{pointer-events:auto;cursor:grab;user-select:none;display:flex;align-items:center;gap:10px;
+        padding:9px 16px 9px 10px;background:var(--panel);border:1px solid var(--line);
+        border-radius:13px;box-shadow:var(--shadow);backdrop-filter:blur(12px);transition:.2s}
+  .chip:hover{transform:translateY(-2px);border-color:rgba(63,142,208,.5)}
+  .chip:active{cursor:grabbing}
+  .chip.used{opacity:.4;pointer-events:none;filter:grayscale(.4)}
+  .chip .lensIcon{width:30px;height:30px;flex:0 0 30px}
+  .chip .txt b{display:block;font-size:12.5px;color:var(--ink)}
+  .chip .txt span{display:block;font-size:10.5px;color:var(--sub);margin-top:1px}
 
-/* ---------- controls ---------- */
-.panel{display:flex;flex-direction:column;gap:14px;}
-.ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink-3);margin-bottom:6px;}
-.ctl label b{color:var(--ink);font-size:14.5px;font-variant-numeric:tabular-nums;font-weight:700;}
-.ctl label b small{font-weight:400;color:var(--ink-3);font-size:12px;}
-input[type=range]{width:100%;height:24px;accent-color:var(--blue);cursor:pointer;margin:0;background:transparent;}
-.tick{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:-2px;}
-.seg{display:flex;gap:8px;flex-wrap:wrap;}
-.seg button{
-  border:1px solid var(--line);background:#fff;color:var(--ink-2);border-radius:9px;
-  padding:6px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.15s;
-}
-.seg button:hover{border-color:#BFDBFE;background:#F8FAFF;}
-.seg button.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
-.seg button.act{background:#FFF7ED;border-color:#FCD34D;color:#B45309;font-weight:600;}
+  /* 右侧控制 */
+  #side{position:absolute;right:24px;top:50%;transform:translateY(-50%);
+        display:flex;flex-direction:column;gap:10px;z-index:6}
+  .btn{pointer-events:auto;cursor:pointer;width:104px;padding:11px 8px;text-align:center;
+       background:var(--panel);border:1px solid var(--line);border-radius:11px;
+       box-shadow:var(--shadow);backdrop-filter:blur(12px);font-size:12.5px;font-weight:600;
+       color:var(--ink);transition:.2s;font-family:inherit}
+  .btn:hover{border-color:rgba(63,142,208,.5);color:var(--accent);transform:translateX(-2px)}
+  .btn.remove.off{opacity:.4;pointer-events:none}
 
-.rows{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#FCFDFF;}
-.row{display:flex;justify-content:space-between;gap:10px;padding:8px 13px;font-size:13px;border-bottom:1px solid var(--line);}
-.row:last-child{border-bottom:0;}
-.row span{color:var(--ink-3);}
-.row b{font-variant-numeric:tabular-nums;font-weight:700;}
-.row b.ok{color:var(--green);}
-.row b.warn{color:var(--amber);}
-.row b.bad{color:var(--red);}
+  /* 底部状态说明 */
+  #status{position:absolute;bottom:104px;left:50%;transform:translateX(-50%);
+          max-width:min(92vw,720px);text-align:center;z-index:5;pointer-events:none}
+  #status .line1{display:inline-block;font-size:13px;font-weight:600;color:#dce9f7;
+                 padding:7px 18px;background:rgba(18,32,50,.7);border:1px solid var(--line);
+                 border-radius:20px;backdrop-filter:blur(8px)}
+  #status .line2{font-size:11.5px;color:var(--sub);margin-top:7px;line-height:1.5}
 
-.tagline{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);flex-wrap:wrap;}
-.tag{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 10px;letter-spacing:.3px;white-space:nowrap;}
-.tag.b{background:#E4F9F0;color:#0E9F6E;}
-.tag.r{background:#FEECEC;color:#DC2626;}
-.tag.a{background:#FFF6E5;color:#B45309;}
-.tag.g{background:#EFF4FF;color:#1D4ED8;}
+  /* 3D 部位标注 */
+  .label{position:absolute;z-index:4;pointer-events:none;transform:translate(-50%,-50%);
+         font-size:11.5px;font-weight:600;color:#dce9f7;white-space:nowrap;
+         padding:3px 9px;border-radius:9px;background:rgba(18,32,50,.82);
+         border:1px solid rgba(110,170,225,.32);box-shadow:0 3px 12px rgba(0,0,0,.4);
+         transition:opacity .25s;backdrop-filter:blur(4px)}
+  .label.ray{color:#ffc25c;border-color:rgba(255,194,92,.5)}
+  .label.lens{color:#7fc6ef;border-color:rgba(95,182,245,.5)}
+  .label.anat{font-size:10.5px;font-weight:500;color:#aac2da;padding:2px 7px;
+              background:rgba(18,32,50,.7);border-color:rgba(110,170,225,.25)}
 
-.note{margin:0;font-size:13.2px;color:var(--ink-2);line-height:1.72;background:#F6F9FF;border-left:3px solid var(--blue);border-radius:0 10px 10px 0;padding:11px 14px;}
-.warn{margin:10px 0 0;font-size:12.6px;line-height:1.65;color:#92400E;background:#FFFBEB;border-left:3px solid #F59E0B;border-radius:0 10px 10px 0;padding:9px 13px;}
-.warn[hidden]{display:none;}
-.note em{font-style:normal;font-weight:700;color:var(--blue-d);}
-.note em.r{color:#DC2626;}
-.note em.g{color:#0E9F6E;}
+  /* 引线标注层：标签排在画面外围，引线连回 3D 结构锚点 */
+  #leaders{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
+  #leaders line{stroke:rgba(127,198,239,.6);stroke-width:1.3}
+  #leaders circle{fill:#7fc6ef;stroke:#0b1524;stroke-width:1.6}
+  .label.callout{font-size:11px;font-weight:600;color:#dceaf8;padding:3px 9px;
+                 background:rgba(16,29,47,.9);border:1px solid rgba(127,198,239,.45);
+                 box-shadow:0 4px 14px rgba(0,0,0,.45);border-radius:7px}
+  .label.callout.light{color:#ffd98a;border-color:rgba(255,194,92,.6);
+                       background:rgba(46,36,20,.95)}
+  .label.callout.wall{color:#ffb98a;border-color:rgba(224,116,56,.55);
+                      background:rgba(58,30,18,.9)}
 
-.hide{display:none;}
+  .label.focus{font-weight:700;padding:4px 10px;color:#ffc25c;
+               border-color:rgba(255,194,92,.6)}
+  .label.focus.ok{color:#67e6a8;border-color:rgba(80,220,150,.65);
+                  background:rgba(18,54,40,.94);box-shadow:0 3px 14px rgba(60,200,130,.28)}
+  .label.focus.bad{color:#ff9d74;border-color:rgba(255,140,90,.65);
+                   background:rgba(58,32,22,.94);box-shadow:0 3px 14px rgba(230,120,70,.28)}
 
-/* ---------- 三眼对照 ---------- */
-.cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px;}
-@media(max-width:760px){ .cmp{grid-template-columns:1fr;} }
-.cmp-item{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
-.cmp-item .cmph{padding:9px 12px;font-size:13.5px;font-weight:700;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
-.cmp-item .cmpf{background:#0E1729;padding:4px;}
-.cmp-item .cmpf svg{width:100%;height:auto;}
-.cmp-item .cmpb{padding:9px 12px;font-size:12.8px;color:var(--ink-2);line-height:1.6;}
-.cmp-item .cmpb b{color:var(--ink);}
+  /* 提示 */
+  #tip{position:absolute;left:22px;bottom:24px;z-index:5;max-width:210px;font-size:11px;
+       color:var(--sub);line-height:1.6;pointer-events:none}
+  #tip b{color:var(--accent);font-weight:600}
 
-footer{text-align:center;color:#93A2B8;font-size:12.3px;padding:6px 0 0;}
+  /* 加载遮罩 */
+  #loading{position:absolute;inset:0;background:#0b1524;display:flex;align-items:center;
+           justify-content:center;flex-direction:column;gap:14px;z-index:20;transition:opacity .5s}
+  #loading .spin{width:34px;height:34px;border:3px solid #22344c;border-top-color:var(--accent);
+                 border-radius:50%;animation:sp .8s linear infinite}
+  #loading p{font-size:13px;color:var(--sub)}
+  @keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+<div id="app">
+  <div id="header">
+    <h1>眼睛成像与视力矫正模拟器</h1>
+    <p>光的折射 · 近视与远视的成因及矫正 —— 初二物理虚拟实验</p>
+  </div>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-text">
-      <h1>眼睛的成像原理与近视、远视的矫正</h1>
-      <p>晶状体和角膜相当于一个凸透镜，把物体的光会聚在视网膜上——那看不清的时候，是哪里出了问题？</p>
+  <div id="modes">
+    <button class="mode active" data-mode="normal">正常眼睛</button>
+    <button class="mode" data-mode="myopia">近视眼</button>
+    <button class="mode" data-mode="hyperopia">远视眼</button>
+  </div>
+
+  <div id="status">
+    <div class="line1" id="statusTitle">正常眼 · 光线恰好会聚在视网膜上，成像清晰</div>
+    <div class="line2" id="statusDesc">平行光经晶状体折射后，会聚点落在视网膜 —— 这就是清晰视觉的原理。</div>
+  </div>
+
+  <div id="side">
+    <button class="btn" id="resetBtn">↺ 重置光路</button>
+    <button class="btn remove off" id="removeBtn">✕ 拿下镜片</button>
+    <button class="btn" id="viewBtn">◐ 切换视角</button>
+  </div>
+
+  <div id="tray">
+    <div class="chip" data-lens="concave" draggable="false">
+      <svg class="lensIcon" viewBox="0 0 32 32">
+        <path d="M11 4 Q17 16 11 28 Q21 16 21 4 Z" fill="rgba(120,190,225,.35)" stroke="#4b93c4" stroke-width="1.4"/>
+      </svg>
+      <div class="txt"><b>凹透镜</b><span>近视镜 · 拖到光路上</span></div>
     </div>
-    <div class="header-nav">
-      <a class="header-link" href="#">« 返回实验目录</a>
-      <span class="header-badge">八年级物理 · 光学 · §5.4</span>
+    <div class="chip" data-lens="convex" draggable="false">
+      <svg class="lensIcon" viewBox="0 0 32 32">
+        <path d="M16 4 Q23 16 16 28 Q9 16 16 4 Z" fill="rgba(120,190,225,.35)" stroke="#4b93c4" stroke-width="1.4"/>
+      </svg>
+      <div class="txt"><b>凸透镜</b><span>远视镜 · 拖到光路上</span></div>
     </div>
   </div>
-</header>
 
-<div class="wrap">
+  <div id="tip"><b>操作提示</b><br>拖动底部镜片到光学轨道上即可戴上；点击轨道上的镜片可拿下。拖动空白处可旋转视角。</div>
 
-  <!-- ============ ① 眼球模型：看远看近 ============ -->
-  <section class="card">
-    <div class="chead">
-      <div class="idx">01</div>
-      <div>
-        <h2>眼睛怎样看清远近不同的物体</h2>
-        <p>拖动蜡烛的远近，看晶状体怎么自动变厚变薄，始终把像成在视网膜上。</p>
-      </div>
-    </div>
-    <div class="split">
-      <div class="stage"><svg id="svg1" class="grab" viewBox="0 0 680 400" role="img" aria-label="眼球成像与晶状体调节"></svg></div>
-      <div class="panel">
-        <div class="ctl">
-          <label>蜡烛到眼睛的距离 <b id="v1u">300 cm</b></label>
-          <input id="r1u" type="range" min="10" max="300" step="5" value="300">
-          <div class="tick"><span>10 很近</span><span>25</span><span>300 很远</span></div>
-        </div>
-        <div class="seg" id="seg1">
-          <button data-a="auto" class="on">睫状肌自动调焦</button>
-          <button data-a="man">晶状体固定不动</button>
-        </div>
-        <div class="ctl hide" id="ctl1f">
-          <label>晶状体焦距 f <b id="v1f">2.00 cm</b></label>
-          <input id="r1f" type="range" min="160" max="220" step="1" value="200">
-          <div class="tick"><span>1.60 很厚</span><span>1.90</span><span>2.20 很薄</span></div>
-        </div>
-        <div class="rows">
-          <div class="row"><span>晶状体焦距 f</span><b id="o1f">2.00 cm</b></div>
-          <div class="row"><span>像成在晶状体后</span><b id="o1v">2.00 cm</b></div>
-          <div class="row"><span>视网膜在晶状体后</span><b>2.00 cm</b></div>
-          <div class="row"><span>晶状体</span><b id="o1t">最薄（看远）</b></div>
-        </div>
-        <div class="tagline"><span id="o1s" class="tag b">视网膜上的像：清晰</span></div>
-        <div class="seg">
-          <button id="b1far">看远处</button>
-          <button id="b1near">看近处 25 cm</button>
-          <button id="b1toonear">再凑近 10 cm</button>
-        </div>
-        <p class="note">看远处睫状肌放松、晶状体<em>变薄</em>（焦距变长）；看近处睫状肌收缩、晶状体<em>变厚</em>（焦距变短）。无论远近，像都成在视网膜上——这是一个<em>倒立、缩小</em>的实像。</p>
-      </div>
-    </div>
-  </section>
+  <svg id="leaders"></svg>
 
-  <!-- ============ ② 水透镜模拟晶状体变焦 ============ -->
-  <section class="card">
-    <div class="chead">
-      <div class="idx">02</div>
-      <div>
-        <h2>水透镜实验：注水越多，透镜越凸、焦距越短</h2>
-        <p>光屏相当于视网膜（位置不动），改变蜡烛远近后，只有重新注水、抽水才能再次看清。</p>
-      </div>
-    </div>
-    <div class="split">
-      <div class="stage"><svg id="svg2" class="grab" viewBox="0 0 700 380" role="img" aria-label="水透镜模拟晶状体变焦实验"></svg></div>
-      <div class="panel">
-        <div class="ctl">
-          <label>注水量 <b id="v2w">56%</b></label>
-          <input id="r2w" type="range" min="0" max="100" step="1" value="56">
-          <div class="tick"><span>0 很平</span><span>50</span><span>100 很凸</span></div>
-        </div>
-        <div class="ctl">
-          <label>蜡烛到透镜的距离 u <b id="v2u">30 cm</b></label>
-          <input id="r2u" type="range" min="15" max="38" step="1" value="30">
-        </div>
-        <div class="ctl">
-          <label>光屏到透镜的距离 v <b id="v2v">25.0 cm</b></label>
-          <input id="r2v" type="range" min="8" max="55" step="0.5" value="25">
-        </div>
-        <div class="seg">
-          <button class="act" id="b2auto">▶ 注水／抽水找清晰</button>
-          <button id="b2far">蜡烛移远</button>
-          <button id="b2near">蜡烛移近</button>
-        </div>
-        <div class="rows">
-          <div class="row"><span>水透镜焦距 f</span><b id="o2f">13.6 cm</b></div>
-          <div class="row"><span>清晰的像应成在</span><b id="o2v0">22.9 cm</b></div>
-          <div class="row"><span>光屏实际位置</span><b id="o2v">25.0 cm</b></div>
-          <div class="row"><span>屏上像高 ÷ 烛高</span><b id="o2m">0.76</b></div>
-        </div>
-        <div class="tagline"><span id="o2s" class="tag r">屏上的像：模糊</span></div>
-        <p class="note">注水越多 → 透镜<em>越凸</em> → 焦距<em>越短</em> → 会聚本领越强。看近处要注水（晶状体变厚），看远处要抽水（晶状体变薄）——这就是睫状肌在做的事。</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ ③ 近视 ============ -->
-  <section class="card">
-    <div class="chead">
-      <div class="idx">03</div>
-      <div>
-        <h2>近视眼：像成在视网膜的前面</h2>
-        <p>换上近视眼的眼球，看清像跑到哪儿去了；再戴上凹透镜，看像怎么被"推"回视网膜。</p>
-      </div>
-    </div>
-    <div class="split">
-      <div class="stage"><svg id="svg3" class="grab" viewBox="0 0 680 400" role="img" aria-label="近视眼成因与凹透镜矫正光路"></svg></div>
-      <div class="panel">
-        <div class="seg" id="seg3c">
-          <button data-c="axis" class="on">成因：眼球前后径过长</button>
-          <button data-c="lens">成因：晶状体太厚</button>
-        </div>
-        <div class="ctl">
-          <label>眼球前后径（晶状体→视网膜）<b id="v3d">2.30 cm</b></label>
-          <input id="r3d" type="range" min="180" max="240" step="1" value="230">
-        </div>
-        <div class="ctl">
-          <label>晶状体焦距（最薄时）<b id="v3f">2.00 cm</b></label>
-          <input id="r3f" type="range" min="170" max="230" step="1" value="200">
-        </div>
-        <div class="ctl">
-          <label>眼镜度数 <b id="v3g">不戴眼镜</b></label>
-          <input id="r3g" type="range" min="-1000" max="1000" step="25" value="0">
-          <div class="tick"><span>−1000 强凹</span><span>0 不戴</span><span>+1000 强凸</span></div>
-        </div>
-        <div class="seg">
-          <button class="act" id="b3fit">自动配一副合适的眼镜</button>
-          <button id="b3off">摘掉眼镜</button>
-        </div>
-        <div class="seg" id="seg3u">
-          <button data-u="300" class="on">看远处</button>
-          <button data-u="25">看近处 25 cm</button>
-        </div>
-        <div class="rows">
-          <div class="row"><span>不戴眼镜时像成在</span><b id="o3v0">2.00 cm</b></div>
-          <div class="row"><span>视网膜在</span><b id="o3d">2.30 cm</b></div>
-          <div class="row"><span>现在像成在</span><b id="o3v">2.00 cm</b></div>
-          <div class="row"><span>与视网膜相差</span><b id="o3dif">0.30 cm（偏前）</b></div>
-        </div>
-        <p class="warn" id="w3" hidden></p>
-        <div class="tagline"><span id="o3s" class="tag r">视网膜上的像：模糊</span></div>
-        <p class="note">晶状体太厚（折光太强）或眼球前后径过长，光会聚得太早，像落在视网膜的<em class="r">前面</em>。凹透镜先把光<em>发散</em>一点，让会聚推迟，像恰好回到视网膜上。</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ ④ 远视 + 对照 ============ -->
-  <section class="card">
-    <div class="chead">
-      <div class="idx">04</div>
-      <div>
-        <h2>远视眼：像成在视网膜的后面</h2>
-        <p>同样的方法反过来看：光会聚得太晚，要戴凸透镜帮它一把。</p>
-      </div>
-    </div>
-    <div class="split">
-      <div class="stage"><svg id="svg4" class="grab" viewBox="0 0 680 400" role="img" aria-label="远视眼成因与凸透镜矫正光路"></svg></div>
-      <div class="panel">
-        <div class="seg" id="seg4c">
-          <button data-c="axis" class="on">成因：眼球前后径过短</button>
-          <button data-c="lens">成因：晶状体太薄</button>
-        </div>
-        <div class="ctl">
-          <label>眼球前后径（晶状体→视网膜）<b id="v4d">1.85 cm</b></label>
-          <input id="r4d" type="range" min="180" max="240" step="1" value="185">
-        </div>
-        <div class="ctl">
-          <label>晶状体焦距（最薄时）<b id="v4f">2.00 cm</b></label>
-          <input id="r4f" type="range" min="170" max="230" step="1" value="200">
-        </div>
-        <div class="ctl">
-          <label>眼镜度数 <b id="v4g">不戴眼镜</b></label>
-          <input id="r4g" type="range" min="-1000" max="1000" step="25" value="0">
-          <div class="tick"><span>−1000 强凹</span><span>0 不戴</span><span>+1000 强凸</span></div>
-        </div>
-        <div class="seg">
-          <button class="act" id="b4fit">自动配一副合适的眼镜</button>
-          <button id="b4off">摘掉眼镜</button>
-        </div>
-        <div class="seg" id="seg4u">
-          <button data-u="300" class="on">看远处</button>
-          <button data-u="25">看近处 25 cm</button>
-        </div>
-        <div class="rows">
-          <div class="row"><span>不戴眼镜时像成在</span><b id="o4v0">2.00 cm</b></div>
-          <div class="row"><span>视网膜在</span><b id="o4d">1.85 cm</b></div>
-          <div class="row"><span>现在像成在</span><b id="o4v">2.00 cm</b></div>
-          <div class="row"><span>与视网膜相差</span><b id="o4dif">0.15 cm（偏后）</b></div>
-        </div>
-        <p class="warn" id="w4" hidden></p>
-        <div class="tagline"><span id="o4s" class="tag r">视网膜上的像：模糊</span></div>
-        <p class="note">晶状体太薄（折光太弱）或眼球前后径过短，光会聚得太晚，像落在视网膜的<em class="r">后面</em>。凸透镜先帮着<em>会聚</em>一点，让会聚提前，像恰好回到视网膜上。</p>
-      </div>
-    </div>
-
-    <div class="cmp" id="cmp4"></div>
-  </section>
-
+  <div id="loading"><div class="spin"></div><p>正在搭建虚拟光学实验室…</p></div>
 </div>
 
-<footer>物理可视化模型 · 眼睛和眼镜 §5.4　|　单文件版，双击即可打开</footer>
-
-<script>
-/* ================================================================
-   探究眼睛的成像原理与近视远视矫正
-   —— 等效单透镜眼模型：角膜+晶状体合成一个凸透镜，视网膜在后
-   1/u + 1/v = 1/f；戴眼镜用「等效物距法」：
-       眼镜把物体先成一个像 vg = 1/(1/fg − 1/(u−t))，
-       眼睛看到的等效物距 ue = t − vg，再代回 1/ue + 1/v = 1/f
-   ================================================================ */
-
-/* ---------------- 通用工具 ---------------- */
-const FONT = "Microsoft YaHei, PingFang SC, sans-serif";
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const fmt = (n, d = 1) => (isFinite(n) ? Number(n).toFixed(d) : "—");
-const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-
-/* 缓动补间：rAF 平滑推进 + setTimeout 兜底，保证一定会停在终值
-   （后台标签页 / 设备节流时 rAF 会被暂停，不能只靠它） */
-function tween(dur, onUpdate) {
-  const t0 = performance.now();
-  let done = false;
-  const finish = () => {
-    if (done) return; done = true;
-    clearTimeout(timer);
-    onUpdate(1);
-  };
-  const step = now => {
-    if (done) return;
-    const p = Math.min(1, (now - t0) / dur);
-    onUpdate(p * p * (3 - 2 * p));
-    if (p < 1) requestAnimationFrame(step); else finish();
-  };
-  const timer = setTimeout(finish, dur + 80);
-  requestAnimationFrame(step);
-  return finish;
-}
-
-let VW = 680, VH = 400;                 // 当前画布尺寸（裁剪用）
-
-const CJK = /[\u3000-\u9fff\uff00-\uffef]/;
-function textW(s, size) {
-  let n = 0;
-  for (const c of String(s)) n += CJK.test(c) ? 1 : 0.56;
-  return n * size;
-}
-
-/* 文字（可带深色底片，避免被光线穿过看不清） */
-function T(x, y, s, o = {}) {
-  const size = o.size || 12, fill = o.fill || "#E2E8F0", w = o.w || 400, a = o.a || "start";
-  let g = "";
-  if (o.bg) {
-    const ww = textW(s, size) + 10, hh = size * 1.44;
-    const x0 = a === "middle" ? x - ww / 2 : a === "end" ? x - ww : x;
-    g += `<rect x="${x0.toFixed(1)}" y="${(y - size * 1.08).toFixed(1)}" width="${ww.toFixed(1)}" height="${hh.toFixed(1)}" rx="4" fill="${o.bg}" opacity="${o.bgOp == null ? 0.88 : o.bgOp}"/>`;
+<script type="importmap">
+{
+  "imports": {
+    "three": "../../../../vendor/three/0.161.0/build/three.module.js",
+    "three/addons/": "../../../../vendor/three/0.161.0/examples/jsm/"
   }
-  g += `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" font-weight="${w}" text-anchor="${a}" font-family="${FONT}">${s}</text>`;
-  return g;
 }
-
-/* Liang–Barsky 线段裁剪 */
-function clipSeg(p, q, W, H) {
-  let t0 = 0, t1 = 1;
-  const x1 = p[0], y1 = p[1], dx = q[0] - x1, dy = q[1] - y1;
-  const pk = [-dx, dx, -dy, dy], qk = [x1 - 0, W - x1, y1 - 0, H - y1];
-  for (let i = 0; i < 4; i++) {
-    if (pk[i] === 0) { if (qk[i] < 0) return null; }
-    else {
-      const r = qk[i] / pk[i];
-      if (pk[i] < 0) { if (r > t1) return null; if (r > t0) t0 = r; }
-      else { if (r < t0) return null; if (r < t1) t1 = r; }
-    }
-  }
-  if (t0 >= t1) return null;
-  return [[x1 + t0 * dx, y1 + t0 * dy], [x1 + t1 * dx, y1 + t1 * dy]];
-}
-function L(p, q, c, w, dash) {
-  const d = clipSeg(p, q, VW, VH);
-  if (!d) return "";
-  return `<line x1="${d[0][0].toFixed(1)}" y1="${d[0][1].toFixed(1)}" x2="${d[1][0].toFixed(1)}" y2="${d[1][1].toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
-}
-function dot(x, y, r, c, halo) {
-  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${c}"${halo ? ` stroke="${halo}" stroke-width="2"` : ""}/>`;
-}
-function arrow2(x1, y1, x2, y2, c) {   // 双箭头 + 竖虚线用在外侧
-  return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${c}" stroke-width="1.8"/>
-    <path d="M${x1} ${y1} l ${x2 > x1 ? -7 : 7} -5 v 10 z" fill="${c}"/>
-    <path d="M${x2} ${y2} l ${x2 > x1 ? 7 : -7} -5 v 10 z" fill="${c}"/>`;
-}
-
-/* 蜡烛：底在 (0,0)，向上长 h（配合 scale(1,-1) 得到倒立的像） */
-function candleU(h, o = {}) {
-  const w = Math.max(5, h * 0.30), bh = h * 0.66, fh = h * 0.36;
-  const body = o.body || "#FDE68A", edge = o.edge || "#B45309", fl = o.flame || "#F59E0B";
-  let g = `<rect x="${(-w / 2).toFixed(1)}" y="${(-bh).toFixed(1)}" width="${w.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${body}" stroke="${edge}" stroke-width="1"/>`;
-  g += `<line x1="0" y1="${(-bh).toFixed(1)}" x2="0" y2="${(-bh - 3).toFixed(1)}" stroke="#7C2D12" stroke-width="1.6"/>`;
-  const yb = -bh - 2, yt = -bh - fh, fw = w * 0.62;
-  g += `<path d="M0 ${yt.toFixed(1)} C ${(fw * .9).toFixed(1)} ${(yt + fh * .45).toFixed(1)} ${fw.toFixed(1)} ${(yt + fh * .62).toFixed(1)} ${fw.toFixed(1)} ${(yb - fh * .22).toFixed(1)}
-    C ${fw.toFixed(1)} ${yb.toFixed(1)} ${(-fw).toFixed(1)} ${yb.toFixed(1)} ${(-fw).toFixed(1)} ${(yb - fh * .22).toFixed(1)}
-    C ${(-fw).toFixed(1)} ${(yt + fh * .62).toFixed(1)} ${(-fw * .9).toFixed(1)} ${(yt + fh * .45).toFixed(1)} 0 ${yt.toFixed(1)} Z" fill="${fl}"/>`;
-  return g;
-}
-
-/* ================================================================
-   眼球引擎
-   ================================================================ */
-const CY = 196, LX = 352, S = 82, PU = 82, XG = 282, TG = 1.2;
-
-const XofU = u => 58 + 232 * (1 - Math.exp(-u / 38));
-const UofX = x => {                                  // 拖动反解物距
-  const r = (x - 58) / 232;
-  if (r <= 0.001) return 300;
-  if (r >= 0.999) return 10;
-  return clamp(-38 * Math.log(1 - r), 10, 300);
-};
-const Yof = y => CY - y * PU;
-const hObjOf = u => clamp(XofU(u) * 10 / u, 34, 92);
-
-/* 光学追迹：u(cm) 物距；f(cm) 眼睛焦距；fg(cm) 眼镜焦距，Infinity 表示不戴 */
-function eyeTrace(u, f, fg) {
-  const t = TG, A = u - t;
-  let ue = u, Heff = 1, vg = null;
-  if (isFinite(fg) && Math.abs(fg) < 1e5) {
-    const den = 1 / fg - 1 / A;
-    vg = Math.abs(den) < 1e-9 ? Infinity : 1 / den;
-    if (isFinite(vg)) { ue = t - vg; Heff = -vg / A; }
-    else { ue = Infinity; Heff = 0; }
-  }
-  const rays = [-0.25, 0.02, 0.25].map(yL => {
-    let yg = null, th2;
-    if (vg !== null && isFinite(vg)) {
-      yg = (yL + t / A) / (1 + t / A - t / fg);
-      const th0 = (yg - 1) / A, th1 = th0 - yg / fg;
-      th2 = th1 - yL / f;
-    } else {
-      th2 = (yL - Heff) / ue - yL / f;
-    }
-    return { yL, yg, th2 };
-  });
-  const den2 = 1 / f - 1 / ue;
-  const v = den2 > 1e-9 ? 1 / den2 : Infinity;
-  const hImg = isFinite(v) ? -Heff * v / ue : 0;
-  return { v, hImg, ue, vg, rays };
-}
-
-/* 晶状体厚度（半厚 px）：焦距越短越厚 */
-const lensTh = f => 7 + 15 * clamp((2.30 - f) / (2.30 - 1.60), 0, 1);
-
-/* 眼镜片形状：fg<0 凹、fg>0 凸 */
-function glassG(fg) {
-  const H = 66, x = XG;
-  let d;
-  if (fg < 0) {
-    d = `M${x - 9} ${CY - H} L${x + 9} ${CY - H} Q${x - 11} ${CY} ${x + 9} ${CY + H} L${x - 9} ${CY + H} Q${x + 11} ${CY} ${x - 9} ${CY - H} Z`;
-  } else {
-    d = `M${x - 7} ${CY - H} L${x + 7} ${CY - H} Q${x + 18} ${CY} ${x + 7} ${CY + H} L${x - 7} ${CY + H} Q${x - 18} ${CY} ${x - 7} ${CY - H} Z`;
-  }
-  return `<path d="${d}" fill="#93C5FD" fill-opacity=".30" stroke="#93C5FD" stroke-width="2"/>
-    <path d="M${x - 26} ${CY - H - 6} L${x + 26} ${CY - H - 6}" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M${x - 26} ${CY + H + 6} L${x + 26} ${CY + H + 6}" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round"/>`;
-}
-
-/* 眼球场景图 */
-function eyeScene(o) {
-  const u = o.u, d = o.d, f = o.f, deg = o.deg || 0;
-  const fg = Math.abs(deg) < 1 ? Infinity : 10000 / deg;
-  const tr = eyeTrace(u, f, fg);
-  const v = tr.v;
-
-  const xR = LX + d * S;                 // 视网膜
-  const xC = LX - 30, xL0 = xC - 4, xR0 = xR + 14;
-  const cx = (xL0 + xR0) / 2, rx = (xR0 - xL0) / 2, ry = 92;
-
-  const fid = o.fid || "eyeBlur";
-  const xO = LX - XofU(u), hObj = hObjOf(u), yTop = CY - hObj;
-  const vDraw = isFinite(v) ? clamp(v, 0.2, 4.2) : 4.2;
-  const xv = LX + vDraw * S;
-  const ratio = isFinite(v) ? Math.abs(v - d) / v : 1;
-  const blur = Math.min(22, ratio * 240);
-  const patch = clamp(2.2 + ratio * 95, 2.2, 13);
-
-  let g = `<rect x="0" y="0" width="${VW}" height="${VH}" fill="#0E1729"/>`;
-
-  /* ---- 眼球 ---- */
-  g += `<ellipse cx="${cx.toFixed(1)}" cy="${CY}" rx="${rx.toFixed(1)}" ry="${ry}" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>`;
-  g += `<ellipse cx="${cx.toFixed(1)}" cy="${CY}" rx="${(rx - 12).toFixed(1)}" ry="${(ry - 12).toFixed(1)}" fill="#EEF4FB"/>`;
-  /* 视网膜（右内壁） */
-  const arx = rx - 13, ary = ry - 13, A0 = -62 * Math.PI / 180, A1 = 62 * Math.PI / 180;
-  const pA = [cx + arx * Math.cos(A0), CY + ary * Math.sin(A0)];
-  const pB = [cx + arx * Math.cos(A1), CY + ary * Math.sin(A1)];
-  g += `<path d="M${pA[0].toFixed(1)} ${pA[1].toFixed(1)} A${arx.toFixed(1)} ${ary.toFixed(1)} 0 0 1 ${pB[0].toFixed(1)} ${pB[1].toFixed(1)}" stroke="#FB7185" stroke-width="9" fill="none" stroke-linecap="round"/>`;
-  /* 视神经 */
-  const na = 20 * Math.PI / 180;
-  const n0 = [cx + rx * Math.cos(na), CY + ry * Math.sin(na)];
-  g += `<path d="M${(cx + (rx - 10) * Math.cos(na - 0.10)).toFixed(1)} ${(CY + (ry - 10) * Math.sin(na - 0.10)).toFixed(1)}
-    L${(n0[0] + 26).toFixed(1)} ${(n0[1] + 10).toFixed(1)} L${(n0[0] + 26).toFixed(1)} ${(n0[1] + 24).toFixed(1)}
-    L${(cx + (rx - 10) * Math.cos(na + 0.10)).toFixed(1)} ${(CY + (ry - 10) * Math.sin(na + 0.10)).toFixed(1)} Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.2"/>`;
-  /* 角膜 */
-  g += `<path d="M${xL0 + 2} ${CY - 52} Q${xL0 - 16} ${CY} ${xL0 + 2} ${CY + 52} Z" fill="#BAE6FD" fill-opacity=".55" stroke="#7DD3FC" stroke-width="2"/>`;
-
-  /* ---- 光线 ---- */
-  const RC = "#FDE047", RC2 = "#FCD34D";
-  for (const r of tr.rays) {
-    const yLp = Yof(r.yL);
-    if (r.yg !== null) {
-      const ygP = Yof(r.yg);
-      g += L([xO, yTop], [XG, ygP], RC, 1.7);
-      g += L([XG, ygP], [LX, yLp], RC, 1.7);
-    } else {
-      g += L([xO, yTop], [LX, yLp], RC, 1.7);
-    }
-    /* 出眼后 */
-    const pt = xcm => [LX + xcm * S, Yof(r.yL + r.th2 * xcm)];
-    if (isFinite(v)) {
-      if (v <= d) {
-        g += L([LX, yLp], pt(vDraw), RC2, 1.7);
-        if (d - v > 0.02) g += L(pt(vDraw), pt(d), RC2, 1.2, "5 4");
-      } else {
-        g += L([LX, yLp], pt(d), RC2, 1.7);
-        if (v - d > 0.02) g += L(pt(d), pt(vDraw), RC2, 1.2, "5 4");
-      }
-    } else {
-      g += L([LX, yLp], pt(d), RC2, 1.2, "5 4");
-    }
-  }
-
-  /* ---- 晶状体 + 睫状体 ---- */
-  const th = lensTh(f), lh = 28;
-  g += `<path d="M${LX} ${CY - lh} Q${LX + 2 * th} ${CY} ${LX} ${CY + lh} Q${LX - 2 * th} ${CY} ${LX} ${CY - lh} Z"
-      fill="#BFDBFE" fill-opacity="${(0.45 + 0.35 * clamp((2.3 - f) / 0.7, 0, 1)).toFixed(2)}" stroke="#60A5FA" stroke-width="2"/>`;
-  for (const sgn of [-1, 1]) {
-    const y0 = CY + sgn * (lh + 2), y1 = CY + sgn * (lh + 16);
-    g += `<path d="M${LX} ${y0} Q${LX + sgn * 6} ${y1} ${LX + 22} ${y1 - sgn * 4}" stroke="#F9A8D4" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-  }
-
-  /* ---- 眼镜 ---- */
-  if (isFinite(fg) && Math.abs(fg) < 1e5) {
-    g += glassG(fg);
-    if (o.labels !== false) {
-      g += T(XG - 6, CY + 90, fg < 0 ? "凹透镜（近视镜）" : "凸透镜（远视镜）",
-        { fill: "#BFDBFE", size: 13, w: 700, a: "middle", bg: "#0E1729" });
-    }
-  }
-
-  /* ---- 像点 / 视网膜 ---- */
-  if (isFinite(v)) {
-    g += dot(xv, Yof(tr.hImg), 5, "#FFFFFF", "#FDE047");
-    if (o.labels !== false) {
-      g += T(xv, Yof(tr.hImg) - 16, "像", { fill: "#FDE047", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-    }
-  }
-  /* 视网膜上的光斑 */
-  g += `<ellipse cx="${xR.toFixed(1)}" cy="${CY.toFixed(1)}" rx="${Math.max(3, patch * 0.42).toFixed(1)}" ry="${patch.toFixed(1)}"
-      fill="#FDE047" fill-opacity="${(0.20 + 0.5 * Math.min(1, ratio / 0.2)).toFixed(2)}"/>`;
-
-  /* ---- Δ 标注 ---- */
-  if (o.labels !== false && isFinite(v) && Math.abs(v - d) > 0.012) {
-    const yA = CY + 128;
-    g += `<line x1="${xv.toFixed(1)}" y1="${CY + ry + 6}" x2="${xv.toFixed(1)}" y2="${yA}" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3 3"/>`;
-    g += `<line x1="${xR.toFixed(1)}" y1="${CY + ry + 6}" x2="${xR.toFixed(1)}" y2="${yA}" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3 3"/>`;
-    g += arrow2(xv, yA, xR, yA, v < d ? "#F87171" : "#FCA5A5");
-    const mid = (xv + xR) / 2;
-    g += T(mid, yA + 20, `相差 ${fmt(Math.abs(v - d), 2)} cm　像在视网膜${v < d ? "前" : "后"}面`,
-      { fill: v < d ? "#FCA5A5" : "#FCA5A5", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-  }
-
-  /* ---- 物体 ---- */
-  g += `<g transform="translate(${xO.toFixed(1)},${CY})">${candleU(hObj)}</g>`;
-  /* 主光轴 */
-  g += `<line x1="20" y1="${CY}" x2="${(cx + rx + 30).toFixed(1)}" y2="${CY}" stroke="#475569" stroke-width="1" stroke-dasharray="7 6"/>`;
-  /* 地面 */
-  g += `<line x1="20" y1="${(CY + 96).toFixed(1)}" x2="${VW - 20}" y2="${(CY + 96).toFixed(1)}" stroke="#1E293B" stroke-width="2"/>`;
-
-  /* ---- 结构标注 ---- */
-  if (o.labels !== false) {
-    g += T(LX - 2, CY - lh - 24, "晶状体", { fill: "#93C5FD", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-    g += T(xL0 + 2, CY - 64, "角膜", { fill: "#7DD3FC", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-    g += T(cx + rx * 0.50, CY - ry * 0.60, "视网膜", { fill: "#FDA4AF", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-    g += T(cx - rx * 0.35, CY + ry * 0.62, "玻璃体", { fill: "#94A3B8", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-    g += T(xO, CY - hObj - 12, u >= 280 ? "蜡烛（很远）" : `蜡烛 ${u} cm`, { fill: "#FCD34D", size: 13, w: 700, a: "middle", bg: "#0E1729" });
-  }
-
-  /* ---- 右上角：视网膜上看到的像 ---- */
-  if (o.inset !== false) {
-    const ix = 594, iy = 76, ir = 56;
-    g += `<line x1="${(xR + 2).toFixed(1)}" y1="${(CY - ry * 0.58).toFixed(1)}" x2="${ix - ir * 0.74}" y2="${iy + ir * 0.62}" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4 4"/>`;
-    g += `<circle cx="${ix}" cy="${iy}" r="${ir}" fill="#1B2537" stroke="#64748B" stroke-width="2"/>`;
-    g += `<g filter="url(#${fid})"><g transform="translate(${ix},${iy - 29}) scale(1,-1)">${candleU(58)}</g></g>`;
-    g += T(ix, iy + ir + 17, "视网膜上看到的", { fill: "#CBD5E1", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-  }
-
-  return { svg: g, v, hImg: tr.hImg, blur, ratio, fg, ue: tr.ue };
-}
-
-function defsEye(blur, fid) {
-  return `<defs>
-    <filter id="${fid}" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur stdDeviation="${blur.toFixed(2)}"/>
-    </filter>
-  </defs>`;
-}
-
-/* ================================================================
-   ① 眼球模型：看远看近
-   ================================================================ */
-const M1 = { u: 300, mode: "auto", fMan: 2.00, D: 2.00 };
-
-function fAuto(u, d) { return 1 / (1 / u + 1 / d); }
-
-function f1() {
-  let f;
-  if (M1.mode === "auto") {
-    const need = fAuto(M1.u, M1.D);
-    f = clamp(need, 1.75, 2.00);
-    M1.locked = need < 1.75 - 1e-9;
-  } else f = M1.fMan;
-  return f;
-}
-
-function draw1() {
-  VW = 680; VH = 400;
-  const f = f1(), d = M1.D;
-  const r = eyeScene({ u: M1.u, d, f, deg: 0, fid: "eb1" });
-  $("#svg1").innerHTML = defsEye(r.blur, "eb1") + r.svg;
-
-  $("#v1u").textContent = M1.u >= 280 ? M1.u + " cm（很远）" : M1.u + " cm";
-  $("#o1f").textContent = fmt(f, 2) + " cm";
-  $("#o1v").textContent = isFinite(r.v) ? fmt(r.v, 2) + " cm" : "成不了像";
-  const sharp = r.ratio < 0.012;
-  $("#o1t").textContent = f > 1.97 ? "最薄（看远）" : (f < 1.80 ? "很厚（看近）" : "中等厚度");
-  const tg = $("#o1s");
-  if (sharp) { tg.className = "tag b"; tg.textContent = "视网膜上的像：清晰"; }
-  else {
-    tg.className = "tag a";
-    tg.textContent = M1.mode === "auto"
-      ? "太近了，晶状体已经最厚，调不过来"
-      : "晶状体固定不动，像没落在视网膜上";
-  }
-  if (M1.mode === "man") { $("#v1f").textContent = fmt(M1.fMan, 2) + " cm"; }
-}
-
-function init1() {
-  $("#r1u").oninput = e => { M1.u = +e.target.value; draw1(); };
-  $("#r1f").oninput = e => { M1.fMan = +e.target.value / 100; draw1(); };
-  $$("#seg1 button").forEach(b => b.onclick = () => {
-    $$("#seg1 button").forEach(x => x.classList.remove("on"));
-    b.classList.add("on");
-    M1.mode = b.dataset.a;
-    $("#ctl1f").classList.toggle("hide", M1.mode !== "man");
-    if (M1.mode === "man") M1.fMan = Math.round(f1() * 100) / 100, $("#r1f").value = M1.fMan * 100;
-    draw1();
-  });
-  const goU = target => {
-    const from = M1.u;
-    tween(700, e => {
-      M1.u = Math.round(from + (target - from) * e);
-      $("#r1u").value = M1.u; draw1();
-    });
-  };
-  $("#b1far").onclick = () => goU(300);
-  $("#b1near").onclick = () => goU(25);
-  $("#b1toonear").onclick = () => goU(10);
-
-  /* 图上拖动蜡烛 */
-  bindDragX($("#svg1"), x => { M1.u = Math.round(UofX(LX - x)); $("#r1u").value = M1.u; draw1(); });
-  draw1();
-}
-
-/* ================================================================
-   ② 水透镜实验
-   ================================================================ */
-const M2 = { w: 56, u: 30, v: 25 };
-const PPC = 6, AX = 176, RAIL = 268, LX2 = 330;
-
-const fOfW = w => 22 - 15 * (w / 100);
-
-function draw2() {
-  VW = 700; VH = 380;
-  const u = M2.u, vs = M2.v, w = M2.w;
-  const f = fOfW(w);
-  const v0 = (u > f) ? f * u / (u - f) : Infinity;
-  const hi = isFinite(v0) ? 44 * v0 / u : 44;
-  const xc = LX2 - u * PPC, xs = LX2 + vs * PPC;
-  const off = isFinite(v0) ? Math.abs(vs - v0) : 99;
-  const sharp = off < 0.4;
-  const bs = clamp(off * 2.0, 0, 11);
-
-  let g = `<rect x="0" y="0" width="${VW}" height="${VH}" fill="#0E1729"/>`;
-  g += `<defs><filter id="wBlur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${bs.toFixed(2)}"/></filter></defs>`;
-
-  /* 导轨 */
-  g += `<rect x="66" y="${RAIL}" width="${VW - 132}" height="10" rx="5" fill="#1E293B" stroke="#334155"/>`;
-  for (let i = 0; i <= 20; i++) {
-    const x = 66 + i * (VW - 132) / 20;
-    g += `<line x1="${x.toFixed(1)}" y1="${RAIL}" x2="${x.toFixed(1)}" y2="${RAIL + (i % 2 ? 5 : 9)}" stroke="#475569" stroke-width="1"/>`;
-  }
-  /* 主轴 */
-  g += `<line x1="40" y1="${AX}" x2="${VW - 30}" y2="${AX}" stroke="#475569" stroke-width="1" stroke-dasharray="7 6"/>`;
-
-  /* 焦点 */
-  const xf = LX2 + f * PPC;
-  g += dot(xf, AX, 3.4, "#7DD3FC");
-  g += T(xf, AX - 10, "F", { fill: "#7DD3FC", size: 12, w: 700, a: "middle", bg: "#0E1729" });
-
-  /* 光线 */
-  const yi = AX + hi;
-  g += L([xc, AX - 44], [LX2, AX - 44], "#FDE047", 1.7);
-  g += L([LX2, AX - 44], [xs, isFinite(hi) ? yi : AX], "#FCD34D", 1.7);
-  g += L([xc, AX - 44], [LX2, AX], "#FDE047", 1.7);
-  g += L([LX2, AX], [xs, isFinite(hi) ? yi : AX], "#FCD34D", 1.7);
-  if (isFinite(v0) && v0 < 60) {
-    g += L([LX2, AX - 44], [LX2 + v0 * PPC, yi], "#FCD34D", 1.2, "5 4");
-  }
-
-  /* 蜡烛 */
-  g += `<rect x="${(xc - 16).toFixed(1)}" y="${AX}" width="32" height="${RAIL - AX}" fill="#1E293B" stroke="#334155"/>`;
-  g += `<g transform="translate(${xc.toFixed(1)},${AX})">${candleU(44)}</g>`;
-  g += T(xc, RAIL + 24, "蜡烛", { fill: "#FCD34D", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-
-  /* 水透镜 */
-  const th = 8 + 17 * (w / 100), lh = 48;
-  g += `<path d="M${LX2} ${AX - lh} Q${LX2 + 2 * th} ${AX} ${LX2} ${AX + lh} Q${LX2 - 2 * th} ${AX} ${LX2} ${AX - lh} Z"
-      fill="#7DD3FC" fill-opacity="${(0.22 + 0.4 * w / 100).toFixed(2)}" stroke="#7DD3FC" stroke-width="2"/>`;
-  g += `<rect x="${LX2 - 15}" y="${AX + lh}" width="30" height="${RAIL - AX - lh}" fill="#1E293B" stroke="#334155"/>`;
-  g += T(LX2, RAIL + 24, "水透镜", { fill: "#7DD3FC", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-
-  /* 注射器 */
-  const bx0 = 96, bx1 = 190, by0 = 52, by1 = 84, pist = bx0 + 4 + 60 * (w / 100);
-  g += `<rect x="${bx0}" y="${by0}" width="${bx1 - bx0}" height="${by1 - by0}" rx="4" fill="#0B1220" stroke="#64748B" stroke-width="1.6"/>`;
-  g += `<rect x="${pist.toFixed(1)}" y="${by0 + 2}" width="${(bx1 - pist - 2).toFixed(1)}" height="${by1 - by0 - 4}" fill="#38BDF8" fill-opacity=".85"/>`;
-  g += `<rect x="${(pist - 5).toFixed(1)}" y="${by0 - 4}" width="5" height="${by1 - by0 + 8}" fill="#CBD5E1"/>`;
-  g += `<line x1="${pist - 5}" y1="${(by0 + by1) / 2}" x2="58" y2="${(by0 + by1) / 2}" stroke="#CBD5E1" stroke-width="4"/>`;
-  g += `<rect x="50" y="${by0 - 8}" width="10" height="${by1 - by0 + 16}" rx="3" fill="#94A3B8"/>`;
-  g += `<path d="M${bx1} ${(by0 + by1) / 2 - 6} h12 v12 h-12 z" fill="#94A3B8"/>`;
-  g += `<path d="M${bx1 + 12} ${(by0 + by1) / 2} C ${bx1 + 60} ${(by0 + by1) / 2} ${LX2 - 90} 100 ${LX2} ${AX - lh - 2}"
-      stroke="#38BDF8" stroke-width="3" fill="none" stroke-opacity=".8"/>`;
-  g += T(bx0 + 4, by0 - 10, "注射器：推活塞 → 往透镜里注水", { fill: "#7DD3FC", size: 12, w: 700, bg: "#0E1729" });
-
-  /* 光屏 */
-  g += `<rect x="${(xs - 4).toFixed(1)}" y="${AX - 88}" width="8" height="${RAIL - AX + 88}" fill="#E2E8F0" stroke="#94A3B8"/>`;
-  g += `<rect x="${(xs - 14).toFixed(1)}" y="${RAIL}" width="28" height="10" rx="3" fill="#1E293B" stroke="#334155"/>`;
-  g += `<g filter="url(#wBlur)"><g transform="translate(${xs.toFixed(1)},${AX}) scale(1,-1)">${candleU(isFinite(hi) ? Math.max(10, hi) : 30)}</g></g>`;
-  g += T(xs, RAIL + 24, "光屏", { fill: "#E2E8F0", size: 12.5, w: 700, a: "middle", bg: "#0E1729" });
-
-  $("#svg2").innerHTML = g;
-
-  $("#v2w").textContent = w + "%";
-  $("#v2u").textContent = u + " cm";
-  $("#v2v").textContent = fmt(vs, 1) + " cm";
-  $("#o2f").textContent = fmt(f, 1) + " cm";
-  $("#o2v0").textContent = isFinite(v0) ? fmt(v0, 1) + " cm" : "成不了实像";
-  $("#o2v").textContent = fmt(vs, 1) + " cm";
-  $("#o2m").textContent = isFinite(v0) ? fmt(v0 / u, 2) : "—";
-  const tg = $("#o2s");
-  if (sharp) { tg.className = "tag b"; tg.textContent = "屏上的像：清晰"; }
-  else if (isFinite(v0)) { tg.className = "tag r"; tg.textContent = vs < v0 ? "屏上的像：模糊（屏太靠前）" : "屏上的像：模糊（屏太靠后）"; }
-  else { tg.className = "tag r"; tg.textContent = "蜡烛在焦点上，屏上接不到像"; }
-}
-
-function init2() {
-  $("#r2w").oninput = e => { M2.w = +e.target.value; draw2(); };
-  $("#r2u").oninput = e => { M2.u = +e.target.value; draw2(); };
-  $("#r2v").oninput = e => { M2.v = +e.target.value; draw2(); };
-
-  const anim = (key, to, dur, after) => {
-    const from = M2[key];
-    tween(dur, e => {
-      M2[key] = from + (to - from) * e;
-      if (key === "w") M2.w = clamp(M2.w, 0, 100);
-      $("#r2" + key).value = key === "w" ? Math.round(M2.w) : (key === "v" ? M2.v.toFixed(1) : Math.round(M2.u));
-      draw2();
-      if (e >= 1 && after) after();
-    });
-  };
-
-  const needW = () => {
-    const f = M2.u * M2.v / (M2.u + M2.v);
-    return (22 - f) / 15 * 100;
-  };
-
-  $("#b2auto").onclick = () => {
-    const w = needW();
-    if (w < 0 || w > 100) {
-      const tg = $("#o2s"); tg.className = "tag a";
-      tg.textContent = "这个屏位配不出来：请把光屏挪到 12–45 cm";
-      return;
-    }
-    anim("w", w, 900);
-  };
-  $("#b2far").onclick = () => { anim("u", 38, 600, () => anim("w", clamp(needW(), 0, 100), 900)); };
-  $("#b2near").onclick = () => { anim("u", 15, 600, () => anim("w", clamp(needW(), 0, 100), 900)); };
-
-  /* 拖动：左半区拖蜡烛、右半区拖光屏 */
-  bindDragX($("#svg2"), x => {
-    if (x < LX2 - 20) { M2.u = clamp(Math.round((LX2 - x) / PPC), 15, 38); $("#r2u").value = M2.u; }
-    else if (x > LX2 + 20) { M2.v = clamp(Math.round((x - LX2) / PPC * 2) / 2, 8, 55); $("#r2v").value = M2.v; }
-    draw2();
-  });
-  draw2();
-}
-
-/* ================================================================
-   ③④ 近视 / 远视（同一引擎，两套参数）
-   ================================================================ */
-const M3 = { d: 2.30, f: 2.00, deg: 0, u: 300 };
-const M4 = { d: 1.85, f: 2.00, deg: 0, u: 300 };
-
-/* 让像恰好落在视网膜上所需的眼镜度数（度）；正的＝凸透镜，负的＝凹透镜 */
-function needDeg(M) { return Math.round(10000 * (1 / M.d - 1 / M.f + 1 / M.u) / 25) * 25; }
-
-/* 极端参数下的兜底说明：n=3 近视、n=4 远视 */
-function warnFor(n, M) {
-  const req = needDeg(M), LIM = 1000;
-  if (Math.abs(req) > LIM)
-    return `这组参数要配到 ${req > 0 ? "+" : ""}${req} 度，已经超出 ±${LIM} 度了 —— 点上面的「成因」按钮可复原。`;
-  if ((n === 3 && req > 0) || (n === 4 && req < 0))
-    return `这颗眼球现在其实是${req > 0 ? "远视" : "近视"}眼（像落在视网膜${req > 0 ? "后" : "前"}面），要戴的是${req > 0 ? "凸" : "凹"}透镜。`;
-  return "";
-}
-
-function drawEyeModule(n, M) {
-  VW = 680; VH = 400;
-  const r = eyeScene({ u: M.u, d: M.d, f: M.f, deg: M.deg, fid: "eb" + n });
-  $("#svg" + n).innerHTML = defsEye(r.blur, "eb" + n) + r.svg;
-
-  const bare = eyeScene({ u: M.u, d: M.d, f: M.f, deg: 0, fid: "eb" + n });
-  const bareV = bare.v;
-  $("#o" + n + "v0").textContent = isFinite(bareV) ? fmt(bareV, 2) + " cm" : "成不了像";
-  $("#o" + n + "d").textContent = fmt(M.d, 2) + " cm";
-  $("#o" + n + "v").textContent = isFinite(r.v) ? fmt(r.v, 2) + " cm" : "成不了像";
-
-  const dv = isFinite(r.v) ? r.v - M.d : NaN;
-  const el = $("#o" + n + "dif");
-  if (isFinite(dv)) {
-    el.textContent = fmt(Math.abs(dv), 2) + " cm（偏" + (dv < 0 ? "前" : "后") + "）";
-    el.className = Math.abs(dv) < 0.03 ? "ok" : "bad";
-  } else { el.textContent = "—"; el.className = "bad"; }
-
-  const tg = $("#o" + n + "s");
-  const sharp = r.ratio < 0.014;
-  if (sharp) { tg.className = "tag b"; tg.textContent = "视网膜上的像：清晰"; }
-  else {
-    tg.className = "tag r";
-    tg.textContent = "视网膜上的像：模糊（像在视网膜" + ((isFinite(r.v) && r.v < M.d) ? "前" : "后") + "面）";
-  }
-
-  const we = $("#w" + n), wt = warnFor(n, M);
-  we.textContent = wt; we.hidden = !wt;
-
-  $("#v" + n + "d").textContent = fmt(M.d, 2) + " cm";
-  $("#v" + n + "f").textContent = fmt(M.f, 2) + " cm";
-  $("#v" + n + "g").textContent = M.deg === 0 ? "不戴眼镜"
-    : (M.deg > 0 ? "+" : "") + M.deg + " 度（" + (M.deg < 0 ? "凹" : "凸") + "透镜，f = " + fmt(10000 / M.deg, 1) + " cm）";
-}
-
-function initEyeModule(n, M, causes) {
-  const ids = { d: "#r" + n + "d", f: "#r" + n + "f", g: "#r" + n + "g" };
-  $(ids.d).oninput = e => { M.d = +e.target.value / 100; drawEyeModule(n, M); };
-  $(ids.f).oninput = e => { M.f = +e.target.value / 100; drawEyeModule(n, M); };
-  $(ids.g).oninput = e => { M.deg = +e.target.value; drawEyeModule(n, M); };
-
-  $$("#seg" + n + "c button").forEach(b => b.onclick = () => {
-    $$("#seg" + n + "c button").forEach(x => x.classList.remove("on"));
-    b.classList.add("on");
-    const c = causes[b.dataset.c];
-    M.d = c.d; M.f = c.f; M.deg = 0;
-    $(ids.d).value = Math.round(M.d * 100); $(ids.f).value = Math.round(M.f * 100); $(ids.g).value = 0;
-    drawEyeModule(n, M);
-  });
-  $$("#seg" + n + "u button").forEach(b => b.onclick = () => {
-    $$("#seg" + n + "u button").forEach(x => x.classList.remove("on"));
-    b.classList.add("on");
-    M.u = +b.dataset.u;
-    drawEyeModule(n, M);
-  });
-
-  $("#b" + n + "fit").onclick = () => {
-    const lo = +$(ids.g).min, hi = +$(ids.g).max;
-    const deg = clamp(needDeg(M), lo, hi);
-    const from = M.deg;
-    tween(650, e => {
-      M.deg = Math.round((from + (deg - from) * e) / 25) * 25;
-      $(ids.g).value = M.deg; drawEyeModule(n, M);
-    });
-  };
-  $("#b" + n + "off").onclick = () => { M.deg = 0; $(ids.g).value = 0; drawEyeModule(n, M); };
-
-  bindDragX($("#svg" + n), x => { M.u = Math.round(UofX(LX - x)); drawEyeModule(n, M); });
-  drawEyeModule(n, M);
-}
-
-/* ================================================================
-   三种眼睛对照（静态缩略图）
-   ================================================================ */
-function miniEye(cfg) {
-  const save = [VW, VH];
-  VW = 680; VH = 400;
-  const r = eyeScene({ u: cfg.u, d: cfg.d, f: cfg.f, deg: cfg.deg, labels: false, inset: false });
-  VW = save[0]; VH = save[1];
-  return `<svg viewBox="0 0 680 400" role="img">${r.svg}</svg>`;
-}
-
-function initCmp() {
-  const items = [
-    { k: "n", name: "正常眼", d: 2.00, f: 2.00, deg: 0, u: 300,
-      why: "像恰好成在视网膜上", fix: "不用戴眼镜" },
-    { k: "m", name: "近视眼", d: 2.30, f: 2.00, u: 300,
-      why: "像成在视网膜<b>前面</b>", fix: "戴<b>凹</b>透镜（先发散，会聚推迟）" },
-    { k: "h", name: "远视眼", d: 1.85, f: 2.00, u: 300,
-      why: "像成在视网膜<b>后面</b>", fix: "戴<b>凸</b>透镜（先会聚，会聚提前）" }
-  ];
-  $("#cmp4").innerHTML = items.map(c => {
-    const deg = c.fix === "不用戴眼镜" ? 0 : needDeg(c);   // 正常眼靠自身调节清晰，不戴镜
-    return `
-    <div class="cmp-item">
-      <div class="cmph"><span>${c.name}</span><span class="tag ${c.k === "n" ? "b" : "r"}">${deg === 0 ? "不戴镜" : (deg > 0 ? "+" : "") + deg + " 度"}</span></div>
-      <div class="cmpf">${miniEye(Object.assign({ deg }, c))}</div>
-      <div class="cmpb">${c.why}<br>${c.fix}</div>
-    </div>`;
-  }).join("");
-}
-
-/* ================================================================
-   拖动引擎（监听挂在 svg 上，innerHTML 重建后不丢）
-   ================================================================ */
-function bindDragX(svg, onX) {
-  const toX = ev => {
-    const r = svg.getBoundingClientRect();
-    const w = (svg.viewBox && svg.viewBox.baseVal) ? svg.viewBox.baseVal.width : VW;
-    return (ev.clientX - r.left) / r.width * w;
-  };
-  let down = false;
-  svg.addEventListener("pointerdown", e => {
-    down = true;
-    try { svg.setPointerCapture(e.pointerId); } catch (err) { }
-    onX(toX(e));
-  });
-  svg.addEventListener("pointermove", e => { if (down) onX(toX(e)); });
-  const up = () => { down = false; };
-  svg.addEventListener("pointerup", up);
-  svg.addEventListener("pointercancel", up);
-  svg.addEventListener("pointerleave", up);
-}
-
-/* ================================================================
-   入口
-   ================================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  init1();
-  init2();
-  initEyeModule(3, M3, {
-    axis: { d: 2.30, f: 2.00 },
-    lens: { d: 2.00, f: 1.75 }
-  });
-  initEyeModule(4, M4, {
-    axis: { d: 1.85, f: 2.00 },
-    lens: { d: 2.00, f: 2.25 }
-  });
-  initCmp();
-});
 </script>
 
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ============================================================
+   1. 光学系统参数（近轴光线追迹）
+   光轴沿 X 轴，Y 为竖直方向。单位：任意(场景单位)
+   ============================================================ */
+const OPT = {
+  xObj:   -9.0,   // 发光物体位置
+  xCorr:  -2.5,   // 矫正镜片在轨道上的安装位（贴近眼前，保证光线经镜片后仍从瞳孔通过）
+  xLens:   0.6,   // 眼球晶状体位置（等效折射面，初二教学把角膜+晶状体合并为一处）
+  xPupil: -0.35,  // 瞳孔（虹膜中央光阑）位置，在晶状体前方稍远处——拉开与晶状体的距离便于看清
+  pupilR:  0.78,  // 瞳孔半径，保证各状态（含矫正发散）下光束都能通过
+  xRetina: 5.7,   // 视网膜位置
+  fNormal: 5.1,   // 正常眼等效焦距 = xRetina - xLens
+  // 光束初始高度（平行光）——落在瞳孔 aperture 内，光线才真正从瞳孔进入眼睛
+  ys: [-0.34,-0.22,-0.11,0.11,0.22,0.34],
+  // 光线在视网膜之后继续延伸的长度（用于展示会聚/发散）
+  tail: 1.7
+};
+// 眼睛自身等效焦距：近视更短(折光强)，远视更长(折光弱)
+function eyeFocal(mode){
+  if(mode==='normal') return OPT.fNormal;
+  if(mode==='myopia') return OPT.fNormal - 2.0;   // 焦点前移
+  return OPT.fNormal + 3.0;                        // 焦点后移
+}
+// 匹配模式时，反推能把焦点精确移回视网膜的镜片焦距
+function matchedCorrFocal(mode){
+  const d1 = OPT.xLens - OPT.xCorr;
+  const K  = 1/eyeFocal(mode) - 1/OPT.fNormal;
+  return d1 - 1/K;
+}
+// 镜片焦距（物理值）；非匹配情形用固定值，故意让成像变差
+function corrFocal(mode, type){
+  if(type==='concave' && mode==='myopia')    return matchedCorrFocal('myopia');
+  if(type==='convex'  && mode==='hyperopia') return matchedCorrFocal('hyperopia');
+  return type==='concave' ? -3.4 : 7.0;
+}
+
+let state = { mode:'normal', lens:null }; // lens: null | 'concave' | 'convex'
+
+/* 追迹一条初始高度为 y0 的平行光线，返回折线关键点与焦点、视网膜处偏移 */
+function traceRay(y0, mode, lensType){
+  let x = OPT.xObj, y = y0, u = 0;               // u = 斜率 dy/dx
+  const pts = [new THREE.Vector3(x,y,0)];
+  const hasCorr = !!lensType;
+
+  if(hasCorr){
+    y += u*(OPT.xCorr - x); x = OPT.xCorr;
+    pts.push(new THREE.Vector3(x,y,0));
+    u -= y / corrFocal(mode, lensType);          // 薄透镜折射
+  }else{
+    // 无镜片时也放置一个线性中间点，便于加/减镜片时点数一致
+    y += u*(OPT.xCorr - x); x = OPT.xCorr;
+    pts.push(new THREE.Vector3(x,y,0));
+  }
+
+  // 光线先穿过瞳孔（虹膜中央孔），再到达晶状体 —— 明确"光从瞳孔进入眼睛"
+  y += u*(OPT.xPupil - x); x = OPT.xPupil;
+  pts.push(new THREE.Vector3(x,y,0));
+
+  y += u*(OPT.xLens - x); x = OPT.xLens;
+  pts.push(new THREE.Vector3(x,y,0));
+  u -= y / eyeFocal(mode);                        // 眼球晶状体折射
+
+  const xFocus = x - y/u;                         // 与光轴交点
+  const yRetina = y + u*(OPT.xRetina - x);        // 视网膜处高度(弥散圆半径)
+  // 光束末端动态延伸：焦点在视网膜后时，让光束继续画到焦点之后，便于看到"会聚太晚"
+  const xEnd = Math.max(OPT.xRetina + 0.5, xFocus + 0.7);
+  const yEnd = y + u*(xEnd - x);
+  pts.push(new THREE.Vector3(xEnd,yEnd,0));
+  return { pts, xFocus, yRetina };
+}
+
+/* ============================================================
+   2. 场景 / 渲染器 / 光照  (PBR + 柔和全局光 + 软阴影)
+   ============================================================ */
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+app.insertBefore(renderer.domElement, app.firstChild);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b1524);
+scene.fog = new THREE.Fog(0x0b1524, 30, 56);
+
+// 透视相机：真实近大远小，眼球呈现立体球形纵深
+const FOV = 42;
+let camera = new THREE.PerspectiveCamera(FOV, innerWidth/innerHeight, 0.1, 220);
+const CONST = { cx:-1.0, cy:0.3, contentW:23.5, contentH:11.5 };
+let viewSide = 0; // 0:主视角  1:侧上方
+function placeCamera(){
+  const aspect = innerWidth/innerHeight;
+  camera.aspect = aspect;
+  const halfFov = THREE.MathUtils.degToRad(FOV)/2;
+  // 距离自适应：保证装置宽度/高度都在视野内
+  let dist = (CONST.contentW/2)/(Math.tan(halfFov)*aspect);
+  dist = Math.max(dist, (CONST.contentH/2)/Math.tan(halfFov));
+  if(viewSide===0) camera.position.set(CONST.cx, CONST.cy+4.8, dist);
+  else camera.position.set(CONST.cx-8.5, CONST.cy+9, dist-3.5);
+  camera.lookAt(CONST.cx, CONST.cy, 0);
+  camera.near=0.1; camera.far=220;
+  camera.updateProjectionMatrix();
+}
+placeCamera();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.enablePan = false;
+controls.minDistance = 12; controls.maxDistance = 65;
+controls.target.set(CONST.cx, CONST.cy, 0);
+controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+
+// 柔和光照（深色科技风：冷色环境 + 主光 + 青蓝补光）
+scene.add(new THREE.HemisphereLight(0xcfe4ff, 0x1b2c42, 1.15));
+const key = new THREE.DirectionalLight(0xf2f7ff, 2.2);
+key.position.set(-8, 14, 12);
+key.castShadow = true;
+key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.left=-16; key.shadow.camera.right=16;
+key.shadow.camera.top=12; key.shadow.camera.bottom=-12;
+key.shadow.camera.near=1; key.shadow.camera.far=60;
+key.shadow.radius = 6; key.shadow.bias = -0.0006;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x6fb4f0, 0.95);
+fill.position.set(10, 5, -8);
+scene.add(fill);
+const rimLight = new THREE.DirectionalLight(0x4fd6e0, 0.5);
+rimLight.position.set(4, -4, -10);
+scene.add(rimLight);
+
+/* ============================================================
+   3. 实验台 / 光学轨道 / 发光物体
+   ============================================================ */
+const MAT = {
+  table:  new THREE.MeshStandardMaterial({color:0x142338, roughness:.82, metalness:.12}),
+  rail:   new THREE.MeshStandardMaterial({color:0x35506e, roughness:.3, metalness:.78}),
+  railHi: new THREE.MeshStandardMaterial({color:0x7fb8e0, roughness:.25, metalness:.6,
+            emissive:0x2b6a9a, emissiveIntensity:.35}),
+  stand:  new THREE.MeshStandardMaterial({color:0x4a6a88, roughness:.35, metalness:.62}),
+  glass:  new THREE.MeshPhysicalMaterial({color:0xa9dcf5, transparent:true, opacity:.36,
+            roughness:.08, metalness:0, clearcoat:1, clearcoatRoughness:.1,
+            side:THREE.DoubleSide, depthWrite:false}),
+  lens:   new THREE.MeshPhysicalMaterial({color:0x9fd6f5, transparent:true, opacity:.5,
+            roughness:.06, metalness:0, clearcoat:1, side:THREE.DoubleSide, depthWrite:false}),
+  retina: new THREE.MeshStandardMaterial({color:0xf07f66, emissive:0x9a3220, emissiveIntensity:.5,
+            roughness:.55, transparent:true, opacity:.72, side:THREE.DoubleSide, depthWrite:false}),
+  nerve:  new THREE.MeshStandardMaterial({color:0xe8bf84, roughness:.6, metalness:.05})
+};
+
+// 台面
+const table = new THREE.Mesh(new THREE.BoxGeometry(26,0.5,11), MAT.table);
+table.position.set(-1,-3.85,0); table.receiveShadow=true;
+scene.add(table);
+// 台面前沿装饰线
+const edge = new THREE.Mesh(new THREE.BoxGeometry(26,0.08,0.12),
+  new THREE.MeshStandardMaterial({color:0x3d6d96, roughness:.4, metalness:.5,
+    emissive:0x1d5a86, emissiveIntensity:.5}));
+edge.position.set(-1,-3.58,5.5); scene.add(edge);
+
+// 光学轨道（金属导轨 + 亮条）
+const rail = new THREE.Mesh(new THREE.BoxGeometry(18,0.28,0.62), MAT.rail);
+rail.position.set(-1.6,-3.35,0); rail.castShadow=true; rail.receiveShadow=true;
+scene.add(rail);
+const railTop = new THREE.Mesh(new THREE.BoxGeometry(18,0.04,0.2), MAT.railHi);
+railTop.position.set(-1.6,-3.19,0); scene.add(railTop);
+// 轨道刻度
+for(let i=-9;i<=7;i+=1){
+  const tick = new THREE.Mesh(new THREE.BoxGeometry(0.02,0.05, i%2===0?0.5:0.34),
+    new THREE.MeshStandardMaterial({color:0x6d98b8, roughness:.5, metalness:.4}));
+  tick.position.set(i,-3.16,0); scene.add(tick);
+}
+
+// 支架工厂：从轨道连到元件中心
+function makeStand(x, topY){
+  const g=new THREE.Group();
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.09,.11,(topY+2.9),16),MAT.stand);
+  pole.position.set(x, (-2.9+topY)/2, 0); pole.castShadow=true;
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,.16,24),MAT.stand);
+  base.position.set(x,-3.12,0); base.castShadow=true;
+  g.add(pole,base); return g;
+}
+
+// 发光物体（蜡烛状箭头光源），位于光轴上方
+const objGroup=new THREE.Group();
+const objCore=new THREE.Mesh(new THREE.SphereGeometry(.34,32,24),
+  new THREE.MeshStandardMaterial({color:0xfff0b8, emissive:0xffc23c, emissiveIntensity:2.6, roughness:.4}));
+objCore.position.set(OPT.xObj,0,0); // 发光点在光轴上，与平行光束中心一致
+const objHalo=new THREE.Mesh(new THREE.SphereGeometry(.62,24,18),
+  new THREE.MeshBasicMaterial({color:0xffd976, transparent:true, opacity:.22,
+    blending:THREE.AdditiveBlending, depthWrite:false}));
+objHalo.position.copy(objCore.position);
+const objBody=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),
+  new THREE.MeshStandardMaterial({color:0xf2f5f8, roughness:.5}));
+objBody.position.set(OPT.xObj,-0.72,0);
+objGroup.add(objCore,objHalo,objBody,makeStand(OPT.xObj,-0.3));
+scene.add(objGroup);
+const objLight=new THREE.PointLight(0xffd27a, 1.6, 8, 2);
+objLight.position.set(OPT.xObj,0,0); scene.add(objLight);
+
+/* ============================================================
+   4. 眼球结构仿真图
+   剖面朝向观察者：保留 z<0 的一半壳体，内部层次一览无余
+   结构：巩膜 → 脉络膜 → 视网膜(含黄斑) → 玻璃体 → 角膜 →
+         虹膜(含瞳孔) → 睫状体 → 悬韧带 → 晶状体 → 视神经
+   ============================================================ */
+const EYE = { cx:2.5, R:3.2 }; // 球心与半径；视网膜后极 = cx+R ≈ 5.7
+const eyeGroup = new THREE.Group();
+scene.add(eyeGroup);
+
+// 半球壳（保留背向观察者的一半，切面朝向观察者，内部一览无余）
+function hemiShell(R, thetaLen=Math.PI){
+  const g = new THREE.SphereGeometry(R, 72, 48, Math.PI, Math.PI, 0, thetaLen);
+  g.rotateZ(-Math.PI/2); // 极轴 Y -> X
+  return g;
+}
+// 完整球体：用于外层透明巩膜壳，营造浑圆的立体轮廓与球面高光
+function fullSphere(R){
+  return new THREE.SphereGeometry(R, 72, 48);
+}
+// 程序化血管纹理：橙红底 + 树枝状视网膜血管（贴在脉络膜/玻璃体后壁，写实感关键）
+function makeVesselTexture(size=1024){
+  const cv=document.createElement('canvas'); cv.width=cv.height=size;
+  const c=cv.getContext('2d'), cx=size*0.78, cy=size/2; // 血管从视盘(后极)向外放射
+  // 暖橙红径向渐变底
+  const g=c.createRadialGradient(cx,cy,size*0.05,cx,cy,size*0.95);
+  g.addColorStop(0,'#e8793c'); g.addColorStop(.45,'#cf5428');
+  g.addColorStop(.8,'#a83a1f'); g.addColorStop(1,'#7d2a17');
+  c.fillStyle=g; c.fillRect(0,0,size,size);
+  // 从视盘放射的树枝状血管
+  c.lineCap='round';
+  function branch(x,y,ang,len,w,depth){
+    if(depth<=0||len<3) return;
+    const x2=x+Math.cos(ang)*len, y2=y+Math.sin(ang)*len;
+    c.strokeStyle=`rgba(${90+depth*8},${22+depth*4},12,${.28+depth*.09})`;
+    c.lineWidth=w; c.beginPath(); c.moveTo(x,y);
+    c.quadraticCurveTo((x+x2)/2+(Math.random()-.5)*8,(y+y2)/2+(Math.random()-.5)*8,x2,y2);
+    c.stroke();
+    branch(x2,y2,ang+(Math.random()-.5)*.5,len*.74,w*.72,depth-1);
+    if(Math.random()>.28) branch(x2,y2,ang+(Math.random()-.5)*1.0,len*.6,w*.6,depth-1);
+  }
+  for(let i=0;i<16;i++){
+    const a=Math.PI*2*i/16+(Math.random()-.5)*.3;
+    branch(cx,cy,a,size*(0.10+Math.random()*.05),5.5,5);
+  }
+  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const vesselTex = makeVesselTexture();
+
+// 透明解剖模型：完整球体 + 适度透明，内部结构透过外壁可见，整体浑圆立体
+// 外层巩膜带高光 clearcoat，营造真实眼球的球面反光与体积感
+const wallDefs = [
+  { r:EYE.R,      color:0xf2e6d8, opacity:.24, map:null,      name:'sclera'  },
+  { r:EYE.R-0.16, color:0xffffff, opacity:.42, map:vesselTex, name:'choroid' },
+  { r:EYE.R-0.30, color:0xffb27a, opacity:.22, map:null,      name:'retinaBack' }
+];
+wallDefs.forEach(w=>{
+  const m=new THREE.Mesh(fullSphere(w.r), new THREE.MeshPhysicalMaterial({
+    color:w.color, map:w.map, roughness:.45, metalness:.02,
+    transparent:true, opacity:w.opacity, clearcoat:1, clearcoatRoughness:.15,
+    emissive:w.map?0x4a1508:0x000000, emissiveIntensity:w.map?.2:0,
+    side:THREE.DoubleSide, depthWrite:false}));
+  m.position.x=EYE.cx; m.renderOrder=1; eyeGroup.add(m);
+});
+
+// 视网膜功能层（后极高亮球冠）——成像的"屏幕"（橙红带血管发光）
+const retGeo = new THREE.SphereGeometry(EYE.R-0.34, 64, 40, Math.PI, Math.PI, 0, Math.PI*0.46);
+retGeo.rotateZ(-Math.PI/2);
+const retina = new THREE.Mesh(retGeo, new THREE.MeshStandardMaterial({
+  color:0xffc08a, map:vesselTex, emissive:0x8a2a10, emissiveIntensity:.4, roughness:.6,
+  transparent:true, opacity:.72, side:THREE.DoubleSide, depthWrite:false}));
+retina.position.x=EYE.cx; retina.renderOrder=2; eyeGroup.add(retina);
+
+// 黄斑（视网膜后极、视觉最敏锐处）——清晰成像的目标位置
+const macula = new THREE.Mesh(new THREE.SphereGeometry(0.34,28,20),
+  new THREE.MeshStandardMaterial({color:0xffd08a, emissive:0xa8421a, emissiveIntensity:.5,
+    roughness:.5, transparent:true, opacity:.92, depthWrite:false}));
+macula.scale.set(0.18,1,1);
+macula.position.set(EYE.cx+EYE.R-0.42, 0, 0); macula.renderOrder=3;
+eyeGroup.add(macula);
+
+// 玻璃体：完整半透明橙红填充球（饱满立体内腔），depthWrite 关让光路透出
+const vitreous = new THREE.Mesh(fullSphere(EYE.R-0.42), new THREE.MeshPhysicalMaterial({
+  color:0xe07438, transparent:true, opacity:.18, roughness:.28,
+  emissive:0x7d2e10, emissiveIntensity:.18,
+  side:THREE.DoubleSide, depthWrite:false}));
+vitreous.position.x=EYE.cx; vitreous.renderOrder=1; eyeGroup.add(vitreous);
+
+// 子午线轮廓：沿光轴的赤道环，勾勒球体立体边界
+[EYE.R, EYE.R-0.16].forEach((r,i)=>{
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r,0.035,10,140),
+    new THREE.MeshBasicMaterial({color:[0xf2e6d8,0xd4572a][i],
+      transparent:true, opacity:[.5,.45][i]}));
+  ring.rotation.y=Math.PI/2; ring.position.set(EYE.cx,0,0); ring.renderOrder=4; eyeGroup.add(ring);
+});
+
+// 角膜：眼前部向外凸的透明穹窿（顶点略前于眼球前极，曲率半径比眼球小、开口只覆盖眼前）
+const CORNEA_R = 1.8;                       // 角膜曲率半径
+const corneaGeo = new THREE.SphereGeometry(CORNEA_R, 56, 36, Math.PI, Math.PI, 0, Math.PI*0.32);
+corneaGeo.rotateZ(Math.PI/2);               // 极轴 +Y -> -X，凸面朝物体
+const cornea = new THREE.Mesh(corneaGeo, MAT.glass.clone());
+// 参考图角膜：明显蓝色透明穹窿
+cornea.material.color.setHex(0x8fc7f5);
+cornea.material.opacity=.5;
+cornea.material.emissive=new THREE.Color(0x1a4a7a); cornea.material.emissiveIntensity=.18;
+cornea.position.x = (EYE.cx - EYE.R - 0.15) + CORNEA_R; // 顶点落在 x≈-0.85，紧贴眼球前极
+cornea.renderOrder=2;
+eyeGroup.add(cornea);
+// 角膜高光：左上方的镜面反射小椭圆，让眼球"有神"
+const corneaGlint=new THREE.Mesh(new THREE.CircleGeometry(.26,28),
+  new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:.5,
+    blending:THREE.AdditiveBlending, side:THREE.DoubleSide, depthWrite:false}));
+corneaGlint.scale.set(1,.6,1);
+corneaGlint.position.set(EYE.cx-EYE.R-0.05, 1.05, 0.02);
+corneaGlint.renderOrder=5; eyeGroup.add(corneaGlint);
+
+/* ---------- 虹膜：程序化纹理（放射纤维 / 隐窝 / 瞳孔括约肌 / 睫状带）---------- */
+// 圆盘虹膜纹理（正面沿光轴看时：中央瞳孔 + 放射状纤维）
+function makeIrisDiscTexture(size=512){
+  const cv=document.createElement('canvas'); cv.width=cv.height=size;
+  const c=cv.getContext('2d'), cx=size/2, cy=size/2, R=size/2;
+  const g=c.createRadialGradient(cx,cy,R*.28,cx,cy,R);
+  g.addColorStop(0,'#1d4a63'); g.addColorStop(.45,'#2e86a8');
+  g.addColorStop(.75,'#1e5f7d'); g.addColorStop(1,'#0e2c3d');
+  c.fillStyle=g; c.fillRect(0,0,size,size);
+  for(let i=0;i<420;i++){                 // 放射纤维
+    const a=Math.random()*Math.PI*2, r0=R*(.30+Math.random()*.05), r1=R*(.85+Math.random()*.13);
+    c.strokeStyle=Math.random()>.5?`rgba(150,225,255,${.08+Math.random()*.18})`
+                                  :`rgba(8,32,48,${.08+Math.random()*.2})`;
+    c.lineWidth=.6+Math.random()*2.4; const bend=(Math.random()-.5)*.22;
+    c.beginPath(); c.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
+    c.quadraticCurveTo(cx+Math.cos(a+bend)*(r0+r1)/2,cy+Math.sin(a+bend)*(r0+r1)/2,
+                       cx+Math.cos(a+bend*1.6)*r1,cy+Math.sin(a+bend*1.6)*r1); c.stroke();
+  }
+  for(let i=0;i<80;i++){                  // 隐窝
+    const a=Math.random()*Math.PI*2, r=R*(.44+Math.random()*.42);
+    c.fillStyle=`rgba(10,40,58,${.14+Math.random()*.22})`;
+    c.beginPath(); c.ellipse(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2+Math.random()*7,2+Math.random()*5,a,0,Math.PI*2); c.fill();
+  }
+  c.strokeStyle='rgba(8,26,38,.9)'; c.lineWidth=R*.07;   // 瞳孔括约肌
+  c.beginPath(); c.arc(cx,cy,R*.31,0,Math.PI*2); c.stroke();
+  c.strokeStyle='rgba(10,38,56,.6)'; c.lineWidth=R*.11;  // 睫状带
+  c.beginPath(); c.arc(cx,cy,R*.96,0,Math.PI*2); c.stroke();
+  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+// 纤维条纹理（剖面两片虹膜瓣；u=瞳孔缘→外周）
+function makeIrisFiberTexture(w=384,h=96){
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+  const c=cv.getContext('2d');
+  const g=c.createLinearGradient(0,0,w,0);
+  g.addColorStop(0,'#15475f'); g.addColorStop(.42,'#2d87a9'); g.addColorStop(1,'#17405a');
+  c.fillStyle=g; c.fillRect(0,0,w,h);
+  for(let i=0;i<300;i++){                       // 放射纤维（更密、对比更强）
+    const y=Math.random()*h;
+    c.strokeStyle=Math.random()>.5?`rgba(165,230,255,${.14+Math.random()*.32})`
+                                  :`rgba(8,32,48,${.16+Math.random()*.32})`;
+    c.lineWidth=.5+Math.random()*2.2;
+    c.beginPath(); c.moveTo(Math.random()*w*.28,y);
+    c.bezierCurveTo(w*.4,y+(Math.random()-.5)*9,w*.72,y+(Math.random()-.5)*9,w,y); c.stroke();
+  }
+  for(let i=0;i<26;i++){                        // 隐窝
+    c.fillStyle=`rgba(8,30,46,${.2+Math.random()*.26})`;
+    c.beginPath(); c.ellipse(Math.random()*w,Math.random()*h,4+Math.random()*12,2+Math.random()*4,0,0,Math.PI*2); c.fill();
+  }
+  // 瞳孔缘括约肌（深色）；外缘睫状带（更深）
+  c.fillStyle='rgba(6,24,36,.88)'; c.fillRect(0,0,w*.07,h);
+  c.fillStyle='rgba(8,28,42,.6)'; c.fillRect(w*.9,0,w*.1,h);
+  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const irisInner=OPT.pupilR, irisOuter=1.42;
+// (A) 正面虹膜环：沿光轴看是放射纹理圆环，中央瞳孔透光
+const irisRing=new THREE.Mesh(new THREE.RingGeometry(irisInner,irisOuter,96,1),
+  new THREE.MeshBasicMaterial({map:makeIrisDiscTexture(), side:THREE.DoubleSide,
+    transparent:true, opacity:.95}));
+irisRing.rotation.y=Math.PI/2; irisRing.position.x=OPT.xPupil; irisRing.renderOrder=6;
+eyeGroup.add(irisRing);
+// (B) 剖面两片弯曲虹膜瓣：面朝观察者，纹理纤维清晰，中间留瞳孔（光线由此穿过）
+function makeIrisLeaf(sign){
+  const seg=18, pos=[], uvs=[], idx=[];
+  for(let i=0;i<=seg;i++){
+    const s=i/seg, x=OPT.xPupil-0.14+0.62*s, y=sign*(0.80+0.66*s), w=0.10+0.05*s;
+    pos.push(x,y-sign*w,0, x,y+sign*w,0); uvs.push(s,0, s,1);
+  }
+  for(let i=0;i<seg;i++){ const a=i*2,b=i*2+1,c=i*2+2,d=i*2+3; idx.push(a,b,c, b,d,c); }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  geo.setIndex(idx); geo.computeVertexNormals(); return geo;
+}
+const irisFiber=makeIrisFiberTexture();
+[-1,1].forEach(sign=>{
+  const leaf=new THREE.Mesh(makeIrisLeaf(sign),new THREE.MeshBasicMaterial({
+    map:irisFiber, side:THREE.DoubleSide}));
+  leaf.position.z=0.6; leaf.renderOrder=9; eyeGroup.add(leaf);
+});
+// 瞳孔缘亮环：标出光线穿过的孔径
+const pupilRing=new THREE.Mesh(new THREE.TorusGeometry(irisInner,0.03,8,56),
+  new THREE.MeshBasicMaterial({color:0xffcf7a, transparent:true, opacity:.65}));
+pupilRing.rotation.y=Math.PI/2; pupilRing.position.x=OPT.xPupil;
+eyeGroup.add(pupilRing);
+
+// 睫状体：晶状体上下两侧的楔形肌（参考图为红褐色，位于虹膜外周）
+const ciliaryMat = new THREE.MeshStandardMaterial({color:0xa8482e, roughness:.6,
+  emissive:0x4a1206, emissiveIntensity:.18, side:THREE.DoubleSide});
+[-1,1].forEach(sign=>{
+  const cb=new THREE.Mesh(new THREE.SphereGeometry(0.4,24,16), ciliaryMat);
+  cb.scale.set(0.65,0.5,0.85);
+  cb.position.set(OPT.xLens-0.02, sign*1.55, 0);
+  eyeGroup.add(cb);
+});
+
+// 晶状体：真实双凸轮廓（旋转成型），厚度随模式变化（近视厚/远视薄）
+function crystalProfile(R, halfT, N=44){
+  const pts=[];
+  for(let i=0;i<=N;i++){ const r=R*i/N; const y=-halfT*Math.sqrt(Math.max(0,1-(r/R)*(r/R))); pts.push(new THREE.Vector2(r,y)); }
+  for(let i=N;i>=0;i--){ const r=R*i/N; const y= halfT*Math.sqrt(Math.max(0,1-(r/R)*(r/R))); pts.push(new THREE.Vector2(r,y)); }
+  return pts;
+}
+const crystalMat = new THREE.MeshPhysicalMaterial({color:0xdff2ff, transparent:true, opacity:.3,
+  roughness:.03, metalness:0, clearcoat:1, clearcoatRoughness:.04, side:THREE.DoubleSide,
+  emissive:0x4a86ad, emissiveIntensity:.28, depthWrite:false});
+const crystalGeo = new THREE.LatheGeometry(crystalProfile(0.92,0.46), 64);
+crystalGeo.rotateZ(Math.PI/2); // 透镜轴 Y -> X
+const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+crystal.position.set(OPT.xLens,0,0); crystal.renderOrder=3;
+eyeGroup.add(crystal);
+// 悬韧带：晶状体上下的细丝，连到睫状体
+[-1,1].forEach(sign=>{
+  const zonule=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.52,6),
+    new THREE.MeshBasicMaterial({color:0xbcd3e4, transparent:true, opacity:.7}));
+  zonule.position.set(OPT.xLens, sign*0.72, 0);
+  eyeGroup.add(zonule);
+});
+
+// 视神经 + 视盘（乳头）
+const nerve = new THREE.Mesh(new THREE.CylinderGeometry(.34,.42,1.7,24), MAT.nerve);
+nerve.rotation.z=Math.PI/2; nerve.position.set(EYE.cx+EYE.R+0.7,-0.32,0);
+nerve.castShadow=true; eyeGroup.add(nerve);
+const disc = new THREE.Mesh(new THREE.SphereGeometry(0.34,24,16),
+  new THREE.MeshStandardMaterial({color:0xf6d9a6, roughness:.6}));
+disc.scale.set(0.28,1,1); disc.position.set(EYE.cx+EYE.R-0.36,-0.32,0);
+eyeGroup.add(disc);
+
+eyeGroup.add(makeStand(EYE.cx, -2.1));
+
+/* ============================================================
+   5. 光束：双层发光圆柱（内芯 + 外晕），随光线实时更新
+   ============================================================ */
+const UP = new THREE.Vector3(0,1,0);
+const beamGeo = new THREE.CylinderGeometry(1,1,1,10,1,true); // 单位高，沿Y
+const rayVisuals = [];
+OPT.ys.forEach(()=>{
+  const segs=[];
+  for(let s=0;s<4;s++){
+    const core=new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({
+      color:0xfff3c4, transparent:true, opacity:.95, blending:THREE.AdditiveBlending, depthWrite:false}));
+    const glow=new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({
+      color:0xffcf55, transparent:true, opacity:.16, blending:THREE.AdditiveBlending, depthWrite:false}));
+    core.renderOrder=6; glow.renderOrder=5;
+    scene.add(glow,core); segs.push({core,glow});
+  }
+  rayVisuals.push({segs, data:null});
+});
+function orientSegment(mesh,p1,p2,radius){
+  const d=new THREE.Vector3().subVectors(p2,p1);
+  const len=d.length();
+  mesh.position.copy(p1).add(p2).multiplyScalar(.5);
+  if(len>1e-5) mesh.quaternion.setFromUnitVectors(UP, d.clone().normalize());
+  mesh.scale.set(radius,len,radius);
+}
+
+// 会聚点：发光球 + 外晕
+const focusCore=new THREE.Mesh(new THREE.SphereGeometry(.13,20,16),
+  new THREE.MeshBasicMaterial({color:0xfff6c9, transparent:true, opacity:.98,
+    blending:THREE.AdditiveBlending, depthWrite:false}));
+const focusGlow=new THREE.Mesh(new THREE.SphereGeometry(.4,20,16),
+  new THREE.MeshBasicMaterial({color:0xffc94a, transparent:true, opacity:.3,
+    blending:THREE.AdditiveBlending, depthWrite:false}));
+focusCore.renderOrder=7; focusGlow.renderOrder=7;
+scene.add(focusGlow,focusCore);
+
+// 视网膜上的像（弥散圆）：清晰时是亮点，模糊时是光斑
+const spot=new THREE.Mesh(new THREE.CircleGeometry(1,40),
+  new THREE.MeshBasicMaterial({color:0xffd071, transparent:true, opacity:.9,
+    blending:THREE.AdditiveBlending, side:THREE.DoubleSide, depthWrite:false}));
+spot.rotation.y=Math.PI/2; spot.position.set(OPT.xRetina-0.06,0,0); spot.renderOrder=6;
+scene.add(spot);
+
+// 光束流动亮点（表现光传播方向）
+const flows=[];
+for(let i=0;i<OPT.ys.length;i++){
+  const f=new THREE.Mesh(new THREE.SphereGeometry(.075,12,10),
+    new THREE.MeshBasicMaterial({color:0xfffbe8, transparent:true, opacity:.9,
+      blending:THREE.AdditiveBlending, depthWrite:false}));
+  f.renderOrder=8; f.userData.t=i/OPT.ys.length; scene.add(f); flows.push(f);
+}
+
+/* ============================================================
+   6. 矫正镜片（可拖放）：凹透镜 / 凸透镜 —— 用旋转轮廓生成真实双凹/双凸透镜
+   ============================================================ */
+function lensProfile(R, tc, te, concave){
+  const pts=[], N=44;
+  if(concave){
+    for(let i=0;i<=N;i++){ const r=R*i/N; pts.push(new THREE.Vector2(r, -tc/2-(te/2-tc/2)*Math.pow(r/R,2))); }
+    for(let i=N;i>=0;i--){ const r=R*i/N; pts.push(new THREE.Vector2(r, tc/2+(te/2-tc/2)*Math.pow(r/R,2))); }
+  }else{
+    for(let i=0;i<=N;i++){ const r=R*i/N; const s=Math.sqrt(Math.max(0,1-Math.pow(r/R,2))); pts.push(new THREE.Vector2(r, -te/2-(tc/2-te/2)*s)); }
+    for(let i=N;i>=0;i--){ const r=R*i/N; const s=Math.sqrt(Math.max(0,1-Math.pow(r/R,2))); pts.push(new THREE.Vector2(r, te/2+(tc/2-te/2)*s)); }
+  }
+  return pts;
+}
+function makeLensMesh(type){
+  const concave = type==='concave';
+  const geo = new THREE.LatheGeometry(lensProfile(0.98, concave?0.12:0.62, concave?0.5:0.12, concave), 64);
+  geo.rotateZ(Math.PI/2); // 透镜轴 Y -> X
+  const m = new THREE.Mesh(geo, MAT.lens.clone());
+  m.userData.lensType=type;
+  return m;
+}
+const lensObj = {
+  concave:{ mesh:makeLensMesh('concave'), installed:false, home:new THREE.Vector3(OPT.xCorr-1.9, -2.35, 0), targetScale:0.72 },
+  convex: { mesh:makeLensMesh('convex'),  installed:false, home:new THREE.Vector3(OPT.xCorr+1.85, -2.35, 0), targetScale:0.72 }
+};
+Object.values(lensObj).forEach(o=>{ o.mesh.renderOrder=4; o.mesh.scale.setScalar(0.72); scene.add(o.mesh); o.mesh.position.copy(o.home); });
+
+// 镜片安装位的虚线指示环
+const slotRing = new THREE.Mesh(new THREE.TorusGeometry(1.05,0.02,6,48),
+  new THREE.MeshBasicMaterial({color:0x7fb0d6, transparent:true, opacity:.35}));
+slotRing.rotation.y=Math.PI/2; slotRing.position.set(OPT.xCorr,0,0); scene.add(slotRing);
+
+/* ============================================================
+   7. 部位标注（HTML 投影跟随 3D 位置）
+   ============================================================ */
+// pos = 标签在画面上的固定位置(百分比)；anchor = 引线指向的 3D 结构点
+const labelDefs = [
+  // 光源与镜片（左）
+  {key:'object',   text:'发光物体',   cls:'callout light', pos:[12,20], anchor:()=>new THREE.Vector3(OPT.xObj,0.5,0)},
+  {key:'slot',     text:'矫正镜位',   cls:'callout light', pos:[26,33], anchor:()=>new THREE.Vector3(OPT.xCorr,1.05,0)},
+  // 眼前段（上方一排，从左到右）
+  {key:'cornea',   text:'角膜',       cls:'callout',       pos:[46,17], anchor:()=>new THREE.Vector3(EYE.cx-EYE.R-0.2,1.5,0)},
+  {key:'aqueous',  text:'房水',       cls:'callout',       pos:[52,26], anchor:()=>new THREE.Vector3(OPT.xPupil-0.35,0.95,0)},
+  {key:'iris',     text:'虹膜',       cls:'callout',       pos:[39,24], anchor:()=>new THREE.Vector3(OPT.xPupil,1.05,0)},
+  {key:'ciliary',  text:'睫状体',     cls:'callout',       pos:[59,20], anchor:()=>new THREE.Vector3(OPT.xLens+0.05,1.5,0)},
+  {key:'zonule',   text:'悬韧带',     cls:'callout',       pos:[64,29], anchor:()=>new THREE.Vector3(OPT.xLens+0.15,0.98,0)},
+  // 瞳孔/晶状体（下方，光路以下、状态栏以上）
+  {key:'pupil',    text:'瞳孔',       cls:'callout',       pos:[40,60], anchor:()=>new THREE.Vector3(OPT.xPupil,-0.55,0)},
+  {key:'crystal',  text:'晶状体',     cls:'callout',       pos:[52,69], anchor:()=>new THREE.Vector3(OPT.xLens,-0.85,0)},
+  {key:'vitreous', text:'玻璃体',     cls:'callout',       pos:[66,72], anchor:()=>new THREE.Vector3(EYE.cx+0.4,-0.3,0)},
+  // 眼球壁三层与后段（右侧）
+  {key:'sclera',   text:'巩膜',       cls:'callout wall',  pos:[70,17], anchor:()=>new THREE.Vector3(EYE.cx-0.4,2.9,0)},
+  {key:'choroid',  text:'脉络膜',     cls:'callout wall',  pos:[79,26], anchor:()=>new THREE.Vector3(EYE.cx+1.0,2.4,0)},
+  {key:'retina',   text:'视网膜',     cls:'callout wall',  pos:[88,37], anchor:()=>new THREE.Vector3(EYE.cx+2.0,1.9,0)},
+  {key:'macula',   text:'黄斑',       cls:'callout wall',  pos:[73,63], anchor:()=>new THREE.Vector3(EYE.cx+EYE.R-0.45,-0.15,0)},
+  {key:'disc',     text:'视盘',       cls:'callout wall',  pos:[81,55], anchor:()=>new THREE.Vector3(EYE.cx+EYE.R-0.4,-0.5,0)},
+  {key:'nerve',    text:'视神经',     cls:'callout wall',  pos:[89,72], anchor:()=>new THREE.Vector3(EYE.cx+EYE.R+1.0,-0.45,0)}
+];
+const leadersSvg=document.getElementById('leaders');
+const SVGNS='http://www.w3.org/2000/svg';
+const labelEls={}, leaderEls={};
+labelDefs.forEach(d=>{
+  const el=document.createElement('div'); el.className='label '+d.cls; el.textContent=d.text;
+  el.style.left=d.pos[0]+'%'; el.style.top=d.pos[1]+'%';
+  app.appendChild(el); labelEls[d.key]=el;
+  const line=document.createElementNS(SVGNS,'line');
+  const dot=document.createElementNS(SVGNS,'circle'); dot.setAttribute('r','3.2');
+  if(d.cls.indexOf('light')>=0){ line.setAttribute('stroke','rgba(224,178,90,.75)'); dot.setAttribute('fill','#e0b25a'); }
+  else if(d.cls.indexOf('wall')>=0){ line.setAttribute('stroke','rgba(226,132,80,.7)'); dot.setAttribute('fill','#e28450'); }
+  leadersSvg.appendChild(line); leadersSvg.appendChild(dot);
+  leaderEls[d.key]={line,dot};
+});
+// 镜片标签：跟随已安装/托盘中的镜片
+const lensLabels={};
+['concave','convex'].forEach(t=>{
+  const el=document.createElement('div'); el.className='label lens';
+  el.textContent = t==='concave'?'凹透镜（近视镜）':'凸透镜（远视镜）';
+  app.appendChild(el); lensLabels[t]=el;
+});
+
+// 成像点标注（会聚点 + 视网膜上的像）——带清晰/模糊判定
+const focusBadge=document.createElement('div');
+focusBadge.className='label focus'; app.appendChild(focusBadge);
+const imageBadge=document.createElement('div');
+imageBadge.className='label focus'; app.appendChild(imageBadge);
+// 会聚点引线：焦点在视网膜后方且徽章被左移时，用引线连回真实焦点
+const focusLeader=document.createElement('div');
+focusLeader.style.cssText='position:absolute;z-index:3;pointer-events:none;height:1px;'+
+  'background:linear-gradient(90deg,rgba(224,110,60,0),rgba(224,110,60,.7));transform-origin:left center;opacity:0';
+app.appendChild(focusLeader);
+
+let lastFocus = OPT.xRetina;
+let focusInfo = { clear:true, offset:0 }; // 由 refresh 计算：是否清晰、焦点相对视网膜的偏移
+const _v = new THREE.Vector3();
+function project(el, world){
+  _v.copy(world).project(camera);
+  if(_v.z>1){ el.style.opacity=0; return; }
+  el.style.left = ((_v.x*.5+.5)*innerWidth)+'px';
+  el.style.top  = ((-_v.y*.5+.5)*innerHeight)+'px';
+  el.style.opacity=1;
+}
+
+/* ============================================================
+   8. 状态刷新：重算光路 + 更新材质/文案/UI
+   ============================================================ */
+const info = {
+  normal:{title:'正常眼 · 光线恰好会聚在视网膜上，成像清晰',
+          desc:'平行光经晶状体折射后，会聚点落在视网膜 —— 这就是清晰视觉的原理。'},
+  myopia0:{title:'近视眼 · 晶状体太厚，折光能力太强',
+          desc:'光线在到达视网膜之前就已会聚，落点偏前，视网膜上得到一个模糊的光斑 —— 看不清远处。'},
+  myopia1:{title:'近视矫正 · 戴上凹透镜后成像清晰',
+          desc:'凹透镜先把光线适当发散，延迟会聚，使焦点向后移回视网膜。'},
+  hyper0:{title:'远视眼 · 晶状体太薄，折光能力太弱',
+          desc:'光线会聚得太晚，若延伸会在视网膜之后才相交，视网膜上同样是模糊光斑 —— 看不清近处。'},
+  hyper1:{title:'远视矫正 · 戴上凸透镜后成像清晰',
+          desc:'凸透镜先让光线适度会聚，提前交点，使焦点向前移回视网膜。'},
+  wrong:{title:'镜片不匹配 · 焦点反而偏离了视网膜',
+          desc:'近视需凹透镜、远视需凸透镜。选错镜片会让光路更加偏离，成像更模糊。'}
+};
+function refresh(){
+  // 追迹所有光线
+  OPT.ys.forEach((y0,i)=>{
+    const data=traceRay(y0,state.mode,state.lens);
+    rayVisuals[i].data=data;
+    if(i===0) lastFocus=data.xFocus;
+  });
+  // 成像清晰度：视网膜处弥散圆半径 < 0.10 判为清晰
+  const blur=Math.max.apply(null, rayVisuals.map(r=>Math.abs(r.data.yRetina)));
+  focusInfo={ clear: blur<0.10, offset: lastFocus-OPT.xRetina, blur };
+  // 成像点徽章文字（位置 + 清晰/模糊判定）
+  const off=focusInfo.offset;
+  const rel = off < -0.15 ? '视网膜前方' : off > 0.15 ? '视网膜后方' : '正好在视网膜上';
+  focusBadge.textContent = focusInfo.clear
+    ? '会聚点 · 落在视网膜（成像清晰 ✓）'
+    : '会聚点 · 落在'+rel+'（成像模糊）';
+  focusBadge.className = 'label focus '+(focusInfo.clear?'ok':'bad');
+  imageBadge.textContent = focusInfo.clear ? '像 · 清晰' : '视网膜上的像 · 模糊光斑';
+  imageBadge.className = 'label focus '+(focusInfo.clear?'ok':'bad');
+  // 晶状体厚度：近视厚、远视薄
+  crystal.scale.set(state.mode==='myopia'?1.32:state.mode==='hyperopia'?0.66:1, 1, 1);
+  // 状态文案
+  let key;
+  if(state.mode==='normal') key = state.lens?null:'normal';
+  else if(state.mode==='myopia') key = state.lens==='concave'?'myopia1':state.lens==='convex'?'wrong':'myopia0';
+  else key = state.lens==='convex'?'hyper1':state.lens==='concave'?'wrong':'hyper0';
+  if(!key && state.lens){
+    document.getElementById('statusTitle').textContent='正常眼 · 无需矫正镜片';
+    document.getElementById('statusDesc').textContent='正常眼本身就能清晰成像，戴上任何镜片反而会打破会聚平衡。拿下镜片试试。';
+  }else{
+    document.getElementById('statusTitle').textContent=info[key].title;
+    document.getElementById('statusDesc').textContent=info[key].desc;
+  }
+  // 托盘 / 移除按钮状态
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('used', c.dataset.lens===state.lens));
+  document.getElementById('removeBtn').classList.toggle('off', !state.lens);
+  // 镜片目标位置与可见性
+  for(const t of ['concave','convex']){
+    const o=lensObj[t];
+    o.target = (state.lens===t)
+      ? new THREE.Vector3(OPT.xCorr,0,0)
+      : o.home.clone();
+    o.targetScale = (state.lens===t)?1:0.72;
+  }
+}
+
+/* ============================================================
+   9. 交互：模式切换 / 拖放镜片 / 移除 / 重置 / 视角
+   ============================================================ */
+document.querySelectorAll('.mode').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.mode=btn.dataset.mode;
+    refresh();
+  });
+});
+document.getElementById('removeBtn').addEventListener('click',()=>{
+  state.lens=null; refresh();
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  state.mode='normal'; state.lens=null;
+  document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode==='normal'));
+  viewSide=0; placeCamera();
+  lensObj.concave.mesh.position.copy(lensObj.concave.home);
+  lensObj.convex.mesh.position.copy(lensObj.convex.home);
+  refresh();
+});
+document.getElementById('viewBtn').addEventListener('click',()=>{
+  viewSide = viewSide?0:1; placeCamera();
+});
+
+// 3D 内拖放镜片：射线与 z=0 平面求交
+const raycaster=new THREE.Raycaster();
+const ndc=new THREE.Vector2();
+const planeZ0=new THREE.Plane(new THREE.Vector3(0,0,1),0);
+const hitPt=new THREE.Vector3();
+let dragging=null, dragOffset=new THREE.Vector3(), pressedAt=null, moved=false;
+
+function setNDC(e){
+  ndc.x=(e.clientX/innerWidth)*2-1;
+  ndc.y=-(e.clientY/innerHeight)*2+1;
+  raycaster.setFromCamera(ndc,camera);
+}
+function pickLens(){
+  const meshes=Object.values(lensObj).map(o=>o.mesh);
+  const hits=raycaster.intersectObjects(meshes,false);
+  if(!hits.length) return null;
+  const t=hits[0].object.userData.lensType;
+  return t;
+}
+renderer.domElement.addEventListener('pointerdown',e=>{
+  setNDC(e);
+  const t=pickLens();
+  if(t){
+    dragging=t;
+    lensObj[t].mesh.scale.setScalar(1);
+    raycaster.ray.intersectPlane(planeZ0,hitPt);
+    dragOffset.subVectors(lensObj[t].mesh.position,hitPt);
+    pressedAt={x:e.clientX,y:e.clientY}; moved=false;
+    controls.enabled=false;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  }else{
+    pressedAt={x:e.clientX,y:e.clientY}; moved=false;
+  }
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!dragging) {
+    if(pressedAt && (Math.abs(e.clientX-pressedAt.x)>4||Math.abs(e.clientY-pressedAt.y)>4)) moved=true;
+    return;
+  }
+  moved=true;
+  setNDC(e);
+  if(raycaster.ray.intersectPlane(planeZ0,hitPt)){
+    const p=hitPt.clone().add(dragOffset);
+    p.y=THREE.MathUtils.clamp(p.y,-2.4,1.8);
+    p.x=THREE.MathUtils.clamp(p.x,OPT.xCorr-3.2,OPT.xCorr+3.2);
+    lensObj[dragging].mesh.position.copy(p);
+  }
+});
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(dragging){
+    const t=dragging; dragging=null; controls.enabled=true;
+    const p=lensObj[t].mesh.position;
+    const onTrack = Math.abs(p.x-OPT.xCorr)<1.9 && Math.abs(p.y)<1.9;
+    if(onTrack){ state.lens=t; refresh(); }
+    else { lensObj[t].mesh.position.copy(lensObj[t].home); if(state.lens===t){state.lens=null;refresh();} }
+  }else if(pressedAt && !moved){
+    // 点击已安装的镜片 => 拿下
+    setNDC(e); const t=pickLens();
+    if(t && state.lens===t){ state.lens=null; refresh(); }
+  }
+  pressedAt=null;
+});
+
+// 从底部托盘拖拽 HTML 镜片卡片到画布
+document.querySelectorAll('.chip').forEach(chip=>{
+  let ghost=null;
+  chip.addEventListener('pointerdown',e=>{
+    if(chip.classList.contains('used')) return;
+    const t=chip.dataset.lens;
+    ghost=document.createElement('div');
+    ghost.style.cssText='position:fixed;z-index:50;pointer-events:none;width:34px;height:34px;border-radius:50%;'+
+      'background:rgba(170,220,245,.85);border:2px solid #4b93c4;transform:translate(-50%,-50%);box-shadow:0 6px 18px rgba(60,110,160,.3)';
+    document.body.appendChild(ghost);
+    const mv=ev=>{ ghost.style.left=ev.clientX+'px'; ghost.style.top=ev.clientY+'px'; };
+    const up=ev=>{
+      document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up);
+      ghost.remove(); ghost=null;
+      const overCanvas = ev.clientX>0&&ev.clientX<innerWidth&&ev.clientY>0&&ev.clientY<innerHeight;
+      if(overCanvas){ state.lens=t; refresh(); }
+    };
+    document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up);
+    e.preventDefault();
+  });
+});
+
+/* ============================================================
+   10. 动画循环
+   ============================================================ */
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  controls.update();
+
+  // 更新光束段
+  rayVisuals.forEach(rv=>{
+    const d=rv.data; if(!d) return;
+    for(let s=0;s<4;s++){
+      orientSegment(rv.segs[s].core, d.pts[s], d.pts[s+1], 0.026);
+      orientSegment(rv.segs[s].glow, d.pts[s], d.pts[s+1], 0.072);
+    }
+  });
+  // 会聚点位置与呼吸
+  const fp=lastFocus;
+  focusCore.position.set(fp,0,0); focusGlow.position.set(fp,0,0);
+  const pulse=1+0.14*Math.sin(t*3.2);
+  focusGlow.scale.setScalar(pulse);
+  // 视网膜光斑大小 = 弥散圆半径（取最大光线的偏差）
+  const blur=Math.min(1.35, focusInfo.blur||0);
+  const spotR=Math.max(0.05, blur*0.9);
+  spot.scale.set(spotR,spotR,1);
+  spot.material.opacity = focusInfo.clear?0.98:0.5;
+  // 流动亮点沿路径运动
+  flows.forEach((f,i)=>{
+    const d=rayVisuals[i].data; if(!d) return;
+    f.userData.t=(f.userData.t+0.0035)%1;
+    const q=f.userData.t, pts=d.pts;
+    // 近似按四段等长插值
+    const seg=Math.min(3,Math.floor(q*4)), s=q*4-seg;
+    f.position.copy(pts[seg]).lerp(pts[seg+1],s);
+    f.material.opacity=0.55+0.4*Math.sin(q*Math.PI);
+  });
+  // 镜片平滑归位 + 缩放（拖动中的镜片不干预，保持被抓取的状态）
+  for(const key of ['concave','convex']){
+    const o=lensObj[key];
+    if(o.target && dragging!==key) o.mesh.position.lerp(o.target,0.18);
+    if(dragging!==key && o.targetScale){
+      const s=THREE.MathUtils.lerp(o.mesh.scale.x, o.targetScale, 0.18);
+      o.mesh.scale.setScalar(s);
+    }
+  }
+  // 结构标注：标签固定在画面外围，引线连回 3D 结构锚点
+  labelDefs.forEach(d=>{
+    const el=labelEls[d.key], L=leaderEls[d.key];
+    const lx=d.pos[0]/100*innerWidth, ly=d.pos[1]/100*innerHeight;
+    el.style.left=lx+'px'; el.style.top=ly+'px';
+    _v.copy(d.anchor()).project(camera);
+    if(_v.z>1){ el.style.opacity=0; L.line.style.opacity=0; L.dot.style.opacity=0; return; }
+    el.style.opacity=1;
+    const ax=(_v.x*.5+.5)*innerWidth, ay=(-_v.y*.5+.5)*innerHeight;
+    L.line.setAttribute('x1',lx); L.line.setAttribute('y1',ly);
+    L.line.setAttribute('x2',ax); L.line.setAttribute('y2',ay);
+    L.dot.setAttribute('cx',ax); L.dot.setAttribute('cy',ay);
+    L.line.style.opacity=1; L.dot.style.opacity=1;
+  });
+  // 会聚点徽章：跟随实际焦点放在上方；"像"徽章贴在视网膜成像处放下方，避免两者重叠
+  // 焦点在视网膜后方时徽章左移避开右侧按钮，并用引线连回真实焦点
+  const shifted = focusInfo.offset>0.15;
+  const badgeX = shifted ? Math.min(fp, EYE.cx+EYE.R+0.2) : fp;
+  project(focusBadge, new THREE.Vector3(badgeX, focusInfo.clear?1.05:1.25, 0));
+  project(imageBadge, new THREE.Vector3(OPT.xRetina-0.1, focusInfo.clear?-1.15:-1.55, 0));
+  if(shifted){
+    const ax=parseFloat(focusBadge.style.left), ay=parseFloat(focusBadge.style.top)+10;
+    _v.set(fp,0,0).project(camera);
+    const bx=(_v.x*.5+.5)*innerWidth, by=(-_v.y*.5+.5)*innerHeight;
+    const len=Math.hypot(bx-ax,by-ay);
+    focusLeader.style.left=ax+'px'; focusLeader.style.top=ay+'px';
+    focusLeader.style.width=len+'px';
+    focusLeader.style.transform='rotate('+Math.atan2(by-ay,bx-ax)+'rad)';
+    focusLeader.style.opacity=1;
+  }else focusLeader.style.opacity=0;
+  for(const key of ['concave','convex']){
+    const o=lensObj[key];
+    o.mesh.updateMatrixWorld();
+    _v.setFromMatrixPosition(o.mesh.matrixWorld);
+    project(lensLabels[key], _v.clone().add(new THREE.Vector3(0,-1.4,0)));
+    lensLabels[key].style.opacity = (key===state.lens||o.mesh.position.distanceTo(o.home)<0.3)?1:0.85;
+  }
+  renderer.render(scene,camera);
+}
+
+addEventListener('resize',()=>{
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  placeCamera();
+});
+
+refresh();
+animate();
+setTimeout(()=>{ const l=document.getElementById('loading'); l.style.opacity=0; setTimeout(()=>l.remove(),520); }, 700);
+</script>
 </body>
 </html>

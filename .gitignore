@@ -85,3 +85,7 @@ public/models/heart-optimized.glb
 
 # 运行时上传附件（本地保留，不进仓库）
 server/storage/feedback-attachments/
+
+# 本地临时下载与课件备份（非项目资源，不入库）
+.three-vendor-tmp/
+backups/

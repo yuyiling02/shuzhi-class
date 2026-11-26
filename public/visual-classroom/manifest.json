@@ -1050,6 +1050,44 @@
                       "missingAssets": false
                     }
                   ]
+                },
+                {
+                  "id": "c08",
+                  "name": "粒子与量子世界",
+                  "lessons": [
+                    {
+                      "id": "p0182",
+                      "name": "α粒子散射实验",
+                      "url": "/visual-classroom/physics/g8/a/c08/p0182.html",
+                      "source": "八年级上册可视化html/a粒子散射实验.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0183",
+                      "name": "光电效应",
+                      "url": "/visual-classroom/physics/g8/a/c08/p0183.html",
+                      "source": "八年级上册可视化html/光电效应.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0184",
+                      "name": "玻尔氢原子模型",
+                      "url": "/visual-classroom/physics/g8/a/c08/p0184.html",
+                      "source": "八年级上册可视化html/波尔氢原子模型.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0185",
+                      "name": "波粒二象性",
+                      "url": "/visual-classroom/physics/g8/a/c08/p0185.html",
+                      "source": "八年级上册可视化html/波粒二象性.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    }
+                  ]
                 }
               ]
             },
@@ -1136,6 +1174,14 @@
                       "name": "｜P60｜飞机升力产生原理",
                       "url": "/visual-classroom/physics/g8/b/c02/p0106.html",
                       "source": "八年级下册/｜P60｜飞机升力产生原理.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0186",
+                      "name": "活塞式抽水机",
+                      "url": "/visual-classroom/physics/g8/b/c02/p0186.html",
+                      "source": "八年级上册及选必三第一单元可视化/活塞式抽水机.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -1874,6 +1920,20 @@
                       "name": "13.5能量量子化",
                       "url": "/visual-classroom/physics/g2/a/c05/p0177.html",
                       "source": "必修三可视化HTML/13.5能量量子化.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    }
+                  ]
+                },
+                {
+                  "id": "c06",
+                  "name": "分子动理论",
+                  "lessons": [
+                    {
+                      "id": "p0187",
+                      "name": "油膜法估测油酸分子大小",
+                      "url": "/visual-classroom/physics/g2/a/c06/p0187.html",
+                      "source": "八年级上册及选必三第一单元可视化/油膜法估测油酸分子大小.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }

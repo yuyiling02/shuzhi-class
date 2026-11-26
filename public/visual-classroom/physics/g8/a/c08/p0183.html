@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光电效应 · 交互式演示模拟器</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#0a1420;
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+  #app { position:fixed; inset:0; }
+  canvas { display:block; }
+
+  /* ---------- 顶部标题 ---------- */
+  #titlebar {
+    position:fixed; top:18px; left:24px; z-index:10; pointer-events:none;
+  }
+  #titlebar h1 {
+    font-size:21px; color:#d6e9ff; letter-spacing:2px; font-weight:700;
+    text-shadow:0 0 14px rgba(80,160,255,.35);
+  }
+  #titlebar .sub { font-size:12px; color:#6f8fb0; margin-top:4px; letter-spacing:1px; }
+
+  /* ---------- 数据面板 ---------- */
+  #panel {
+    position:fixed; top:16px; right:20px; z-index:10; width:198px;
+    background:rgba(8,20,38,.74); backdrop-filter:blur(12px);
+    border:1px solid rgba(80,135,205,.45); border-radius:12px;
+    padding:11px 13px 10px; box-shadow:0 8px 26px rgba(0,10,30,.5);
+  }
+  #panel h2 { font-size:13px; color:#7cb8e8; margin-bottom:4px; letter-spacing:2px; }
+  #panel .mini { font-size:10.5px; color:#5c7896; margin-bottom:6px; }
+  #panel .row { display:flex; justify-content:space-between; font-size:12px;
+    color:#9db8d4; padding:2.5px 0; }
+  #panel .row b { color:#eaf4ff; font-weight:600; font-variant-numeric:tabular-nums; }
+  #panel .row.off b { color:#5c7896; }
+  #status {
+    margin-top:7px; font-size:11px; line-height:1.5; color:#a8d4f5;
+    background:rgba(60,130,210,.14); border-radius:8px; padding:6px 8px;
+    border:1px solid rgba(110,170,230,.3);
+  }
+  #status.block { background:rgba(220,150,30,.14); border-color:rgba(240,180,70,.4); color:#f5c76a; }
+  #status.zero { background:rgba(220,70,70,.14); border-color:rgba(240,110,110,.4); color:#f09a9a; }
+
+  /* ---------- 控制栏 ---------- */
+  #controls {
+    position:fixed; left:50%; transform:translateX(-50%); bottom:16px; z-index:10;
+    background:rgba(8,20,38,.78); backdrop-filter:blur(12px);
+    border:1px solid rgba(80,135,205,.45); border-radius:16px;
+    padding:12px 18px 14px; display:flex; gap:26px; align-items:center;
+    box-shadow:0 10px 30px rgba(0,10,30,.55); flex-wrap:wrap; justify-content:center;
+    max-width:96vw;
+  }
+  .ctrl { display:flex; flex-direction:column; gap:5px; min-width:170px; }
+  .ctrl label { font-size:12px; color:#9db8d4; display:flex; justify-content:space-between; }
+  .ctrl label b { color:#eaf4ff; font-variant-numeric:tabular-nums; }
+  input[type=range] { -webkit-appearance:none; height:5px; border-radius:3px;
+    background:linear-gradient(90deg,#27537f,#4aa3ff); outline:none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px;
+    border-radius:50%; background:#eaf4ff; border:2px solid #4aa3ff; cursor:pointer;
+    box-shadow:0 0 8px rgba(80,170,255,.6); }
+  .btnrow { display:flex; gap:6px; }
+  .btn {
+    border:1px solid rgba(90,150,220,.5); background:rgba(60,120,200,.14); color:#9cc8f5; font-size:12px;
+    border-radius:8px; padding:5px 10px; cursor:pointer; transition:.15s;
+  }
+  .btn:hover { background:rgba(60,120,200,.3); }
+  .btn.active { background:#2f7fd6; color:#fff; border-color:#4aa3ff;
+    box-shadow:0 0 10px rgba(80,160,255,.5); }
+  .btn.reset { background:rgba(220,70,90,.14); border-color:rgba(240,110,130,.5); color:#ff9aa8; }
+  .btn.reset:hover { background:rgba(220,70,90,.3); }
+
+  /* ---------- 3D 标签 ---------- */
+  .tag3d {
+    position:fixed; z-index:5; transform:translate(-50%,-50%);
+    font-size:12px; font-weight:600; letter-spacing:1px;
+    color:#dcecff; background:rgba(10,26,50,.85);
+    border:1px solid rgba(110,170,235,.6); border-radius:8px;
+    padding:2px 9px; white-space:nowrap; pointer-events:none;
+    box-shadow:0 2px 10px rgba(0,10,30,.5), 0 0 8px rgba(80,160,255,.15);
+    transition:opacity .25s;
+  }
+  .tag3d::after {
+    content:""; position:absolute; left:50%; top:100%;
+    width:1px; height:14px; background:rgba(110,170,235,.7);
+    transform:translateX(-50%);
+  }
+  .tag3d.warn { color:#ffd08a; border-color:rgba(245,180,80,.6); background:rgba(50,34,8,.85); }
+  .hint { position:fixed; bottom:14px; right:20px; z-index:9; font-size:11px;
+    color:#5c7896; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="titlebar">
+  <h1>光电效应 · 交互式演示模拟器</h1>
+  <div class="sub">高中物理 · 光的粒子性 —— 光电子的产生只取决于频率，与光照强度无关</div>
+</div>
+
+<div id="panel">
+  <h2>实验数据</h2>
+  <div class="mini">ν₀ = 4.55×10¹⁴ Hz · W₀ = 1.88 eV（铯）</div>
+  <div class="row"><span>频率 ν / 波长 λ</span><b id="dFreqWave">–</b></div>
+  <div class="row"><span>光子能量 hν</span><b id="dE">–</b></div>
+  <div class="row" id="rowEk"><span>最大初动能 Ek</span><b id="dEk">0 eV</b></div>
+  <div class="row" id="rowUc"><span>遏止电压 Uc = Ek/e</span><b id="dUc">0 V</b></div>
+  <div class="row"><span>光电流 I</span><b id="dI">0.0 μA</b></div>
+  <div id="status">–</div>
+</div>
+
+<div id="controls">
+  <div class="ctrl">
+    <label><span>光的频率 ν (×10¹⁴ Hz)</span><b id="vFreq">5.20</b></label>
+    <input type="range" id="sFreq" min="300" max="1200" step="5" value="520">
+    <div class="btnrow" id="presets">
+      <button class="btn" data-f="430">红光</button>
+      <button class="btn active" data-f="520">黄光</button>
+      <button class="btn" data-f="640">蓝光</button>
+      <button class="btn" data-f="900">紫外</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label><span>光强 I（光子数目）</span><b id="vInt">60%</b></label>
+    <input type="range" id="sInt" min="0" max="100" step="1" value="60">
+  </div>
+  <div class="ctrl">
+    <label><span>反向遏止电压 U</span><b id="vU">0.00 V</b></label>
+    <input type="range" id="sU" min="0" max="5" step="0.01" value="0">
+  </div>
+  <div class="ctrl" style="min-width:auto;justify-content:flex-end;">
+    <button class="btn reset" id="btnReset" style="padding:8px 16px;">重置实验</button>
+  </div>
+</div>
+<div class="hint">拖动旋转视角 · 滚轮缩放</div>
+
+<script src="../../../../vendor/three/r128/three.min.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* ================= 物理常量 ================= */
+const H_EV = 4.136e-15;          // eV·s
+const C_LIGHT = 3e8;
+const W0 = 1.88;                 // 逸出功 eV
+const NU0 = W0 / H_EV;           // 极限频率 ≈ 4.55e14 Hz
+const CATHODE_X = -0.85, ANODE_X = 0.55, FLY_D = ANODE_X - CATHODE_X;
+const LAMP_NOZZLE_X = -6.0;      // 光束出口
+
+/* ================= 场景基础 ================= */
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a1420);
+scene.fog = new THREE.Fog(0x0a1420, 26, 85);
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, .1, 200);
+camera.position.set(6.5, 5.2, 12.5);
+camera.lookAt(0, 2.2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+app.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 2.0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = .06;
+controls.minDistance = 5; controls.maxDistance = 30;
+controls.maxPolarAngle = Math.PI/2 * .96;
+
+/* ---- 环境反射贴图（让金属有真实高光层次） ---- */
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envScene = new THREE.Scene();
+envScene.background = new THREE.Color(0x0a1420);
+function envPanel(x, y, z, w, h, col) {
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+    new THREE.MeshBasicMaterial({ color: col }));
+  p.position.set(x, y, z); p.lookAt(0, 0, 0); envScene.add(p);
+}
+envPanel(0, 10, 0, 9, 9, 0x9fd0ff);
+envPanel(10, 5, 6, 5, 5, 0x4aa3ff);
+envPanel(-10, 5, 6, 5, 5, 0x2f5f9f);
+scene.environment = pmrem.fromScene(envScene, .04).texture;
+
+/* ---- 灯光 ---- */
+scene.add(new THREE.HemisphereLight(0x9fc4ff, 0x0a1420, .45));
+const dir = new THREE.DirectionalLight(0xeaf2ff, .8);
+dir.position.set(6, 12, 8);
+dir.castShadow = true;
+dir.shadow.mapSize.set(2048, 2048);
+dir.shadow.camera.left = -14; dir.shadow.camera.right = 14;
+dir.shadow.camera.top = 14; dir.shadow.camera.bottom = -14;
+scene.add(dir);
+const fill = new THREE.DirectionalLight(0x8fb8ff, .5);
+fill.position.set(-8, 6, -6); scene.add(fill);
+const accent1 = new THREE.PointLight(0x66ccff, .8, 22);
+accent1.position.set(0, 6.5, 4.5); scene.add(accent1);
+const accent2 = new THREE.PointLight(0x3b82f6, .55, 20);
+accent2.position.set(-9, 5, -4); scene.add(accent2);
+
+/* ============================================================
+   远景层：背景墙 / 仪器柜 / 顶灯
+============================================================ */
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(90, 90),
+  new THREE.MeshStandardMaterial({ color:0x0f1d33, roughness:.85, metalness:.1 })
+);
+floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+const grid = new THREE.GridHelper(60, 60, 0x2a527e, 0x18304b);
+grid.position.y = .01; scene.add(grid);
+
+const wall = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 18),
+  new THREE.MeshStandardMaterial({ color:0x0e1b30, roughness:1 })
+);
+wall.position.set(0, 9, -14); scene.add(wall);
+for (let i = -2; i <= 2; i++) {
+  const strip = new THREE.Mesh(
+    new THREE.BoxGeometry(.5, 10, .12),
+    new THREE.MeshStandardMaterial({ color:0x16304f, roughness:.5,
+      emissive:0x2f7fd6, emissiveIntensity:.35 })
+  );
+  strip.position.set(i*5.2, 5.4, -13.85); scene.add(strip);
+}
+/* 顶灯面板 */
+[[-5, 9.6, -3], [6, 9.6, -6]].forEach(([x,,z]) => {
+  const lamp = new THREE.Mesh(new THREE.PlaneGeometry(6, 2.4),
+    new THREE.MeshBasicMaterial({ color:0x9fc8ff, transparent:true, opacity:.9,
+      side:THREE.DoubleSide }));
+  lamp.rotation.x = Math.PI/2; lamp.position.set(x, 9.6, z); scene.add(lamp);
+});
+/* 仪器柜（中远景，带指示灯阵列） */
+function makeRack(x) {
+  const g = new THREE.Group();
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.8, .7),
+    new THREE.MeshStandardMaterial({ color:0x0f1c30, roughness:.55, metalness:.3 }));
+  cab.position.y = 1.4; cab.castShadow = true; g.add(cab);
+  const ledCols = [0x22c55e, 0xf59e0b, 0x38bdf8, 0x22c55e];
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 6; c++) {
+      const led = new THREE.Mesh(new THREE.BoxGeometry(.07, .07, .03),
+        new THREE.MeshBasicMaterial({ color: ledCols[(r+c) % 4] }));
+      led.position.set(-1.1 + c*.44, .6 + r*.55, .37); g.add(led);
+    }
+  g.position.set(x, 0, -9.5); scene.add(g);
+}
+makeRack(-10.5); makeRack(10.5);
+
+/* ============================================================
+   中景层：光学台 + 带刻度导轨
+============================================================ */
+function tableTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#122640'; g.fillRect(0,0,256,256);
+  g.strokeStyle = '#0d1e33'; g.lineWidth = 2;
+  for (let i = 0; i <= 256; i += 32) {
+    g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.stroke();
+    g.beginPath(); g.moveTo(0,i); g.lineTo(256,i); g.stroke();
+  }
+  g.fillStyle = '#0a1626';
+  for (let x = 16; x < 256; x += 32)
+    for (let y = 16; y < 256; y += 32) {
+      g.beginPath(); g.arc(x, y, 4.5, 0, Math.PI*2); g.fill();
+    }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(14, 4);
+  return t;
+}
+const bench = new THREE.Mesh(
+  new THREE.BoxGeometry(20, .5, 6),
+  new THREE.MeshStandardMaterial({ map: tableTexture(), color:0xffffff,
+    roughness:.6, metalness:.2 })
+);
+bench.position.set(0, -.28, 0); bench.receiveShadow = true; bench.castShadow = true;
+scene.add(bench);
+
+/* 导轨 + 刻度条 */
+const rail = new THREE.Mesh(
+  new THREE.BoxGeometry(16.5, .22, 1.5),
+  new THREE.MeshStandardMaterial({ color:0x3d5f86, roughness:.25, metalness:.9 })
+);
+rail.position.set(0, .12, 0); rail.castShadow = rail.receiveShadow = true; scene.add(rail);
+function scaleTexture() {
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = '#223d5c'; g.fillRect(0,0,1024,64);
+  g.fillStyle = '#cfe3f7';
+  for (let i = 0; i <= 64; i++) {
+    const x = 16 + i*15.6;
+    g.fillRect(x, i%4===0 ? 12 : 24, 2, i%4===0 ? 40 : 20);
+    if (i%8===0) { g.font = '13px sans-serif'; g.fillText(String(i), x-5, 12); }
+  }
+  return new THREE.CanvasTexture(c);
+}
+const scaleStrip = new THREE.Mesh(new THREE.BoxGeometry(15.6, .18, .02),
+  new THREE.MeshBasicMaterial({ map: scaleTexture() }));
+scaleStrip.position.set(0, .12, .76); scene.add(scaleStrip);
+
+/* 通用：底座夹具（底板 + 双旋钮，仿真气动台夹持件） */
+function clampMount(x, z, w) {
+  const g = new THREE.Group();
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(w, .07, .95),
+    new THREE.MeshStandardMaterial({ color:0x2a415c, roughness:.4, metalness:.7 }));
+  plate.position.y = .27; plate.castShadow = true; g.add(plate);
+  [-1, 1].forEach(s => {
+    const knob = new THREE.Mesh(new THREE.CylinderGeometry(.09, .09, .16, 14),
+      new THREE.MeshStandardMaterial({ color:0x141d29, roughness:.5 }));
+    knob.rotation.x = Math.PI/2;
+    knob.position.set(s*(w/2-.12), .27, .42); g.add(knob);
+  });
+  g.position.set(x, 0, z); scene.add(g); return g;
+}
+
+/* 通用细管（内部电极支撑 / 线缆） */
+function tube(pts, r, color) {
+  const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)));
+  const mesh = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 40, r, 8),
+    new THREE.MeshStandardMaterial({ color, roughness:.55, metalness:.25 })
+  );
+  scene.add(mesh); return mesh;
+}
+
+/* ============================================================
+   主体层：仿真光电管（玻璃泡 + 胶木管座 + 支架）
+============================================================ */
+const tubeGroup = new THREE.Group(); scene.add(tubeGroup);
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color:0xcfe8ff, transparent:true, opacity:.16, roughness:.04, metalness:0,
+  clearcoat:1, clearcoatRoughness:.06, depthWrite:false });
+/* 玻璃泡 */
+const bulb = new THREE.Mesh(new THREE.SphereGeometry(1.3, 48, 32), glassMat);
+bulb.position.set(0, 2.55, 0); tubeGroup.add(bulb);
+/* 玻璃颈管 */
+const neck = new THREE.Mesh(new THREE.CylinderGeometry(.22, .28, .5, 24, 1, true), glassMat);
+neck.position.set(0, 1.61, 0); tubeGroup.add(neck);
+/* 胶木管座 */
+const base = new THREE.Mesh(new THREE.CylinderGeometry(.45, .48, .5, 28),
+  new THREE.MeshStandardMaterial({ color:0x141a22, roughness:.4, metalness:.15 }));
+base.position.set(0, 1.18, 0); base.castShadow = true; tubeGroup.add(base);
+/* 基座铭牌环 */
+const baseRing = new THREE.Mesh(new THREE.TorusGeometry(.455, .02, 8, 40),
+  new THREE.MeshStandardMaterial({ color:0x8a97a5, metalness:.85, roughness:.3 }));
+baseRing.rotation.x = Math.PI/2; baseRing.position.set(0, .94, 0); tubeGroup.add(baseRing);
+/* 四只引脚 */
+[[.1,.1],[-.1,.1],[.1,-.1],[-.1,-.1]].forEach(([px, pz]) => {
+  const pin = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .17, 10),
+    new THREE.MeshStandardMaterial({ color:0xd9c37a, metalness:.9, roughness:.3 }));
+  pin.position.set(px, .87, pz); tubeGroup.add(pin);
+});
+/* 阴极：弧形金属镀层板（贴玻璃泡内壁，凹面朝向阳极） */
+const cathodeBack = new THREE.Mesh(
+  new THREE.CylinderGeometry(.60, .60, .78, 28, 1, true, -Math.PI/2-.65, 1.3),
+  new THREE.MeshStandardMaterial({ color:0x5f6c7a, roughness:.4, metalness:.8 }));
+cathodeBack.position.set(-.35, 2.55, 0); cathodeBack.castShadow = true; tubeGroup.add(cathodeBack);
+const cathodeCoat = new THREE.Mesh(
+  new THREE.CylinderGeometry(.55, .55, .74, 28, 1, true, -Math.PI/2-.6, 1.2),
+  new THREE.MeshStandardMaterial({ color:0xe0b45e, roughness:.3, metalness:.8,
+    emissive:0x8a6a20, emissiveIntensity:.35, side:THREE.DoubleSide }));
+cathodeCoat.position.set(-.35, 2.55, 0); tubeGroup.add(cathodeCoat);
+/* 阳极：竖直金属薄板 */
+const anode = new THREE.Mesh(new THREE.BoxGeometry(.05, .85, .6),
+  new THREE.MeshStandardMaterial({ color:0xc9d6e2, roughness:.2, metalness:.95 }));
+anode.position.set(ANODE_X, 2.55, 0); anode.castShadow = true; tubeGroup.add(anode);
+/* 电极内部支撑杆（汇入颈管） */
+tube([[-.5, 2.14, 0], [-.28, 1.8, 0], [-.05, 1.5, 0]], .022, 0x6b7683);
+tube([[ANODE_X, 2.14, 0], [.3, 1.8, 0], [.05, 1.5, 0]], .022, 0x6b7683);
+/* 光电管支架：立柱 + 管座 */
+clampMount(0, 0, .95);
+const tubePost = new THREE.Mesh(new THREE.CylinderGeometry(.07, .09, .4, 14),
+  new THREE.MeshStandardMaterial({ color:0x3d5f86, metalness:.8, roughness:.3 }));
+tubePost.position.set(0, .5, 0); tubePost.castShadow = true; scene.add(tubePost);
+const socket = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .08, 28),
+  new THREE.MeshStandardMaterial({ color:0x1b2430, roughness:.5 }));
+socket.position.set(0, .745, 0); socket.castShadow = true; scene.add(socket);
+
+/* ============================================================
+   主体层：仿真光源（散热外壳 + 镜筒 + 滤光转轮 + 电源线）
+============================================================ */
+const lampGroup = new THREE.Group(); scene.add(lampGroup);
+clampMount(-7.55, 0, 1.15);
+const lampPost = new THREE.Mesh(new THREE.BoxGeometry(.16, 1.62, .16),
+  new THREE.MeshStandardMaterial({ color:0x3d5f86, metalness:.8, roughness:.3 }));
+lampPost.position.set(-7.55, 1.11, 0); lampPost.castShadow = true; lampGroup.add(lampPost);
+/* 铝制散热外壳 + 散热鳍片 */
+const housing = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.25, 1.25),
+  new THREE.MeshStandardMaterial({ color:0x22344c, roughness:.35, metalness:.75 }));
+housing.position.set(-7.55, 2.55, 0); housing.castShadow = true; lampGroup.add(housing);
+for (let i = 0; i < 4; i++) {
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(1.3, .05, 1.1),
+    new THREE.MeshStandardMaterial({ color:0x2c4258, metalness:.75, roughness:.35 }));
+  fin.position.set(-7.55, 3.25 + i*.09, 0); lampGroup.add(fin);
+}
+/* 电源指示灯 */
+const lampLed = new THREE.Mesh(new THREE.SphereGeometry(.045, 10, 8),
+  new THREE.MeshBasicMaterial({ color:0xff5555 }));
+lampLed.position.set(-7.0, 3.02, .64); lampGroup.add(lampLed);
+/* 镜筒 + 透镜 */
+const barrel = new THREE.Mesh(new THREE.CylinderGeometry(.52, .58, .6, 26),
+  new THREE.MeshStandardMaterial({ color:0x1a2836, roughness:.35, metalness:.7 }));
+barrel.rotation.z = Math.PI/2; barrel.position.set(-6.55, 2.55, 0);
+barrel.castShadow = true; lampGroup.add(barrel);
+const lens = new THREE.Mesh(new THREE.CircleGeometry(.44, 28),
+  new THREE.MeshPhysicalMaterial({ color:0xa8d4ff, transparent:true, opacity:.22,
+    roughness:.05, clearcoat:1, depthWrite:false }));
+lens.rotation.y = Math.PI/2; lens.position.set(-6.24, 2.55, 0); lampGroup.add(lens);
+/* 滤光转轮（颜色随频率变化） */
+const filterDisc = new THREE.Mesh(new THREE.CircleGeometry(.75, 32),
+  new THREE.MeshStandardMaterial({ color:0xffd54a, roughness:.25, transparent:true, opacity:.94 }));
+filterDisc.rotation.y = Math.PI/2; filterDisc.position.set(-6.05, 2.55, 0); lampGroup.add(filterDisc);
+const filterFrame = new THREE.Mesh(new THREE.TorusGeometry(.75, .045, 10, 36),
+  new THREE.MeshStandardMaterial({ color:0x35506b, metalness:.6, roughness:.35 }));
+filterFrame.rotation.y = Math.PI/2; filterFrame.position.copy(filterDisc.position); lampGroup.add(filterFrame);
+const wheelHub = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, .1, 16),
+  new THREE.MeshStandardMaterial({ color:0x141d29, metalness:.6, roughness:.4 }));
+wheelHub.rotation.z = Math.PI/2; wheelHub.position.set(-5.9, 2.55, 0); lampGroup.add(wheelHub);
+const wheelMotor = new THREE.Mesh(new THREE.BoxGeometry(.4, .5, .5),
+  new THREE.MeshStandardMaterial({ color:0x1a2836, metalness:.6, roughness:.4 }));
+wheelMotor.position.set(-5.6, 2.55, 0); wheelMotor.castShadow = true; lampGroup.add(wheelMotor);
+/* 光源电源线 */
+tube([[-7.55, 1.9, .55], [-7.55, .9, 1.5], [-7.3, .12, 2.1]], .05, 0x1a1f26);
+
+/* 光子材质（辉光贴图） */
+function glowTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const rg = g.createRadialGradient(32,32,0,32,32,32);
+  rg.addColorStop(0,'rgba(255,255,255,1)');
+  rg.addColorStop(.35,'rgba(255,255,255,.65)');
+  rg.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = rg; g.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c);
+}
+const GLOW = glowTexture();
+function makeGlowSprite(color, scale) {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({
+    map:GLOW, color:color, transparent:true, opacity:.9,
+    blending:THREE.AdditiveBlending, depthWrite:false }));
+  s.scale.setScalar(scale); return s;
+}
+
+/* 光束 */
+const BEAM_LEN = CATHODE_X - LAMP_NOZZLE_X;
+const beamMat = new THREE.MeshBasicMaterial({ color:0xffd54a, transparent:true,
+  opacity:.3, blending:THREE.AdditiveBlending, depthWrite:false });
+const beam = new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,BEAM_LEN,20,1,true), beamMat);
+beam.rotation.z = Math.PI/2;
+beam.position.set(LAMP_NOZZLE_X + BEAM_LEN/2, 2.55, 0); scene.add(beam);
+
+/* ============================================================
+   主体层：仿真面板电表（象牙表壳 + 内嵌表盘 + 玻璃面 + 端子）
+============================================================ */
+function dialTexture(title, maxText) {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fbfdff'; g.beginPath(); g.arc(128,128,124,0,Math.PI*2); g.fill();
+  g.strokeStyle = '#8fb3cf'; g.lineWidth = 4; g.stroke();
+  g.strokeStyle = '#33566f'; g.fillStyle = '#33566f';
+  g.lineWidth = 3;
+  for (let i = 0; i <= 10; i++) {
+    const a = Math.PI*(7/6) + Math.PI*(8/6)*(i/10);
+    const x1 = 128+Math.cos(a)*96, y1 = 128+Math.sin(a)*96;
+    const x2 = 128+Math.cos(a)*(i%5===0?82:88), y2 = 128+Math.sin(a)*(i%5===0?82:88);
+    g.beginPath(); g.moveTo(x1,y1); g.lineTo(x2,y2); g.stroke();
+    if (i%5===0) {
+      g.font = 'bold 17px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(String(i/5*10), 128+Math.cos(a)*68, 128+Math.sin(a)*68);
+    }
+  }
+  g.font = 'bold 20px sans-serif'; g.fillStyle = '#1e3a5f';
+  g.fillText(maxText, 128, 190);
+  g.font = '15px sans-serif'; g.fillStyle = '#5b7a99';
+  g.fillText(title, 128, 218);
+  return new THREE.CanvasTexture(c);
+}
+function makeMeter(x, title, maxText) {
+  const grp = new THREE.Group();
+  /* 象牙色表壳 */
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.9, 1.1),
+    new THREE.MeshStandardMaterial({ color:0xdfe0d8, roughness:.45, metalness:.05 }));
+  body.position.y = .95; body.castShadow = true; grp.add(body);
+  /* 底脚 */
+  [-1, 1].forEach(s => {
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(.32, .08, .9),
+      new THREE.MeshStandardMaterial({ color:0x141d29, roughness:.6 }));
+    foot.position.set(s*.55, .04, 0); grp.add(foot);
+  });
+  /* 深色表框（内嵌层次） */
+  const frameTop = new THREE.Mesh(new THREE.BoxGeometry(1.5, .16, .09),
+    new THREE.MeshStandardMaterial({ color:0x141d29, roughness:.5 }));
+  frameTop.position.set(0, .88, .56); grp.add(frameTop);
+  const frameBot = frameTop.clone(); frameBot.position.y = -.58; grp.add(frameBot);
+  [-1, 1].forEach(s => {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(.16, 1.38, .09),
+      new THREE.MeshStandardMaterial({ color:0x141d29, roughness:.5 }));
+    side.position.set(s*.67, .15, .56); grp.add(side);
+  });
+  /* 表盘 */
+  const face = new THREE.Mesh(new THREE.CircleGeometry(.62, 40),
+    new THREE.MeshBasicMaterial({ map:dialTexture(title,maxText) }));
+  face.position.set(0, .15, .57); grp.add(face);
+  /* 指针 + 轴帽 */
+  const needle = new THREE.Mesh(new THREE.BoxGeometry(.045, .52, .015),
+    new THREE.MeshBasicMaterial({ color:0xd63b3b }));
+  needle.geometry.translate(0, .26, 0);
+  needle.position.set(0, .15, .585); grp.add(needle);
+  const pin = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .03, 14),
+    new THREE.MeshBasicMaterial({ color:0x33566f }));
+  pin.rotation.x = Math.PI/2; pin.position.set(0, .15, .59); grp.add(pin);
+  /* 玻璃面盖 */
+  const glass = new THREE.Mesh(new THREE.CircleGeometry(.64, 36),
+    new THREE.MeshPhysicalMaterial({ color:0xcfe8ff, transparent:true, opacity:.09,
+      roughness:.05, clearcoat:1, depthWrite:false }));
+  glass.position.set(0, .15, .61); grp.add(glass);
+  /* 调零螺丝 */
+  const zero = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .04, 10),
+    new THREE.MeshStandardMaterial({ color:0x33566f, metalness:.7, roughness:.35 }));
+  zero.rotation.x = Math.PI/2; zero.position.set(0, -.75, .56); grp.add(zero);
+  /* 顶部端子（红/黑） */
+  const postCol = [0xc0392b, 0x1c1c1c];
+  [-1, 1].forEach((s, i) => {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .18, 12),
+      new THREE.MeshStandardMaterial({ color:postCol[i], metalness:.5, roughness:.4 }));
+    post.position.set(s*.5, 1.99, .3); grp.add(post);
+  });
+  grp.position.set(x, .07, 1.55); scene.add(grp);
+  return { grp, needle };
+}
+const ammeter = makeMeter(3.6, '电流表', 'μA');
+const voltmeter = makeMeter(6.0, '电压表', 'V');
+
+/* ============================================================
+   主体层：直流稳压电源（显示屏 + 旋钮 + 端子 + 电源灯）
+============================================================ */
+function supplyDisplayTexture() {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0a0f14'; g.fillRect(0,0,256,96);
+  g.strokeStyle = '#1d2b3a'; g.lineWidth = 4; g.strokeRect(2,2,252,92);
+  g.fillStyle = '#ffb347'; g.font = 'bold 44px monospace';
+  g.textAlign = 'center'; g.fillText('0-5.0 V', 128, 62);
+  return new THREE.CanvasTexture(c);
+}
+const supply = new THREE.Group();
+const supBody = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.1, 1.0),
+  new THREE.MeshStandardMaterial({ color:0x1c2c42, roughness:.4, metalness:.45 }));
+supBody.position.y = .57; supBody.castShadow = true; supply.add(supBody);
+[-1, 1].forEach(s => {
+  const foot = new THREE.Mesh(new THREE.BoxGeometry(.28, .08, .8),
+    new THREE.MeshStandardMaterial({ color:0x141d29, roughness:.6 }));
+  foot.position.set(s*.6, .04, 0); supply.add(foot);
+});
+const disp = new THREE.Mesh(new THREE.PlaneGeometry(.9, .34),
+  new THREE.MeshBasicMaterial({ map:supplyDisplayTexture() }));
+disp.position.set(.12, .78, .51); supply.add(disp);
+/* 旋钮 ×2 */
+[[-.55, 'coarse'], [.45, 'fine']].forEach(([kx]) => {
+  const knob = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, .12, 18),
+    new THREE.MeshStandardMaterial({ color:0x141d29, roughness:.45 }));
+  knob.rotation.x = Math.PI/2; knob.position.set(kx, .38, .52); supply.add(knob);
+  const mark = new THREE.Mesh(new THREE.BoxGeometry(.02, .09, .02),
+    new THREE.MeshBasicMaterial({ color:0xeaf4ff }));
+  mark.position.set(kx, .44, .585); supply.add(mark);
+});
+/* 电源灯 */
+const supLed = new THREE.Mesh(new THREE.SphereGeometry(.045, 10, 8),
+  new THREE.MeshBasicMaterial({ color:0x2ecc71 }));
+supLed.position.set(.6, .95, .52); supply.add(supLed);
+/* 顶部端子 */
+[[-.4, 0xc0392b], [.4, 0x1c1c1c]].forEach(([px, col]) => {
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .16, 12),
+    new THREE.MeshStandardMaterial({ color:col, metalness:.5, roughness:.4 }));
+  post.position.set(px, 1.2, .15); supply.add(post);
+});
+supply.position.set(8.1, .07, 1.55); scene.add(supply);
+
+/* ============================================================
+   细节层：香蕉插头导线（红/黑，插头端子）
+============================================================ */
+function bananaPlug(x, y, z, col) {
+  const plug = new THREE.Mesh(new THREE.CylinderGeometry(.07, .09, .16, 12),
+    new THREE.MeshStandardMaterial({ color:col, roughness:.4 }));
+  plug.position.set(x, y, z); scene.add(plug);
+}
+const RED = 0xb03535, BLACK = 0x1c1c1c;
+/* 阳极 → 电流表（红） */
+tube([[.1, .8, .15], [.5, .3, .6], [2.4, .09, 1.25], [3.1, .5, 1.8], [3.1, 2.0, 1.85]], .045, RED);
+bananaPlug(3.1, 2.09, 1.85, RED);
+/* 电流表 → 电压表（红） */
+tube([[4.1, 2.0, 1.85], [4.8, 2.42, 1.85], [5.5, 2.0, 1.85]], .045, RED);
+bananaPlug(4.1, 2.09, 1.85, RED); bananaPlug(5.5, 2.09, 1.85, RED);
+/* 电压表 → 电源负极（黑） */
+tube([[6.5, 2.0, 1.85], [7.2, 2.35, 1.8], [7.7, 1.5, 1.45], [7.7, 1.28, 1.4]], .045, BLACK);
+bananaPlug(6.5, 2.09, 1.85, BLACK); bananaPlug(7.7, 1.34, 1.4, BLACK);
+/* 电源 → 光电管阴极（黑） */
+tube([[8.5, 1.28, 1.4], [8.5, .15, 1.0], [4.5, .09, .7], [0, .3, -.45], [-.1, .8, -.15]], .045, BLACK);
+bananaPlug(8.5, 1.34, 1.4, BLACK);
+
+/* ================= 粒子系统 ================= */
+const photons = [], electrons = [], flashes = [];
+const photonGeo = new THREE.SphereGeometry(.055, 10, 8);
+const elecGeo = new THREE.SphereGeometry(.05, 10, 8);
+const elecMat = new THREE.MeshBasicMaterial({ color:0x7cd6ff });
+const MAX_PHOTON = 70, MAX_ELEC = 60;
+
+let freq = 5.20e14, intensity = 60, uRev = 0;
+let keMax = Math.max(0, H_EV*freq - W0);
+let uc = keMax;
+
+function freqColor(v) {
+  const lam = C_LIGHT / v;                 // m
+  const nm = lam * 1e9;
+  if (nm < 380) return new THREE.Color(0x8b5cf6);   // 紫外
+  let r=0,g=0,b=0;
+  if (nm<440){ r=-(nm-440)/60; b=1; }
+  else if (nm<490){ g=(nm-440)/50; b=1; }
+  else if (nm<510){ g=1; b=-(nm-510)/20; }
+  else if (nm<580){ r=(nm-510)/70; g=1; }
+  else if (nm<645){ r=1; g=-(nm-645)/65; }
+  else { r=1; }
+  return new THREE.Color(r,g,b);
+}
+
+function spawnPhoton() {
+  if (photons.length >= MAX_PHOTON) return;
+  const col = freqColor(freq);
+  const m = new THREE.Mesh(photonGeo, new THREE.MeshBasicMaterial({ color:col }));
+  const glow = makeGlowSprite(col, .55); m.add(glow);
+  const off = (Math.random()-.5)*.32, off2 = (Math.random()-.5)*.32;
+  m.position.set(LAMP_NOZZLE_X, 2.55+off, off2);
+  m.userData.v = 4.2; scene.add(m); photons.push(m);
+}
+function spawnFlash(x, col) {
+  const s = makeGlowSprite(col, .3);
+  s.position.set(x, 2.55 + (Math.random()-.5)*.55, (Math.random()-.5)*.4);
+  s.userData.life = 1; scene.add(s); flashes.push(s);
+}
+function spawnElectron() {
+  if (electrons.length >= MAX_ELEC) return;
+  const m = new THREE.Mesh(elecGeo, elecMat.clone());
+  const glow = makeGlowSprite(0x7cd6ff, .4); m.add(glow);
+  m.position.set(CATHODE_X + .1, 2.55 + (Math.random()-.5)*.75, (Math.random()-.5)*.45);
+  m.userData.dir = 1; m.userData.fade = 1;
+  scene.add(m); electrons.push(m);
+}
+
+/* ================= UI 绑定 ================= */
+const $ = id => document.getElementById(id);
+const sFreq=$('sFreq'), sInt=$('sInt'), sU=$('sU');
+const statusEl=$('status');
+let displayI = 0;
+
+function setPresetActive(f) {
+  document.querySelectorAll('#presets .btn').forEach(b =>
+    b.classList.toggle('active', Math.abs(+b.dataset.f - f) < 3));
+}
+function updatePhysics() {
+  freq = +sFreq.value * 1e12;
+  intensity = +sInt.value;
+  uRev = +sU.value;
+  const E = H_EV * freq;
+  keMax = Math.max(0, E - W0);
+  uc = keMax;
+  const nm = C_LIGHT / freq * 1e9;
+  const col = freqColor(freq);
+  beamMat.color.copy(col);
+  filterDisc.material.color.copy(nm<380 ? new THREE.Color(0x1a1030) : col);
+  beamMat.opacity = .08 + intensity/100 * .38;
+  $('vFreq').textContent = (+sFreq.value/100).toFixed(2);
+  $('vInt').textContent = intensity + '%';
+  $('vU').textContent = uRev.toFixed(2) + ' V';
+  $('dFreqWave').textContent = (+sFreq.value/100).toFixed(2) + '×10¹⁴ / ' + Math.round(nm) + ' nm';
+  $('dE').textContent = E.toFixed(2) + ' eV';
+  const canEmit = E > W0;
+  $('dEk').textContent = canEmit ? keMax.toFixed(2)+' eV' : '—';
+  $('dUc').textContent = canEmit ? uc.toFixed(2)+' V' : '—';
+  $('rowEk').className = 'row' + (canEmit?'':' off');
+  $('rowUc').className = 'row' + (canEmit?'':' off');
+  setPresetActive(+sFreq.value);
+
+  if (!canEmit) {
+    statusEl.className = 'block';
+    statusEl.innerHTML = 'ν &lt; ν₀：无论光强多大均无光电子逸出，I = 0';
+  } else if (uRev >= uc - 1e-9) {
+    statusEl.className = 'zero';
+    statusEl.innerHTML = 'U ≥ Uc = '+uc.toFixed(2)+' V：光电子被遏止，I = 0';
+  } else {
+    statusEl.className = '';
+    statusEl.innerHTML = 'ν &gt; ν₀：光电子逸出形成电流，光强只决定其数目';
+  }
+}
+sFreq.addEventListener('input', updatePhysics);
+sInt.addEventListener('input', updatePhysics);
+sU.addEventListener('input', updatePhysics);
+document.querySelectorAll('#presets .btn').forEach(b =>
+  b.addEventListener('click', () => { sFreq.value = b.dataset.f; updatePhysics(); }));
+$('btnReset').addEventListener('click', resetAll);
+function resetAll() {
+  sFreq.value = 520; sInt.value = 60; sU.value = 0;
+  [...photons,...electrons,...flashes].forEach(o => scene.remove(o));
+  photons.length = electrons.length = flashes.length = 0;
+  displayI = 0;
+  updatePhysics();
+}
+updatePhysics();
+
+/* ================= 3D 标签 ================= */
+function makeTag(text, warn) {
+  const d = document.createElement('div');
+  d.className = 'tag3d' + (warn ? ' warn' : '');
+  d.textContent = text; document.body.appendChild(d);
+  return d;
+}
+const tags = {
+  photon: makeTag('光子'),
+  electron: makeTag('光电子'),
+  cathode: makeTag('阴极'),
+  anode: makeTag('阳极'),
+  ammeter: makeTag('电流表 A'),
+  volt: makeTag('电压表 V'),
+  uc: makeTag('遏止电压 U', true)
+};
+const anchor = new THREE.Vector3();
+function placeTag(el, wx, wy, wz, vis) {
+  anchor.set(wx, wy, wz).project(camera);
+  const x = (anchor.x*.5+.5)*innerWidth, y = (-anchor.y*.5+.5)*innerHeight;
+  el.style.left = x+'px'; el.style.top = y+'px';
+  el.style.opacity = vis && anchor.z < 1 ? 1 : 0;
+}
+
+/* ================= 动画主循环 ================= */
+const clock = new THREE.Clock();
+let photonTimer = 0;
+const needleAmp = { v:0 }, needleVolt = { v:0 };
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), .05);
+  const canEmit = H_EV*freq > W0 && intensity > 0;
+
+  /* 光子生成与运动 */
+  photonTimer += dt;
+  const spawnRate = intensity > 0 ? 2 + intensity/100*16 : 0;
+  if (spawnRate > 0 && photonTimer > 1/spawnRate) { spawnPhoton(); photonTimer = 0; }
+
+  for (let i = photons.length-1; i >= 0; i--) {
+    const p = photons[i];
+    p.position.x += p.userData.v * dt;
+    p.material.opacity = 1;
+    if (p.position.x >= CATHODE_X - .05) {
+      spawnFlash(CATHODE_X, p.children[0].material.color);
+      scene.remove(p); photons.splice(i,1);
+      if (canEmit && Math.random() < .8) spawnElectron();
+    }
+  }
+
+  /* 光电子运动：U < Uc 才能到达阳极 */
+  const keEff = keMax - uRev;              // 有效动能 eV
+  for (let i = electrons.length-1; i >= 0; i--) {
+    const e = electrons[i];
+    if (keEff > 0) {
+      const sp = 1.6 + 1.8*Math.sqrt(keEff/3.1);
+      e.position.x += sp * dt;
+      e.userData.fade = Math.min(1, e.userData.fade + dt*3);
+      if (e.position.x >= ANODE_X - .04) {          // 到达阳极被吸收
+        spawnFlash(ANODE_X, 0x7cd6ff);
+        scene.remove(e); electrons.splice(i,1); continue;
+      }
+    } else {
+      // 被反向电压遏止：前进到与能量成比例的位置后折返
+      const frac = Math.min(.92, keMax/Math.max(uRev,.01));
+      const turnX = CATHODE_X + FLY_D * frac;
+      if (e.userData.dir === 1) {
+        e.position.x += .9*dt;
+        if (e.position.x >= turnX) e.userData.dir = -1;
+      } else {
+        e.position.x -= 1.2*dt;
+        if (e.position.x <= CATHODE_X + .1) { scene.remove(e); electrons.splice(i,1); continue; }
+      }
+      e.userData.fade = Math.max(.25, e.userData.fade - dt*1.5);
+    }
+    e.material.transparent = true;
+    e.material.opacity = e.userData.fade;
+    e.children[0].material.opacity = .9 * e.userData.fade;
+  }
+
+  /* 撞击闪光 */
+  for (let i = flashes.length-1; i >= 0; i--) {
+    const f = flashes[i];
+    f.userData.life -= dt*2.6;
+    f.scale.setScalar(.3 + (1-f.userData.life)*1.1);
+    f.material.opacity = Math.max(0, f.userData.life);
+    if (f.userData.life <= 0) { scene.remove(f); flashes.splice(i,1); }
+  }
+
+  /* 电流读数（解析模型，平滑显示） */
+  const iSat = intensity/100 * 50;                       // 饱和电流 μA
+  const iTarget = canEmit && intensity>0
+    ? iSat * Math.max(0, 1 - uRev/Math.max(uc,1e-6)) : 0;
+  displayI += (iTarget - displayI) * Math.min(1, dt*4);
+  $('dI').textContent = displayI.toFixed(1) + ' μA';
+
+  /* 电表指针 */
+  needleAmp.v += (displayI/50 - needleAmp.v) * Math.min(1, dt*5);
+  ammeter.needle.rotation.z = THREE.MathUtils.degToRad(120 - 240*Math.max(0,Math.min(1,needleAmp.v)));
+  needleVolt.v += (uRev/5 - needleVolt.v) * Math.min(1, dt*5);
+  voltmeter.needle.rotation.z = THREE.MathUtils.degToRad(120 - 240*needleVolt.v);
+
+  /* 光束微脉动 */
+  beam.material.opacity = (.08 + intensity/100*.38) * (1 + .1*Math.sin(clock.elapsedTime*6));
+  filterDisc.rotation.z += dt*.3;
+
+  controls.update();
+  renderer.render(scene, camera);
+
+  /* 标签贴附 */
+  const ph = photons[0];
+  if (ph) placeTag(tags.photon, ph.position.x, ph.position.y + .45, ph.position.z, true);
+  else placeTag(tags.photon, -3.5, 3.3, 0, intensity > 0);
+  const el0 = electrons[0];
+  if (el0) placeTag(tags.electron, el0.position.x, el0.position.y + .5, el0.position.z, canEmit);
+  else placeTag(tags.electron, -.1, 3.9, 0, canEmit);
+  placeTag(tags.cathode, -.85, 4.05, 0, true);
+  placeTag(tags.anode, .55, 4.05, 0, true);
+  placeTag(tags.ammeter, 3.6, 2.45, 1.55, true);
+  placeTag(tags.volt, 6.0, 2.45, 1.55, true);
+  placeTag(tags.uc, 8.1, 1.6, 2.2, true);
+}
+animate();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

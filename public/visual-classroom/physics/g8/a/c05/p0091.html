@@ -3,829 +3,685 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>熔化与凝固 · 晶体熔化曲线</title>
+<title>CRYSTAL LAB · 晶体相变实验舱</title>
 <style>
-:root{
-  --blue:#2563EB; --blue-d:#1D4ED8; --cyan:#0891B2;
-  --green:#10B981; --red:#EF4444; --amber:#D97706;
-  --ink:#16233A; --ink2:#3F5069; --sub:#6B7B94; --line:#E4EAF3;
-  --bg:#EFF3FA; --card:#FFFFFF;
-  --shadow:0 1px 2px rgba(22,35,58,.05), 0 10px 28px -16px rgba(22,35,58,.28);
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{
-  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:var(--bg); color:var(--ink); line-height:1.7;
-  -webkit-font-smoothing:antialiased;
-}
-svg{font-family:inherit; display:block; width:100%; height:auto}
-.wrap{max-width:1180px; margin:0 auto; padding:36px 24px 64px}
-
-/* ---------- 头部 ---------- */
-.hero{margin-bottom:24px}
-.kicker{
-  display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.5px;
-  color:var(--blue); background:#E3ECFF; border-radius:999px; padding:4px 13px; margin-bottom:13px;
-}
-.hero h1{margin:0 0 9px; font-size:30px; line-height:1.3; letter-spacing:.3px}
-.hero p{margin:0; color:var(--sub); font-size:14.5px; max-width:820px}
-
-/* ---------- 卡片 ---------- */
-.card{
-  background:var(--card); border-radius:18px; padding:24px 26px 22px; margin-bottom:18px;
-  box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.9);
-}
-.chead{display:flex; gap:13px; align-items:flex-start; margin-bottom:16px}
-.idx{
-  flex:0 0 auto; width:34px; height:34px; border-radius:11px; background:#E6EEFF;
-  color:var(--blue); font-weight:800; font-size:13.5px; display:flex; align-items:center; justify-content:center;
-  margin-top:2px; letter-spacing:.5px;
-}
-.chead h2{margin:0 0 3px; font-size:19px; letter-spacing:.2px}
-.chead p{margin:0; color:var(--sub); font-size:13.5px; line-height:1.6}
-
-/* ---------- 舞台 + 曲线 ---------- */
-.split{display:grid; grid-template-columns:minmax(0,1.24fr) minmax(0,1fr); gap:22px; align-items:start}
-@media(max-width:900px){ .split{grid-template-columns:1fr} }
-
-.stage{background:#FBFDFF; border-radius:14px; padding:6px 4px 2px}
-.chart{background:#FCFDFF; border-radius:14px; padding:8px 6px 2px; border:1px solid #F1F5FA}
-
-/* 模式切换 */
-.seg{display:inline-flex; background:#EDF2F9; border-radius:11px; padding:3px; gap:3px}
-.seg button{
-  border:0; background:transparent; padding:7px 15px; border-radius:8px;
-  font-size:13px; font-weight:700; color:#67788F; cursor:pointer;
-  font-family:inherit; transition:.16s; white-space:nowrap;
-}
-.seg button:hover{color:var(--ink)}
-.seg button.on{background:#fff; color:var(--ink); box-shadow:0 1px 4px rgba(22,35,58,.14)}
-.chead .seg{margin-left:auto; margin-top:-4px}
-
-/* ---------- 控制条 ---------- */
-.bar{
-  display:flex; align-items:center; gap:15px; margin-top:16px;
-  background:#F7FAFF; border:1px solid var(--line); border-radius:14px; padding:11px 16px;
-}
-.play{
-  width:38px; height:38px; flex:0 0 auto; border-radius:50%; border:0;
-  background:var(--blue); cursor:pointer; display:grid; place-items:center;
-  transition:.16s; box-shadow:0 3px 10px -2px rgba(37,99,235,.5);
-}
-.play:hover{background:var(--blue-d)}
-.play:active{transform:scale(.94)}
-
-input[type=range]{
-  flex:1; -webkit-appearance:none; appearance:none; height:6px; border-radius:3px;
-  background:#E2E8F0; outline:none; cursor:pointer; min-width:80px;
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none; width:17px; height:17px; border-radius:50%;
-  background:var(--blue); border:3px solid #fff; cursor:grab;
-  box-shadow:0 1px 5px rgba(37,99,235,.55);
-}
-input[type=range]::-moz-range-thumb{
-  width:11px; height:11px; border-radius:50%; background:var(--blue);
-  border:3px solid #fff; cursor:grab; box-shadow:0 1px 5px rgba(37,99,235,.55);
-}
-.clock{font-size:12.5px; color:var(--sub); white-space:nowrap; min-width:82px; text-align:right}
-.clock b{font-size:15.5px; color:var(--ink); font-weight:800; font-variant-numeric:tabular-nums}
-
-.speed{display:inline-flex; gap:2px; background:#EDF2F9; border-radius:9px; padding:2px}
-.speed button{
-  border:0; background:transparent; padding:4px 9px; border-radius:7px;
-  font-size:12px; font-weight:700; color:#67788F; cursor:pointer; font-family:inherit; transition:.16s;
-}
-.speed button.on{background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(22,35,58,.13)}
-
-/* ---------- 微观 ---------- */
-.micro-body{display:grid; grid-template-columns:minmax(0,430px) minmax(0,1fr); gap:26px; align-items:center}
-@media(max-width:860px){ .micro-body{grid-template-columns:1fr} }
-.micro-stage{background:#FBFDFF; border-radius:14px; padding:6px}
-.mtxt{max-width:560px}
-
-.mtag{
-  display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800;
-  padding:4px 12px; border-radius:999px; margin-bottom:10px; transition:.25s;
-}
-.mtag i{width:7px; height:7px; border-radius:50%; background:currentColor}
-.mtxt p{margin:0 0 12px; font-size:14px; color:var(--ink2); line-height:1.8; max-width:560px}
-.mtxt p b{color:var(--ink); font-weight:800}
-.mtxt p .hl{color:var(--blue-d); font-weight:800}
-
-.mety{background:#F6F9FF; border:1px solid #E4EDFB; border-radius:12px; padding:11px 14px}
-.mety .cap{font-size:11.5px; color:var(--sub); font-weight:700; letter-spacing:.3px; margin-bottom:9px}
-.mety .roads{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-@media(max-width:520px){ .mety .roads{grid-template-columns:1fr} }
-.road .rtop{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:5px}
-.road .rtop span{font-size:12px; font-weight:700; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.road .rtop b{font-size:13px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums}
-.road .track{height:9px; border-radius:5px; background:#E2E8F0; overflow:hidden}
-.road .track i{display:block; height:100%; width:0; transition:width .12s linear}
-.road .track i.a{background:#F59E0B}
-.road .track i.b{background:var(--blue)}
-.road .rnote{font-size:11px; color:var(--sub); margin-top:5px; font-weight:600}
-
-/* ---------- 小结 ---------- */
-.take{
-  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px;
-}
-@media(max-width:820px){ .take{grid-template-columns:1fr} }
-.tk{background:#F8FAFE; border:1px solid var(--line); border-radius:13px; padding:13px 15px}
-.tk h4{margin:0 0 5px; font-size:13.5px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:7px}
-.tk h4 span{width:5px; height:14px; border-radius:3px; background:var(--blue); display:inline-block}
-.tk p{margin:0; font-size:12.8px; color:var(--sub); line-height:1.7}
-.tk p b{color:var(--ink2); font-weight:700}
-
-.flame{transform-origin:145px 335px; animation:flick 1.15s ease-in-out infinite alternate}
-@keyframes flick{from{transform:scale(1,1)}to{transform:scale(1.07,1.13)}}
+  html,body{margin:0;height:100%;overflow:hidden;background:#070b11;font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#a9c9dd;}
+  #stage{position:fixed;inset:0;}
+  /* ===== 左上 HUD 读数 ===== */
+  .hud-left{position:fixed;top:20px;left:24px;z-index:10;pointer-events:none;}
+  .brand{font-size:13px;letter-spacing:3px;color:#6fc0e6;text-shadow:0 0 14px rgba(80,190,255,.55);}
+  .brand span{display:block;font-size:11px;letter-spacing:2px;color:#547187;margin-top:3px;}
+  .temp{font-family:"Consolas","Courier New",monospace;font-size:46px;font-weight:600;color:#eaf8ff;
+        text-shadow:0 0 22px rgba(90,200,255,.55),0 0 4px rgba(160,230,255,.8);line-height:1;margin-top:14px;}
+  .temp i{font-style:normal;font-size:18px;color:#7fb4cf;margin-left:6px;}
+  .temp b{font-weight:600;}
+  .state{margin-top:8px;font-size:13px;letter-spacing:4px;color:#8fd9ff;
+         border-left:2px solid #35c8ff;padding-left:8px;text-shadow:0 0 10px rgba(60,190,255,.5);}
+  /* ===== 顶部标签 ===== */
+  .tabbar{position:fixed;top:18px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:10;
+    background:linear-gradient(180deg,rgba(18,28,38,.92),rgba(9,14,20,.92));
+    border:1px solid rgba(80,175,225,.22);border-radius:14px;padding:6px;
+    box-shadow:0 10px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(140,220,255,.12);backdrop-filter:blur(6px);}
+  .tabbar button{padding:9px 22px;border:1px solid transparent;border-radius:10px;background:transparent;
+    color:#7f9cb2;font-size:13px;letter-spacing:1px;cursor:pointer;transition:.22s;}
+  .tabbar button:hover{color:#bfe4f8;}
+  .tabbar button.active{color:#eaf9ff;border-color:rgba(90,200,255,.55);
+    background:linear-gradient(180deg,rgba(35,120,180,.55),rgba(18,70,110,.45));
+    box-shadow:0 0 18px rgba(60,180,255,.4),inset 0 1px 0 rgba(160,230,255,.4);}
+  /* ===== 底部控制台 ===== */
+  .console{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;
+    display:flex;align-items:center;gap:16px;padding:12px 22px;border-radius:18px;
+    background:linear-gradient(180deg,rgba(20,30,40,.95),rgba(8,13,19,.95));
+    border:1px solid rgba(80,175,225,.22);
+    box-shadow:0 14px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(140,220,255,.14);}
+  .seg{width:64px;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,rgba(80,200,255,0),rgba(90,210,255,.85));}
+  .seg.r{background:linear-gradient(90deg,rgba(90,210,255,.85),rgba(80,200,255,0));}
+  .cbtn{width:62px;height:62px;border-radius:50%;cursor:pointer;transition:.22s;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    color:#a9cbe0;font-size:12px;letter-spacing:1px;
+    border:1px solid rgba(90,190,235,.35);
+    background:radial-gradient(circle at 34% 28%,#1c2b3a,#0a1017 78%);
+    box-shadow:inset 0 1px 0 rgba(160,220,255,.18),0 4px 14px rgba(0,0,0,.5);}
+  .cbtn:hover{color:#e4f6ff;border-color:rgba(120,220,255,.75);box-shadow:0 0 20px rgba(70,190,255,.4),inset 0 1px 0 rgba(180,235,255,.25);}
+  .cbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;}
+  #btnHeat.on{color:#ffd5ae;border-color:rgba(255,160,80,.85);
+    background:radial-gradient(circle at 34% 28%,#3b2214,#150c07 78%);
+    box-shadow:0 0 26px rgba(255,140,60,.6),inset 0 1px 0 rgba(255,200,150,.3);}
+  /* ===== 曲线面板 ===== */
+  #chartBox{position:fixed;left:20px;bottom:20px;z-index:9;padding:8px;border-radius:14px;
+    background:linear-gradient(180deg,rgba(14,22,31,.95),rgba(7,12,18,.95));
+    border:1px solid rgba(80,175,225,.25);
+    box-shadow:0 12px 34px rgba(0,0,0,.6),inset 0 1px 0 rgba(120,200,240,.12);}
+  #chartBox.hidden{display:none;}
+  #chart{display:block;border-radius:8px;}
+  /* ===== 3D 部件标签 ===== */
+  .lbl{position:fixed;transform:translate(-50%,-50%);z-index:8;pointer-events:none;white-space:nowrap;
+    font-size:11.5px;letter-spacing:1px;color:#bfe9ff;padding:3px 10px;border-radius:20px;
+    background:rgba(8,16,24,.78);border:1px solid rgba(80,190,240,.45);
+    box-shadow:0 0 14px rgba(40,150,220,.28),inset 0 0 10px rgba(60,170,230,.12);}
+  #lead{position:fixed;inset:0;z-index:7;pointer-events:none;width:100%;height:100%;}
+  #lead polyline{fill:none;stroke:#6fd2ff;stroke-width:1.3;opacity:.8;}
+  #lead .dot{fill:#8fe4ff;}
+  #lead .halo{fill:#59d2ff;opacity:.22;}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div id="stage"></div>
 
-  <header class="hero">
-    <div class="kicker">§3.2 熔化与凝固</div>
-    <h1 id="pageTitle">晶体熔化曲线 · 海波与冰的分组实验</h1>
-    <p id="heroLead">两支试管放进同一水浴里加热，同时记录温度。把测得的温度逐点描在温度—时间图上，再回头看看试管里的分子在做什么。</p>
-  </header>
-
-  <!-- ① 实验 + 曲线 -->
-  <div class="card">
-    <div class="chead">
-      <div class="idx">01</div>
-      <div>
-        <h2>当堂测、当堂画</h2>
-        <p>拖动时间轴或直接播放，装置、温度计读数、曲线上描出的点三者始终同步。</p>
-      </div>
-      <div class="seg" id="modeSwitch">
-        <button data-mode="heat" class="on">加热熔化</button>
-        <button data-mode="cool">冷却凝固</button>
-      </div>
-    </div>
-
-    <div class="split">
-      <div class="stage"><svg id="stage" viewBox="0 0 620 420" aria-label="海波与冰的分组实验装置"></svg></div>
-      <div class="chart"><svg id="chart" viewBox="0 0 500 420" aria-label="温度-时间图像"></svg></div>
-    </div>
-
-    <div class="bar">
-      <button class="play" id="play" aria-label="播放"></button>
-      <input type="range" id="scrub" min="0" max="17" step="0.02" value="0">
-      <div class="clock"><b id="tval">0.0</b> min</div>
-      <div class="speed" id="speed">
-        <button data-s="1" class="on">1×</button>
-        <button data-s="2">2×</button>
-        <button data-s="4">4×</button>
-      </div>
-    </div>
-
-    <div class="take">
-      <div class="tk">
-        <h4 id="tk1h"><span></span>平台就是熔点</h4>
-        <p id="tk1p">曲线上的水平段说明：<b>继续加热，温度却不动</b>。这一段对应的温度，就是这种晶体的熔点。</p>
-      </div>
-      <div class="tk">
-        <h4><span></span>凝固点 = 熔点</h4>
-        <p>同一种晶体的<b>凝固点和熔点是同一个温度</b>：海波都是 48 ℃，冰都是 0 ℃。差别只在热量的方向——熔化要吸热，凝固要放热。</p>
-      </div>
-      <div class="tk">
-        <h4 id="tk3h"><span></span>两种晶体，两个熔点</h4>
-        <p id="tk3p">冰 0 ℃、海波 48 ℃，<b>都有平台，但位置不同</b>。熔点由物质本身决定，与加热快慢无关。</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ② 微观 -->
-  <div class="card">
-    <div class="chead">
-      <div class="idx">02</div>
-      <div>
-        <h2 id="m2h">微观视角：为什么吸着热却不升温</h2>
-        <p id="m2lead">每个<b>方框</b>是一个座位，圆点是分子。盯住橙色圈住的那个，看温度卡在 48 ℃ 时它去了哪儿。</p>
-      </div>
-    </div>
-
-    <div class="micro-body">
-      <div class="micro-stage"><svg id="micro" viewBox="0 0 440 212" aria-label="分子排布随熔化逐渐松散"></svg></div>
-      <div class="mtxt">
-        <div class="mtag" id="mtag"><i></i><span>固态 · 都在座位上</span></div>
-        <p id="mtext">分子坐在各自的座位上，只能在座位上抖动。热量全部用来让它们<b>抖得更快更猛</b>——抖得快，温度就高。</p>
-        <div class="mety">
-          <div class="cap" id="mCap">吸收的热量</div>
-          <div class="roads">
-            <div class="road">
-              <div class="rtop"><span id="rdA">抖得更快更猛</span><b id="pctA">100%</b></div>
-              <div class="track"><i class="a" id="barA"></i></div>
-              <div class="rnote" id="rnA">→ 温度上升</div>
-            </div>
-            <div class="road">
-              <div class="rtop"><span id="rdB">离开座位</span><b id="pctB">0%</b></div>
-              <div class="track"><i class="b" id="barB"></i></div>
-              <div class="rnote">→ 温度不变</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+<div class="hud-left">
+  <div class="brand">CRYSTAL LAB<span>晶体相变实验舱</span></div>
+  <div class="temp"><b id="tempVal">25.0</b><i>℃</i></div>
+  <div class="state" id="stateTxt">固态</div>
 </div>
 
-<script>
-/* ============================================================
-   数据
-   ============================================================ */
-const DUR = 17;              // min
-const TMIN = -20, TMAX = 70; // 温度计与图像的量程
+<div class="tabbar">
+  <button id="tabMelt" class="active">晶体熔化</button>
+  <button id="tabFreeze">晶体凝固</button>
+  <button id="tabWax">非晶体对比</button>
+</div>
 
-const SPECS = [
-  {
-    key:'hypo', name:'海波', note:'硫代硫酸钠',
-    Tm:48,
-    heat:[[0,30],[4.5,48],[13.5,48],[17,60]],
-    cool:[[0,60],[3.5,48],[12.5,48],[17,30]],
-    color:'#2563EB', soft:'#CFE2FE', grain:'#8296AD'
-  },
-  {
-    key:'ice', name:'冰', note:'固态的水',
-    Tm:0,
-    heat:[[0,-12],[3,0],[14.5,0],[17,10]],
-    cool:[[0,10],[2.5,0],[14,0],[17,-12]],
-    color:'#0891B2', soft:'#BEEDF9', grain:'#7AA2B4'
-  }
-];
+<div class="console">
+  <div class="seg"></div>
+  <button class="cbtn" id="btnHeat">
+    <svg viewBox="0 0 24 24"><path d="M12 3c3 3.6 4.6 6.2 4.6 8.8A4.6 4.6 0 0 1 12 16.4a4.6 4.6 0 0 1-4.6-4.6C7.4 9.2 9 6.6 12 3z"/><path d="M12 16.4c1.4 0 2.4 1 2.4 2.3 0 1.4-1 2.3-2.4 2.3s-2.4-.9-2.4-2.3c0-1.3 1-2.3 2.4-2.3z"/></svg>
+    <span id="heatTxt">加热</span>
+  </button>
+  <button class="cbtn" id="btnReset">
+    <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></svg>
+    <span>重置</span>
+  </button>
+  <button class="cbtn" id="btnCurve">
+    <svg viewBox="0 0 24 24"><path d="M3 19V5"/><path d="M3 19h18"/><path d="M5 16l4-5 3 3 4-6 3 4"/></svg>
+    <span>曲线</span>
+  </button>
+  <div class="seg r"></div>
+</div>
 
-const S = { t:0, playing:false, mode:'heat', speed:1, dirty:true };
+<svg id="lead"></svg>
+<div id="chartBox"><canvas id="chart" width="318" height="196"></canvas></div>
+<div class="lbl" id="lblState">固态</div>
+<div class="lbl" id="lblTherm">温度计</div>
+<div class="lbl" id="lblBath">烧杯 · 水浴</div>
+<div class="lbl" id="lblTube">试管</div>
+<div class="lbl" id="lblHeater">加热台</div>
+<div class="lbl" id="lblSample">海波 · 晶体样品</div>
 
-/* ============================================================
-   工具
-   ============================================================ */
-const clamp = (v,a,b) => v<a?a:(v>b?b:v);
-const lerp  = (a,b,k) => a+(b-a)*k;
+<script type="importmap">
+{"imports":{
+  "three":"../../../../vendor/three/0.160.0/build/three.module.js",
+  "three/addons/":"../../../../vendor/three/0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-function hex2rgb(h){
-  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
-}
-function mixHex(c1,c2,k){
-  const a=hex2rgb(c1), b=hex2rgb(c2);
-  return 'rgb('+Math.round(lerp(a[0],b[0],k))+','+Math.round(lerp(a[1],b[1],k))+','+Math.round(lerp(a[2],b[2],k))+')';
-}
-
-function interp(pts,t){
-  if(t<=pts[0][0]) return pts[0][1];
-  for(let i=1;i<pts.length;i++){
-    if(t<=pts[i][0]){
-      const p=pts[i-1], q=pts[i];
-      return p[1]+(q[1]-p[1])*(t-p[0])/((q[0]-p[0])||1);
-    }
-  }
-  return pts[pts.length-1][1];
-}
-
-function stateOf(spec,t,mode){
-  const pts = mode==='heat' ? spec.heat : spec.cool;
-  const T = interp(pts,t);
-  const a = pts[1][0], b = pts[2][0];
-  const k = clamp((t-a)/((b-a)||1), 0, 1);
-  const f = mode==='heat' ? k : 1-k;          // 液相比例
-  const phase = f>0.999 ? 'liquid' : (f<0.001 ? 'solid' : 'mushy');
-  return { T, f, phase, a, b };
-}
-
-/* 颗粒（模拟晶体颗粒），固定种子保证每次形状一致；避开中间的温度计 */
-function makeGrains(seed,n){
-  let s = seed;
-  const r = () => (s = (s*16807) % 2147483647) / 2147483647;
-  const out = [];
-  for(let i=0;i<n;i++){
-    const left = r() < 0.5;
-    out.push({
-      x: left ? 130.3 + r()*4 : 150.3 + r()*4,
-      y: 202 + r()*44,
-      z: 1.9 + r()*1.1,
-      th: r()
-    });
-  }
-  out.sort((p,q)=>p.th-q.th);
-  return out;
-}
-SPECS[0].grains = makeGrains(37,34);
-SPECS[1].grains = makeGrains(91,34);
-
-/* ============================================================
-   ① 装置
-   ============================================================ */
+/* ================= 渲染器 / 场景 / 后期 ================= */
 const stageEl = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.06;
+stageEl.appendChild(renderer.domElement);
 
-function unitStatic(spec){
-  const cool = S.mode==='cool';
-  const noteX = 20 + spec.name.length*15.5 + 9;
-  let s = '';
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x070b11);
+scene.fog = new THREE.FogExp2(0x070b11, 0.012);
 
-  s += `<text x="20" y="24" font-size="15" font-weight="700" fill="#16233A">${spec.name}</text>`;
-  s += `<text x="${noteX}" y="24" font-size="11.5" fill="#93A2B8">${spec.note}</text>`;
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 300);
+camera.position.set(15.4, 12.6, 24.4);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 7.15, 0);
+controls.enableDamping = true; controls.dampingFactor = .055;
+controls.minDistance = 12; controls.maxDistance = 60;
+controls.maxPolarAngle = 1.46;
+controls.enablePan = false;
 
-  /* 水浴 */
-  s += `<path d="M54,170 L54,292 Q54,304 66,304 L224,304 Q236,304 236,292 L236,170 Z" fill="#E0F2FE"/>`;
-  s += `<line x1="54" y1="170" x2="236" y2="170" stroke="#BAE6FD" stroke-width="2.4"/>`;
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-  if(cool){                                    // 冰水浴
-    const chunks=[[74,282,26,13],[112,290,20,11],[196,286,24,12],[160,294,18,10],[88,262,17,9]];
-    chunks.forEach(function(c){
-      s += `<rect x="${c[0]}" y="${c[1]}" width="${c[2]}" height="${c[3]}" rx="3.5"
-             fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1.4" opacity=".92"/>`;
-    });
-  }
+const composer = new EffectComposer(renderer);
+composer.setPixelRatio(Math.min(devicePixelRatio, 2));
+composer.setSize(innerWidth, innerHeight);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .26, .36, 1.25);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
 
-  /* 烧杯壁 */
-  s += `<path d="M52,136 L52,292 Q52,306 66,306 L224,306 Q238,306 238,292 L238,136"
-         fill="none" stroke="#C7D4E4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+/* ================= 光照（暖背光 + 冷顶光） ================= */
+scene.add(new THREE.HemisphereLight(0x5b7d99, 0x080b10, .45));
+const key = new THREE.DirectionalLight(0xdceeff, 1.35);
+key.position.set(9, 20, 14); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -18; key.shadow.camera.right = 18;
+key.shadow.camera.top = 20; key.shadow.camera.bottom = -10;
+key.shadow.camera.near = 1; key.shadow.camera.far = 70;
+key.shadow.radius = 4; key.shadow.bias = -0.0008;
+scene.add(key);
+const warmRim = new THREE.DirectionalLight(0xffb078, .75);
+warmRim.position.set(-14, 9, -12); scene.add(warmRim);
+const coolRim = new THREE.DirectionalLight(0x5fc8ff, .5);
+coolRim.position.set(14, 5, -11); scene.add(coolRim);
+/* 正面柔光补光 */
+const frontFill = new THREE.DirectionalLight(0x9fd0ee, .62);
+frontFill.position.set(4, 7, 20); scene.add(frontFill);
+const backGlow = new THREE.PointLight(0x6ec8ff, 40, 26, 2);
+backGlow.position.set(0, 9, -9); scene.add(backGlow);
+const warmGlow = new THREE.PointLight(0xff9a55, 30, 24, 2);
+warmGlow.position.set(-11, 6, -6); scene.add(warmGlow);
+const bounce = new THREE.DirectionalLight(0x89b9d8, .3);
+bounce.position.set(-6, 16, 10); scene.add(bounce);
 
-  /* 试管 */
-  s += `<path d="M128,68 L128,240 Q128,258 145,258 Q162,258 162,240 L162,68 Z"
-         fill="#E9EFF6" stroke="#C7D4E4" stroke-width="2.4" stroke-linejoin="round"/>`;
-  s += `<path d="M132,74 L132,238" stroke="#FFFFFF" stroke-width="2.4" opacity=".85" stroke-linecap="round"/>`;
-  s += `<rect x="122" y="57" width="46" height="12" rx="6" fill="#E4EBF4" stroke="#C7D4E4" stroke-width="2"/>`;
+/* ================= 材质 ================= */
+const M = {
+  steel:   new THREE.MeshStandardMaterial({color:0xd8e3ee, metalness:.95, roughness:.26, envMapIntensity:1.7}),
+  dark:    new THREE.MeshStandardMaterial({color:0x303b47, metalness:.85, roughness:.38, envMapIntensity:1.5}),
+  darker:  new THREE.MeshStandardMaterial({color:0x2a3540, metalness:.8, roughness:.42, envMapIntensity:1.5}),
+  brass:   new THREE.MeshStandardMaterial({color:0xd2a355, metalness:1, roughness:.26, envMapIntensity:1.9}),
+  copper:  new THREE.MeshStandardMaterial({color:0xc07a50, metalness:1, roughness:.28, envMapIntensity:1.9}),
+  cyan:    new THREE.MeshStandardMaterial({color:0xbdefff, emissive:0x3fc8ff, emissiveIntensity:1.7, roughness:.4, metalness:.2}),
+  amber:   new THREE.MeshStandardMaterial({color:0xffd8a8, emissive:0xff9a3c, emissiveIntensity:1.1, roughness:.4, metalness:.2}),
+  glass:   new THREE.MeshPhysicalMaterial({color:0xcfeeff, transparent:true, opacity:.09, roughness:.02,
+             metalness:0, side:THREE.DoubleSide, depthWrite:false, envMapIntensity:1.1}),
+  glassHi: new THREE.MeshPhysicalMaterial({color:0xdcf3ff, transparent:true, opacity:.11, roughness:.05,
+             metalness:0, side:THREE.DoubleSide, depthWrite:false, envMapIntensity:1.0}),
+  water:   new THREE.MeshPhysicalMaterial({color:0x2f9ecb, transparent:true, opacity:.45, roughness:.05,
+             depthWrite:false, envMapIntensity:.75}),
+  crystal: new THREE.MeshStandardMaterial({color:0xf4fbff, roughness:.12, metalness:0, flatShading:true,
+             transparent:true, opacity:.96, depthWrite:false, emissive:0x9fd4f5, emissiveIntensity:.16}),
+  pool:    new THREE.MeshPhysicalMaterial({color:0xbfe6ff, transparent:true, opacity:.62, roughness:.05,
+             depthWrite:false, envMapIntensity:1.2}),
+  wax:     new THREE.MeshStandardMaterial({color:0xf8f1da, roughness:.55, metalness:0, transparent:true,
+             opacity:.98, depthWrite:false, emissive:0x8c7d55, emissiveIntensity:.1})
+};
 
-  /* 热源 */
-  if(cool){
-    s += `<text x="145" y="368" text-anchor="middle" font-size="12" font-weight="700" fill="#0891B2">冰水浴降温</text>`;
-  }else{
-    s += `<path d="M116,384 L110,353 Q108,341 120,341 L170,341 Q182,341 180,353 L174,384 Z"
-           fill="#E7EEF7" stroke="#A9B8CC" stroke-width="2" stroke-linejoin="round"/>`;
-    s += `<rect x="132" y="327" width="16" height="15" rx="4" fill="#CBD5E1" stroke="#A9B8CC" stroke-width="1.6"/>`;
-    s += `<g class="flame">`;
-    s += `  <path d="M145,299 L155.5,318 L134.5,318 Z" fill="#FBBF24"/>`;
-    s += `  <ellipse cx="145" cy="321" rx="11.5" ry="13.5" fill="#FBBF24"/>`;
-    s += `  <path d="M145,306 L151.5,319 L138.5,319 Z" fill="#FEF3C7"/>`;
-    s += `  <ellipse cx="145" cy="322.5" rx="6" ry="8" fill="#FEF3C7"/>`;
-    s += `</g>`;
-  }
-
-  return s;
+/* ================= 通用工具 ================= */
+function radialTexture(){
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,255,255,1)');
+  gr.addColorStop(.4,'rgba(255,255,255,.38)');
+  gr.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(c);
+}
+const RTEX = radialTexture();
+function glowSprite(color, size, x, y, z, opacity=.55){
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({map:RTEX, color, transparent:true,
+    opacity, blending:THREE.AdditiveBlending, depthWrite:false}));
+  s.scale.set(size, size, 1); s.position.set(x, y, z); scene.add(s); return s;
+}
+function mesh(geo, mat, x=0, y=0, z=0, shadow=true){
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  if(shadow){ m.castShadow = true; m.receiveShadow = true; }
+  scene.add(m); return m;
+}
+function textSprite(text, color='#cfeaff', w=1.5, h=.75, px=40){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 128;
+  const g = c.getContext('2d');
+  g.font = `600 ${px}px "PingFang SC","Microsoft YaHei",sans-serif`;
+  g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.shadowColor = 'rgba(80,190,255,.85)'; g.shadowBlur = 12;
+  g.fillText(text, 128, 66);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),
+    transparent:true, depthWrite:false}));
+  sp.scale.set(w, h, 1); return sp;
 }
 
-function unitDyn(spec){
-  const st = stateOf(spec, S.t, S.mode);
-  let s = '';
+/* ================= 环境：地面 / 背墙 / 灯带 ================= */
+const floor = new THREE.Mesh(new THREE.CircleGeometry(60, 64),
+  new THREE.MeshStandardMaterial({color:0x0d141c, metalness:.55, roughness:.36}));
+floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+/* 地面光池 */
+const poolLight = new THREE.Mesh(new THREE.PlaneGeometry(26, 26),
+  new THREE.MeshBasicMaterial({map:RTEX, color:0x2f8fc4, transparent:true, opacity:.16,
+    blending:THREE.AdditiveBlending, depthWrite:false}));
+poolLight.rotation.x = -Math.PI/2; poolLight.position.y = .02; scene.add(poolLight);
+/* 地面光环 */
+const floorRing = mesh(new THREE.TorusGeometry(7.6, .045, 8, 96), M.cyan, 0, .05, 0, false);
+floorRing.rotation.x = Math.PI/2;
 
-  /* 药品：底部液体 + 未熔化的晶体颗粒 */
-  s += `<path d="M129,200 L129,240 Q129,254 145,254 Q161,254 161,240 L161,200 Z"
-         fill="${spec.soft}" opacity="${(0.18+0.70*st.f).toFixed(3)}"/>`;
+/* 背墙 */
+const wall = new THREE.Mesh(new THREE.PlaneGeometry(90, 40),
+  new THREE.MeshStandardMaterial({color:0x121820, roughness:.92, metalness:.1}));
+wall.position.set(0, 14, -22); wall.receiveShadow = true; scene.add(wall);
+/* 背墙柔和暖光（氛围，不产生可见灯条） */
+const wallGlow = glowSprite(0xff9a5a, 30, 0, 9, -21.4, .1);
+wallGlow.material.opacity = .1;
+/* ================= 主装置：晶体相变实验舱 ================= */
+const G = new THREE.Group(); scene.add(G);
+const add = (geo, mat, x, y, z, shadow=true) => {
+  const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z);
+  if(shadow){ m.castShadow = true; m.receiveShadow = true; }
+  G.add(m); return m;
+};
 
-  /* 固态层：白色块状，随熔化逐渐透明 */
-  s += `<path d="M129,200 L129,240 Q129,254 145,254 Q161,254 161,240 L161,200 Z"
-         fill="#FDFEFF" opacity="${(0.94*(1-st.f)).toFixed(3)}"/>`;
-
-  for(let i=0;i<spec.grains.length;i++){
-    const g = spec.grains[i];
-    if(g.th <= st.f) continue;
-    s += `<rect x="${g.x.toFixed(1)}" y="${g.y.toFixed(1)}" width="${(g.z*2).toFixed(1)}" height="${(g.z*2).toFixed(1)}"
-           rx="1.2" fill="#FFFFFF" stroke="${spec.grain}" stroke-width="1.1" opacity=".97"/>`;
-  }
-
-  /* 液面 */
-  s += `<line x1="129" y1="200" x2="161" y2="200" stroke="#C7D4E4" stroke-width="1.2" opacity=".8"/>`;
-
-  /* 温度计：玻璃管 + 刻度 + 液柱 */
-  const lvl = clamp((st.T-TMIN)/(TMAX-TMIN), 0, 1);
-  const top = 246 - lvl*200;
-  s += `<rect x="140.5" y="34" width="10" height="208" rx="5" fill="#FFFFFF" stroke="#BCCBDD" stroke-width="1.5" opacity=".94"/>`;
-  s += `<circle cx="145.5" cy="246" r="8" fill="#FFFFFF" stroke="#BCCBDD" stroke-width="1.5"/>`;
-  [-20,0,20,40,60].forEach(function(T,i){
-    const y = 246 - clamp((T-TMIN)/(TMAX-TMIN),0,1)*200;
-    const long = (i%2===1);
-    s += `<line x1="${(long?150.5:152.5)}" y1="${y.toFixed(1)}" x2="158.5" y2="${y.toFixed(1)}"
-           stroke="#9FB0C4" stroke-width="${long?1.3:1}"/>`;
-  });
-  s += `<rect x="143.6" y="${top.toFixed(1)}" width="3.8" height="${(246-top).toFixed(1)}" rx="1.9" fill="#EF4444"/>`;
-  s += `<circle cx="145.5" cy="246" r="5.3" fill="#EF4444"/>`;
-
-  /* 读数（平台期加底色，强调"卡住不动"） */
-  if(st.phase==='mushy'){
-    s += `<rect x="186" y="5" width="96" height="27" rx="8" fill="${spec.soft}" opacity=".85"/>`;
-  }
-  s += `<text x="264" y="25" text-anchor="end" font-size="17" font-weight="800" fill="${spec.color}"
-         style="font-variant-numeric:tabular-nums">${st.T.toFixed(1)}</text>`;
-  s += `<text x="268" y="25" font-size="11" fill="#93A2B8">℃</text>`;
-
-  /* 状态 */
-  let ptxt = '', col = '#1E40AF';
-  if(st.phase==='solid'){ ptxt = '固态'; col = '#1E40AF'; }
-  else if(st.phase==='liquid'){ ptxt = '液态'; col = '#0891B2'; }
-  else {
-    ptxt = S.mode==='heat' ? '固液共存 · 正在熔化' : '固液共存 · 正在凝固';
-    col = '#D97706';
-  }
-  s += `<circle cx="26" cy="408" r="3.8" fill="${col}"/>`;
-  s += `<text x="37" y="412.5" font-size="12.2" font-weight="700" fill="${col}">${ptxt}</text>`;
-
-  return s;
+/* 底座 */
+add(new THREE.BoxGeometry(12.6, 1.0, 8.2), M.darker, 0, .5, 0);
+add(new THREE.BoxGeometry(11.9, .42, 7.6), M.dark, 0, 1.18, 0);
+add(new THREE.BoxGeometry(11.2, .1, 7.0), M.steel, 0, 1.44, 0);
+/* 底座发光边条 */
+add(new THREE.BoxGeometry(12.7, .05, .06), M.cyan, 0, 1.02, 4.12, false);
+add(new THREE.BoxGeometry(12.7, .05, .06), M.cyan, 0, 1.02, -4.12, false);
+add(new THREE.BoxGeometry(.06, .05, 8.3), M.cyan, 6.32, 1.02, 0, false);
+add(new THREE.BoxGeometry(.06, .05, 8.3), M.cyan, -6.32, 1.02, 0, false);
+/* 底座螺栓 */
+for(const sx of [-5.4, -3.0, 3.0, 5.4]) for(const sz of [-3.0, 3.0]){
+  add(new THREE.CylinderGeometry(.13,.13,.12,12), M.steel, sx, 1.52, sz);
 }
-
-function buildStage(){
-  let html = '';
-  /* 台面 */
-  html += `<rect x="0" y="384" width="620" height="30" fill="#EDF2F9"/>`;
-  html += `<line x1="0" y1="384" x2="620" y2="384" stroke="#DCE5F0" stroke-width="1.6"/>`;
-
-  SPECS.forEach(function(spec,i){
-    const ox = i===0 ? 6 : 314;
-    html += `<g transform="translate(${ox},0)">` + unitStatic(spec) + `<g id="dyn-${spec.key}"></g></g>`;
-  });
-
-  stageEl.innerHTML = html;
+/* 底座正面：控制条 + 发光槽 + 圆形徽标 */
+add(new THREE.BoxGeometry(7.2, .62, .1), M.darker, 0, .82, 4.09);
+for(let i=-1;i<=1;i++){
+  add(new THREE.BoxGeometry(1.5, .11, .04), M.cyan, i*2.1, .82, 4.16, false);
 }
-
-/* ============================================================
-   ② 温度—时间图像
-   ============================================================ */
-const chartEl = document.getElementById('chart');
-const CX = { L:62, R:482, T:34, B:352 };
-const px = t => CX.L + t/DUR*(CX.R-CX.L);
-const py = T => CX.B - (T-TMIN)/(TMAX-TMIN)*(CX.B-CX.T);
-
-function buildChart(){
-  let s = '';
-  s += `<rect x="${CX.L}" y="${CX.T}" width="${CX.R-CX.L}" height="${CX.B-CX.T}" fill="#FDFEFF"/>`;
-
-  /* 横向网格 */
-  [-20,0,20,40,60].forEach(function(T){
-    const y = py(T);
-    s += `<line x1="${CX.L}" y1="${y.toFixed(1)}" x2="${CX.R}" y2="${y.toFixed(1)}"
-           stroke="${T===0?'#DCE7F5':'#F1F5FA'}" stroke-width="1" ${T===0?'stroke-dasharray="5 5"':''}/>`;
-    s += `<text x="${CX.L-9}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="11" fill="#93A2B8">${T}</text>`;
-  });
-
-  /* 纵向网格 */
-  for(let t=0;t<=DUR;t+=2){
-    const x = px(t);
-    s += `<line x1="${x.toFixed(1)}" y1="${CX.T}" x2="${x.toFixed(1)}" y2="${CX.B}" stroke="#F1F5FA" stroke-width="1"/>`;
-    s += `<text x="${x.toFixed(1)}" y="${CX.B+17}" text-anchor="middle" font-size="11" fill="#93A2B8">${t}</text>`;
-  }
-
-  /* 坐标轴 */
-  s += `<line x1="${CX.L}" y1="${CX.T}" x2="${CX.L}" y2="${CX.B}" stroke="#C7D4E4" stroke-width="1.6"/>`;
-  s += `<line x1="${CX.L}" y1="${CX.B}" x2="${CX.R}" y2="${CX.B}" stroke="#C7D4E4" stroke-width="1.6"/>`;
-  s += `<text x="20" y="${CX.T+4}" font-size="11" font-weight="700" fill="#6B7B94">T/℃</text>`;
-  s += `<text x="${CX.R}" y="${CX.B+36}" text-anchor="end" font-size="11" font-weight="700" fill="#6B7B94">t / min</text>`;
-
-  chartEl.innerHTML = s + `<g id="chartDyn"></g>`;
+add(new THREE.TorusGeometry(.42, .05, 8, 32), M.steel, 0, .3, 4.12, false);
+for(let i=0;i<6;i++){
+  const a = i/6*Math.PI*2;
+  add(new THREE.BoxGeometry(.07,.16,.04), M.brass, Math.cos(a)*.42, .3+Math.sin(a)*.42, 4.14, false);
 }
-
-function drawChart(){
-  let s = '';
-
-  SPECS.forEach(function(spec){
-    const pts = S.mode==='heat' ? spec.heat : spec.cool;
-    const a = pts[1][0], b = pts[2][0], Tm = spec.Tm;
-
-    /* 平台色带 */
-    if(S.t > a){
-      const x1 = px(a), x2 = px(Math.min(b,S.t));
-      s += `<rect x="${x1.toFixed(1)}" y="${(py(Tm)-7).toFixed(1)}" width="${(x2-x1).toFixed(1)}" height="14"
-             rx="3" fill="${spec.soft}" opacity=".9"/>`;
-    }
-
-    /* 已绘出的曲线 */
-    if(S.t > 0.001){
-      const d = [];
-      const step = 0.06;
-      for(let t=0;t<=S.t;t+=step){
-        d.push(px(t).toFixed(1)+','+py(interp(pts,t)).toFixed(1));
-      }
-      d.push(px(S.t).toFixed(1)+','+py(interp(pts,S.t)).toFixed(1));
-      s += `<path d="M${d.join('L')}" fill="none" stroke="${spec.color}"
-             stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round"/>`;
-
-      const cx = px(S.t), cy = py(interp(pts,S.t));
-      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.8" fill="#fff"
-             stroke="${spec.color}" stroke-width="2.6"/>`;
-    }
-
-    /* 平台标注 */
-    if(S.t >= b - 0.02){
-      const termW = S.mode==='heat' ? '熔点' : '凝固点';
-      s += `<text x="${((px(a)+px(b))/2).toFixed(1)}" y="${(py(Tm)-11).toFixed(1)}" text-anchor="middle"
-             font-size="11" font-weight="800" fill="${spec.color}">${termW} ${Tm}℃</text>`;
-    }
-  });
-
-  document.getElementById('chartDyn').innerHTML = s;
-}
-
-/* ============================================================
-   ③ 分子
-   ============================================================ */
-const microEl = document.getElementById('micro');
-const COLS=9, ROWS=5, MX0=54, MY0=44, MDX=40, MDY=30;
-const SEAT_W=22, SEAT_H=22;                // 座位方框（晶格位置）
-const STAR = 0*COLS + 4;                   // 高亮的那个：上排正中央，位置显眼、属于外圈（先走）
-
-const mols = (function(){
-  let s = 13;
-  const r = () => (s = (s*16807) % 2147483647) / 2147483647;
-  const out = [];
-  for(let row=0;row<ROWS;row++){
-    for(let col=0;col<COLS;col++){
-      const nx = col/(COLS-1) - 0.5;
-      const ny = row/(ROWS-1) - 0.5;
-      const d = Math.min(1, Math.hypot(nx,ny)/0.7071);
-      out.push({
-        lx: MX0 + col*MDX,
-        ly: MY0 + row*MDY,
-        /* 熔化从表面开始：越靠外，越早脱离晶格。
-           p 上界必须明显小于 1，否则 f 走到 1 时最内圈还没熔完，座位永远空不干净 */
-        p: 0.05 + 0.60*(1-d) + 0.13*r(),
-        ph: r()*6.2832,
-        w1: 2.1 + r()*1.7,
-        w2: 2.4 + r()*1.7
-      });
-    }
-  }
-  return out;
-})();
-
-function buildMicro(){
-  microEl.innerHTML =
-    `<rect x="18" y="14" width="404" height="184" rx="12" fill="#F7FAFF" stroke="#E4EDFB" stroke-width="1.4"/>`
-    + `<g id="microDots"></g>`;
-}
-
-function drawMicro(){
-  const spec = SPECS[0];                       // 用海波做代表
-  const st = stateOf(spec, S.t, S.mode);
-  const tt = performance.now()/1000;
-
-  /* 温度 → 抖动的「幅度」与「快慢」（这是唯一能让温度被看见的地方） */
-  const lo = 30, hi = 60;
-  const vig = clamp((st.T-lo)/(hi-lo), 0, 1);
-  const amp  = 1.0  + 3.6*vig;    // 抖多远
-  const rate = 0.70 + 3.0*vig;    // 抖多快
-
-  let s = '';
-
-  /* ① 座位方框：位置固定不动，人一走座位就地消失——熔化变成看得见的事件 */
-  for(let i=0;i<mols.length;i++){
-    const m = mols[i];
-    const w = clamp((st.f - m.p)/0.13, 0, 1);
-    if(w >= 0.995) continue;
-    s += `<rect x="${(m.lx-SEAT_W/2).toFixed(1)}" y="${(m.ly-SEAT_H/2).toFixed(1)}"
-           width="${SEAT_W}" height="${SEAT_H}" rx="4" fill="#EDF3FE" fill-opacity=".7"
-           stroke="#B9CDF0" stroke-width="1.2" opacity="${((1-w)*0.8).toFixed(2)}"/>`;
-  }
-
-  /* ② 连线：还坐在座位上的分子之间才有线，一离开就断 */
-  for(let i=0;i<mols.length;i++){
-    const m = mols[i];
-    const wg = clamp((st.f - m.p)/0.13, 0, 1);
-    if(wg > 0.55) continue;
-    const cI = i % COLS, rI = Math.floor(i/COLS);
-    const right = (cI < COLS-1) ? mols[i+1] : null;
-    const down  = (rI < ROWS-1) ? mols[i+COLS] : null;
-    const ax = m.lx + Math.sin(tt*m.w1*rate + m.ph)*amp;
-    const ay = m.ly + Math.cos(tt*m.w2*rate + m.ph*1.3)*amp;
-    [right,down].forEach(function(n){
-      if(!n) return;
-      const wn = clamp((st.f - n.p)/0.13, 0, 1);
-      if(wn > 0.55) return;
-      const bx = n.lx + Math.sin(tt*n.w1*rate + n.ph)*amp;
-      const by = n.ly + Math.cos(tt*n.w2*rate + n.ph*1.3)*amp;
-      const op = Math.max(0, 1 - Math.max(wg,wn)*1.8) * 0.62;
-      s += `<line x1="${ax.toFixed(1)}" y1="${ay.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"
-             stroke="#9DBBF5" stroke-width="1.5" opacity="${op.toFixed(2)}"/>`;
-    });
-  }
-
-  /* ③ 分子本体：坐着时在座位里抖，离开后满场跑 */
-  for(let i=0;i<mols.length;i++){
-    const m = mols[i];
-    const w = clamp((st.f - m.p)/0.13, 0, 1);
-
-    const lx = m.lx + Math.sin(tt*m.w1*rate + m.ph)*amp;
-    const ly = m.ly + Math.cos(tt*m.w2*rate + m.ph*1.3)*amp;
-
-    /* 脱离晶格后：贴在残存晶核外侧绕行，晶核越小，活动空间越大 */
-    const ang = m.ph + tt*(0.55 + 0.3*Math.sin(m.ph*2.1));
-    const ix = 160*(1-st.f) + 12;           // 晶核横向半宽（随熔化收缩）
-    const iy = ix*0.35 + 6;                 // 晶核是扁的
-    const k = 0.10 + 0.90*(0.5 + 0.5*Math.sin(m.ph*2.9 + tt*0.62));
-    const rx = ix + (198-ix)*k;
-    const ry = iy + (84-iy)*k;
-    const fx = clamp(220 + rx*Math.cos(ang), 34, 406);
-    const fy = clamp(106 + ry*Math.sin(ang), 26, 188);
-
-    const x = lerp(lx,fx,w);
-    const y = lerp(ly,fy,w);
-    const c = mixHex('#1D3E8F', '#7DB2F7', w);
-    const rad = lerp(6.4, 5.8, w);
-
-    /* 高亮的那一个：盯住它，看它什么时候离开座位 */
-    if(i === STAR){
-      s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(rad+3.6).toFixed(1)}"
-             fill="none" stroke="#F59E0B" stroke-width="2.4" opacity=".95"/>`;
-    }
-    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad.toFixed(1)}"
-           fill="${c}" opacity="${(0.94-0.16*w).toFixed(2)}"/>`;
-  }
-
-  document.getElementById('microDots').innerHTML = s;
-
-  /* 文案 */
-  const tag = document.getElementById('mtag');
-  const mt  = document.getElementById('mtext');
-  const barA = document.getElementById('barA');
-  const barB = document.getElementById('barB');
-  const pctA = document.getElementById('pctA');
-  const pctB = document.getElementById('pctB');
-  const rdA = document.getElementById('rdA');
-  const rdB = document.getElementById('rdB');
-  const rnA = document.getElementById('rnA');
-
-  const HEAT = (S.mode==='heat');
-
-  if(rdA)  rdA.textContent  = HEAT ? '抖得更快更猛' : '抖得越来越慢';
-  if(rdB)  rdB.textContent  = HEAT ? '离开座位'     : '坐回座位';
-  if(rnA)  rnA.textContent  = HEAT ? '→ 温度上升'   : '→ 温度下降';
-
-  if(st.phase==='solid'){
-    tag.style.color = '#1D4ED8';
-    tag.style.background = '#E6EEFF';
-    tag.querySelector('span').textContent = '固态 · 都坐在座位上';
-    mt.innerHTML = '分子<b>坐在各自的座位上</b>，只能在座位里抖动。热量全部用来让它们抖得更快更猛——'
-      + (HEAT ? '<b>抖得快，温度就高</b>，所以温度一路上升。'
-              : '<b>抖得慢，温度就低</b>，所以温度一路下降。');
-    barA.style.width='100%'; barB.style.width='0%';
-    if(pctA) pctA.textContent='100%'; if(pctB) pctB.textContent='0%';
-  }else if(st.phase==='mushy'){
-    tag.style.color = '#B45309';
-    tag.style.background = '#FEF3C7';
-    tag.querySelector('span').textContent = HEAT ? '熔化中 · 座位正在空掉' : '凝固中 · 座位正在坐满';
-    mt.innerHTML = '温度卡在 <span class="hl">48 ℃ 一动不动</span>。热量没丢，只是<b>换了份工作</b>：'
-      + (HEAT ? '不再让分子抖得更快，而是一个个<b>把它们从座位上拽走</b>。盯住橙色圈那个——它一离开，它的座位随即消失。座位全空，就是熔化完了。'
-              : '不再让分子抖得更慢，而是一个个<b>把它们按回座位</b>。每坐回一个就放出热量，放出的热刚好补上散掉的热，温度才不降。');
-    barA.style.width='0%'; barB.style.width='100%';
-    if(pctA) pctA.textContent='0%'; if(pctB) pctB.textContent='100%';
-  }else{
-    tag.style.color = '#0E7490';
-    tag.style.background = '#CFFAFE';
-    tag.querySelector('span').textContent = '液态 · 满场乱跑';
-    mt.innerHTML = '座位全空了，分子<b>离开座位满场乱跑</b>。热量又回到老本行——'
-      + (HEAT ? '让它们跑得更快，温度<b>重新上升</b>。'
-              : '它们跑得越来越慢，温度<b>继续下降</b>。');
-    barA.style.width='100%'; barB.style.width='0%';
-    if(pctA) pctA.textContent='100%'; if(pctB) pctB.textContent='0%';
+/* 侧面散热格栅 */
+for(const s of [-1,1]){
+  for(let i=0;i<5;i++){
+    add(new THREE.BoxGeometry(.12, .5, 1.5), M.steel, s*6.3, 1.05, -2.4 + i*.9, false);
   }
 }
+/* 舱体平台 */
+add(new THREE.CylinderGeometry(4.7, 4.9, .32, 64), M.dark, 0, 1.62, 0);
+const baseRing = add(new THREE.TorusGeometry(4.68, .055, 10, 96), M.cyan, 0, 1.79, 0, false);
+baseRing.rotation.x = Math.PI/2;
+glowSprite(0x49c6ff, 11, 0, 1.75, 0, .5);
 
-/* ============================================================
-   渲染与循环
-   ============================================================ */
-function render(){
-  SPECS.forEach(function(spec){
-    const g = document.getElementById('dyn-'+spec.key);
-    if(g) g.innerHTML = unitDyn(spec);
-  });
+/* 立柱 + 顶梁 */
+[-5.35, 5.35].forEach(x => {
+  add(new THREE.BoxGeometry(.5, 12.4, .5), M.dark, x, 6.9, -1.2);
+  add(new THREE.BoxGeometry(.62, .3, .62), M.steel, x, 1.55, -1.2);
+  add(new THREE.BoxGeometry(.22, 11.6, .06), M.darker, x + .3, 6.9, -1.2);
+});
+add(new THREE.BoxGeometry(11.2, .46, .52), M.dark, 0, 13.05, -1.2);
+add(new THREE.BoxGeometry(11.3, .07, .58), M.cyan, 0, 13.3, -1.2, false);
+
+/* 玻璃舱 */
+const chamber = add(new THREE.CylinderGeometry(4.35, 4.35, 10.2, 64, 1, true), M.glass, 0, 7.1, 0, false);
+chamber.renderOrder = 6;
+/* 舱体上下金属环 */
+[2.02, 12.12].forEach(y => {
+  const r = add(new THREE.TorusGeometry(4.4, .1, 12, 96), M.steel, 0, y, 0);
+  r.rotation.x = Math.PI/2;
+});
+/* 竖直支柱（舱壁外） */
+for(const a of [0.6, 2.7, 4.2, 5.5]){
+  add(new THREE.BoxGeometry(.07, 10.2, .07), M.steel, Math.cos(a)*4.42, 7.1, Math.sin(a)*4.42);
+}
+/* 顶盖 + 旋钮 */
+add(new THREE.CylinderGeometry(4.5, 4.5, .5, 64), M.dark, 0, 12.4, 0);
+add(new THREE.CylinderGeometry(4.55, 4.55, .1, 64), M.brass, 0, 12.68, 0);
+add(new THREE.CylinderGeometry(1.5, 1.7, .55, 32), M.steel, 0, 12.95, 0);
+add(new THREE.CylinderGeometry(.9, 1.1, .38, 32), M.brass, 0, 13.35, 0);
+add(new THREE.CylinderGeometry(.35, .35, .3, 24), M.steel, 0, 13.6, 0);
+/* 顶盖小孔环 */
+for(let i=0;i<8;i++){
+  const a = i/8*Math.PI*2;
+  add(new THREE.CylinderGeometry(.07,.07,.06,10), M.cyan, Math.cos(a)*3.3, 12.66, Math.sin(a)*3.3, false);
+}
+/* 舱内冷光（让内部器材可读） */
+const innerLight = new THREE.PointLight(0x7fd2ff, 3.2, 8, 2);
+innerLight.position.set(0, 6.4, 0); G.add(innerLight);
+
+/* 舱内扫描光环（科幻感） */
+const scanRing = add(new THREE.TorusGeometry(4.0, .022, 8, 80), M.cyan, 0, 4, 0, false);
+scanRing.rotation.x = Math.PI/2;
+scanRing.material = new THREE.MeshBasicMaterial({color:0x8fe4ff, transparent:true, opacity:.55,
+  blending:THREE.AdditiveBlending, depthWrite:false});
+
+/* 左侧铭牌 */
+const plate = add(new THREE.BoxGeometry(2.6, .62, .08), M.dark, -5.36, 5.6, -1.2);
+const plateTxt = textSprite('CRYSTAL LAB', '#8fe4ff', 2.2, .55, 30);
+plateTxt.position.set(-5.36, 5.6, -1.12); G.add(plateTxt);
+
+/* ================= 舱内实验器材 ================= */
+/* 加热模块 */
+const heater = add(new THREE.CylinderGeometry(3.35, 3.35, .26, 64), M.dark, 0, 2.15, 0);
+const heaterRing1 = add(new THREE.TorusGeometry(2.7, .05, 8, 64), M.amber, 0, 2.29, 0, false);
+heaterRing1.rotation.x = Math.PI/2;
+const heaterRing2 = add(new THREE.TorusGeometry(1.7, .045, 8, 48), M.amber, 0, 2.29, 0, false);
+heaterRing2.rotation.x = Math.PI/2;
+const heaterGlow = glowSprite(0xff8f3a, 6.5, 0, 2.4, 0, 0);
+const heatLight = new THREE.PointLight(0xff9a4a, 0, 12, 2);
+heatLight.position.set(0, 2.9, 0); G.add(heatLight);
+
+/* 烧杯（水浴） */
+const beaker = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, 6.0, 64, 1, true), M.glassHi);
+beaker.position.set(0, 5.2, 0); beaker.renderOrder = 5; G.add(beaker);
+const beakerBottom = new THREE.Mesh(new THREE.CircleGeometry(3.2, 64), M.glassHi);
+beakerBottom.rotation.x = -Math.PI/2; beakerBottom.position.y = 2.22; beakerBottom.renderOrder = 5; G.add(beakerBottom);
+const beakerRim = add(new THREE.TorusGeometry(3.22, .05, 8, 64), M.steel, 0, 8.2, 0, false);
+beakerRim.rotation.x = Math.PI/2;
+const water = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, 4.7, 64), M.water);
+water.position.set(0, 4.62, 0); water.renderOrder = 2; G.add(water);
+
+/* 试管 */
+const tubeGlass = new THREE.MeshPhysicalMaterial({color:0xdff4ff, transparent:true, opacity:.07,
+  roughness:.02, side:THREE.DoubleSide, depthWrite:false, envMapIntensity:1.2});
+const tube = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 8.0, 40, 1, true), tubeGlass);
+tube.position.set(0, 6.8, 0); tube.renderOrder = 7; G.add(tube);
+const tubeBot = new THREE.Mesh(new THREE.CircleGeometry(1.0, 40), tubeGlass);
+tubeBot.rotation.x = -Math.PI/2; tubeBot.position.y = 2.81; tubeBot.renderOrder = 7; G.add(tubeBot);
+const tubeRim = add(new THREE.TorusGeometry(1.02, .04, 8, 40), M.steel, 0, 10.8, 0, false);
+tubeRim.rotation.x = Math.PI/2;
+/* 试管夹（从立柱伸出） */
+add(new THREE.BoxGeometry(5.1, .16, .16), M.steel, -2.7, 10.4, -.6);
+add(new THREE.TorusGeometry(1.05, .05, 8, 32), M.steel, 0, 10.4, 0).rotation.x = Math.PI/2;
+
+/* 海波晶粒 */
+const chunkGroup = new THREE.Group(); G.add(chunkGroup);
+const chunks = [];
+for(let i=0;i<18;i++){
+  const c = new THREE.Mesh(new THREE.IcosahedronGeometry(.24+Math.random()*.16, 0), M.crystal);
+  const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*.66;
+  c.position.set(Math.cos(a)*r, 3.0+Math.random()*1.5, Math.sin(a)*r);
+  c.rotation.set(Math.random()*3, Math.random()*3, Math.random()*3);
+  c.renderOrder = 3; chunkGroup.add(c); chunks.push(c);
+}
+/* 液池 */
+const pool3d = new THREE.Mesh(new THREE.CylinderGeometry(.92,.92,1,40), M.pool);
+pool3d.renderOrder = 3; G.add(pool3d);
+/* 石蜡 */
+const wax = new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,1.9,40), M.wax);
+wax.position.set(0, 3.8, 0); wax.renderOrder = 3; G.add(wax);
+
+/* 温度计（金属刻度板 + 玻璃管 + 红色液柱） */
+add(new THREE.BoxGeometry(.72, 8.4, .1), M.dark, 0, 7.6, -.28);
+const therm = new THREE.Mesh(new THREE.CylinderGeometry(.17,.17,10.0,16,1,true), M.glassHi);
+therm.position.set(0, 8.0, 0); therm.renderOrder = 8; G.add(therm);
+const bulb3d = new THREE.Mesh(new THREE.SphereGeometry(.16,16,16),
+  new THREE.MeshStandardMaterial({color:0xff4a38, emissive:0xc02412, emissiveIntensity:.9, roughness:.3}));
+bulb3d.position.set(0, 3.22, 0); G.add(bulb3d);
+const redGeo = new THREE.CylinderGeometry(.12,.12,1,12); redGeo.translate(0,.5,0);
+const redCol = new THREE.Mesh(redGeo, new THREE.MeshStandardMaterial({
+  color:0xff4a38, emissive:0xd02a16, emissiveIntensity:1.3, roughness:.3}));
+redCol.position.set(0, 3.24, 0); G.add(redCol);
+/* 刻度 */
+for(let T=20; T<=90; T+=10){
+  const y = 3.24 + ((T-20)/70)*6.6;
+  const ring = add(new THREE.TorusGeometry(.21, .014, 6, 20), M.steel, 0, y, 0, false);
+  ring.rotation.x = Math.PI/2;
+  if(T % 20 === 0){
+    const sp = textSprite(String(T), '#cfefff', .78, .39, 44);
+    sp.position.set(.72, y, 0); G.add(sp);
+  }
+}
+/* 水面 / 液面细节：泡沫环 */
+const foam = add(new THREE.TorusGeometry(3.02, .03, 6, 64), new THREE.MeshBasicMaterial({
+  color:0xbfefff, transparent:true, opacity:.4, blending:THREE.AdditiveBlending}), 0, 6.96, 0, false);
+foam.rotation.x = Math.PI/2;
+
+/* 气泡 */
+const bubbles = [];
+const bubbleMat = new THREE.MeshBasicMaterial({color:0xe6faff, transparent:true, opacity:.85});
+for(let i=0;i<12;i++){
+  const b = new THREE.Mesh(new THREE.SphereGeometry(.05+Math.random()*.045,8,8), bubbleMat);
+  const a = Math.random()*Math.PI*2, r = Math.random()*2.7;
+  b.position.set(Math.cos(a)*r, 2.4+Math.random()*4, Math.sin(a)*r);
+  b.userData.spd = .55+Math.random()*.8;
+  G.add(b); bubbles.push(b);
+}
+
+
+/* ================= 物理模型 ================= */
+const MP = 48;
+const S = {mode:'melt', heating:false, t:0, waterT:22, sampleT:25, solid:1, soft:0, pts:[], rec:0};
+const $ = id => document.getElementById(id);
+const btnHeat = $('btnHeat'), btnReset = $('btnReset'), btnCurve = $('btnCurve');
+const chartBox = $('chartBox'), lblState = $('lblState'), lblTherm = $('lblTherm'), lblBath = $('lblBath');
+const tempVal = $('tempVal'), stateTxt = $('stateTxt'), heatTxt = $('heatTxt');
+
+function initMode(m){
+  S.mode = m;
+  const tabIds = {melt:'tabMelt', freeze:'tabFreeze', wax:'tabWax'};
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
+  const activeTab = document.getElementById(tabIds[m]);
+  if(activeTab) activeTab.classList.add('active'); S.heating = false; S.t = 0; S.pts = []; S.rec = 0;
+  if(m === 'freeze'){ S.waterT = 78; S.sampleT = 72; S.solid = 0; }
+  else { S.waterT = 22; S.sampleT = 25; S.solid = 1; }
+  S.soft = 0;
+  btnHeat.classList.remove('on'); heatTxt.textContent = '加热';
+  const isWax = (m === 'wax');
+  $('lblSample').textContent = isWax ? '石蜡 · 非晶体样品' : '海波 · 晶体样品';
+  chunkGroup.visible = !isWax;
+  pool3d.visible = !isWax;
+  wax.visible = isWax;
+  updateVisuals(0);
   drawChart();
 }
 
-let last = 0;
-function tick(ts){
-  if(!last) last = ts;
-  const dt = Math.min(0.06, (ts-last)/1000);
-  last = ts;
-
-  if(S.playing){
-    S.t = Math.min(DUR, S.t + dt*S.speed*(DUR/13));
-    if(S.t >= DUR - 1e-6){ S.t = DUR; S.playing = false; updatePlay(); }
-    syncScrub();
-    S.dirty = true;
+function update(dt){
+  const target = S.heating ? 85 : 22;
+  S.waterT += THREE.MathUtils.clamp(target - S.waterT, -2.2*dt, 6*dt);
+  if(S.mode === 'wax'){
+    S.sampleT += (S.waterT - S.sampleT) * .45 * dt;
+  } else {
+    const mRate = .13 * Math.min(Math.max((S.waterT - MP)/20, .15), 1.6);
+    const fRate = .13 * Math.min(Math.max((MP - S.waterT)/20, .15), 1.6);
+    if(S.solid > 0 && S.solid < 1){
+      S.sampleT = MP;
+      if(S.waterT > MP) S.solid = Math.max(0, S.solid - mRate*dt);
+      else if(S.waterT < MP) S.solid = Math.min(1, S.solid + fRate*dt);
+    } else {
+      S.sampleT += (S.waterT - S.sampleT) * .45 * dt;
+      if(S.solid === 1 && S.sampleT >= MP && S.waterT > MP){
+        S.sampleT = MP; S.solid = Math.max(0, S.solid - mRate*dt);
+      } else if(S.solid === 0 && S.sampleT <= MP && S.waterT < MP){
+        S.sampleT = MP; S.solid = Math.min(1, S.solid + fRate*dt);
+      }
+    }
   }
-
-  if(S.dirty){ render(); S.dirty = false; }
-  drawMicro();
-
-  requestAnimationFrame(tick);
+  S.soft = THREE.MathUtils.clamp((S.sampleT - 42)/25, 0, 1);
+  S.rec += dt;
+  if(S.rec > .35){ S.rec = 0; S.pts.push({t:S.t, T:S.sampleT}); if(S.pts.length > 900) S.pts.shift(); }
+  S.t += dt;
 }
 
-/* ============================================================
-   交互
-   ============================================================ */
-const playBtn = document.getElementById('play');
-const scrub   = document.getElementById('scrub');
-const tval    = document.getElementById('tval');
-
-function syncScrub(){
-  scrub.value = S.t;
-  const p = S.t/DUR*100;
-  scrub.style.background = 'linear-gradient(to right,#2563EB '+p+'%,#E2E8F0 '+p+'%)';
-  tval.textContent = S.t.toFixed(1);
+function updateVisuals(dt){
+  /* 样品形态 */
+  if(S.mode === 'wax'){
+    wax.scale.set(1+.15*S.soft, 1-.55*S.soft, 1+.15*S.soft);
+    M.wax.roughness = .55 - .35*S.soft;
+    M.wax.opacity = .98 - .28*S.soft;
+  } else {
+    chunkGroup.visible = S.solid > .001;
+    const cs = .4 + .6*S.solid;
+    chunks.forEach(c => c.scale.setScalar(cs));
+    const ph = (1-S.solid)*1.7;
+    pool3d.visible = ph > .02;
+    pool3d.scale.y = Math.max(ph, .001);
+    pool3d.position.y = 2.9 + ph/2;
+  }
+  redCol.scale.y = THREE.MathUtils.clamp((S.sampleT-20)/70, .01, 1) * 6.6;
+  /* 加热视觉 */
+  const on = S.heating;
+  heaterRing1.material = on ? M.amber : M.dark;
+  heaterRing2.material = on ? M.amber : M.dark;
+  heaterGlow.material.opacity = on ? .5 + .12*Math.sin(el*6) : 0;
+  heatLight.intensity = on ? 12 + 3*Math.sin(el*8) : 0;
+  /* 水色随温度 */
+  const heatRatio = THREE.MathUtils.clamp((S.waterT-22)/63, 0, 1);
+  M.water.color.setHSL(0.56 - 0.10*heatRatio, .68, .40 + .05*heatRatio);
 }
 
-function updatePlay(){
-  playBtn.innerHTML = S.playing
-    ? '<svg width="11" height="13" viewBox="0 0 11 13"><rect width="3.6" height="13" rx="1.4" fill="#fff"/><rect x="7.4" width="3.6" height="13" rx="1.4" fill="#fff"/></svg>'
-    : '<svg width="12" height="13" viewBox="0 0 12 13"><path d="M1.6.9 11 5.6c.7.35.7 1.45 0 1.8L1.6 12.1c-.7.35-1.6-.17-1.6-1V1.9C0 1.07.9.55 1.6.9Z" fill="#fff"/></svg>';
-  playBtn.setAttribute('aria-label', S.playing ? '暂停' : '播放');
+/* ================= 温度曲线 ================= */
+const chart = $('chart'), cctx = chart.getContext('2d');
+const W = 318, H = 196, L = 34, R = 12, TP = 16, B = 26;
+function drawChart(){
+  cctx.clearRect(0,0,W,H);
+  cctx.fillStyle = '#08121a'; cctx.fillRect(0,0,W,H);
+  const tMax = Math.max(60, S.t);
+  const X = t => L + (t/tMax)*(W-L-R);
+  const Y = T => TP + (95-T)/(95-15)*(H-TP-B);
+  /* 网格 */
+  cctx.lineWidth = 1; cctx.font = '9px "Consolas",monospace';
+  for(let T=20; T<=90; T+=10){
+    const y = Y(T);
+    cctx.strokeStyle = 'rgba(70,180,230,.14)';
+    cctx.beginPath(); cctx.moveTo(L,y); cctx.lineTo(W-R,y); cctx.stroke();
+    cctx.fillStyle = 'rgba(140,196,224,.75)'; cctx.fillText(T, 10, y+3);
+  }
+  for(let i=1;i<=4;i++){
+    const x = L + i/5*(W-L-R);
+    cctx.strokeStyle = 'rgba(70,180,230,.07)';
+    cctx.beginPath(); cctx.moveTo(x,TP); cctx.lineTo(x,H-B); cctx.stroke();
+  }
+  /* 熔点线 */
+  if(S.mode !== 'wax'){
+    const y = Y(MP);
+    cctx.setLineDash([4,4]); cctx.strokeStyle = 'rgba(255,178,77,.85)';
+    cctx.beginPath(); cctx.moveTo(L,y); cctx.lineTo(W-R,y); cctx.stroke();
+    cctx.setLineDash([]);
+    cctx.fillStyle = '#ffb24d';
+    cctx.fillText(S.mode==='freeze' ? '凝固点 48℃' : '熔点 48℃', L+4, y-4);
+  }
+  /* 坐标轴 */
+  cctx.strokeStyle = 'rgba(90,190,235,.4)';
+  cctx.beginPath(); cctx.moveTo(L,TP); cctx.lineTo(L,H-B); cctx.lineTo(W-R,H-B); cctx.stroke();
+  cctx.fillStyle = 'rgba(140,196,224,.75)';
+  cctx.fillText('t/s', W-30, H-8);
+  cctx.fillText('T/℃', L+4, TP+9);
+  /* 曲线 */
+  if(S.pts.length > 1){
+    cctx.shadowColor = 'rgba(255,86,60,.75)'; cctx.shadowBlur = 9;
+    cctx.strokeStyle = '#ff5c46'; cctx.lineWidth = 2;
+    cctx.beginPath();
+    S.pts.forEach((p,i)=>{ const x=X(p.t), y=Y(p.T); i ? cctx.lineTo(x,y) : cctx.moveTo(x,y); });
+    cctx.stroke();
+    /* 当前点 */
+    const last = S.pts[S.pts.length-1];
+    cctx.fillStyle = '#ffd0c6';
+    cctx.beginPath(); cctx.arc(X(last.t), Y(last.T), 2.6, 0, 6.283); cctx.fill();
+    cctx.shadowBlur = 0;
+  }
 }
 
-playBtn.addEventListener('click', function(){
-  if(S.t >= DUR - 1e-6) S.t = 0;
-  S.playing = !S.playing;
-  updatePlay(); syncScrub(); S.dirty = true;
+/* ================= 标签投影 ================= */
+/* 标签配置：3D 锚点 + 屏幕偏移（正=右/下），引线自动绘制 */
+const LABELS = [
+  {el:'lblTherm',  anchor:new THREE.Vector3(-.2, 13.0, 0),   dx:-160, dy:-74},
+  {el:'lblTube',   anchor:new THREE.Vector3(1.0, 10.3, 0),   dx: 200, dy:-58},
+  {el:'lblBath',   anchor:new THREE.Vector3(-3.15, 7.6, .3), dx:-186, dy:-24},
+  {el:'lblSample', anchor:new THREE.Vector3(-.8, 4.35, .5),  dx:-196, dy: 6},
+  {el:'lblState',  anchor:new THREE.Vector3(.85, 3.45, .5),  dx: 212, dy: 34},
+  {el:'lblHeater', anchor:new THREE.Vector3(-2.3, 2.3, 1.1), dx:-218, dy: 56},
+];
+const v3 = new THREE.Vector3();
+const leadSvg = document.getElementById('lead');
+const SVGNS = 'http://www.w3.org/2000/svg';
+LABELS.forEach(L => {
+  L.dom = document.getElementById(L.el);
+  L.g = document.createElementNS(SVGNS,'g');
+  L.halo = document.createElementNS(SVGNS,'circle'); L.halo.setAttribute('class','halo'); L.halo.setAttribute('r','7');
+  L.dot  = document.createElementNS(SVGNS,'circle'); L.dot.setAttribute('class','dot');  L.dot.setAttribute('r','2.8');
+  L.line = document.createElementNS(SVGNS,'polyline');
+  L.g.append(L.halo, L.line, L.dot); leadSvg.append(L.g);
 });
-
-/* ===== 模式文案：加热/冷却换的是整套说法，不是一个词 ===== */
-function txt(sel, html){
-  const el = document.querySelector(sel);
-  if(el) el.innerHTML = html;
+function placeLbl(L){
+  v3.copy(L.anchor).project(camera);
+  if(v3.z > 1){ L.dom.style.display = 'none'; L.g.style.display = 'none'; return; }
+  L.dom.style.display = ''; L.g.style.display = '';
+  const ax = (v3.x*.5+.5)*innerWidth, ay = (-v3.y*.5+.5)*innerHeight;
+  let lx = ax + L.dx, ly = ay + L.dy;
+  lx = Math.min(Math.max(lx, 80), innerWidth-80);
+  ly = Math.min(Math.max(ly, 24), innerHeight-24);
+  L.dom.style.left = lx + 'px';
+  L.dom.style.top  = ly + 'px';
+  const w = L.dom.offsetWidth/2 + 3;
+  const sgn = L.dx >= 0 ? 1 : -1;
+  const ex = lx - sgn*w;
+  L.line.setAttribute('points', `${ax},${ay} ${ex - sgn*16},${ly} ${ex},${ly}`);
+  L.dot.setAttribute('cx',ax);  L.dot.setAttribute('cy',ay);
+  L.halo.setAttribute('cx',ax); L.halo.setAttribute('cy',ay);
 }
 
-const MODE_TXT = {
-  heat:{
-    title:'晶体熔化曲线 · 海波与冰的分组实验',
-    lead :'两支试管放进同一水浴里加热，同时记录温度。把测得的温度逐点描在温度—时间图上，再回头看看试管里的分子在做什么。',
-    m2h  :'微观视角：为什么吸着热却不升温',
-    m2p  :'每个<b>方框</b>是一个座位，圆点是分子。盯住橙色圈住的那个，看它什么时候离开座位。',
-    mCap :'吸收的热量',
-    tk1h :'平台就是熔点',
-    tk1p :'曲线上的水平段说明：<b>继续加热，温度却不动</b>。这一段对应的温度，就是这种晶体的<b>熔点</b>。',
-    tk3h :'两种晶体，两个熔点',
-    tk3p :'冰 0 ℃、海波 48 ℃，<b>都有平台，但位置不同</b>。熔点由物质本身决定，与加热快慢无关。',
-    micro:'分子排布随熔化逐渐松散'
-  },
-  cool:{
-    title:'晶体凝固曲线 · 海波与冰的分组实验',
-    lead :'把熔化的海波和冰从水浴里取出冷却，同时记录温度。同样把温度逐点描在温度—时间图上，看看曲线往回走时会发生什么。',
-    m2h  :'微观视角：为什么放着热却不降温',
-    m2p  :'每个<b>方框</b>是一个座位，圆点是分子。盯住橙色圈住的那个，看它什么时候坐回座位。',
-    mCap :'放出的热量',
-    tk1h :'平台就是凝固点',
-    tk1p :'曲线上的水平段说明：<b>继续放热，温度却不动</b>。这一段对应的温度，就是这种晶体的<b>凝固点</b>。',
-    tk3h :'两种晶体，两个凝固点',
-    tk3p :'冰 0 ℃、海波 48 ℃，<b>都有平台，但位置不同</b>。凝固点由物质本身决定，与冷却快慢无关。',
-    micro:'分子排布随凝固逐渐归位'
-  }
+/* ================= 交互 ================= */
+$('tabMelt').onclick   = e => setTab(e, 'melt');
+$('tabFreeze').onclick = e => setTab(e, 'freeze');
+$('tabWax').onclick    = e => setTab(e, 'wax');
+function setTab(e, m){
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  initMode(m);
+}
+btnHeat.onclick = () => {
+  S.heating = !S.heating;
+  btnHeat.classList.toggle('on', S.heating);
+  heatTxt.textContent = S.heating ? '停止' : '加热';
+};
+btnReset.onclick = () => initMode(S.mode);
+btnCurve.onclick = () => {
+  const hidden = chartBox.classList.toggle('hidden');
+  $('btnCurve').style.opacity = hidden ? .55 : 1;
 };
 
-function applyModeText(){
-  const m = MODE_TXT[S.mode] || MODE_TXT.heat;
-  txt('#pageTitle', m.title);
-  txt('#heroLead' , m.lead);
-  txt('#m2h'      , m.m2h);
-  txt('#m2lead'   , m.m2p);
-  txt('#mCap'     , m.mCap);
-  txt('#tk1h'     , '<span></span>' + m.tk1h);
-  txt('#tk1p'     , m.tk1p);
-  txt('#tk3h'     , '<span></span>' + m.tk3h);
-  txt('#tk3p'     , m.tk3p);
-  const mi = document.getElementById('micro');
-  if(mi) mi.setAttribute('aria-label', m.micro);
+/* ================= 主循环 ================= */
+const clock = new THREE.Clock();
+const qs = new URLSearchParams(location.search);
+const STILL = qs.has('still');
+let frames = 0;
+let el = 0;
+function animate(){
+  requestAnimationFrame(animate);
+  frames++;
+  const dt = STILL ? 0 : Math.min(clock.getDelta(), .05);
+  el += STILL ? 0 : dt;
+
+  update(dt);
+  updateVisuals(dt);
+
+  /* 扫描环 */
+  scanRing.position.y = 4.2 + 4.6*(0.5+0.5*Math.sin(el*.7));
+  scanRing.material.opacity = .28 + .25*Math.sin(el*.7);
+
+  /* 气泡 */
+  bubbles.forEach(b => {
+    b.visible = S.heating;
+    if(S.heating){ b.position.y += b.userData.spd*dt; if(b.position.y > 6.9) b.position.y = 2.4; }
+  });
+
+  /* 标签 + HUD */
+  let st;
+  if(S.mode === 'wax') st = S.soft < .15 ? '固态' : (S.soft > .75 ? '液态' : '变软');
+  else st = S.solid > .98 ? '固态' : (S.solid < .02 ? '液态' : '固液共存');
+  lblState.textContent = st; stateTxt.textContent = st;
+  tempVal.textContent = S.sampleT.toFixed(1);
+  LABELS.forEach(placeLbl);
+
+  if(!chartBox.classList.contains('hidden')) drawChart();
+  controls.update();
+  composer.render();
 }
 
-scrub.addEventListener('input', function(){
-  S.t = parseFloat(scrub.value);
-  S.playing = false;
-  updatePlay(); syncScrub(); S.dirty = true;
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+  bloom.setSize(innerWidth, innerHeight);
 });
 
-document.querySelectorAll('#speed button').forEach(function(b){
-  b.addEventListener('click', function(){
-    S.speed = parseFloat(b.dataset.s);
-    document.querySelectorAll('#speed button').forEach(function(x){
-      x.classList.toggle('on', x===b);
-    });
-  });
-});
-
-document.querySelectorAll('#modeSwitch button').forEach(function(b){
-  b.addEventListener('click', function(){
-    S.mode = b.dataset.mode;
-    document.querySelectorAll('#modeSwitch button').forEach(function(x){
-      x.classList.toggle('on', x===b);
-    });
-    S.t = 0;
-    S.playing = false;
-    buildStage();
-    applyModeText();
-    updatePlay(); syncScrub();
-    S.dirty = true;
-  });
-});
-
-/* ============================================================
-   启动
-   ============================================================ */
-buildStage();
-buildChart();
-buildMicro();
-applyModeText();
-updatePlay();
-syncScrub();
-S.dirty = true;
-requestAnimationFrame(tick);
+initMode('melt');
+if(qs.has('mode')) initMode(qs.get('mode'));
+if(qs.has('heat')){ S.heating = true; btnHeat.classList.add('on'); heatTxt.textContent = '停止'; }
+const warm = parseFloat(qs.get('warm') || '0');
+for(let i=0; i<warm*30; i++){ update(1/30); el += 1/30; }
+animate();
 </script>
 </body>
 </html>

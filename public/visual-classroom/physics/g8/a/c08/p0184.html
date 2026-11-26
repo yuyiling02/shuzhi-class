@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>玻尔氢原子模型 · 光谱模拟器</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;
+    font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+    background:radial-gradient(1300px 850px at 50% 18%, #0e2a4d 0%, #081a35 48%, #04102a 100%);
+    color:#cfe4ff;user-select:none}
+  #scene{position:fixed;inset:0}
+  canvas{display:block}
+  /* ------- 3D 跟随标签 ------- */
+  #labels{position:fixed;inset:0;pointer-events:none;z-index:6}
+  .lbl{position:absolute;transform:translate(-50%,-50%);
+    background:rgba(6,18,40,.82);border:1px solid rgba(80,180,255,.55);
+    color:#bfe3ff;font-size:12px;font-weight:600;padding:2px 9px;border-radius:11px;
+    white-space:nowrap;box-shadow:0 0 8px rgba(40,140,255,.25);backdrop-filter:blur(3px)}
+  .lbl em{font-style:normal;font-weight:400;opacity:.75;font-size:10.5px;margin-left:4px}
+  .lbl.small{font-size:10px;padding:1px 7px;opacity:.85;border-color:rgba(80,180,255,.3)}
+  .lbl.key{font-size:12.5px;color:#e8f6ff;border-color:rgba(120,210,255,.8);
+    box-shadow:0 0 12px rgba(60,170,255,.4)}
+  .lbl.photon{border-color:rgba(255,170,60,.7);color:#ffd9a8;
+    box-shadow:0 0 10px rgba(255,150,40,.35)}
+  /* ------- 标题 ------- */
+  #titleBar{position:fixed;top:16px;left:22px;z-index:10}
+  #titleBar h1{font-size:19px;color:#e8f4ff;letter-spacing:1px;
+    text-shadow:0 0 14px rgba(60,160,255,.5)}
+  #titleBar p{font-size:11.5px;color:#7fa8d4;margin-top:3px}
+  /* ------- 状态条 ------- */
+  #stateChip{position:fixed;top:74px;left:22px;z-index:10;max-width:46vw;
+    background:linear-gradient(135deg,rgba(12,30,60,.82),rgba(6,16,36,.72));
+    border:1px solid rgba(90,180,255,.4);border-radius:10px;
+    padding:8px 12px;font-size:12.5px;line-height:1.7;backdrop-filter:blur(8px);
+    box-shadow:0 0 18px rgba(40,130,255,.15), inset 0 0 20px rgba(50,140,255,.06)}
+  #stateText{color:#8fd4ff;font-weight:700}
+  #transText{color:#a8c6e8;font-size:11.5px}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;
+    border:1px solid rgba(255,255,255,.25);margin-left:4px}
+  /* ------- 控制条 ------- */
+  #ctrlBar{position:fixed;top:16px;right:22px;z-index:10;display:flex;gap:8px;align-items:center;
+    background:linear-gradient(135deg,rgba(12,30,60,.82),rgba(6,16,36,.72));
+    border:1px solid rgba(90,180,255,.4);border-radius:12px;
+    padding:8px 12px;backdrop-filter:blur(8px);
+    box-shadow:0 0 18px rgba(40,130,255,.15), inset 0 0 20px rgba(50,140,255,.06)}
+  #ctrlBar label{font-size:11px;color:#7fa8d4;white-space:nowrap}
+  select{padding:4px 6px;border:1px solid rgba(80,160,255,.45);border-radius:7px;
+    background:rgba(10,28,56,.9);color:#cfe4ff;font-size:12px;outline:none}
+  button{border:1px solid rgba(80,180,255,.55);border-radius:8px;padding:5px 13px;
+    font-size:12px;cursor:pointer;color:#dff2ff;background:rgba(35,90,170,.55);transition:.15s}
+  button:hover{background:rgba(60,130,220,.7);box-shadow:0 0 10px rgba(70,170,255,.4)}
+  button.ghost{background:rgba(15,40,80,.6)}
+  /* ------- 底部光谱 ------- */
+  #spectrumPanel{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;
+    width:min(860px,92vw);z-index:10;
+    background:linear-gradient(135deg,rgba(12,30,60,.82),rgba(6,16,36,.72));
+    border:1px solid rgba(90,180,255,.4);border-radius:12px;
+    padding:8px 10px 10px;backdrop-filter:blur(8px);
+    box-shadow:0 0 18px rgba(40,130,255,.15), inset 0 0 20px rgba(50,140,255,.06)}
+  #spectrumPanel .ptitle{font-size:12px;font-weight:700;color:#9fd0ff;margin-bottom:6px;
+    display:flex;justify-content:space-between}
+  #spectrumPanel .ptitle em{font-style:normal;font-size:10px;font-weight:400;color:#6f94c0}
+  #spectrumCanvas{width:100%;height:88px;border-radius:8px;display:block}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="labels"></div>
+
+<div id="titleBar">
+  <h1>玻尔氢原子模型 · 光谱模拟器</h1>
+  <p>氢原子光谱和玻尔的原子模型 · E<sub>n</sub> = −13.6/n² eV · 拖动旋转 · 滚轮缩放 · 点击轨道跃迁</p>
+</div>
+
+<div id="stateChip">
+  <div id="stateText">电子：n = 2（激发态）· E = −3.40 eV</div>
+  <div id="transText">点击任意轨道即可跃迁：点击内轨 → 释放光子；点击外轨 → 吸收光子</div>
+</div>
+
+<div id="ctrlBar">
+  <label>跃迁</label>
+  <select id="modeSel">
+    <option value="auto">自动</option>
+    <option value="emit">释放光子</option>
+    <option value="absorb">吸收光子</option>
+  </select>
+  <select id="targetSel">
+    <option value="1">n=1</option><option value="2">n=2</option>
+    <option value="3" selected>n=3</option><option value="4">n=4</option>
+    <option value="5">n=5</option><option value="6">n=6</option>
+  </select>
+  <button id="goBtn">触发</button>
+  <button id="specToggle" class="ghost">隐藏光谱</button>
+  <button id="resetBtn" class="ghost">重置</button>
+</div>
+
+<div id="spectrumPanel">
+  <div class="ptitle">氢原子线状光谱<em>λ / nm · 紫外 | 可见光 | 红外</em></div>
+  <canvas id="spectrumCanvas"></canvas>
+</div>
+
+<script src="../../../../vendor/three/0.128.0/build/three.min.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="../../../../vendor/three/0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script>
+//__MAIN_JS__
+(function(){
+'use strict';
+
+/* ================= 物理常数与工具 ================= */
+var RY = 1.0968e7;
+var NMAX = 6;
+function energyOf(n){ return -13.6/(n*n); }
+function wlNm(lo,hi){ return 1e9/(RY*(1/(lo*lo)-1/(hi*hi))); }
+function orbitR(n){ return 2.4*n+1.0; }
+function angSpeed(n){ return 2.6/Math.pow(n,1.5); }
+
+function wl2rgb(wl){
+  var r=0,g=0,b=0;
+  if(wl<380) return [0.55,0.15,1];
+  if(wl>780) return [0.62,0.10,0.05];
+  if(wl<440){ r=(440-wl)/60; g=0; b=1; }
+  else if(wl<490){ r=0; g=(wl-440)/50; b=1; }
+  else if(wl<510){ r=0; g=1; b=(510-wl)/20; }
+  else if(wl<580){ r=(wl-510)/70; g=1; b=0; }
+  else if(wl<645){ r=1; g=(645-wl)/65; b=0; }
+  else { r=1; g=0; b=0; }
+  return [r,g,b];
+}
+function wlCss(wl){
+  if(wl<380) return '#8a5cff';
+  if(wl>780) return '#ff5a36';
+  var c=wl2rgb(wl);
+  return 'rgb('+Math.round(c[0]*255)+','+Math.round(c[1]*255)+','+Math.round(c[2]*255)+')';
+}
+function fmtNu(wl){
+  var nu=2.998e17/wl, e=Math.floor(Math.log10(nu)), m=(nu/Math.pow(10,e)).toFixed(2);
+  return m+'×10<sup>'+e+'</sup>';
+}
+
+/* ================= 三维场景（深蓝科技风） ================= */
+var scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x06122a, 70, 190);
+var camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 400);
+camera.position.set(0, 15, 30);
+var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+document.getElementById('scene').appendChild(renderer.domElement);
+
+var controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = .06;
+controls.minDistance = 9; controls.maxDistance = 70;
+controls.maxPolarAngle = 1.52; controls.target.set(0,0,0);
+controls.autoRotate = true; controls.autoRotateSpeed = 0.7;
+var rotTimer=null;
+controls.addEventListener('start',function(){
+  controls.autoRotate=false; if(rotTimer) clearTimeout(rotTimer);
+});
+controls.addEventListener('end',function(){
+  if(rotTimer) clearTimeout(rotTimer);
+  rotTimer=setTimeout(function(){ controls.autoRotate=true; },4000);
+});
+
+/* 环境反射贴图（提升金属/光泽质感） */
+var envTex=(function(){
+  var c=document.createElement('canvas'); c.width=512; c.height=256;
+  var g=c.getContext('2d');
+  var grd=g.createLinearGradient(0,0,0,256);
+  grd.addColorStop(0,'#1a3a66'); grd.addColorStop(.45,'#3f74b8');
+  grd.addColorStop(.55,'#0e2a4d'); grd.addColorStop(1,'#050d1f');
+  g.fillStyle=grd; g.fillRect(0,0,512,256);
+  g.fillStyle='rgba(255,255,255,.9)'; g.fillRect(0,42,512,12);
+  g.fillStyle='rgba(170,215,255,.55)'; g.fillRect(0,148,512,26);
+  var t=new THREE.CanvasTexture(c);
+  t.mapping=THREE.EquirectangularReflectionMapping;
+  return t;
+})();
+var pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromEquirectangular(envTex).texture;
+
+/* Bloom 辉光后处理 */
+var composer=new THREE.EffectComposer(renderer);
+composer.addPass(new THREE.RenderPass(scene,camera));
+var bloomPass=new THREE.UnrealBloomPass(
+  new THREE.Vector2(innerWidth,innerHeight), 0.9, 0.5, 0.55);
+composer.addPass(bloomPass);
+
+scene.add(new THREE.HemisphereLight(0x88bbff, 0x0a1a30, 0.75));
+var dl = new THREE.DirectionalLight(0xdfeaff, 0.75); dl.position.set(12,26,14); scene.add(dl);
+var pl = new THREE.PointLight(0x66aaff, 1.1, 45); scene.add(pl);
+
+/* 远景微光粒子（科技氛围，极淡） */
+(function(){
+  var cnt=380, pos=new Float32Array(cnt*3);
+  for(var i=0;i<cnt;i++){
+    var th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1), rr=75+Math.random()*70;
+    pos[i*3]=rr*Math.sin(ph)*Math.cos(th); pos[i*3+1]=rr*Math.cos(ph)*0.6; pos[i*3+2]=rr*Math.sin(ph)*Math.sin(th);
+  }
+  var g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x9fc6ff,size:1.1,
+    transparent:true,opacity:.4,depthWrite:false})));
+})();
+
+/* 光晕贴图 */
+function makeGlowTex(){
+  var c=document.createElement('canvas'); c.width=c.height=128;
+  var g=c.getContext('2d');
+  var grd=g.createRadialGradient(64,64,0,64,64,64);
+  grd.addColorStop(0,'rgba(255,255,255,1)');
+  grd.addColorStop(0.35,'rgba(255,255,255,.55)');
+  grd.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=grd; g.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(c);
+}
+var glowTex = makeGlowTex();
+function makeGlow(color,scale){
+  var m=new THREE.SpriteMaterial({map:glowTex,color:color,transparent:true,
+    blending:THREE.AdditiveBlending,depthWrite:false});
+  var s=new THREE.Sprite(m); s.scale.set(scale,scale,1); return s;
+}
+
+/* 原子核（质子：釉质感 + 呼吸脉动） */
+var nucleus = new THREE.Mesh(
+  new THREE.SphereGeometry(0.38,48,48),
+  new THREE.MeshStandardMaterial({color:0xff7a5c,emissive:0xff4a30,emissiveIntensity:.75,
+    roughness:.22,metalness:.35,envMapIntensity:1.2}));
+scene.add(nucleus);
+scene.add(makeGlow(0xff9a70,2.6));
+/* 原子核外圈能量环 */
+var nucRing=new THREE.Mesh(
+  new THREE.TorusGeometry(0.62,0.03,10,64),
+  new THREE.MeshBasicMaterial({color:0xffb080,transparent:true,opacity:.5,
+    blending:THREE.AdditiveBlending,depthWrite:false}));
+nucRing.rotation.x=Math.PI/2.6; scene.add(nucRing);
+
+/* 定态轨道 + 光晕 + 可点击命中环 */
+var ringMeshes={}, auraMeshes={}, hitRings=[];
+for(var n=1;n<=NMAX;n++){
+  var r=orbitR(n);
+  var ring=new THREE.Mesh(
+    new THREE.TorusGeometry(r,0.04,10,180),
+    new THREE.MeshBasicMaterial({color:0x2f5f96,transparent:true,opacity:.5}));
+  ring.rotation.x=Math.PI/2; scene.add(ring); ringMeshes[n]=ring;
+  var aura=new THREE.Mesh(
+    new THREE.TorusGeometry(r,0.18,10,180),
+    new THREE.MeshBasicMaterial({color:0x2f5f96,transparent:true,opacity:.10,
+      blending:THREE.AdditiveBlending,depthWrite:false}));
+  aura.rotation.x=Math.PI/2; scene.add(aura); auraMeshes[n]=aura;
+  var hit=new THREE.Mesh(
+    new THREE.RingGeometry(r-0.5,r+0.5,64),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
+  hit.rotation.x=-Math.PI/2; hit.userData.n=n; scene.add(hit); hitRings.push(hit);
+}
+
+/* 电子（金属光泽球 + 强发光核心） */
+var electron = new THREE.Mesh(
+  new THREE.SphereGeometry(0.24,40,40),
+  new THREE.MeshStandardMaterial({color:0x8fdcff,emissive:0x2ea6ff,emissiveIntensity:1.6,
+    roughness:.15,metalness:.85,envMapIntensity:1.4}));
+scene.add(electron);
+var eGlow = makeGlow(0x55c2ff,2.1); scene.add(eGlow);
+
+/* 电子彗尾 */
+var eTrailMax=70, eTrail=[];
+var eTrailGeo=new THREE.BufferGeometry();
+eTrailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(eTrailMax*3),3));
+eTrailGeo.setAttribute('color',    new THREE.BufferAttribute(new Float32Array(eTrailMax*3),3));
+scene.add(new THREE.Line(eTrailGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,
+  blending:THREE.AdditiveBlending,depthWrite:false})));
+var eTrailCol=new THREE.Color(0x55c2ff);
+function updateElectronTrail(){
+  eTrail.unshift(electron.position.clone());
+  if(eTrail.length>eTrailMax) eTrail.pop();
+  var posArr=eTrailGeo.attributes.position.array, colArr=eTrailGeo.attributes.color.array;
+  for(var i=0;i<eTrailMax;i++){
+    var pt=eTrail[Math.min(i,eTrail.length-1)];
+    posArr[i*3]=pt.x; posArr[i*3+1]=pt.y; posArr[i*3+2]=pt.z;
+    var f=Math.max(0,1-i/Math.max(1,eTrail.length))*0.85;
+    colArr[i*3]=eTrailCol.r*f; colArr[i*3+1]=eTrailCol.g*f; colArr[i*3+2]=eTrailCol.b*f;
+  }
+  eTrailGeo.setDrawRange(0,eTrail.length);
+  eTrailGeo.attributes.position.needsUpdate=true;
+  eTrailGeo.attributes.color.needsUpdate=true;
+}
+
+/* 跃迁冲击波光环 */
+var waves=[];
+function spawnWave(pos,col){
+  var m=new THREE.Mesh(
+    new THREE.RingGeometry(0.42,0.56,48),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85,side:THREE.DoubleSide,
+      blending:THREE.AdditiveBlending,depthWrite:false}));
+  m.position.copy(pos); m.rotation.x=-Math.PI/2; scene.add(m);
+  waves.push({mesh:m,t0:elapsed});
+}
+function updateWaves(){
+  for(var i=waves.length-1;i>=0;i--){
+    var w=waves[i], k=(elapsed-w.t0)/0.9;
+    if(k>=1){ scene.remove(w.mesh); w.mesh.geometry.dispose(); w.mesh.material.dispose(); waves.splice(i,1); continue; }
+    var s=1+k*10; w.mesh.scale.set(s,s,s);
+    w.mesh.material.opacity=.85*(1-k);
+  }
+}
+
+/* ================= 状态 ================= */
+var state = { level:2, angle:0.8, busy:false, lastKey:null, pulseT:-99 };
+var lastT = null;
+var anim  = {active:false};
+var photons = [];
+var elapsed = 0;
+
+/* ================= 跟随标签（关键信息直接标在图上） ================= */
+var labelWrap=document.getElementById('labels');
+function mkLabel(html,cls){
+  var d=document.createElement('div'); d.className='lbl'+(cls?' '+cls:'');
+  d.innerHTML=html; labelWrap.appendChild(d); return d;
+}
+var L_ground=mkLabel('基态<em>n=1 · −13.6 eV</em>','key');
+var L_exc=mkLabel('激发态<em>n=2 · −3.40 eV</em>','key');
+var L_e=mkLabel('电子','key');
+var L_p=mkLabel('光子','photon');
+var L_small={};
+for(var k=3;k<=NMAX;k++)
+  L_small[k]=mkLabel('n='+k+'<em>'+energyOf(k).toFixed(2)+' eV</em>','small');
+
+var vGround=new THREE.Vector3(orbitR(1),0,0), vExc=new THREE.Vector3(orbitR(2),0,0);
+var vSmall={}; for(var k2=3;k2<=NMAX;k2++) vSmall[k2]=new THREE.Vector3(orbitR(k2),0,0);
+var tmpV=new THREE.Vector3();
+
+function place(el,v,dy){
+  tmpV.copy(v); if(dy) tmpV.y+=dy;
+  tmpV.project(camera);
+  if(tmpV.z>1){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.style.left=((tmpV.x*.5+.5)*innerWidth)+'px';
+  el.style.top =((-tmpV.y*.5+.5)*innerHeight)+'px';
+}
+function updateLabels(){
+  place(L_ground,vGround,0.5);
+  place(L_exc,vExc,0.5);
+  for(var k=3;k<=NMAX;k++) place(L_small[k],vSmall[k],0.5);
+  place(L_e,electron.position,0.8);
+  if(photons.length>0) place(L_p,photons[0].pos,0.8); else L_p.style.display='none';
+}
+
+/* ================= 光子 ================= */
+function spawnPhoton(type,from,to){
+  var lo=Math.min(from,to), hi=Math.max(from,to);
+  var wl=wlNm(lo,hi);
+  var col=new THREE.Color(wlCss(wl));
+  var pos,dir;
+  if(type==='emit'){
+    pos=electron.position.clone(); dir=pos.clone().normalize();
+  }else{
+    var out=new THREE.Vector3(Math.cos(state.angle),0,Math.sin(state.angle));
+    pos=out.clone().multiplyScalar(orbitR(state.level)+22); dir=out.clone().negate();
+  }
+  var mesh=new THREE.Mesh(new THREE.SphereGeometry(0.17,16,16), new THREE.MeshBasicMaterial({color:col}));
+  mesh.position.copy(pos);
+  var glow=makeGlow(col,1.8); glow.position.copy(pos);
+  var maxPts=26;
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(maxPts*3),3));
+  g.setAttribute('color',    new THREE.BufferAttribute(new Float32Array(maxPts*3),3));
+  var line=new THREE.Line(g,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,
+    blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(mesh); scene.add(glow); scene.add(line);
+  photons.push({type:type,to:to,pos:pos,dir:dir,speed:(type==='emit'?14:11),
+    mesh:mesh,glow:glow,line:line,geo:g,maxPts:maxPts,trail:[pos.clone()],col:col});
+}
+function removePhoton(i){
+  var p=photons[i];
+  scene.remove(p.mesh); scene.remove(p.glow); scene.remove(p.line);
+  p.mesh.geometry.dispose(); p.geo.dispose();
+  photons.splice(i,1);
+}
+function updatePhotons(dt){
+  for(var i=photons.length-1;i>=0;i--){
+    var p=photons[i];
+    p.pos.addScaledVector(p.dir,p.speed*dt);
+    var done=false;
+    if(p.type==='emit' && p.pos.length()>32) done=true;
+    if(p.type==='absorb'){
+      if(p.pos.length()>42) done=true;
+      else if(p.pos.length()<=orbitR(state.level)+0.1){
+        done=true;
+        spawnWave(electron.position.clone(), p.col);
+        startRadiusAnim(state.level,p.to);
+      }
+    }
+    if(done){ removePhoton(i); continue; }
+    p.mesh.position.copy(p.pos); p.glow.position.copy(p.pos);
+    p.trail.unshift(p.pos.clone());
+    if(p.trail.length>p.maxPts) p.trail.pop();
+    var posArr=p.geo.attributes.position.array, colArr=p.geo.attributes.color.array;
+    for(var j=0;j<p.maxPts;j++){
+      var pt=p.trail[Math.min(j,p.trail.length-1)];
+      posArr[j*3]=pt.x; posArr[j*3+1]=pt.y; posArr[j*3+2]=pt.z;
+      var f=Math.max(0,1-j/Math.max(1,p.trail.length));
+      colArr[j*3]=p.col.r*f; colArr[j*3+1]=p.col.g*f; colArr[j*3+2]=p.col.b*f;
+    }
+    p.geo.setDrawRange(0,p.trail.length);
+    p.geo.attributes.position.needsUpdate=true;
+    p.geo.attributes.color.needsUpdate=true;
+  }
+}
+
+/* ================= 跃迁逻辑 ================= */
+function startRadiusAnim(from,to){
+  anim={active:true,t0:elapsed,dur:0.9,r0:orbitR(from),r1:orbitR(to),to:to};
+}
+function finalize(to){
+  state.level=to; state.busy=false;
+  updateStateText(); updateRings();
+}
+function updateRings(){
+  for(var n=1;n<=NMAX;n++){
+    var cur=(n===state.level);
+    ringMeshes[n].material.color.set(cur?0x35c2ff:0x2f5f96);
+    ringMeshes[n].material.opacity=cur?0.95:0.5;
+    auraMeshes[n].material.color.set(cur?0x35c2ff:0x2f5f96);
+    auraMeshes[n].material.opacity=cur?0.3:0.10;
+  }
+}
+function updateStateText(){
+  var tag=state.level===1?'基态':'激发态';
+  document.getElementById('stateText').textContent=
+    '电子：n = '+state.level+'（'+tag+'）· E = '+energyOf(state.level).toFixed(2)+' eV';
+}
+function setTrans(html){ document.getElementById('transText').innerHTML=html; }
+function setInfoTransition(from,to,wl,color,emit){
+  var lo=Math.min(from,to),hi=Math.max(from,to);
+  var dE=Math.abs(energyOf(to)-energyOf(from));
+  var series={1:'莱曼系·紫外',2:'巴耳末系·可见',3:'帕邢系·红外',4:'布拉开系·红外'}[lo]||'';
+  setTrans((emit?'释放':'吸收')+'光子 n='+from+'→'+to+' · λ='+(wl>=100?wl.toFixed(1):wl.toFixed(2))+
+    'nm · ΔE='+dE.toFixed(2)+'eV · ν='+fmtNu(wl)+'Hz · '+series+
+    '<span class="sw" style="background:'+color+'"></span>');
+}
+function triggerTransition(target){
+  if(state.busy){ setTrans('⏳ 跃迁进行中…'); return; }
+  if(target===state.level){ setTrans('电子已处于 n='+target+' 能级，无需跃迁'); return; }
+  var mode=document.getElementById('modeSel').value;
+  if(mode==='emit'  && target>state.level){ setTrans('释放光子需向低能级跃迁，请选更低能级'); return; }
+  if(mode==='absorb'&& target<state.level){ setTrans('吸收光子需向高能级跃迁，请选更高能级'); return; }
+  var from=state.level, to=target, emit=(to<from);
+  var lo=Math.min(from,to), hi=Math.max(from,to);
+  var wl=wlNm(lo,hi), color=wlCss(wl);
+  state.lastKey=lo+'-'+hi; state.pulseT=elapsed;
+  lastT={from:from,to:to,wl:wl,color:color};
+  state.busy=true;
+  if(emit){
+    spawnPhoton('emit',from,to);
+    spawnWave(electron.position.clone(), new THREE.Color(color));
+    startRadiusAnim(from,to);
+    setInfoTransition(from,to,wl,color,true);
+  }else{
+    spawnPhoton('absorb',from,to);
+    setInfoTransition(from,to,wl,color,false);
+  }
+}
+
+/* ================= 光谱图（2D，深底高亮） ================= */
+var sCv=document.getElementById('spectrumCanvas'), sCtx=sCv.getContext('2d');
+var WL_MIN=85, WL_MAX=1250, specBg=null;
+var spectrumLines=[];
+(function(){
+  for(var nf=1;nf<=3;nf++){
+    for(var ni=nf+1;ni<=NMAX;ni++){
+      var wl=wlNm(nf,ni);
+      if(wl<=WL_MAX) spectrumLines.push({wl:wl,nf:nf,ni:ni,key:nf+'-'+ni});
+    }
+  }
+})();
+function xForWl(wl,w){ return (wl-WL_MIN)/(WL_MAX-WL_MIN)*w; }
+function buildSpecBg(){
+  var w=sCv.clientWidth,h=sCv.clientHeight;
+  specBg=document.createElement('canvas');
+  specBg.width=w; specBg.height=h;
+  var g=specBg.getContext('2d');
+  for(var x=0;x<w;x++){
+    var wl=WL_MIN+(x/w)*(WL_MAX-WL_MIN), col;
+    if(wl>=380&&wl<=780){ var c=wl2rgb(wl);
+      col='rgb('+Math.round(c[0]*255)+','+Math.round(c[1]*255)+','+Math.round(c[2]*255)+')'; }
+    else col=(wl<380)?'#0a1128':'#160b06';
+    g.fillStyle=col; g.fillRect(x,0,1,h);
+  }
+  g.fillStyle='rgba(0,0,0,.25)'; g.fillRect(0,h*0.72,w,h*0.28);
+  g.strokeStyle='rgba(255,255,255,.22)'; g.setLineDash([4,4]);
+  [380,780].forEach(function(wl){
+    var x=xForWl(wl,w);
+    g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke();
+  });
+  g.setLineDash([]);
+}
+function drawSpectrum(){
+  var w=sCv.clientWidth,h=sCv.clientHeight,ctx=sCtx;
+  ctx.clearRect(0,0,w,h);
+  if(specBg) ctx.drawImage(specBg,0,0,w,h);
+  var y0=20,y1=h-14;
+  ctx.font='9.5px "Microsoft YaHei"'; ctx.textAlign='center';
+  [100,200,300,400,500,600,700,800,1000,1200].forEach(function(wl){
+    var x=xForWl(wl,w);
+    ctx.fillStyle='rgba(255,255,255,.45)'; ctx.fillText(wl,x,h-3);
+  });
+  spectrumLines.forEach(function(L){
+    var x=xForWl(L.wl,w);
+    var isBalmer=(L.nf===2);
+    var col=isBalmer?wlCss(L.wl):(L.wl<380?'#8a5cff':'#ff5a36');
+    ctx.strokeStyle=col; ctx.globalAlpha=isBalmer?0.95:0.55; ctx.lineWidth=isBalmer?3:1.6;
+    if(isBalmer){ ctx.shadowColor=col; ctx.shadowBlur=6; }
+    ctx.beginPath(); ctx.moveTo(x,isBalmer?y0:y0+11); ctx.lineTo(x,isBalmer?y1:y1-9); ctx.stroke();
+    ctx.shadowBlur=0; ctx.globalAlpha=1;
+    if(isBalmer){
+      ctx.fillStyle='rgba(255,255,255,.85)'; ctx.font='9.5px "Microsoft YaHei"';
+      ctx.fillText(L.wl.toFixed(0),x,y0-7);
+    }
+  });
+  ctx.font='bold 10.5px "Microsoft YaHei"'; ctx.textAlign='center';
+  ctx.fillStyle='#cfe0f5';
+  ctx.fillText('莱曼系·紫外', xForWl(140,w), 11);
+  ctx.fillText('巴耳末系·可见光', xForWl(575,w), 11);
+  ctx.fillText('帕邢系·红外', xForWl(1120,w), 11);
+  if(state.lastKey){
+    var hit=null;
+    for(var i=0;i<spectrumLines.length;i++)
+      if(spectrumLines[i].key===state.lastKey){ hit=spectrumLines[i]; break; }
+    if(hit){
+      var x=xForWl(hit.wl,w);
+      var dt=elapsed-state.pulseT;
+      var pulse=dt<2.5 ? (0.5+0.5*Math.sin(dt*7)) : 1;
+      ctx.save();
+      ctx.shadowColor='#ffffff'; ctx.shadowBlur=14;
+      ctx.strokeStyle='rgba(255,255,255,'+(0.55+0.45*pulse)+')';
+      ctx.lineWidth=5;
+      ctx.beginPath(); ctx.moveTo(x,y0-2); ctx.lineTo(x,y1); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle='#ffffff'; ctx.font='bold 11px "Microsoft YaHei"'; ctx.textAlign='center';
+      ctx.fillText('◄ '+hit.wl.toFixed(0)+' nm', Math.min(Math.max(x,36),w-36), y1+9);
+    }
+  }
+}
+
+/* ================= 交互控件 ================= */
+document.getElementById('goBtn').addEventListener('click',function(){
+  triggerTransition(parseInt(document.getElementById('targetSel').value,10));
+});
+var specHidden=false;
+function toggleSpectrum(){
+  specHidden=!specHidden;
+  document.getElementById('spectrumPanel').classList.toggle('hidden',specHidden);
+  document.getElementById('specToggle').textContent=specHidden?'显示光谱':'隐藏光谱';
+}
+document.getElementById('specToggle').addEventListener('click',toggleSpectrum);
+document.getElementById('resetBtn').addEventListener('click',function(){
+  while(photons.length) removePhoton(0);
+  anim={active:false}; state.busy=false; state.level=2; state.angle=0.8;
+  state.lastKey=null; state.pulseT=-99; lastT=null;
+  updateRings(); updateStateText();
+  document.getElementById('modeSel').value='auto';
+  document.getElementById('targetSel').value='3';
+  setTrans('已重置：电子回到 n=2，点击任意轨道即可跃迁');
+});
+
+/* 3D 轨道点击（区分拖动旋转） */
+var ray=new THREE.Raycaster(), ndc=new THREE.Vector2(), downX=0, downY=0;
+renderer.domElement.addEventListener('pointerdown',function(e){ downX=e.clientX; downY=e.clientY; });
+renderer.domElement.addEventListener('pointerup',function(e){
+  if(Math.hypot(e.clientX-downX,e.clientY-downY)>6) return;
+  ndc.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1);
+  ray.setFromCamera(ndc,camera);
+  var hits=ray.intersectObjects(hitRings);
+  if(hits.length) triggerTransition(hits[0].object.userData.n);
+});
+
+/* ================= 主循环 ================= */
+var clock=new THREE.Clock();
+function easeInOut(k){ return k<0.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2; }
+function animate(){
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),0.05);
+  elapsed=clock.elapsedTime;
+  var absorbing=photons.some(function(p){return p.type==='absorb';});
+  if(!absorbing) state.angle+=angSpeed(state.level)*dt;
+  var r=orbitR(state.level);
+  if(anim.active){
+    var k=(elapsed-anim.t0)/anim.dur;
+    if(k>=1){ anim.active=false; finalize(anim.to); r=orbitR(state.level); }
+    else r=anim.r0+(anim.r1-anim.r0)*easeInOut(Math.max(0,k));
+  }
+  electron.position.set(Math.cos(state.angle)*r,0,Math.sin(state.angle)*r);
+  eGlow.position.copy(electron.position);
+  updateElectronTrail();
+  updateWaves();
+  // 原子核呼吸脉动 + 能量环旋转
+  nucleus.material.emissiveIntensity=0.72+0.28*Math.sin(elapsed*2.2);
+  var ns=1+0.045*Math.sin(elapsed*2.2); nucleus.scale.set(ns,ns,ns);
+  nucRing.rotation.z+=dt*1.6;
+  nucleus.rotation.y+=dt*0.6;
+  updatePhotons(dt);
+  updateLabels();
+  drawSpectrum();
+  controls.update();
+  composer.render();
+}
+
+/* ================= 初始化与自适应 ================= */
+function fitCanvas(cv,ctx){
+  var rect=cv.getBoundingClientRect(), d=Math.min(devicePixelRatio,2);
+  cv.width=rect.width*d; cv.height=rect.height*d;
+  ctx.setTransform(d,0,0,d,0,0);
+}
+function onResize(){
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+  composer.setSize(innerWidth,innerHeight);
+  fitCanvas(sCv,sCtx);
+  buildSpecBg();
+}
+addEventListener('resize',onResize);
+onResize();
+updateRings(); updateStateText();
+animate();
+})();
+</script>
+</body>
+</html>
