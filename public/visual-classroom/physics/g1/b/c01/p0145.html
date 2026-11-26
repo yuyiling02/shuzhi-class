@@ -303,7 +303,7 @@ tbody tr.mark{background:#fffbeb}
         <div class="seg" id="segPole"><button data-att="1" class="on">吸引 N 极朝球</button><button data-att="0">排斥</button></div>
       </div>
       <div class="row"><label>磁性强度 S</label><span class="val" id="vS">1.00</span></div>
-      <input type="range" id="rS" min="0.3" max="2" step="0.05" value="1">
+      <input type="range" id="rS" min="0" max="2" step="0.05" value="1">
       <div class="row"><label>横向位置 y</label><span class="val" id="vMy">1.25 m</span></div>
       <input type="range" id="rMy" min="0.05" max="1.5" step="0.01" value="1.25">
       <div class="row"><label>纵向位置 x</label><span class="val" id="vMx">1.80 m</span></div>
@@ -435,6 +435,7 @@ tbody tr.mark{background:#fffbeb}
     k: 0.020,                 // 磁力系数 F = k*S/r²  (N·m²)
     rMin: 0.14,               // 力饱和距离，避免 r→0 时发散 (m)
     absorb: 0.10,             // 吸附判定距离 (m)
+    absorbMinF: 0.02,         // 吸附所需最小磁力 (N)：S=0 时 F=0，不触发吸附
     ballR: 0.022,             // 钢球半径 (m)
     magnetW: 0.075,           // 磁铁长边 (m)
     magnetH: 0.052,           // 磁铁短边 (m)
@@ -838,8 +839,13 @@ tbody tr.mark{background:#fffbeb}
     const B = CFG.board;
     if (P.magIn) {
       const r = Math.hypot(P.mag.x - S.x, P.mag.y - S.y);
-      if (r < CFG.absorb) return endRun("absorb", r);
-      if (!P.attract && r < CFG.absorb + 0.02) return endRun("absorb", r);
+      // 吸附判定必须与磁力联动：磁性强度 S=0（或磁极未插入）时磁力为零，
+      // 钢球只是滚过磁铁附近，不应被判定为"已被吸住"而终止运动。
+      // 只有当前位置磁力足够大时才认为真被吸住。
+      const fNow = forceAt(S.x, S.y).F;
+      const canAbsorb = fNow >= CFG.absorbMinF;
+      if (canAbsorb && r < CFG.absorb) return endRun("absorb", r);
+      if (canAbsorb && !P.attract && r < CFG.absorb + 0.02) return endRun("absorb", r);
     }
     if (S.x < 0.01 || S.x > B.w - 0.01 || S.y < 0.01 || S.y > B.h - 0.01) return endRun("exit", 0);
     const sp = Math.hypot(S.vx, S.vy);

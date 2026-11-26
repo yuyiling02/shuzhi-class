@@ -635,21 +635,91 @@ function drawBelt(ctx, w, h) {
     ctx.beginPath(); ctx.arc(C.x, C.y, 4, 0, 7); ctx.fillStyle = "#e2e8f0"; ctx.fill();
   });
 
-  // 边缘标记点 + 切线速度矢量
+  // 各轮的颜色 / 角度 / 角速度（供下方开关层与标记点共用）
+  const order = [R1, R2].slice().sort((a, b) => a - b);
+  const wheels = [
+    { C: C1, R: R1p, th: th1, om: om1, color: COLORS[order.indexOf(R1) % COLORS.length] },
+    { C: C2, R: R2p, th: th2, om: om2, color: COLORS[order.indexOf(R2) % COLORS.length] }
+  ];
+
+  // 角度刻度盘（开关）
+  if (CFG.tog.dial) {
+    wheels.forEach(w => drawDial(ctx, w.C.x, w.C.y, w.R * 1.16));
+  }
+
+  // 轨迹圆（开关）
+  if (CFG.tog.trail) {
+    wheels.forEach(w => {
+      ctx.beginPath(); ctx.arc(w.C.x, w.C.y, w.R, 0, 7);
+      ctx.strokeStyle = w.color + "88"; ctx.lineWidth = 1.4; ctx.stroke();
+    });
+  }
+
+  // 墨水点迹（开关）：按闪光时刻在两轮边缘采样，形成等时间间隔点迹
+  if (CFG.tog.ink) {
+    const hz = strobeHz(), kmax = Math.floor(S.t * hz);
+    wheels.forEach(w => {
+      for (let k = Math.max(0, kmax - 24); k <= kmax; k++) {
+        const q = polar(w.C.x, w.C.y, w.R, w.om * (k / hz));
+        ctx.beginPath(); ctx.arc(q.x, q.y, 2.2, 0, 7);
+        ctx.fillStyle = w.color + "cc"; ctx.fill();
+      }
+    });
+  }
+
+  // 扫过角度扇形（开关）：固定时间窗 → 角度相同、弧长不同
+  if (CFG.tog.sector) {
+    wheels.forEach(w => {
+      if (w.om <= 1e-6) return;
+      const a0 = w.th - w.om * CFG.win;
+      ctx.beginPath(); ctx.moveTo(w.C.x, w.C.y);
+      ctx.arc(w.C.x, w.C.y, w.R, a0 - Math.PI / 2, w.th - Math.PI / 2);
+      ctx.closePath();
+      ctx.fillStyle = w.color + "26"; ctx.fill();
+      ctx.strokeStyle = w.color + "77"; ctx.lineWidth = 1; ctx.stroke();
+    });
+  }
+
+  // 参考半径线（开关）：轮心 → 边缘标记点
+  if (CFG.tog.radius) {
+    wheels.forEach(w => {
+      const end = polar(w.C.x, w.C.y, w.R * 1.1, w.th);
+      ctx.save();
+      ctx.setLineDash([7, 5]); ctx.strokeStyle = "rgba(255,255,255,.95)"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(w.C.x, w.C.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  // 频闪残影（开关）：按闪光时刻采样两轮边缘位置
+  if (CFG.tog.ghost && CFG.strobe.on) {
+    const hz = strobeHz(), kmax = Math.floor(S.t * hz);
+    for (let k = Math.max(0, kmax - 8); k <= kmax; k++) {
+      wheels.forEach(w => {
+        const q = polar(w.C.x, w.C.y, w.R, w.om * (k / hz));
+        ctx.beginPath(); ctx.arc(q.x, q.y, 5, 0, 7);
+        ctx.fillStyle = "rgba(250,204,21,.18)"; ctx.fill();
+        ctx.strokeStyle = w.color + "99"; ctx.lineWidth = 1; ctx.stroke();
+      });
+    }
+  }
+
+  // 边缘标记点 + 切线速度矢量（矢量受 vel 开关控制）
   const mark = (C, R, th, color, label) => {
     const q = { x: C.x + R * Math.sin(th), y: C.y - R * Math.cos(th) };
     ctx.beginPath(); ctx.arc(q.x, q.y, 8, 0, 7); ctx.fillStyle = color; ctx.fill();
     ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-    const len = clamp(v * 34, 18, 70);
-    const tx = Math.cos(th), ty = Math.sin(th);
-    arrow(ctx, q.x, q.y, q.x + tx * len, q.y + ty * len, "#facc15", 3, 10);
+    if (CFG.tog.vel) {
+      const len = clamp(v * 34, 18, 70);
+      const tx = Math.cos(th), ty = Math.sin(th);
+      arrow(ctx, q.x, q.y, q.x + tx * len, q.y + ty * len, "#facc15", 3, 10);
+    }
     ctx.font = "10.5px 'Microsoft YaHei',sans-serif"; ctx.fillStyle = "#e2e8f0";
     ctx.fillText(label, q.x + 12, q.y - 10);
     return q;
   };
-  const order = [R1, R2].slice().sort((a, b) => a - b);
-  mark(C1, R1p, th1, COLORS[order.indexOf(R1) % COLORS.length], `R₁=${fmt(R1)}`);
-  mark(C2, R2p, th2, COLORS[order.indexOf(R2) % COLORS.length], `R₂=${fmt(R2)}`);
+  mark(C1, R1p, th1, wheels[0].color, `R₁=${fmt(R1)}`);
+  mark(C2, R2p, th2, wheels[1].color, `R₂=${fmt(R2)}`);
 
   // 轮心文字 + 转向箭头
   spinArrow(ctx, C1.x, C1.y, R1p * 0.45, "#38bdf8");
