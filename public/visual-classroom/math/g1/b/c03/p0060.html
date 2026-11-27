@@ -51,15 +51,16 @@
     white-space:nowrap; transition:.16s;
   }
   .opennew:hover{background:rgba(255,255,255,.3);}
+  /* SOLO-HIDE */ #openNew{display:none;}
 
   /* ---------------- 关系链（同时是导航） ---------------- */
   .chain{
     flex:none; display:flex; align-items:stretch; gap:8px;
-    padding:13px 26px 11px; background:#e9ede5; border-bottom:1px solid #d9e1d4;
+    padding:10px 24px 9px; background:#e9ede5; border-bottom:1px solid #d9e1d4;
   }
   .node{
     flex:1 1 0; min-width:0; display:flex; align-items:center; gap:11px;
-    padding:9px 14px; border-radius:12px; cursor:pointer; text-align:left;
+    padding:7px 13px; border-radius:12px; cursor:pointer; text-align:left;
     background:#f7faf5; border:1.5px solid #dbe4d7; color:#5a6d76;
     font-family:inherit; transition:.16s; position:relative;
   }
@@ -91,7 +92,7 @@
   }
 
   .strip{
-    flex:none; padding:8px 26px 10px; background:#e9ede5; border-bottom:1px solid #d9e1d4;
+    flex:none; padding:6px 24px 8px; background:#e9ede5; border-bottom:1px solid #d9e1d4;
     font-size:13px; color:#5e7269; line-height:1.7; margin-top:-1px;
     display:flex; align-items:center; gap:8px;
   }
@@ -135,6 +136,30 @@
     .node .no{display:none;}
     .chain{gap:4px;}
     .arrow{width:8px; font-size:13px;}
+  }
+  /* ---------------- 矮窗口（内嵌预览面板）：压扁顶栏，把高度全留给模型 ---------------- */
+  @media (max-height:720px){
+    .top{padding:8px 18px;}
+    .mark{width:32px; height:32px; font-size:18px; border-radius:9px;}
+    .brand h1{font-size:16px; letter-spacing:1.5px;}
+    .brand p{display:none;}
+    .keys{display:none;}
+    .chain{padding:6px 14px;}
+    .node{padding:5px 11px; gap:8px;}
+    .node .no{width:21px; height:21px; font-size:11.5px; border-radius:6px;}
+    .node .nm{font-size:13px;}
+    .node .sb{display:none;}
+    .strip{display:none;}
+  }
+  @media (max-height:560px){
+    .top{padding:3px 12px; box-shadow:none;}
+    .mark{display:none;}
+    .brand h1{font-size:12.5px; letter-spacing:1px;}
+    .chain{padding:3px 8px 4px; gap:6px;}
+    .node{padding:3px 9px; gap:6px; border-radius:9px;}
+    .node .no{display:none;}
+    .node .nm{font-size:11.8px;}
+    .arrow{width:10px; font-size:12px;}
   }
 </style>
 </head>
@@ -184,6 +209,2238 @@
   <span>三种空间角最终都化成<span class="hl">两条相交直线的夹角</span>来度量：异面直线靠<b>平移</b>，线面角靠<b>射影</b>，二面角靠<b>垂直于棱的射线</b>。</span>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/plain" id="src-skew">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>异面直线所成的角 · 三维模型</title>
+<script>document.documentElement.classList.add("embed");<\/script>
+<style>
+  :root{
+    --blue:#4f9ec4; --blue-dark:#3d87ad; --coral:#dd7358; --green:#7aa571;
+    --amber:#d9a24a; --violet:#6f68c8; --ink:#3a4a54; --muted:#8a9a92;
+    --card:#ffffff; --bg:#eef1ea; --line:#dde4d8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); padding-bottom:50px;}
+  header{background:linear-gradient(120deg,#417f9e,#5fa8c7 55%,#8fc7dd); color:#fff; padding:26px 20px 20px; text-align:center;}
+  header h1{font-size:26px; letter-spacing:2px;}
+  header p{opacity:.94; margin-top:9px; font-size:14px; line-height:1.8;}
+  main{max-width:1240px; margin:24px auto 0; padding:0 16px;}
+  .zone{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-bottom:20px; box-shadow:0 4px 16px rgba(30,60,80,.06);}
+  .zone-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+  .badge{background:var(--blue); color:#fff; border-radius:8px; padding:4px 12px; font-size:14px; font-weight:bold;}
+  .badge.pink{background:var(--coral);}
+  .badge.violet{background:var(--violet);}
+  .zone-head h2{font-size:19px;}
+  /* ---- 左图右控工作台 ---- */
+  :root{--wb-h:clamp(460px, calc(100vh - 246px), 700px);}
+  .wb{display:grid; grid-template-columns:minmax(0,1fr) 292px; gap:16px; align-items:stretch;}
+  .panel{display:flex; flex-direction:column; gap:13px; height:var(--wb-h); overflow-y:auto; min-height:0; padding-right:2px;}
+  html:not(.embed) .panel{height:auto; align-self:start;}
+  .panel::-webkit-scrollbar{width:8px;}
+  .panel::-webkit-scrollbar-thumb{background:#cbd8de; border-radius:5px;}
+  .pg{background:#f8fbfc; border:1px solid #e2ecf0; border-radius:12px; padding:11px 12px;}
+  .pg-t{font-size:13px; font-weight:bold; color:var(--blue-dark); letter-spacing:.5px; margin-bottom:9px;
+    display:flex; align-items:center; gap:7px;}
+  .pg-t::before{content:""; width:4px; height:13px; border-radius:2px; background:var(--blue);}
+  .panel .pg:last-child{flex:0 0 auto;}
+  .panel .chips{margin:0 0 7px; gap:6px;}
+  .panel .chips:last-child{margin-bottom:0;}
+  .panel .chips .lab{width:100%; font-size:12.5px; margin-bottom:1px;}
+  .panel .chip{padding:5px 10px; font-size:12.5px;}
+  .panel .chips.mode{gap:6px;}
+  .panel .chips.mode .chip{min-width:0; flex:1 1 0; text-align:center;}
+  .panel #sPhi{width:100%!important; margin:6px 0 2px!important; display:block;}
+  .panel .stepbar{margin-top:0; padding-top:0; border-top:none; gap:7px;}
+  .panel .chkrow{width:100%; margin-top:8px; gap:14px; font-size:13px;}
+  .chips{display:flex; gap:9px; flex-wrap:wrap; margin:4px 0 2px; align-items:center;}
+  .chips .lab{font-size:13.5px; color:var(--muted); margin-right:2px;}
+  .chip{padding:7px 16px; border-radius:999px; border:1.5px solid #d7e2e8; background:#f8fbfc;
+    color:#4c6472; font-size:13.5px; cursor:pointer; transition:.15s; font-family:inherit;
+    font-family:"Times New Roman","Microsoft YaHei",serif;}
+  .chip:hover{border-color:#9fd0e0; background:#f0f9fc;}
+  .chip.on{background:var(--blue); border-color:var(--blue); color:#fff; font-weight:bold; box-shadow:0 2px 8px rgba(79,158,196,.32);}
+  .stage-wrap{position:relative; width:100%; height:var(--wb-h); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background:
+      linear-gradient(rgba(120,145,125,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,145,125,.08) 1px, transparent 1px),
+      radial-gradient(ellipse at 50% 40%, #f9fbf5 0%, #eff3ec 60%, #e5ebe2 100%);
+    background-size:28px 28px, 28px 28px, 100% 100%;}
+  .stage-wrap canvas{display:block;}
+  .chips.mode{gap:10px; margin-bottom:2px;}
+  .chips.mode .chip{min-width:104px;}
+  .chips input[type=range]{-webkit-appearance:none; appearance:none; height:6px; border-radius:4px;
+    background:#dbe6eb; outline:none; cursor:pointer; vertical-align:middle;}
+  .chips input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px;
+    border-radius:50%; background:var(--blue); border:2.5px solid #fff;
+    box-shadow:0 1px 4px rgba(20,60,70,.35); cursor:pointer;}
+  .chips input[type=range]::-moz-range-thumb{width:14px; height:14px; border-radius:50%;
+    background:var(--blue); border:2.5px solid #fff; cursor:pointer;}
+  .hint{position:absolute; left:14px; bottom:10px; font-size:12.5px; color:#8aa0ae; pointer-events:none;}
+  /* ---- 画布上的提示小框：随步骤/状态出现 ---- */
+  .tipbox{position:absolute; left:14px; top:14px; max-width:min(74%, 322px); pointer-events:none;
+    background:rgba(255,255,255,.95); border:1px solid #e2ecf0; border-left:3px solid var(--blue);
+    border-radius:10px; padding:8px 11px 8px 10px; box-shadow:0 5px 16px rgba(30,60,80,.12);
+    font-size:12.8px; line-height:1.62; color:#3d5262;
+    opacity:0; transform:translateY(-6px); transition:transform .24s ease;}
+  .tipbox.show{opacity:1; transform:none;}
+  .tipbox.flash{animation:tipIn .34s ease;}
+  @keyframes tipIn{0%{transform:translateY(-7px) scale(.985);}100%{transform:none;}}
+  .tipbox .tstep{display:inline-block; vertical-align:1px; margin-right:6px; padding:1px 6px; border-radius:5px;
+    background:var(--blue); color:#fff; font-size:10.8px; font-weight:bold; letter-spacing:.4px;}
+  .tipbox b{color:var(--coral);}
+  .tipbox .hl{color:var(--violet); font-weight:bold;}
+  .tipbox .hl2{color:var(--blue-dark); font-weight:bold;}
+  .stepbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px; padding-top:14px; border-top:1px dashed var(--line);}
+  button.act{padding:8px 18px; border:none; border-radius:8px; background:var(--blue); color:#fff; font-size:14px; cursor:pointer; transition:.15s;}
+  button.act:hover{filter:brightness(1.08);}
+  button.act.sm{padding:7px 14px; font-size:13px; border-radius:7px;}
+  button.act.ghost{background:#eef2f5; color:#4c6472; border:1px solid #d5dee4;}
+  button.act.ghost:hover{background:#e3eaef;}
+  button.act.coral{background:var(--coral);}
+  button.act:disabled{background:#c7d3db; cursor:not-allowed; filter:none;}
+  .cards{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;}
+  .wb + .cards{margin-top:14px;}
+  .wb + .cards .card2{flex:1 1 0; text-align:center; padding:10px 8px;}
+  .wb + .cards .card2 .v{font-size:20px; margin-top:2px;}
+  .card2{flex:1 1 160px; background:#f7fafb; border:1px solid #e3ece8; border-radius:12px; padding:12px 16px;}
+  .card2 .k{font-size:12.5px; color:var(--muted);}
+  .card2 .v{font-size:21px; font-weight:bold; color:var(--blue-dark); margin-top:4px; letter-spacing:.3px;}
+  .card2 .v.vio{color:var(--violet);}
+  .bar{border-radius:12px; padding:12px 16px; background:#f8fbfc; border:1px solid #e2ecf0; margin-top:14px;
+    font-size:14px; line-height:1.95; color:#3d5262;}
+  .bar b{color:var(--coral);}
+  .bar .hl2{color:var(--amber); font-weight:bold;}
+  .chkrow{display:flex; align-items:center; gap:18px; flex-wrap:wrap; font-size:14px; color:#3d5262;}
+  .chkrow label{display:flex; align-items:center; gap:7px; cursor:pointer;}
+  .chkrow input[type=checkbox]{width:17px; height:17px; accent-color:var(--blue); cursor:pointer;}
+  .fx{font-family:"Times New Roman","Microsoft YaHei",serif; font-style:italic; font-size:15.5px;}
+  /* ---- 窄屏：控制栏回到下方 ---- */
+  @media (max-width:960px){
+    .wb{grid-template-columns:1fr;}
+    .stage-wrap{height:auto; aspect-ratio:1.45; min-height:300px;}
+    .panel{height:auto; overflow:visible;}
+  }
+  /* ---- 嵌入「空间中的角」合集页时的紧凑模式 ---- */
+  html.embed header{display:none;}
+  html.embed body{padding-bottom:4px;}
+  html.embed main{margin-top:8px; max-width:none;}
+  html.embed{--wb-h:max(140px, calc(100vh - 58px));}
+  html.embed .pg-t{font-size:12.5px; margin-bottom:7px;}
+  html.embed .zone{padding:6px 12px; margin-bottom:0; border:none; box-shadow:none; background:transparent;}
+  html.embed .zone-head{display:none;}
+  html.embed .wb + .cards{margin-top:5px; gap:6px; flex-wrap:nowrap;}
+  html.embed .wb + .cards .card2{display:flex; align-items:baseline; justify-content:center; gap:5px;
+    padding:3px 6px; border:none; border-radius:8px; background:#f3f8fa;}
+  html.embed .wb + .cards .card2 .k{font-size:10.5px; white-space:nowrap;}
+  html.embed .wb + .cards .card2 .v{font-size:13px; margin:0;}
+  html.embed .pg{padding:9px 10px;}
+  html.embed .panel .chip{padding:4px 8px; font-size:11.8px;}
+  html.embed .tipbox{font-size:12px; padding:7px 9px; max-width:min(78%, 300px);}
+  html.embed ::-webkit-scrollbar{width:10px;}
+  html.embed ::-webkit-scrollbar-thumb{background:#c3d1c8; border-radius:6px;}
+  html.embed ::-webkit-scrollbar-thumb:hover{background:#aebfb4;}
+  html.embed ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>异面直线所成的角</h1>
+  <p>过空间任一点 O 作 a′ ∥ a、b′ ∥ b，a′ 与 b′ 所成的角，就是异面直线 a 与 b 所成的角</p>
+</header>
+
+<main>
+
+  <!-- ①② 工作台：左图右控 -->
+  <section class="zone">
+    <div class="zone-head">
+      <span class="badge">① 选场景 · 选直线</span>
+      <span class="badge pink">② 三维观察 · 平移拼接</span>
+      <h2>先转动看清它们为什么"异面"，再把其中一条平移过来</h2>
+    </div>
+    <div class="wb">
+      <div class="stage-wrap" id="stage">
+        <div class="tipbox" id="tip"><span class="tstep" id="tipStep">第 1 步</span><span id="tipTxt"></span></div>
+        <div class="hint">拖动旋转 · 滚轮缩放 · 右键平移</div>
+      </div>
+      <aside class="panel">
+        <div class="pg">
+          <div class="pg-t">选场景 · 选直线</div>
+          <div class="chips mode" id="modeBar">
+            <span class="lab">显示场景：</span>
+            <button class="chip on" id="mCube" type="button">正方体</button>
+            <button class="chip" id="mPlanes" type="button">两个平行平面</button>
+          </div>
+          <div class="chips" id="presetBar"></div>
+          <div class="chips" id="planeBar" style="display:none">
+            <span class="lab">上平面里 b 的方向 φ =</span>
+            <b id="vPhi" style="color:#dd7358; font-family:'Times New Roman',serif; font-size:17px">55°</b>
+            <input type="range" id="sPhi" min="0" max="180" step="1" value="55">
+            <span class="lab" style="color:#a9805f">拖到 0° 或 180°，a ∥ b 就不再是异面直线</span>
+          </div>
+        </div>
+        <div class="pg">
+          <div class="pg-t">视角与操作</div>
+          <div class="stepbar">
+            <button class="act sm coral" id="bMove">平移拼接 →</button>
+            <button class="act sm ghost" id="bReset">复位</button>
+            <button class="act sm ghost" id="bSpin">自动旋转：关</button>
+            <button class="act sm ghost" id="bView">重置视角</button>
+            <div class="chkrow">
+              <label><input type="checkbox" id="cCube" checked> 显示正方体</label>
+              <label><input type="checkbox" id="cName" checked> 显示顶点字母</label>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div class="cards">
+      <div class="card2"><div class="k">异面直线 a 与 b 所成的角</div><div class="v vio" id="cAng">—</div></div>
+      <div class="card2"><div class="k">cos θ</div><div class="v" id="cCos">—</div></div>
+      <div class="card2"><div class="k">位置关系</div><div class="v" id="cRel" style="font-size:17px">—</div></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="/visual-classroom/vendor/three/0.128.0/build/three.min.js"><\/script>
+<script src="/visual-classroom/vendor/three/0.128.0/examples/js/controls/OrbitControls.js"><\/script>
+<script>
+(function(){
+'use strict';
+
+/* ---------------- 场景 ---------------- */
+const stage = document.getElementById('stage');
+if(typeof THREE === 'undefined'){
+  stage.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a9a92;font-size:15px;text-align:center;line-height:2">三维引擎未能加载<br>请检查网络连接后刷新页面</div>';
+  return;
+}
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 400);
+const CAM0 = new THREE.Vector3(4.18, 3.08, 5.48);
+const CAM_PLANES = new THREE.Vector3(4.46, 2.73, 5.72);
+camera.position.copy(CAM0);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0, -0.66, 0);
+controls.minDistance = 3.5;
+controls.maxDistance = 24;
+controls.update();
+
+let curCam = {base: CAM0, ty: -0.66};
+const FIT_ASPECT = 1.42;
+function fitK(){
+  const a = Math.max(camera.aspect, 0.6);
+  return (a < FIT_ASPECT ? Math.min(FIT_ASPECT / a, 1.5) : 1) * 1.12;
+}
+function applyCam(base, ty){
+  curCam.base = base; curCam.ty = ty;
+  const t = new THREE.Vector3(0, ty, 0);
+  const v = base.clone().sub(t).multiplyScalar(fitK());
+  controls.target.copy(t);
+  camera.position.copy(t).add(v);
+  controls.update();
+}
+
+function resize(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if(!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  applyCam(curCam.base, curCam.ty);
+}
+resize();
+window.addEventListener('resize', resize);
+if(window.ResizeObserver){ new ResizeObserver(function(){ resize(); }).observe(stage); }
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+const dl = new THREE.DirectionalLight(0xffffff, 0.5);
+dl.position.set(4, 8, 6);
+scene.add(dl);
+
+/* ---------------- 工具 ---------------- */
+const UP = new THREE.Vector3(0, 1, 0);
+const V = function(x, y, z){ return new THREE.Vector3(x, y, z); };
+
+function tube(a, b, r, color, opacity){
+  const d = new THREE.Vector3().subVectors(b, a);
+  const len = d.length();
+  if(len < 1e-5) return null;
+  const mat = new THREE.MeshBasicMaterial({color: color});
+  if(opacity !== undefined){ mat.transparent = true; mat.opacity = opacity; }
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), mat);
+  m.position.copy(a).addScaledVector(d, 0.5);
+  m.quaternion.setFromUnitVectors(UP, d.clone().normalize());
+  return m;
+}
+function dashed(a, b, color, dash, gap, opacity){
+  const g = new THREE.BufferGeometry().setFromPoints([a, b]);
+  const mat = new THREE.LineDashedMaterial({color: color, dashSize: dash || 0.13, gapSize: gap || 0.1});
+  if(opacity !== undefined){ mat.transparent = true; mat.opacity = opacity; }
+  const l = new THREE.Line(g, mat);
+  l.computeLineDistances();
+  return l;
+}
+function dotAt(p, r, color){
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r || 0.05, 14, 14),
+            new THREE.MeshBasicMaterial({color: color || 0x2f4450}));
+  m.position.copy(p);
+  return m;
+}
+function makeLabel(text, color, h){
+  h = h || 0.4;
+  const fs = 96, pad = 26;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = 'italic bold ' + fs + 'px "Times New Roman","Microsoft YaHei",serif';
+  const w = Math.ceil(meas.measureText(text).width) + pad * 2;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = fs + pad;
+  const g = c.getContext('2d');
+  g.font = 'italic bold ' + fs + 'px "Times New Roman","Microsoft YaHei",serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 12; g.lineJoin = 'round'; g.strokeStyle = 'rgba(255,255,255,.92)';
+  g.strokeText(text, c.width / 2, c.height / 2 + 4);
+  g.fillStyle = color;
+  g.fillText(text, c.width / 2, c.height / 2 + 4);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false, depthWrite: false}));
+  sp.scale.set(h * c.width / c.height, h, 1);
+  sp.renderOrder = 20;
+  return sp;
+}
+function angleMark(apex, u, v, r, color){
+  const g = new THREE.Group();
+  const ang = Math.acos(THREE.MathUtils.clamp(u.dot(v), -1, 1));
+  if(ang < 0.06 || ang > Math.PI - 0.03) return g;
+  const axis = new THREE.Vector3().crossVectors(u, v);
+  if(axis.length() < 1e-6) return g;
+  axis.normalize();
+  const n = 44, pts = [];
+  for(let i = 0; i <= n; i++){
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, ang * i / n);
+    pts.push(u.clone().applyQuaternion(q).multiplyScalar(r).add(apex));
+  }
+  const curve = new THREE.CatmullRomCurve3(pts);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 44, Math.max(r * 0.024, 0.009), 6, false),
+        new THREE.MeshBasicMaterial({color: color})));
+  const pos = [];
+  for(let i = 0; i < n; i++){
+    pos.push(apex.x, apex.y, apex.z);
+    pos.push(pts[i].x, pts[i].y, pts[i].z);
+    pos.push(pts[i + 1].x, pts[i + 1].y, pts[i + 1].z);
+  }
+  const bg = new THREE.BufferGeometry();
+  bg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.add(new THREE.Mesh(bg, new THREE.MeshBasicMaterial({
+    color: color, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false})));
+  return g;
+}
+function clearGroup(g){
+  while(g.children.length){
+    const c = g.children[g.children.length - 1];
+    g.remove(c);
+    c.traverse(function(o){
+      if(o.geometry) o.geometry.dispose();
+      if(o.material){
+        if(o.material.map) o.material.map.dispose();
+        o.material.dispose();
+      }
+    });
+  }
+}
+
+/* ---------------- 正方体顶点 ---------------- */
+const VX = {
+  A: V(-1,-1,-1), B: V(1,-1,-1), C: V(1,-1,1), D: V(-1,-1,1),
+  A1: V(-1,1,-1), B1: V(1,1,-1), C1: V(1,1,1), D1: V(-1,1,1)
+};
+const NAME_TXT = {A:'A', B:'B', C:'C', D:'D', A1:'A₁', B1:'B₁', C1:'C₁', D1:'D₁'};
+const EDGES = [
+  ['A','B'], ['B','C'], ['C','D'], ['D','A'],
+  ['A1','B1'], ['B1','C1'], ['C1','D1'], ['D1','A1'],
+  ['A','A1'], ['B','B1'], ['C','C1'], ['D','D1']
+];
+
+/* ---------------- 预设 ---------------- */
+const PRESETS = [
+  {a:['A','B'],   b:['B1','C1'], txt:'AB 与 B₁C₁'},
+  {a:['A1','B'],  b:['B1','C'],  txt:'A₁B 与 B₁C'},
+  {a:['A','C'],   b:['B','D1'],  txt:'AC 与 BD₁'},
+  {a:['A','B1'],  b:['B','C1'],  txt:'AB₁ 与 BC₁'},
+  {a:['A1','C1'], b:['B1','C'],  txt:'A₁C₁ 与 B₁C'},
+  {a:['A','D1'],  b:['B','C'],   txt:'AD₁ 与 BC'},
+  {a:['A1','B'],  b:['A','C'],   txt:'A₁B 与 AC'}
+];
+
+/* ---------------- 场景对象 ---------------- */
+const cubeGrp = new THREE.Group();   // 正方体线框 + 半透明体
+const nameGrp = new THREE.Group();   // 顶点字母
+const aGrp = new THREE.Group();      // 直线 a（固定）
+const ghostGrp = new THREE.Group();  // b 的原位置（虚影）
+const bGrp = new THREE.Group();      // 直线 b（可平移）
+const auxGrp = new THREE.Group();    // 平移向量、夹角
+scene.add(cubeGrp); scene.add(nameGrp); scene.add(aGrp);
+scene.add(ghostGrp); scene.add(bGrp); scene.add(auxGrp);
+
+const cubeBody = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2),
+  new THREE.MeshPhongMaterial({color: 0xbfd8e4, transparent: true, opacity: 0.05,
+    depthWrite: false, side: THREE.DoubleSide}));
+cubeGrp.add(cubeBody);
+EDGES.forEach(function(e){
+  const t = tube(VX[e[0]], VX[e[1]], 0.011, 0x5c7382, 0.85);
+  if(t) cubeGrp.add(t);
+});
+Object.keys(VX).forEach(function(k){
+  const p = VX[k];
+  const sp = makeLabel(NAME_TXT[k], '#3f5563', 0.3);
+  sp.position.copy(p).add(p.clone().normalize().multiplyScalar(0.24));
+  nameGrp.add(sp);
+});
+
+const grid = new THREE.GridHelper(9, 9, 0xb9c9bf, 0xd8e2d9);
+grid.position.y = -1.02;
+grid.material.transparent = true;
+grid.material.opacity = 0.35;
+cubeGrp.add(grid);
+
+/* ---------------- 场景二：两个不相交的平行平面 ---------------- */
+const PL = 2.0;      // 平面半边长
+const PY = 1.3;      // 两个平面到中心的距离（间距 2.6）
+const planeGrp = new THREE.Group();
+planeGrp.visible = false;
+scene.add(planeGrp);
+
+(function buildParallelPlanes(){
+  [[-PY, 0xf3c0ab, 0xd9a18a, 'α'], [PY, 0xa9cfe4, 0x8fb6cd, 'β']].forEach(function(cfg){
+    const y = cfg[0];
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(PL * 2, PL * 2),
+      new THREE.MeshBasicMaterial({color: cfg[1], transparent: true, opacity: 0.17,
+        side: THREE.DoubleSide, depthWrite: false}));
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.y = y;
+    planeGrp.add(mesh);
+
+    const g = new THREE.GridHelper(PL * 2, 5, cfg[2], cfg[2]);
+    g.position.y = y + 0.004;
+    g.material.transparent = true;
+    g.material.opacity = 0.26;
+    planeGrp.add(g);
+
+    const pts = [V(-PL, y, -PL), V(PL, y, -PL), V(PL, y, PL), V(-PL, y, PL), V(-PL, y, -PL)];
+    planeGrp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({color: cfg[2], transparent: true, opacity: 0.9})));
+
+    const lab = makeLabel(cfg[3], cfg[2], 0.4);
+    lab.position.set(-PL + 0.36, y + 0.08, -PL + 0.36);
+    planeGrp.add(lab);
+  });
+})();
+
+/* 平行平面场景里给两条直线加 a、b 标注 */
+const labLineA = makeLabel('a', '#dd7358', 0.46);
+const labLineB = makeLabel('b', '#4f9ec4', 0.46);
+labLineA.visible = false; labLineB.visible = false;
+scene.add(labLineA); scene.add(labLineB);
+
+/* ---------------- 状态 ---------------- */
+const st = {idx: 1, moved: false, cube: true, name: true, mode: 'cube', phiB: 55};
+let anim = null;
+const O = new THREE.Vector3();     // 平移目标点
+let dirA = new THREE.Vector3(1,0,0);
+let dirB = new THREE.Vector3(0,0,1);
+let bStart = new THREE.Vector3();
+let bHalf = 1.72;
+let angleDeg = 0;
+
+const $ = function(id){ return document.getElementById(id); };
+
+/* ---------------- 画布提示小框 ---------------- */
+let lastTip = '', tipTimer = null;
+function showTip(step, html){
+  const key = step + '|' + html;
+  if(key === lastTip) return;
+  lastTip = key;
+  const box = $('tip');
+  if(!box) return;
+  $('tipStep').textContent = step;
+  $('tipTxt').innerHTML = html;
+  box.classList.add('show');
+  box.classList.remove('flash');
+  void box.offsetWidth;
+  box.classList.add('flash');
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(function(){ box.classList.remove('flash'); }, 380);
+}
+
+/* 三种可见性由模式与复选框共同决定 */
+function applyVis(){
+  const inCube = (st.mode === 'cube');
+  cubeGrp.visible = inCube && st.cube;
+  nameGrp.visible = inCube && st.name;
+  planeGrp.visible = !inCube;
+  labLineA.visible = !inCube && labLineA.position.length() > 0;
+  labLineB.visible = !inCube && labLineB.position.length() > 0;
+  /* 正方体专属的勾选项在「两个平行平面」场景里没有意义，隐藏 */
+  const chk = document.querySelector('.panel .chkrow');
+  if(chk) chk.style.display = inCube ? 'flex' : 'none';
+}
+
+/* ---------------- 建立当前预设 ---------------- */
+const EXT = 0.52;   // 直线两端延长量
+
+function buildPreset(i){
+  st.idx = i;
+  st.moved = false;
+  st.mode = 'cube';
+  anim = null;
+  const p = PRESETS[i];
+  const p1 = VX[p.a[0]], p2 = VX[p.a[1]];
+  const q1 = VX[p.b[0]], q2 = VX[p.b[1]];
+
+  dirA = new THREE.Vector3().subVectors(p2, p1).normalize();
+  dirB = new THREE.Vector3().subVectors(q2, q1).normalize();
+
+  /* 直线 a：固定的红色粗线，向两端延长 */
+  clearGroup(aGrp);
+  const a1 = p1.clone().addScaledVector(dirA, -EXT);
+  const a2 = p2.clone().addScaledVector(dirA, EXT);
+  const ta = tube(a1, a2, 0.021, 0xdd7358);
+  if(ta) aGrp.add(ta);
+  aGrp.add(dotAt(p1, 0.034, 0xdd7358));
+  aGrp.add(dotAt(p2, 0.034, 0xdd7358));
+
+  /* 直线 b：建在原点，整体靠 group.position 平移 */
+  clearGroup(bGrp);
+  const mid0 = new THREE.Vector3().addVectors(q1, q2).multiplyScalar(0.5);
+  const half = q1.distanceTo(q2) / 2 + EXT;
+  const tb = tube(dirB.clone().multiplyScalar(-half), dirB.clone().multiplyScalar(half), 0.021, 0x4f9ec4);
+  if(tb) bGrp.add(tb);
+  bGrp.add(dotAt(dirB.clone().multiplyScalar(-half + EXT), 0.034, 0x4f9ec4));
+  bGrp.add(dotAt(dirB.clone().multiplyScalar(half - EXT), 0.034, 0x4f9ec4));
+  bGrp.position.copy(mid0);
+  bStart.copy(mid0);
+
+  /* b 的原位置虚影 */
+  clearGroup(ghostGrp);
+  ghostGrp.add(dashed(q1.clone().addScaledVector(dirB, -EXT), q2.clone().addScaledVector(dirB, EXT),
+    0x4f9ec4, 0.14, 0.11, 0.55));
+  ghostGrp.visible = false;
+
+  /* 平移目标点 O：取 a 的中点 */
+  O.addVectors(p1, p2).multiplyScalar(0.5);
+
+  /* 夹角方向：取 acute */
+  const vv = dirB.clone();
+  if(dirA.dot(vv) < 0) vv.negate();
+  angleDeg = Math.acos(THREE.MathUtils.clamp(dirA.dot(vv), -1, 1)) * 180 / Math.PI;
+
+  clearGroup(auxGrp);
+  applyVis();
+  updateUI();
+}
+
+/* ---------------- 场景二：两个平行平面里的异面直线 ---------------- */
+function buildPlanes(){
+  st.moved = false;
+  st.mode = 'planes';
+  anim = null;
+
+  const R = PL * 0.88;
+  const halfB = 1.72;
+  bHalf = halfB;
+  dirA = V(1, 0, 0);
+  const ph = st.phiB * Math.PI / 180;
+  dirB = V(Math.cos(ph), 0, -Math.sin(ph)).normalize();
+
+  /* a 在下方平面 α 内 */
+  const aMid = V(0.12, -PY, 0.05);
+  const a1 = aMid.clone().addScaledVector(dirA, -R);
+  const a2 = aMid.clone().addScaledVector(dirA, R);
+  clearGroup(aGrp);
+  const ta = tube(a1, a2, 0.021, 0xdd7358);
+  if(ta) aGrp.add(ta);
+  aGrp.add(dotAt(a1, 0.034, 0xdd7358));
+  aGrp.add(dotAt(a2, 0.034, 0xdd7358));
+
+  /* b 在上方平面 β 内 */
+  const bMid = V(-0.1, PY, -0.1);
+  clearGroup(bGrp);
+  const tb = tube(dirB.clone().multiplyScalar(-halfB), dirB.clone().multiplyScalar(halfB), 0.021, 0x4f9ec4);
+  if(tb) bGrp.add(tb);
+  bGrp.add(dotAt(dirB.clone().multiplyScalar(-halfB), 0.034, 0x4f9ec4));
+  bGrp.add(dotAt(dirB.clone().multiplyScalar(halfB), 0.034, 0x4f9ec4));
+  bGrp.position.copy(bMid);
+  bStart.copy(bMid);
+
+  clearGroup(ghostGrp);
+  ghostGrp.add(dashed(bMid.clone().addScaledVector(dirB, -halfB),
+                      bMid.clone().addScaledVector(dirB, halfB), 0x4f9ec4, 0.13, 0.1, 0.5));
+  ghostGrp.visible = false;
+
+  /* 平移目标点 O：取 a 上一点 */
+  O.copy(aMid).addScaledVector(dirA, 0.55);
+
+  labLineA.visible = true;
+  labLineB.visible = true;
+  labLineA.position.copy(aMid).addScaledVector(dirA, R + 0.24).add(V(0, 0.12, 0));
+  labLineB.position.copy(bMid).addScaledVector(dirB, halfB + 0.3).add(V(0, 0.14, 0));
+
+  const vv = dirB.clone();
+  if(dirA.dot(vv) < 0) vv.negate();
+  angleDeg = Math.acos(THREE.MathUtils.clamp(dirA.dot(vv), -1, 1)) * 180 / Math.PI;
+
+  clearGroup(auxGrp);
+  applyVis();
+  updateUI();
+}
+
+/* ---------------- 平移与夹角 ---------------- */
+function doMove(){
+  if(st.moved){ resetMove(); return; }
+  st.moved = true;
+  ghostGrp.visible = true;
+
+  /* 平移向量：从 b 中点指向 O */
+  clearGroup(auxGrp);
+  const from = bStart.clone();
+  const head = O.clone();
+  auxGrp.add(dashed(from, head, 0x8a9aa6, 0.16, 0.11, 0.9));
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.042, 0.13, 12),
+    new THREE.MeshBasicMaterial({color: 0x8a9aa6}));
+  const v = new THREE.Vector3().subVectors(head, from).normalize();
+  cone.position.copy(head).addScaledVector(v, -0.075);
+  cone.quaternion.setFromUnitVectors(UP, v);
+  auxGrp.add(cone);
+
+  anim = {t0: performance.now(), dur: 950, from: from.clone(), to: head.clone()};
+  $('bMove').textContent = '移回原位 ←';
+  updateUI();
+}
+
+function resetMove(){
+  st.moved = false;
+  anim = null;
+  bGrp.position.copy(bStart);
+  ghostGrp.visible = false;
+  clearGroup(auxGrp);
+  $('bMove').textContent = '平移拼接 →';
+  if(st.mode === 'planes'){ buildPlanes(); }
+  else { updateUI(); }
+}
+
+function finishAnim(){
+  clearGroup(auxGrp);
+  bGrp.position.copy(O);
+  const vv = dirB.clone();
+  if(dirA.dot(vv) < 0) vv.negate();
+  const uA = dirA.clone();
+  auxGrp.add(angleMark(O, uA, vv, 0.86, 0x6f68c8));
+  const bis = uA.clone().add(vv).normalize();
+  const lab = makeLabel(angleDeg.toFixed(1) + '°', '#6f68c8', 0.34);
+  const ang = Math.acos(THREE.MathUtils.clamp(uA.dot(vv), -1, 1));
+  const axis = new THREE.Vector3().crossVectors(uA, vv);
+  const nUp = axis.length() > 1e-6 ? new THREE.Vector3().crossVectors(axis.normalize(), bis).normalize() : V(0, 1, 0);
+  if(st.mode === 'cube') lab.position.copy(O).addScaledVector(bis, 1.0 * Math.min(1, ang / 1.05)).addScaledVector(nUp, 0.48);
+  else lab.position.copy(O).addScaledVector(bis, 0.18).add(V(0, 0.46, 0));
+  auxGrp.add(lab);
+  auxGrp.add(dotAt(O, 0.048, 0x2f4450));
+  const labO = makeLabel('O', '#2f4450', 0.32);
+  let nO = V(-uA.z, 0, uA.x);
+  if(nO.length() < 1e-6) nO = V(0, 0, 1);
+  nO.normalize();
+  if(nO.dot(bis) > 0) nO.negate();
+  labO.position.copy(O).addScaledVector(nO, 0.44).add(V(0, 0.08, 0));
+  auxGrp.add(labO);
+  if(st.mode === 'planes'){
+    labLineB.position.copy(O).addScaledVector(dirB, bHalf + 0.3).add(V(0, 0.14, 0));
+  }
+}
+
+/* ---------------- UI ---------------- */
+function updateUI(){
+  $('cAng').textContent = st.moved ? angleDeg.toFixed(1) + '°' : '—';
+  $('cCos').textContent = st.moved ? Math.cos(angleDeg * Math.PI / 180).toFixed(3) : '—';
+  const parallel = (st.mode === 'planes' && (st.phiB < 1.5 || st.phiB > 178.5));
+  $('cRel').textContent = st.moved
+    ? (parallel ? '平行 · 不是异面' : (Math.abs(angleDeg - 90) < 0.05 ? '互相垂直' : '异面（不垂直）'))
+    : '—';
+
+  if(st.mode === 'planes'){
+    const parallel = (st.phiB < 1.5 || st.phiB > 178.5);
+    if(!st.moved){
+      showTip(parallel ? '平行' : '异面', parallel
+        ? 'φ = ' + st.phiB + '° · b 与 a 方向相同，退化成<b>平行直线</b>，不再是异面'
+        : 'a 在 α、b 在 β，两平面平行 → 永不相交；方向又不同 → <b>异面</b>');
+    } else {
+      showTip('已平移', 'b 整体落到 α 内过 <b>O</b> 点得 b′，∠(a, b′) = <span class="hl">' +
+        angleDeg.toFixed(1) + '°</span>');
+    }
+    return;
+  }
+
+  if(!st.moved){
+    showTip('第 1 步', 'a、b <b>既不相交也不平行</b> → 异面，没法直接量角；先转动看清这一点');
+  } else {
+    showTip('第 2 步', 'b 平移到过 <b>O</b> 点得 b′（方向不变），∠(a, b′) = <span class="hl">' +
+      angleDeg.toFixed(1) + '°</span>');
+  }
+}
+
+function setMode(m, idx){
+  $('mCube').classList.toggle('on', m === 'cube');
+  $('mPlanes').classList.toggle('on', m === 'planes');
+  $('presetBar').style.display = (m === 'cube') ? 'flex' : 'none';
+  $('planeBar').style.display = (m === 'planes') ? 'flex' : 'none';
+  $('bMove').textContent = '平移拼接 →';
+  applyCam(m === 'cube' ? CAM0 : CAM_PLANES, m === 'cube' ? -0.66 : -0.5);
+  if(m === 'cube') buildPreset(idx === undefined ? st.idx : idx);
+  else buildPlanes();
+}
+
+PRESETS.forEach(function(p, i){
+  const b = document.createElement('button');
+  b.className = 'chip' + (i === 1 ? ' on' : '');
+  b.textContent = p.txt;
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#presetBar .chip').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    setMode('cube', i);
+  });
+  $('presetBar').appendChild(b);
+});
+
+$('mCube').addEventListener('click', function(){ setMode('cube'); });
+$('mPlanes').addEventListener('click', function(){ setMode('planes'); });
+$('sPhi').addEventListener('input', function(){
+  st.phiB = parseFloat(this.value);
+  $('vPhi').textContent = st.phiB + '°';
+  buildPlanes();
+});
+
+$('bMove').addEventListener('click', doMove);
+$('bReset').addEventListener('click', resetMove);
+$('bSpin').addEventListener('click', function(){
+  controls.autoRotate = !controls.autoRotate;
+  this.textContent = '自动旋转：' + (controls.autoRotate ? '开' : '关');
+});
+$('bView').addEventListener('click', function(){
+  applyCam(st.mode === 'cube' ? CAM0 : CAM_PLANES, st.mode === 'cube' ? -0.66 : -0.5);
+});
+$('cCube').addEventListener('change', function(){ st.cube = this.checked; applyVis(); });
+$('cName').addEventListener('change', function(){ st.name = this.checked; applyVis(); });
+
+/* ---------------- 渲染 ---------------- */
+function tick(){
+  requestAnimationFrame(tick);
+
+  if(anim){
+    const k = Math.min(1, (performance.now() - anim.t0) / anim.dur);
+    const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    bGrp.position.lerpVectors(anim.from, anim.to, e);
+    if(k >= 1){ anim = null; finishAnim(); }
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+buildPreset(1);
+tick();
+
+})();
+<\/script>
+</body>
+</html>
+
+
+
+
+
+
+</script>
+<script type="text/plain" id="src-lp">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>直线与平面所成的角 · 三维模型</title>
+<script>document.documentElement.classList.add("embed");<\/script>
+<style>
+  :root{
+    --blue:#4f9ec4; --blue-dark:#3d87ad; --coral:#dd7358; --green:#7aa571;
+    --amber:#d9a24a; --violet:#6f68c8; --ink:#3a4a54; --muted:#8a9a92;
+    --card:#ffffff; --bg:#eef1ea; --line:#dde4d8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); padding-bottom:50px;}
+  header{background:linear-gradient(120deg,#417f9e,#5fa8c7 55%,#8fc7dd); color:#fff; padding:26px 20px 20px; text-align:center;}
+  header h1{font-size:26px; letter-spacing:2px;}
+  header p{opacity:.94; margin-top:9px; font-size:14px; line-height:1.8;}
+  main{max-width:1240px; margin:24px auto 0; padding:0 16px;}
+  .zone{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-bottom:20px; box-shadow:0 4px 16px rgba(30,60,80,.06);}
+  .zone-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+  .badge{background:var(--blue); color:#fff; border-radius:8px; padding:4px 12px; font-size:14px; font-weight:bold;}
+  .badge.pink{background:var(--coral);}
+  .badge.violet{background:var(--violet);}
+  .zone-head h2{font-size:19px;}
+  /* ---- 左图右控工作台 ---- */
+  :root{--wb-h:clamp(460px, calc(100vh - 246px), 700px);}
+  .wb{display:grid; grid-template-columns:minmax(0,1fr) 286px; gap:16px; align-items:stretch;}
+  .panel{display:flex; flex-direction:column; gap:13px; height:var(--wb-h); overflow-y:auto; min-height:0; padding-right:2px;}
+  html:not(.embed) .panel{height:auto; align-self:start;}
+  .panel::-webkit-scrollbar{width:8px;}
+  .panel::-webkit-scrollbar-thumb{background:#cbd8de; border-radius:5px;}
+  .pg{background:#f8fbfc; border:1px solid #e2ecf0; border-radius:12px; padding:11px 12px;}
+  .pg-t{font-size:13px; font-weight:bold; color:var(--blue-dark); letter-spacing:.5px; margin-bottom:9px;
+    display:flex; align-items:center; gap:7px;}
+  .pg-t::before{content:""; width:4px; height:13px; border-radius:2px; background:var(--blue);}
+  .panel .pg:last-child{flex:0 0 auto;}
+  .panel .stepbar{margin-top:0; padding-top:0; border-top:none; gap:7px;}
+  .panel .stepnum{margin-left:auto; margin-top:0; font-size:11.5px; font-weight:normal; color:var(--muted); letter-spacing:0;}
+  .panel .rl{display:block; font-size:13px; color:#3d5262; line-height:1.6;}
+  .panel .rl + .rl{margin-top:9px;}
+  .panel .rl b{color:#e91e63; font-family:"Times New Roman",serif; font-size:16px;}
+  .panel .chkrow{margin-top:8px; gap:12px; font-size:13px;}
+  .panel input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; margin-top:9px;
+    border-radius:4px; background:#dbe6eb; outline:none; cursor:pointer; display:block;}
+  .panel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--blue); border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .panel input[type=range]::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--blue);
+    border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .wb + .cards{margin-top:12px;}
+  .wb + .cards .card2{flex:1 1 0; text-align:center; padding:10px 8px;}
+  .wb + .cards .card2 .v{font-size:19px; margin-top:2px;}
+  .stage-wrap{position:relative; width:100%; height:var(--wb-h); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background:
+      linear-gradient(rgba(120,145,125,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,145,125,.08) 1px, transparent 1px),
+      radial-gradient(ellipse at 50% 40%, #f9fbf5 0%, #eff3ec 60%, #e5ebe2 100%);
+    background-size:28px 28px, 28px 28px, 100% 100%;}
+  .stage-wrap canvas{display:block;}
+  .hint{position:absolute; left:14px; bottom:10px; font-size:12.5px; color:#8aa0ae; pointer-events:none;}
+  /* ---- 画布上的提示小框：随步骤/状态出现 ---- */
+  .tipbox{position:absolute; left:14px; top:14px; max-width:min(74%, 322px); pointer-events:none;
+    background:rgba(255,255,255,.95); border:1px solid #e2ecf0; border-left:3px solid var(--blue);
+    border-radius:10px; padding:8px 11px 8px 10px; box-shadow:0 5px 16px rgba(30,60,80,.12);
+    font-size:12.8px; line-height:1.62; color:#3d5262;
+    opacity:0; transform:translateY(-6px); transition:transform .24s ease;}
+  .tipbox.show{opacity:1; transform:none;}
+  .tipbox.flash{animation:tipIn .34s ease;}
+  @keyframes tipIn{0%{transform:translateY(-7px) scale(.985);}100%{transform:none;}}
+  .tipbox .tstep{display:inline-block; vertical-align:1px; margin-right:6px; padding:1px 6px; border-radius:5px;
+    background:var(--blue); color:#fff; font-size:10.8px; font-weight:bold; letter-spacing:.4px;}
+  .tipbox b{color:var(--coral);}
+  .tipbox .hl{color:var(--violet); font-weight:bold;}
+  .tipbox .hl2{color:var(--amber); font-weight:bold;}
+  .stepbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px; padding-top:14px; border-top:1px dashed var(--line);}
+  button.act{padding:8px 18px; border:none; border-radius:8px; background:var(--blue); color:#fff; font-size:14px; cursor:pointer; transition:.15s;}
+  button.act:hover{filter:brightness(1.08);}
+  button.act.sm{padding:7px 14px; font-size:13px; border-radius:7px;}
+  button.act.ghost{background:#eef2f5; color:#4c6472; border:1px solid #d5dee4;}
+  button.act.ghost:hover{background:#e3eaef;}
+  button.act:disabled{background:#c7d3db; cursor:not-allowed; filter:none;}
+  button.act.ghost:disabled{background:#f1f4f6; color:#a9b6bf; border-color:#e3e9ed;}
+  .stepnum{font-size:13px; color:var(--muted); margin-left:4px;}
+  .ctrl{display:flex; gap:30px; flex-wrap:wrap; margin:6px 0 4px;}
+  .ctrl label{flex:1 1 260px; font-size:14px; color:#3d5262;}
+  .ctrl b{color:#e91e63; font-family:"Times New Roman",serif; font-size:17px;}
+  .ctrl input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; margin-top:14px;
+    border-radius:4px; background:#dbe6eb; outline:none; cursor:pointer;}
+  .ctrl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--blue); border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .ctrl input[type=range]::-moz-range-track{height:6px; border-radius:4px; background:#dbe6eb;}
+  .ctrl input[type=range]::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--blue);
+    border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .cards{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;}
+  .card2{flex:1 1 160px; background:#f7fafb; border:1px solid #e3ece8; border-radius:12px; padding:12px 16px;}
+  .card2 .k{font-size:12.5px; color:var(--muted);}
+  .card2 .v{font-size:21px; font-weight:bold; color:var(--blue-dark); margin-top:4px; letter-spacing:.3px;}
+  .bar{border-radius:12px; padding:12px 16px; background:#f8fbfc; border:1px solid #e2ecf0; margin-top:14px;
+    font-size:14px; line-height:1.95; color:#3d5262;}
+  .bar b{color:var(--coral);}
+  .bar .hl2{color:var(--amber); font-weight:bold;}
+  .chkrow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px; font-size:14px; color:#3d5262;}
+  .chkrow input[type=checkbox]{width:17px; height:17px; accent-color:var(--blue); cursor:pointer;}
+  .minval{flex:1 1 100%; margin-top:2px; font-size:13.5px; color:#3d5262; background:#f6f9fa;
+    border-left:3px solid var(--blue-dark); border-radius:0 8px 8px 0; padding:8px 12px; line-height:1.6;}
+  .minval b{color:var(--violet); font-family:"Times New Roman",serif; font-size:16px;}
+  .formula{font-family:"Times New Roman","Microsoft YaHei",serif; font-size:15.5px;}
+  /* ---- 窄屏：控制栏回到下方 ---- */
+  @media (max-width:960px){
+    .wb{grid-template-columns:1fr;}
+    .stage-wrap{height:auto; aspect-ratio:1.45; min-height:300px;}
+    .panel{height:auto; overflow:visible;}
+  }
+  /* ---- 嵌入「空间中的角」合集页时的紧凑模式 ---- */
+  html.embed header{display:none;}
+  html.embed body{padding-bottom:4px;}
+  html.embed main{margin-top:8px; max-width:none;}
+  html.embed{--wb-h:max(140px, calc(100vh - 58px));}
+  html.embed .pg-tip{display:none;}
+  html.embed .tipbox{font-size:12px; padding:7px 9px; max-width:min(78%, 300px);}
+  html.embed .zone{padding:6px 12px; margin-bottom:0; border:none; box-shadow:none; background:transparent;}
+  html.embed .zone-head{display:none;}
+  html.embed .wb + .cards{margin-top:5px; gap:6px; flex-wrap:nowrap;}
+  html.embed .wb + .cards .card2{display:flex; align-items:baseline; justify-content:center; gap:5px;
+    padding:3px 6px; border:none; border-radius:8px; background:#f3f8fa;}
+  html.embed .wb + .cards .card2 .k{font-size:10.5px; white-space:nowrap;}
+  html.embed .wb + .cards .card2 .v{font-size:13px; margin:0;}
+  html.embed ::-webkit-scrollbar{width:10px;}
+  html.embed ::-webkit-scrollbar-thumb{background:#c3d1c8; border-radius:6px;}
+  html.embed ::-webkit-scrollbar-thumb:hover{background:#aebfb4;}
+  html.embed ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>直线与平面所成的角</h1>
+  <p>平面的一条斜线和它在平面上的射影所成的角 —— 作垂足 · 连射影 · 标夹角</p>
+</header>
+
+<main>
+
+  <!-- ①② 工作台：左图右控 -->
+  <section class="zone">
+    <div class="zone-head">
+      <span class="badge">① 分步作图</span>
+      <span class="badge pink">② 调节参数</span>
+      <h2>过斜线上一点作平面的垂线，垂足与斜足确定射影</h2>
+    </div>
+    <div class="wb">
+      <div class="stage-wrap" id="stage">
+        <div class="tipbox" id="tip"><span class="tstep" id="tipStep">第 4 步</span><span id="tipTxt"></span></div>
+        <div class="hint">拖动旋转 · 滚轮缩放 · 右键平移</div>
+      </div>
+      <aside class="panel">
+        <div class="pg">
+          <div class="pg-t">分步作图<span class="stepnum" id="stepNum">第 4 / 4 步</span></div>
+          <div class="stepbar">
+            <button class="act sm" id="bNext">下一步 →</button>
+            <button class="act sm ghost" id="bBack">← 上一步</button>
+            <button class="act sm ghost" id="bReset">重来</button>
+            <button class="act sm ghost" id="bAuto">自动演示</button>
+          </div>
+        </div>
+        <div class="pg">
+          <div class="pg-t">调节参数</div>
+          <label class="rl">直线与平面所成的角 <b id="vTheta">45.0°</b>
+            <input type="range" id="sTheta" min="0" max="90" step="0.5" value="45"></label>
+          <label class="rl">斜线绕竖直方向转过的方位角 <b id="vBeta">35°</b>
+            <input type="range" id="sBeta" min="0" max="360" step="1" value="35"></label>
+        </div>
+      </aside>
+    </div>
+    <div class="cards">
+      <div class="card2"><div class="k">斜线段 PA（定长）</div><div class="v" id="cPA">3.20</div></div>
+      <div class="card2"><div class="k">点 P 到平面的距离 PO</div><div class="v" id="cPO">2.26</div></div>
+      <div class="card2"><div class="k">射影 AO 的长</div><div class="v" id="cAO">2.26</div></div>
+      <div class="card2"><div class="k">sin∠PAO = PO / PA</div><div class="v" id="cSin">0.707</div></div>
+    </div>
+  </section>
+
+  <!-- ③ 拓展：最小角 -->
+  <section class="zone">
+    <div class="zone-head">
+      <span class="badge violet">③ 拓展</span>
+      <h2>斜线与平面内哪条直线所成的角最小？</h2>
+    </div>
+    <div class="chkrow">
+      <input type="checkbox" id="cMin">
+      <label for="cMin">在平面 α 内过点 A 任作一条直线 <span class="formula">m</span>，比较 ∠(PA, m) 与 ∠PAO</label>
+    </div>
+    <div class="ctrl" id="minCtrl" style="opacity:.4; pointer-events:none;">
+      <label>直线 <span class="formula">m</span> 的方向 <b id="vGamma">0°</b>
+        <input type="range" id="sGamma" min="0" max="360" step="1" value="0"></label>
+      <div class="minval" id="vMin">勾选后转动 <span class="formula">m</span>，看 ∠(PA, <span class="formula">m</span>) 何时取到最小</div>
+    </div>
+  </section>
+
+</main>
+
+<script src="/visual-classroom/vendor/three/0.128.0/build/three.min.js"><\/script>
+<script src="/visual-classroom/vendor/three/0.128.0/examples/js/controls/OrbitControls.js"><\/script>
+<script>
+(function(){
+'use strict';
+
+/* ---------------- 场景 ---------------- */
+const stage = document.getElementById('stage');
+if(typeof THREE === 'undefined'){
+  stage.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a9a92;font-size:15px;text-align:center;line-height:2">三维引擎未能加载<br>请检查网络连接后刷新页面</div>';
+  return;
+}
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 400);
+const CAM0 = new THREE.Vector3(4.57, 2.80, 5.44);
+camera.position.copy(CAM0);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0, 0.04, 0);
+controls.minDistance = 4;
+controls.maxDistance = 22;
+controls.maxPolarAngle = Math.PI * 0.495;
+controls.update();
+
+/* 画布宽高比与基准不同时，按比例前移/后退：宽画布适当拉近让模型占满，窄画布后退防裁切 */
+const BASE_TARGET = new THREE.Vector3(0, 0.04, 0);
+const BASE_VEC = camera.position.clone().sub(BASE_TARGET);
+const FIT_ASPECT = 1.55;   // 基准画布宽高比
+function fitView(){
+  const a = Math.max(camera.aspect, 0.6);
+  const k = a < FIT_ASPECT ? Math.min(FIT_ASPECT / a, 1.5) : 1;
+  camera.position.copy(controls.target).add(BASE_VEC.clone().multiplyScalar(k));
+  controls.update();
+}
+
+function resize(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if(!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  fitView();
+}
+resize();
+window.addEventListener('resize', resize);
+if(window.ResizeObserver){ new ResizeObserver(function(){ resize(); }).observe(stage); }
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const dl = new THREE.DirectionalLight(0xffffff, 0.55);
+dl.position.set(4, 8, 6);
+scene.add(dl);
+
+/* ---------------- 通用绘图工具 ---------------- */
+const UP = new THREE.Vector3(0, 1, 0);
+
+function tube(a, b, r, color, opacity){
+  const d = new THREE.Vector3().subVectors(b, a);
+  const len = d.length();
+  if(len < 1e-5) return null;
+  const mat = new THREE.MeshBasicMaterial({color: color});
+  if(opacity !== undefined){ mat.transparent = true; mat.opacity = opacity; }
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 8), mat);
+  m.position.copy(a).addScaledVector(d, 0.5);
+  m.quaternion.setFromUnitVectors(UP, d.clone().normalize());
+  return m;
+}
+function dashed(a, b, color, dash, gap){
+  const g = new THREE.BufferGeometry().setFromPoints([a, b]);
+  const mat = new THREE.LineDashedMaterial({color: color, dashSize: dash || 0.17, gapSize: gap || 0.13});
+  const l = new THREE.Line(g, mat);
+  l.computeLineDistances();
+  return l;
+}
+function dotAt(p, r, color){
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r || 0.055, 14, 14),
+            new THREE.MeshBasicMaterial({color: color || 0x2f4450}));
+  m.position.copy(p);
+  return m;
+}
+function makeLabel(text, color, h, halo){
+  h = h || 0.46;
+  const fs = 96, pad = 26;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = 'italic bold ' + fs + 'px "Times New Roman","Microsoft YaHei",serif';
+  const w = Math.ceil(meas.measureText(text).width) + pad * 2;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = fs + pad;
+  const g = c.getContext('2d');
+  g.font = 'italic bold ' + fs + 'px "Times New Roman","Microsoft YaHei",serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = halo || 12; g.lineJoin = 'round'; g.strokeStyle = 'rgba(255,255,255,.92)';
+  g.strokeText(text, c.width / 2, c.height / 2 + 4);
+  g.fillStyle = color;
+  g.fillText(text, c.width / 2, c.height / 2 + 4);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false, depthWrite: false}));
+  sp.scale.set(h * c.width / c.height, h, 1);
+  sp.renderOrder = 20;
+  return sp;
+}
+function angleMark(apex, u, v, r, color){
+  const g = new THREE.Group();
+  const d = THREE.MathUtils.clamp(u.dot(v), -1, 1);
+  const ang = Math.acos(d);
+  if(ang < 0.06 || ang > Math.PI - 0.02) return g;
+  const axis = new THREE.Vector3().crossVectors(u, v);
+  if(axis.length() < 1e-6) return g;
+  axis.normalize();
+  const n = 44, pts = [];
+  for(let i = 0; i <= n; i++){
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, ang * i / n);
+    pts.push(u.clone().applyQuaternion(q).multiplyScalar(r).add(apex));
+  }
+  const curve = new THREE.CatmullRomCurve3(pts);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 44, Math.max(r * 0.026, 0.009), 6, false),
+        new THREE.MeshBasicMaterial({color: color})));
+  const pos = [];
+  for(let i = 0; i < n; i++){
+    pos.push(apex.x, apex.y, apex.z);
+    pos.push(pts[i].x, pts[i].y, pts[i].z);
+    pos.push(pts[i + 1].x, pts[i + 1].y, pts[i + 1].z);
+  }
+  const bg = new THREE.BufferGeometry();
+  bg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.add(new THREE.Mesh(bg, new THREE.MeshBasicMaterial({
+    color: color, transparent: true, opacity: 0.09, side: THREE.DoubleSide, depthWrite: false})));
+  return g;
+}
+function rightAngle(apex, u, v, s, color){
+  const g = new THREE.Group();
+  const p0 = apex.clone();
+  const p1 = apex.clone().addScaledVector(u, s);
+  const p2 = apex.clone().addScaledVector(u, s).addScaledVector(v, s);
+  const p3 = apex.clone().addScaledVector(v, s);
+  [[p0, p1], [p1, p2], [p2, p3]].forEach(function(seg){
+    const t = tube(seg[0], seg[1], s * 0.058, color);
+    if(t) g.add(t);
+  });
+  return g;
+}
+function clearGroup(g){
+  while(g.children.length){
+    const c = g.children[g.children.length - 1];
+    g.remove(c);
+    c.traverse(function(o){
+      if(o.geometry) o.geometry.dispose();
+      if(o.material){
+        if(o.material.map) o.material.map.dispose();
+        o.material.dispose();
+      }
+    });
+  }
+}
+
+/* ---------------- 平面 α ---------------- */
+const S = 2.3;
+const planeGrp = new THREE.Group();
+scene.add(planeGrp);
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(S * 2, S * 2),
+  new THREE.MeshBasicMaterial({color: 0x9dc9da, transparent: true, opacity: 0.15,
+    side: THREE.DoubleSide, depthWrite: false}));
+plane.rotation.x = -Math.PI / 2;
+planeGrp.add(plane);
+
+const grid = new THREE.GridHelper(S * 2, 8, 0xb4ccd7, 0xdae6ec);
+grid.material.transparent = true;
+grid.material.opacity = 0.5;
+grid.position.y = 0.002;
+planeGrp.add(grid);
+
+const borderPts = [
+  new THREE.Vector3(-S, 0, -S), new THREE.Vector3(S, 0, -S), new THREE.Vector3(S, 0, S),
+  new THREE.Vector3(-S, 0, S), new THREE.Vector3(-S, 0, -S)
+];
+planeGrp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(borderPts),
+  new THREE.LineBasicMaterial({color: 0xa9cddb, transparent: true, opacity: 0.85})));
+
+const labAlpha = makeLabel('α', '#6ba0ba', 0.52);
+labAlpha.position.set(-S * 0.82, 0.1, -S * 0.86);
+planeGrp.add(labAlpha);
+
+/* ---------------- 动态元素 ---------------- */
+const dyn = new THREE.Group();      // 主作图
+const dynMin = new THREE.Group();   // 最小角对比
+scene.add(dyn); scene.add(dynMin);
+
+const labA  = makeLabel('A', '#2f4450', 0.34);
+const labP  = makeLabel('P', '#dd7358', 0.34);
+const labO  = makeLabel('O', '#7aa571', 0.32);
+const labTh = makeLabel('θ', '#6f68c8', 0.4);
+const labProj = makeLabel('射影', '#c08a35', 0.22, 7);
+const labM  = makeLabel('m', '#4f9ec4', 0.34);
+scene.add(labA); scene.add(labP); scene.add(labO);
+scene.add(labTh); scene.add(labProj); scene.add(labM);
+
+/* ---------------- 状态 ---------------- */
+const st = {theta: 45, beta: 35, gamma: 0, step: 4, min: false};
+const L = 2.92;
+const A = new THREE.Vector3(0, 0, 0);
+const D = new THREE.Vector3();
+const P = new THREE.Vector3();
+const O = new THREE.Vector3();
+
+const $ = function(id){ return document.getElementById(id); };
+
+/* ---------------- 画布提示小框 ---------------- */
+let lastTip = '', tipTimer = null;
+function showTip(step, html){
+  const key = step + '|' + html;
+  if(key === lastTip) return;
+  lastTip = key;
+  const box = $('tip');
+  if(!box) return;
+  $('tipStep').textContent = step;
+  $('tipTxt').innerHTML = html;
+  box.classList.add('show');
+  box.classList.remove('flash');
+  void box.offsetWidth;
+  box.classList.add('flash');
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(function(){ box.classList.remove('flash'); }, 380);
+}
+
+/* ---------------- 重建几何 ---------------- */
+function rebuild(){
+  clearGroup(dyn);
+  clearGroup(dynMin);
+
+  const th = st.theta * Math.PI / 180;
+  const be = st.beta * Math.PI / 180;
+  D.set(Math.cos(th) * Math.cos(be), Math.sin(th), Math.cos(th) * Math.sin(be)).normalize();
+  /* 接近 90° 时略微收短，避免 P 顶出画面 */
+  const tR = Math.max(0, Math.min(1, (st.theta - 70) / 20));
+  const Leff = L * (1 - 0.31 * tR);
+  P.copy(D).multiplyScalar(Leff);
+  O.set(P.x, 0, P.z);
+
+  /* 斜线 l：过 A 的直线（平面下方部分用虚线） */
+  const pTop = D.clone().multiplyScalar(Leff * 1.12);
+  const pBot = D.clone().multiplyScalar(-1.0);
+  const lTube = tube(A, pTop, 0.023, 0xdd7358);
+  if(lTube) dyn.add(lTube);
+  dyn.add(dashed(A, pBot, 0xdd7358, 0.14, 0.11));
+  dyn.add(dotAt(A, 0.05, 0x2f4450));
+  dyn.add(dotAt(P, 0.043, 0xdd7358));
+
+  /* 第 2 步：作垂线 PO */
+  if(st.step >= 2 && O.length() > 0.025){
+    if(Math.sin(th) > 0.04){
+      dyn.add(dashed(P, O, 0x7aa571, 0.15, 0.11));
+      dyn.add(dotAt(O, 0.043, 0x7aa571));
+    }
+    if(O.length() > 0.5 && Math.sin(th) > 0.04){
+      const u1 = new THREE.Vector3().subVectors(A, O).normalize();
+      dyn.add(rightAngle(O, u1, UP, 0.21, 0x7aa571));
+    }
+  }
+
+  /* 第 3 步：射影 AO */
+  if(st.step >= 3 && O.length() > 0.05){
+    const t = tube(A, O, 0.022, 0xd9a24a);
+    if(t) dyn.add(t);
+  }
+
+  /* 第 4 步：夹角 */
+  if(st.step >= 4 && O.length() > 0.1){
+    const uAO = new THREE.Vector3().subVectors(O, A).normalize();
+    dyn.add(angleMark(A, uAO, D.clone(), 0.82, 0x6f68c8));
+  }
+
+  /* 标签位置 */
+  labA.position.set(-0.4, 0.22, 0.12);
+  /* P 的标签放到直线的侧面，避免不同倾角下压在线上 */
+  const toCam = camera.position.clone().sub(P).normalize();
+  const sideP = new THREE.Vector3().crossVectors(D, toCam);
+  if(sideP.length() < 1e-3) sideP.set(1, 0, 0); else sideP.normalize();
+  if(sideP.x < 0) sideP.negate();
+  labP.position.copy(P).addScaledVector(D, 0.16).addScaledVector(sideP, 0.3);
+  labO.position.copy(O).add(new THREE.Vector3(0.34, 0.26, 0.24));
+
+  const showO = (st.step >= 2 && O.length() > 0.025);
+  const flat = st.theta < 1;          // θ ≈ 0：直线落在平面内，O、射影、θ 都不再单独显示
+  labO.visible = showO && !flat;
+  labP.visible = true;
+
+  labProj.visible = (st.step >= 3 && O.length() > 0.6 && !flat);
+  if(labProj.visible){
+    const mid = O.clone().multiplyScalar(0.62);
+    const nrm = new THREE.Vector3(-O.z, 0, O.x).normalize().multiplyScalar(0.4);
+    labProj.position.copy(mid).add(nrm).add(new THREE.Vector3(0, 0.08, 0));
+  }
+
+  labTh.visible = (st.step >= 4 && O.length() > 0.25 && !flat);
+  if(labTh.visible){
+    const bis = new THREE.Vector3().subVectors(O, A).normalize().add(D.clone()).normalize();
+    labTh.position.copy(A).addScaledVector(bis, 1.12).add(new THREE.Vector3(0, 0.12, 0));
+  }
+
+  /* 最小角对比 */
+  labM.visible = st.min;
+  if(st.min){
+    const ga = st.gamma * Math.PI / 180;
+    const uM = new THREE.Vector3(Math.cos(ga), 0, Math.sin(ga));
+    const t1 = tube(uM.clone().multiplyScalar(-S * 0.86), uM.clone().multiplyScalar(S * 0.86), 0.02, 0x4f9ec4);
+    if(t1) dynMin.add(t1);
+    dynMin.add(dotAt(uM.clone().multiplyScalar(0), 0.05, 0x2f4450));
+    dynMin.add(angleMark(A, uM.clone(), D.clone(), 0.82, 0x4f9ec4));
+    labM.position.copy(uM).multiplyScalar(2.1).add(new THREE.Vector3(0, 0.14, 0));
+
+    const c = Math.abs(uM.dot(D));
+    const angM = Math.acos(THREE.MathUtils.clamp(c, -1, 1)) * 180 / Math.PI;
+    const near = Math.abs(angM - st.theta) < 0.4;
+    $('vMin').innerHTML = '∠(PA, <span class="formula">m</span>) = <b>' + angM.toFixed(1) + '°</b>' +
+      (near ? '，正好取到最小值 ∠PAO' : '　≥　∠PAO = ' + st.theta.toFixed(1) + '°');
+  }
+
+  updateReadout(th);
+}
+
+function updateReadout(th){
+  const s = st.step;
+  $('cPA').textContent = L.toFixed(2);
+  $('cPO').textContent = s >= 2 ? (L * Math.sin(th)).toFixed(2) : '—';
+  $('cAO').textContent = s >= 3 ? (L * Math.cos(th)).toFixed(2) : '—';
+  $('cSin').textContent = s >= 4 ? Math.sin(th).toFixed(3) : '—';
+
+  if(st.theta < 0.6){
+    showTip('θ = 0°', '直线落在平面 α 内，射影与直线重合，规定所成的角为 <b>0°</b>');
+  } else if(st.theta > 89.4){
+    showTip('θ = 90°', '直线 ⊥ α，垂足与斜足重合，射影缩成一点，所成的角是 <b>90°</b>');
+  } else {
+    const txt = {
+      1: 'PA 交 α 于斜足 <b>A</b>，PA 就是平面的一条斜线',
+      2: '过 P 作 <b>PO ⊥ α</b>，O 为垂足，PO 就是 P 到 α 的距离',
+      3: '连 <b>AO</b>，它就是 PA 在 α 内的<span class="hl2">射影</span>',
+      4: '<span class="hl">∠PAO = ' + st.theta.toFixed(1) + '°</span> 即 PA 与 α 所成的角，sin∠PAO = PO/PA'
+    };
+    showTip('第 ' + s + ' 步', txt[s]);
+  }
+}
+
+/* ---------------- 交互 ---------------- */
+function setStep(n){
+  st.step = Math.max(1, Math.min(4, n));
+  $('stepNum').textContent = '第 ' + st.step + ' / 4 步';
+  $('bNext').disabled = (st.step >= 4);
+  $('bBack').disabled = (st.step <= 1);
+  rebuild();
+}
+
+let autoTimer = null;
+function stopAuto(){
+  if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  $('bAuto').textContent = '自动演示';
+}
+function playAuto(){
+  if(autoTimer){ stopAuto(); return; }
+  setStep(1);
+  $('bAuto').textContent = '停止';
+  let n = 1;
+  autoTimer = setInterval(function(){
+    n++;
+    if(n > 4){ stopAuto(); return; }
+    setStep(n);
+  }, 1200);
+}
+
+$('bNext').addEventListener('click', function(){ stopAuto(); setStep(st.step + 1); });
+$('bBack').addEventListener('click', function(){ stopAuto(); setStep(st.step - 1); });
+$('bReset').addEventListener('click', function(){ stopAuto(); setStep(1); });
+$('bAuto').addEventListener('click', playAuto);
+
+$('sTheta').addEventListener('input', function(){
+  st.theta = parseFloat(this.value);
+  $('vTheta').textContent = st.theta.toFixed(1) + '°';
+  rebuild();
+});
+$('sBeta').addEventListener('input', function(){
+  st.beta = parseFloat(this.value);
+  $('vBeta').textContent = st.beta + '°';
+  rebuild();
+});
+$('sGamma').addEventListener('input', function(){
+  st.gamma = parseFloat(this.value);
+  $('vGamma').textContent = st.gamma + '°';
+  rebuild();
+});
+$('cMin').addEventListener('change', function(){
+  st.min = this.checked;
+  $('minCtrl').style.opacity = st.min ? '1' : '.4';
+  $('minCtrl').style.pointerEvents = st.min ? 'auto' : 'none';
+  rebuild();
+});
+
+/* ---------------- 渲染循环 ---------------- */
+function tick(){
+  requestAnimationFrame(tick);
+  controls.update();
+  renderer.render(scene, camera);
+}
+rebuild();
+tick();
+
+})();
+<\/script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+<script type="text/plain" id="src-di">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二面角 · 三维模型</title>
+<script>document.documentElement.classList.add("embed");<\/script>
+<style>
+  :root{
+    --blue:#4f9ec4; --blue-dark:#3d87ad; --coral:#dd7358; --green:#7aa571;
+    --amber:#d9a24a; --violet:#6f68c8; --ink:#3a4a54; --muted:#8a9a92;
+    --card:#ffffff; --bg:#eef1ea; --line:#dde4d8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); padding-bottom:50px;}
+  header{background:linear-gradient(120deg,#417f9e,#5fa8c7 55%,#8fc7dd); color:#fff; padding:26px 20px 20px; text-align:center;}
+  header h1{font-size:26px; letter-spacing:2px;}
+  header p{opacity:.94; margin-top:9px; font-size:14px; line-height:1.8;}
+  main{max-width:1240px; margin:24px auto 0; padding:0 16px;}
+  .zone{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:22px; box-shadow:0 4px 16px rgba(30,60,80,.06);}
+  .zone-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .badge{background:var(--blue); color:#fff; border-radius:8px; padding:4px 12px; font-size:14px; font-weight:bold;}
+  .badge.pink{background:var(--coral);}
+  .badge.violet{background:var(--violet);}
+  .zone-head h2{font-size:19px;}
+  /* ---- 左图右控工作台 ---- */
+  :root{--wb-h:clamp(480px, calc(100vh - 232px), 700px);}
+  .wb{display:grid; grid-template-columns:minmax(0,1fr) 304px; gap:20px; align-items:stretch;}
+  .panel{display:flex; flex-direction:column; gap:12px; height:var(--wb-h); overflow-y:auto; min-height:0; padding-right:5px;}
+  html:not(.embed) .panel{height:auto; align-self:start;}
+  .panel::-webkit-scrollbar{width:8px;}
+  .panel::-webkit-scrollbar-thumb{background:#cbd8de; border-radius:5px;}
+  .pg{background:#f8fbfc; border:1px solid #e2ecf0; border-radius:12px; padding:14px 15px;}
+  .pg-t{font-size:13px; font-weight:bold; color:var(--blue-dark); letter-spacing:.5px; margin-bottom:9px;
+    display:flex; align-items:center; gap:7px;}
+  .pg-t::before{content:""; width:4px; height:13px; border-radius:2px; background:var(--blue);}
+  .panel .stepbar{margin-top:0; padding-top:0; border-top:none; gap:7px;}
+  .panel .stepnum{margin-left:auto; margin-top:0; font-size:11.5px; font-weight:normal; color:var(--muted); letter-spacing:0;}
+  .panel .chips{gap:6px; margin:10px 0 0;}
+  .panel .chips .lab{width:100%; margin-bottom:2px; font-size:12.5px;}
+  .panel .chip{padding:4px 9px; font-size:12px;}
+  .panel .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px;}
+  .wb + .cards{margin-top:12px;}
+  .wb + .cards .card2{flex:1 1 0; text-align:center; padding:10px 8px;}
+  .wb + .cards .card2 .v{font-size:19px; margin-top:2px;}
+  .panel .pg:last-child{flex:0 0 auto;}
+  .pg-tip{margin-top:10px; padding-top:9px; border-top:1px dashed #dfe9ee; font-size:12px; color:#8b9ba5; line-height:1.75;}
+  .tipbox .fx{font-size:12.8px; font-style:italic;}
+  .panel .bar{margin-top:10px; padding:9px 11px; font-size:12.8px; line-height:1.85;}
+  .rl{display:block; font-size:13.5px; color:#3d5262;}
+  .rl b{color:#e91e63; font-family:"Times New Roman",serif; font-size:17px;}
+  .panel input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; margin-top:12px;
+    border-radius:4px; background:#dbe6eb; outline:none; cursor:pointer; display:block;}
+  .panel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--blue); border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .panel input[type=range]::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--blue);
+    border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .stage-wrap{position:relative; width:100%; height:var(--wb-h); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background:
+      linear-gradient(rgba(120,145,125,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,145,125,.08) 1px, transparent 1px),
+      radial-gradient(ellipse at 50% 38%, #f9fbf5 0%, #eff3ec 60%, #e5ebe2 100%);
+    background-size:28px 28px, 28px 28px, 100% 100%;}
+  .stage-wrap canvas{display:block;}
+  .hint{position:absolute; left:14px; bottom:10px; font-size:12.5px; color:#8aa0ae; pointer-events:none;}
+  /* ---- 画布上的提示小框：随步骤/状态出现 ---- */
+  .tipbox{position:absolute; left:14px; top:14px; max-width:min(72%, 318px); pointer-events:none;
+    background:rgba(255,255,255,.95); border:1px solid #e2ecf0; border-left:3px solid var(--violet);
+    border-radius:10px; padding:8px 11px 8px 10px; box-shadow:0 5px 16px rgba(30,60,80,.12);
+    font-size:12.8px; line-height:1.62; color:#3d5262;
+    opacity:0; transform:translateY(-6px); transition:transform .24s ease;}
+  .tipbox.show{opacity:1; transform:none;}
+  .tipbox.flash{animation:tipIn .34s ease;}
+  @keyframes tipIn{0%{transform:translateY(-7px) scale(.985);}100%{transform:none;}}
+  .tipbox .tstep{display:inline-block; vertical-align:1px; margin-right:6px; padding:1px 6px; border-radius:5px;
+    background:var(--violet); color:#fff; font-size:10.8px; font-weight:bold; letter-spacing:.4px;}
+  .tipbox b{color:var(--coral);}
+  .tipbox .hl{color:var(--violet); font-weight:bold;}
+  .tipbox .hl2{color:var(--blue-dark); font-weight:bold;}
+  .tipbox.warn{border-left-color:var(--coral);}
+  .tipbox.warn .tstep{background:var(--coral);}
+  .stepbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px; padding-top:14px; border-top:1px dashed var(--line);}
+  button.act{padding:8px 18px; border:none; border-radius:8px; background:var(--blue); color:#fff; font-size:14px; cursor:pointer; transition:.15s;}
+  button.act:hover{filter:brightness(1.08);}
+  button.act.sm{padding:7px 14px; font-size:13px; border-radius:7px;}
+  button.act.ghost{background:#eef2f5; color:#4c6472; border:1px solid #d5dee4;}
+  button.act.ghost:hover{background:#e3eaef;}
+  button.act.coral{background:var(--coral);}
+  button.act:disabled{background:#c7d3db; cursor:not-allowed; filter:none;}
+  button.act.ghost:disabled{background:#f1f4f6; color:#a9b6bf; border-color:#e3e9ed;}
+  .stepnum{font-size:13px; color:var(--muted); margin-left:4px;}
+  .ctrl{display:flex; gap:30px; flex-wrap:wrap; margin:6px 0 4px;}
+  .ctrl label{flex:1 1 260px; font-size:14px; color:#3d5262;}
+  .ctrl b{color:#e91e63; font-family:"Times New Roman",serif; font-size:17px;}
+  .ctrl input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; margin-top:14px;
+    border-radius:4px; background:#dbe6eb; outline:none; cursor:pointer;}
+  .ctrl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--blue); border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .ctrl input[type=range]::-moz-range-track{height:6px; border-radius:4px; background:#dbe6eb;}
+  .ctrl input[type=range]::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--blue);
+    border:2.5px solid #fff; box-shadow:0 1px 5px rgba(20,60,70,.35); cursor:pointer;}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 2px; align-items:center;}
+  .chips .lab{font-size:13.5px; color:var(--muted); margin-right:2px;}
+  .chip{padding:6px 14px; border-radius:999px; border:1.5px solid #d7e2e8; background:#f8fbfc;
+    color:#4c6472; font-size:13.5px; cursor:pointer; transition:.15s; font-family:inherit;}
+  .chip:hover{border-color:#9fd0e0; background:#f0f9fc;}
+  .chip.on{background:var(--violet); border-color:var(--violet); color:#fff; font-weight:bold; box-shadow:0 2px 8px rgba(111,104,200,.3);}
+  .cards{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;}
+  .card2{flex:1 1 160px; background:#f7fafb; border:1px solid #e3ece8; border-radius:12px; padding:12px 16px;}
+  .card2 .k{font-size:12.5px; color:var(--muted);}
+  .card2 .v{font-size:21px; font-weight:bold; color:var(--blue-dark); margin-top:4px; letter-spacing:.3px;}
+  .card2 .v.vio{color:var(--violet);}
+  .bar{border-radius:12px; padding:12px 16px; background:#f8fbfc; border:1px solid #e2ecf0; margin-top:14px;
+    font-size:14px; line-height:1.95; color:#3d5262;}
+  .bar b{color:var(--coral);}
+  .bar .hl2{color:var(--amber); font-weight:bold;}
+  .chkrow{display:flex; align-items:center; gap:16px; flex-wrap:wrap; font-size:14px; color:#3d5262;}
+  .chkrow label{display:flex; align-items:center; gap:7px; cursor:pointer;}
+  .chkrow input[type=checkbox]{width:17px; height:17px; accent-color:var(--violet); cursor:pointer;}
+  .fx{font-family:"Times New Roman","Microsoft YaHei",serif; font-style:italic; font-size:15.5px;}
+  /* ---- 窄屏：控制栏回到下方 ---- */
+  @media (max-width:960px){
+    .wb{grid-template-columns:1fr;}
+    .stage-wrap{height:auto; aspect-ratio:1.45; min-height:300px;}
+    .panel{height:auto; overflow:visible;}
+    .panel .card2{flex:1 1 30%;}
+    .panel .card2 .v{font-size:16px;}
+  }
+  /* ---- 嵌入「空间中的角」合集页时的紧凑模式 ---- */
+  html.embed header{display:none;}
+  html.embed body{padding-bottom:4px;}
+  html.embed main{margin-top:8px; max-width:none;}
+  html.embed{--wb-h:max(140px, calc(100vh - 58px));}
+  html.embed .pg-tip{display:none;}
+  html.embed .zone{padding:6px 12px; margin-bottom:0; border:none; box-shadow:none; background:transparent;}
+  html.embed .zone-head{display:none;}
+  html.embed .wb + .cards{margin-top:5px; gap:6px; flex-wrap:nowrap;}
+  html.embed .wb + .cards .card2{display:flex; align-items:baseline; justify-content:center; gap:5px;
+    padding:3px 6px; border:none; border-radius:8px; background:#f3f8fa;}
+  html.embed .wb + .cards .card2 .k{font-size:10.5px; white-space:nowrap;}
+  html.embed .wb + .cards .card2 .v{font-size:13px; margin:0;}
+  html.embed .panel{gap:9px;}
+  html.embed .pg{padding:10px 12px;}
+  html.embed .pg-t{margin-bottom:7px; font-size:12.5px;}
+  html.embed .panel .status{font-size:12px; line-height:1.62; padding:7px 9px; margin-top:7px;}
+  html.embed .tipbox{font-size:12px; padding:7px 9px; max-width:min(70%, 296px);}
+  html.embed .tipbox .fx{font-size:12px;}
+  html.embed .panel .chips{margin:8px 0 0;}
+  html.embed .panel .chips .lab{width:auto; margin-bottom:0; font-size:12px;}
+  html.embed .panel .chip{padding:3px 8px; font-size:11.5px;}
+  html.embed ::-webkit-scrollbar{width:10px;}
+  html.embed ::-webkit-scrollbar-thumb{background:#c3d1c8; border-radius:6px;}
+  html.embed ::-webkit-scrollbar-thumb:hover{background:#aebfb4;}
+  html.embed ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>二面角 · 开合模型</h1>
+  <p>从一条直线出发的两个半平面 —— 以棱上任一点为端点，在两半平面内分别作垂直于棱的射线，所成的角叫二面角的平面角</p>
+</header>
+
+<main>
+
+  <!-- ① 工作台：左图右控 -->
+  <section class="zone">
+    <div class="zone-head">
+      <span class="badge">① 分步作图</span>
+      <span class="badge pink">调节开合</span>
+      <h2>两半平面绕棱开合，平面角随之实时变化</h2>
+    </div>
+    <div class="wb">
+      <div class="stage-wrap" id="stage">
+        <div class="tipbox" id="tip"><span class="tstep" id="tipStep">第 4 步</span><span id="tipTxt"></span></div>
+        <div class="hint">拖动旋转 · 滚轮缩放 · 右键平移</div>
+      </div>
+      <aside class="panel">
+        <div class="pg">
+          <div class="pg-t">分步作图<span class="stepnum" id="stepNum">第 4 / 4 步</span></div>
+          <div class="stepbar">
+            <button class="act sm" id="bNext">下一步 →</button>
+            <button class="act sm ghost" id="bBack">← 上一步</button>
+            <button class="act sm ghost" id="bReset">重来</button>
+          </div>
+        </div>
+        <div class="pg">
+          <div class="pg-t">调节开合程度</div>
+          <label class="rl">二面角 <span class="fx">α — l — β</span> 的大小 <b id="vPhi">72.0°</b>
+            <input type="range" id="sPhi" min="0" max="180" step="0.5" value="72"></label>
+          <button class="act sm ghost" id="bAuto" style="width:100%; margin-top:11px">开始自动开合</button>
+          <div class="chips" id="phiChips">
+            <span class="lab">常用角度：</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div class="cards">
+      <div class="card2"><div class="k">二面角大小</div><div class="v vio" id="cPhi">72.0°</div></div>
+      <div class="card2"><div class="k">平面角 ∠APB</div><div class="v" id="cAPB">72.0°</div></div>
+      <div class="card2"><div class="k">类型</div><div class="v" id="cType" style="font-size:14px; line-height:1.35">—</div></div>
+    </div>
+  </section>
+
+  <!-- ③ 反例 -->
+  <section class="zone">
+    <div class="zone-head">
+      <span class="badge violet">③ 想一想</span>
+      <h2>射线不垂直于棱，行不行？</h2>
+    </div>
+    <div class="chkrow">
+      <label><input type="checkbox" id="cWrong"> 改取两半平面内<b>不垂直于棱</b>的两条射线 PA′、PB′</label>
+      <span id="deltaWrap" style="opacity:.4; pointer-events:none; display:flex; align-items:center; gap:8px;">
+        射线与棱的夹角 <b id="vDelta" style="color:#e91e63; font-family:'Times New Roman',serif; font-size:17px;">50°</b>
+        <input type="range" id="sDelta" min="0" max="90" step="1" value="50" style="width:180px">
+      </span>
+    </div>
+  </section>
+
+</main>
+
+<script src="/visual-classroom/vendor/three/0.128.0/build/three.min.js"><\/script>
+<script src="/visual-classroom/vendor/three/0.128.0/examples/js/controls/OrbitControls.js"><\/script>
+<script>
+(function(){
+'use strict';
+
+/* ---------------- 场景 ---------------- */
+const stage = document.getElementById('stage');
+if(typeof THREE === 'undefined'){
+  stage.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a9a92;font-size:15px;text-align:center;line-height:2">三维引擎未能加载<br>请检查网络连接后刷新页面</div>';
+  return;
+}
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 400);
+const CAM0 = new THREE.Vector3(6.42, 3.43, 7.78);
+camera.position.copy(CAM0);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0.75, 0.46, 1.70);
+controls.minDistance = 4;
+controls.maxDistance = 26;
+controls.update();
+
+/* 画布宽高比与基准不同时，按比例前移/后退 */
+const BASE_TARGET = new THREE.Vector3(0.75, 0.46, 1.70);
+const BASE_VEC = new THREE.Vector3(5.67, 2.43, 6.08);   // 基准机位相对目标点的偏移（约 42° 方位 / 16° 俯角）
+const FIT_ASPECT = 1.46;
+function fitView(){
+  const a = Math.max(camera.aspect, 0.6);
+  /* 基准机位略微后退：宽画布（扁窗口）下两个半平面不会顶到上下边缘 */
+  const k = Math.max(1.24, Math.min(1.7, 1.6 / a));
+  camera.position.copy(controls.target).add(BASE_VEC.clone().multiplyScalar(k));
+  controls.update();
+}
+
+function resize(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if(!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  fitView();
+}
+resize();
+window.addEventListener('resize', resize);
+if(window.ResizeObserver){ new ResizeObserver(function(){ resize(); }).observe(stage); }
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+const dl = new THREE.DirectionalLight(0xffffff, 0.45);
+dl.position.set(4, 8, 6);
+scene.add(dl);
+
+/* ---------------- 工具 ---------------- */
+const UP = new THREE.Vector3(0, 1, 0);
+const V = function(x, y, z){ return new THREE.Vector3(x, y, z); };
+
+function makeSeg(r, color, opacity){
+  const mat = new THREE.MeshBasicMaterial({color: color});
+  if(opacity !== undefined){ mat.transparent = true; mat.opacity = opacity; }
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 10), mat);
+  return m;
+}
+function setSeg(m, a, b){
+  const d = new THREE.Vector3().subVectors(b, a);
+  const len = d.length();
+  if(len < 1e-6){ m.visible = false; return; }
+  m.visible = true;
+  m.position.copy(a).addScaledVector(d, 0.5);
+  m.quaternion.setFromUnitVectors(UP, d.clone().normalize());
+  m.scale.set(1, len, 1);
+}
+function dotAt(p, r, color){
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r || 0.055, 14, 14),
+            new THREE.MeshBasicMaterial({color: color || 0x2f4450}));
+  m.position.copy(p);
+  return m;
+}
+function makeLabel(text, color, h){
+  h = h || 0.44;
+  const fs = 96, pad = 26;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = 'italic bold ' + fs + 'px "Times New Roman","Microsoft YaHei",serif';
+  const w = Math.ceil(meas.measureText(text).width) + pad * 2;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = fs + pad;
+  const g = c.getContext('2d');
+  g.font = 'italic bold ' + fs + 'px "Times New Roman","Microsoft YaHei",serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 12; g.lineJoin = 'round'; g.strokeStyle = 'rgba(255,255,255,.92)';
+  g.strokeText(text, c.width / 2, c.height / 2 + 4);
+  g.fillStyle = color;
+  g.fillText(text, c.width / 2, c.height / 2 + 4);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false, depthWrite: false}));
+  sp.scale.set(h * c.width / c.height, h, 1);
+  sp.renderOrder = 20;
+  return sp;
+}
+function makeQuad(fillColor, opacity){
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(12), 3));
+  g.setIndex([0, 1, 2, 0, 2, 3]);
+  return new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+    color: fillColor, transparent: true, opacity: opacity, side: THREE.DoubleSide, depthWrite: false}));
+}
+function setQuad(mesh, p0, p1, p2, p3){
+  const arr = mesh.geometry.attributes.position.array;
+  const pts = [p0, p1, p2, p3];
+  for(let i = 0; i < 4; i++){
+    arr[i * 3] = pts[i].x; arr[i * 3 + 1] = pts[i].y; arr[i * 3 + 2] = pts[i].z;
+  }
+  mesh.geometry.attributes.position.needsUpdate = true;
+  mesh.geometry.computeBoundingSphere();
+}
+
+/* 半平面内画一层极淡的网格，让它读起来像"平面"，而不是一块色板 */
+function makeFaceGrid(color, opacity, halfW, depth, nd){
+  const N = nd || 6, pos = [];
+  for(let i = 1; i <= N; i++){
+    const z = depth * i / N;
+    pos.push(-halfW, 0, z, halfW, 0, z);
+  }
+  for(let j = 1; j < N; j++){
+    const x = -halfW + 2 * halfW * j / N;
+    pos.push(x, 0, 0, x, 0, depth);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const l = new THREE.LineSegments(g, new THREE.LineBasicMaterial({
+    color: color, transparent: true, opacity: opacity}));
+  l.renderOrder = 1;
+  return l;
+}
+
+/* ---------------- 尺寸 ---------------- */
+const EH = 2.5;      // 棱的半长
+const R = 2.95;       // 半平面的径向长度
+const RAY = 2.05;     // 射线的长度
+const SQ = 0.32;     // 直角标记大小
+const ARC_R = 1.02;  // 平面角弧的半径
+
+/* ---------------- 棱 l ---------------- */
+const edgeMesh = makeSeg(0.02, 0x5c7382);
+setSeg(edgeMesh, V(-EH - 0.45, 0, 0), V(EH + 0.45, 0, 0));
+scene.add(edgeMesh);
+const edgeTick = makeSeg(0.019, 0x5c7382, 0.5);
+setSeg(edgeTick, V(-EH - 0.62, 0, 0), V(-EH - 0.45, 0, 0));
+scene.add(edgeTick);
+
+/* ---------------- 两个半平面 ---------------- */
+const quadA = makeQuad(0xfbe0d4, 0.26);
+const quadB = makeQuad(0xb6d9ec, 0.26);
+scene.add(quadA); scene.add(quadB);
+
+const gridA = makeFaceGrid(0xdd7358, 0.15, EH, R, 6);
+const gridB = makeFaceGrid(0x4f9ec4, 0.15, EH, R, 6);
+scene.add(gridA); scene.add(gridB);
+
+const bdA1 = makeSeg(0.011, 0xdd7358, 0.75);
+const bdA2 = makeSeg(0.011, 0xdd7358, 0.75);
+const bdA3 = makeSeg(0.011, 0xc9644b, 0.6);
+const bdB1 = makeSeg(0.011, 0x4f9ec4, 0.75);
+const bdB2 = makeSeg(0.011, 0x4f9ec4, 0.75);
+const bdB3 = makeSeg(0.011, 0x3d87ad, 0.6);
+[bdA1, bdA2, bdA3, bdB1, bdB2, bdB3].forEach(function(m){ scene.add(m); });
+
+/* ---------------- 射线与直角标记 ---------------- */
+const rayA = makeSeg(0.025, 0xdd7358);
+const rayB = makeSeg(0.025, 0x4f9ec4);
+const rayA2 = makeSeg(0.02, 0x9b8fd8, 0.95);
+const rayB2 = makeSeg(0.02, 0x9b8fd8, 0.95);
+scene.add(rayA); scene.add(rayB); scene.add(rayA2); scene.add(rayB2);
+
+const raA = [makeSeg(0.011, 0xdd7358), makeSeg(0.011, 0xdd7358), makeSeg(0.011, 0xdd7358)];
+const raB = [makeSeg(0.011, 0x4f9ec4), makeSeg(0.011, 0x4f9ec4), makeSeg(0.011, 0x4f9ec4)];
+raA.forEach(function(m){ scene.add(m); });
+raB.forEach(function(m){ scene.add(m); });
+
+/* ---------------- 角弧 ---------------- */
+const AN = 48;
+const arcArr = new Float32Array((AN + 1) * 3);
+const arcGeo = new THREE.BufferGeometry();
+arcGeo.setAttribute('position', new THREE.BufferAttribute(arcArr, 3));
+
+/* 用一串小圆柱拼出加粗的圆弧，更新时只改变换、不重建几何 */
+const arcGrp = new THREE.Group();
+const arcSegs = [];
+for(let i = 0; i < AN; i++){
+  const m = makeSeg(0.014, 0x6f68c8);
+  arcSegs.push(m);
+  arcGrp.add(m);
+}
+scene.add(arcGrp);
+
+const fanArr = new Float32Array(AN * 9);
+const fanGeo = new THREE.BufferGeometry();
+fanGeo.setAttribute('position', new THREE.BufferAttribute(fanArr, 3));
+const fanMesh = new THREE.Mesh(fanGeo, new THREE.MeshBasicMaterial({
+  color: 0x6f68c8, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false}));
+scene.add(fanMesh);
+
+const apex = V(0, 0, 0);
+const tmpP = new THREE.Vector3(), tmpQ = new THREE.Vector3();
+function updateArc(u, v, r, frac){
+  frac = (frac === undefined) ? 1 : Math.max(0, Math.min(1, frac));
+  let axis = new THREE.Vector3().crossVectors(u, v);
+  let ang = Math.acos(THREE.MathUtils.clamp(u.dot(v), -1, 1));
+  if(axis.length() < 1e-6){
+    axis.set(-1, 0, 0);
+    if(u.dot(v) > 0) ang = 0;
+  } else {
+    axis.normalize();
+  }
+  for(let i = 0; i <= AN; i++){
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, ang * i / AN);
+    const p = u.clone().applyQuaternion(q).multiplyScalar(r).add(apex);
+    arcArr[i * 3] = p.x; arcArr[i * 3 + 1] = p.y; arcArr[i * 3 + 2] = p.z;
+  }
+  arcGeo.attributes.position.needsUpdate = true;
+  fanArr.fill(0);
+  const lim = Math.round(frac * AN);
+  for(let i = 0; i < AN; i++){
+    if(i >= lim){ arcSegs[i].visible = false; continue; }
+    const o = i * 9;
+    fanArr[o] = apex.x; fanArr[o + 1] = apex.y; fanArr[o + 2] = apex.z;
+    fanArr[o + 3] = arcArr[i * 3]; fanArr[o + 4] = arcArr[i * 3 + 1]; fanArr[o + 5] = arcArr[i * 3 + 2];
+    fanArr[o + 6] = arcArr[(i + 1) * 3]; fanArr[o + 7] = arcArr[(i + 1) * 3 + 1]; fanArr[o + 8] = arcArr[(i + 1) * 3 + 2];
+    tmpP.set(arcArr[i * 3], arcArr[i * 3 + 1], arcArr[i * 3 + 2]);
+    tmpQ.set(arcArr[(i + 1) * 3], arcArr[(i + 1) * 3 + 1], arcArr[(i + 1) * 3 + 2]);
+    setSeg(arcSegs[i], tmpP, tmpQ);
+  }
+  fanGeo.attributes.position.needsUpdate = true;
+  fanGeo.computeBoundingSphere();
+}
+
+/* ---------------- 标签 ---------------- */
+const labP  = makeLabel('P', '#2f4450', 0.38);
+const labA  = makeLabel('A', '#dd7358', 0.38);
+const labB  = makeLabel('B', '#4f9ec4', 0.38);
+const labA2 = makeLabel("A′", '#7b6fc4', 0.34);
+const labB2 = makeLabel("B′", '#7b6fc4', 0.34);
+const labAl = makeLabel('α', '#c9644b', 0.52);
+const labBe = makeLabel('β', '#3d87ad', 0.52);
+const labL  = makeLabel('l', '#5c7382', 0.4);
+[labP, labA, labB, labA2, labB2, labAl, labBe, labL].forEach(function(s){ scene.add(s); });
+
+/* 会变数字的标签：复用同一张画布，只重绘文字 */
+function makeNumLabel(color, h){
+  const c = document.createElement('canvas');
+  c.width = 340; c.height = 140;
+  const g = c.getContext('2d');
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false, depthWrite: false}));
+  sp.scale.set(h * c.width / c.height, h, 1);
+  sp.renderOrder = 26;
+  return {
+    sprite: sp,
+    set: function(text){
+      g.clearRect(0, 0, c.width, c.height);
+      g.font = 'italic bold 92px "Times New Roman","Microsoft YaHei",serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.lineWidth = 14; g.lineJoin = 'round'; g.strokeStyle = 'rgba(255,255,255,.92)';
+      g.strokeText(text, c.width / 2, c.height / 2 + 6);
+      g.fillStyle = color;
+      g.fillText(text, c.width / 2, c.height / 2 + 6);
+      tex.needsUpdate = true;
+    }
+  };
+}
+const thLab = makeNumLabel('#6f68c8', 0.22);
+scene.add(thLab.sprite);
+
+/* ---------------- 状态 ---------------- */
+const st = {phi: 72, step: 4, wrong: false, delta: 50, auto: false,
+            gA: 1, gB: 1, gArc: 1, anim: '', wait: 0};
+const $ = function(id){ return document.getElementById(id); };
+
+/* ---------------- 画布提示小框 ---------------- */
+let lastStep = '', lastHtml = '', tipTimer = null;
+function showTip(step, html, warn){
+  const box = $('tip');
+  if(!box) return;
+  const stepChanged = (step !== lastStep);
+  if(stepChanged || html !== lastHtml){
+    $('tipStep').textContent = step;
+    $('tipTxt').innerHTML = html;
+    lastHtml = html;
+    box.classList.toggle('warn', !!warn);
+  }
+  if(stepChanged || !box.classList.contains('show')){
+    lastStep = step;
+    box.classList.add('show');
+    box.classList.remove('flash');
+    void box.offsetWidth;
+    box.classList.add('flash');
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(function(){ box.classList.remove('flash'); }, 380);
+  }
+}
+const easeIO = function(t){ return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; };
+
+const dA = V(0, 0, 1);            // 半平面 α 内垂直于棱的方向
+const dB = new THREE.Vector3();   // 半平面 β 内垂直于棱的方向
+const eA = new THREE.Vector3();   // 反例：α 内的射线方向
+const eB = new THREE.Vector3();   // 反例：β 内的射线方向
+
+/* ---------------- 主更新 ---------------- */
+function update(){
+  const ph = st.phi * Math.PI / 180;
+  dB.set(0, Math.sin(ph), Math.cos(ph));
+
+  /* 半平面 α：xz 平面内，z ≥ 0 */
+  const a0 = V(-EH, 0, 0), a1 = V(EH, 0, 0), a2 = V(EH, 0, R), a3 = V(-EH, 0, R);
+  setQuad(quadA, a0, a1, a2, a3);
+  setSeg(bdA1, a3, a2);
+  setSeg(bdA2, a2, a1);
+  setSeg(bdA3, a0, a3);
+
+  /* 半平面 β：绕棱（x 轴）转过 φ */
+  const c = Math.cos(ph), s = Math.sin(ph);
+  const b0 = V(-EH, 0, 0), b1 = V(EH, 0, 0);
+  const b2 = V(EH, R * s, R * c), b3 = V(-EH, R * s, R * c);
+  setQuad(quadB, b0, b1, b2, b3);
+  setSeg(bdB1, b3, b2);
+  setSeg(bdB2, b2, b1);
+  setSeg(bdB3, b0, b3);
+
+  /* 网格随半平面一起转（绕 x 轴 -φ 即把 xz 平面内的 z 方向转到 β） */
+  gridA.rotation.set(0, 0, 0);
+  gridB.rotation.set(-ph, 0, 0);
+
+  /* 射线 PA、PB —— 按生长进度逐条画出 */
+  const gA = st.wrong ? 1 : easeIO(st.gA);
+  const gB = st.wrong ? 1 : easeIO(st.gB);
+  const pa = dA.clone().multiplyScalar(RAY * gA);
+  const pb = dB.clone().multiplyScalar(RAY * gB);
+  rayA.visible = (st.step >= 3) && !st.wrong && gA > 0.004;
+  rayB.visible = (st.step >= 3) && !st.wrong && gB > 0.004;
+  if(rayA.visible){
+    setSeg(rayA, apex, pa);
+    setSeg(rayB, apex, pb);
+  }
+
+  /* 直角标记（PA ⊥ 棱、PB ⊥ 棱）：射线长完再出现 */
+  const doneA = (st.step >= 3) && !st.wrong && st.gA >= 0.999;
+  const doneB = (st.step >= 3) && !st.wrong && st.gB >= 0.999;
+  raA.forEach(function(m){ m.visible = doneA; });
+  raB.forEach(function(m){ m.visible = doneB; });
+  {
+    const u1 = dA.clone().multiplyScalar(SQ), v1 = V(SQ, 0, 0);
+    const cA = [apex.clone(), apex.clone().add(u1), apex.clone().add(u1).add(v1), apex.clone().add(v1)];
+    if(doneA){ setSeg(raA[0], cA[0], cA[1]); setSeg(raA[1], cA[1], cA[2]); setSeg(raA[2], cA[2], cA[3]); }
+    const u2 = dB.clone().multiplyScalar(SQ);
+    const cB = [apex.clone(), apex.clone().add(u2), apex.clone().add(u2).add(v1), apex.clone().add(v1)];
+    if(doneB){ setSeg(raB[0], cB[0], cB[1]); setSeg(raB[1], cB[1], cB[2]); setSeg(raB[2], cB[2], cB[3]); }
+  }
+
+  /* 反例射线 */
+  const dl = st.delta * Math.PI / 180;
+  eA.set(0, 0, 1).multiplyScalar(Math.cos(dl)).add(V(Math.sin(dl), 0, 0)).normalize();
+  eB.set(0, Math.sin(ph), Math.cos(ph)).multiplyScalar(Math.cos(dl)).add(V(Math.sin(dl), 0, 0)).normalize();
+  rayA2.visible = st.wrong;
+  rayB2.visible = st.wrong;
+  if(st.wrong){
+    setSeg(rayA2, apex, eA.clone().multiplyScalar(RAY * 1.15));
+    setSeg(rayB2, apex, eB.clone().multiplyScalar(RAY * 1.15));
+  }
+
+  /* 夹角 */
+  const gArc = st.wrong ? 1 : st.gArc;
+  const showArc = (st.step >= 4 || st.wrong) && gArc > 0.002;
+  arcGrp.visible = showArc;
+  fanMesh.visible = showArc;
+  thLab.sprite.visible = showArc && gArc > 0.55;
+  if(showArc){
+    const u = st.wrong ? eA.clone() : dA.clone();
+    const v = st.wrong ? eB.clone() : dB.clone();
+    updateArc(u, v, ARC_R, gArc);
+    const ang = Math.acos(THREE.MathUtils.clamp(u.dot(v), -1, 1));
+    /* 标签放在弧的中点方向上（沿垂直棱的截面内转过一半角度） */
+    const ax = new THREE.Vector3().crossVectors(u, v);
+    if(ax.length() < 1e-6) ax.set(-1, 0, 0); else ax.normalize();
+    const mid = u.clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(ax, ang / 2)).normalize();
+    const angDeg = ang * 180 / Math.PI;
+    /* 角度越小，数字越往外、越往上，避开 B 射线与字母标签 */
+    const push = Math.max(0, (58 - angDeg) / 58);
+    const dLab = ARC_R + 0.70 + 1.68 * push;
+    const fade = Math.max(0, Math.min(1, (gArc - 0.55) / 0.45));
+    thLab.sprite.material.opacity = fade;
+    thLab.sprite.position.copy(apex).addScaledVector(mid, dLab).add(V(0, 0.10 + 0.50 * push, 0));
+    thLab.set((st.wrong ? ang * 180 / Math.PI : st.phi).toFixed(1) + '°');
+  }
+
+  /* 其它标签 */
+  labP.position.set(-0.80, -0.55, 0.18);
+  labP.visible = st.step >= 2;
+  labA.visible = (st.step >= 3) && !st.wrong && st.gA >= 0.999;
+  labA.position.copy(pa).multiplyScalar(1.06).add(V(0, 0.13, 0.1));
+  labB.visible = (st.step >= 3) && !st.wrong && st.gB >= 0.999;
+  labB.position.copy(pb).multiplyScalar(1.06).add(V(0, 0.1, 0.13));
+  labA2.visible = st.wrong;
+  labA2.position.copy(eA).multiplyScalar(RAY * 1.22).add(V(0, 0.1, 0.1));
+  labB2.visible = st.wrong;
+  labB2.position.copy(eB).multiplyScalar(RAY * 1.22).add(V(0, 0.1, 0.1));
+  labAl.position.set(-1.25, 0.07, R * 0.72);
+  labBe.position.set(EH - 0.1, R * s * 0.92 + 0.24, R * c * 0.92);
+  labL.position.set(EH + 0.55, 0.22, -0.2);
+
+  updateReadout();
+}
+
+/* ---------------- 读数 ---------------- */
+function updateReadout(){
+  const ph = st.phi;
+  $('vPhi').textContent = ph.toFixed(1) + '°';
+  $('cPhi').textContent = ph.toFixed(1) + '°';
+
+  let apb = ph;
+  if(st.wrong){
+    const dl = st.delta * Math.PI / 180;
+    apb = Math.acos(THREE.MathUtils.clamp(
+      Math.sin(dl) * Math.sin(dl) * Math.cos(ph * Math.PI / 180) + Math.cos(dl) * Math.cos(dl), -1, 1)) * 180 / Math.PI;
+    $('cAPB').textContent = apb.toFixed(1) + '°';
+  } else {
+    $('cAPB').textContent = ph.toFixed(1) + '°';
+  }
+
+  let type = '—';
+  if(ph < 0.1) type = '两半平面重合';
+  else if(Math.abs(ph - 90) < 0.3) type = '直二面角';
+  else if(ph < 90) type = '锐二面角';
+  else if(ph < 179.9) type = '钝二面角';
+  else type = '平角（两半平面成平面）';
+  $('cType').textContent = type;
+
+  if(st.wrong){
+    showTip('反例', 'δ = ' + st.delta + '° ≠ 90°，∠A′PB′ = <span class="hl">' + apb.toFixed(1) +
+      '°</span> ≠ 二面角 ' + ph.toFixed(1) + '°', true);
+  } else {
+    const t = {
+      1: '棱 <b>l</b> 与两个半平面 α、β 围成二面角 <span class="fx">α—l—β</span>，可开合',
+      2: '在棱 <b>l</b> 上任取一点 <b>P</b>，取在哪都不影响结果',
+      3: 'α 内作 <b>PA ⊥ l</b>，β 内作 <b>PB ⊥ l</b>（图中标出直角）',
+      4: '<span class="hl">∠APB = ' + ph.toFixed(1) + '°</span> 就是平面角，与 P 的位置无关'
+    };
+    showTip('第 ' + st.step + ' 步', t[st.step]);
+  }
+}
+
+/* ---------------- 交互 ---------------- */
+function setStep(n){
+  const prev = st.step;
+  st.step = Math.max(1, Math.min(4, n));
+  if(st.step === 3 && prev !== 3){
+    st.gA = 0; st.gB = 0; st.gArc = 0; st.anim = 'A'; st.wait = 0;
+  } else if(st.step === 3 && prev === 4){
+    st.gA = 1; st.gB = 1; st.gArc = 0; st.anim = '';
+  } else if(st.step === 4 && prev !== 4){
+    st.gA = 1; st.gB = 1; st.gArc = 0; st.anim = 'Arc';
+  } else if(st.step < 3){
+    st.gA = 0; st.gB = 0; st.gArc = 0; st.anim = ''; st.wait = 0;
+  }
+  $('stepNum').textContent = '第 ' + st.step + ' / 4 步';
+  $('bNext').disabled = (st.step >= 4);
+  $('bBack').disabled = (st.step <= 1);
+  update();
+}
+$('bNext').addEventListener('click', function(){ setStep(st.step + 1); });
+$('bBack').addEventListener('click', function(){ setStep(st.step - 1); });
+$('bReset').addEventListener('click', function(){ setStep(1); });
+
+$('sPhi').addEventListener('input', function(){
+  st.phi = parseFloat(this.value);
+  st.auto = false;
+  $('bAuto').textContent = '开始自动开合';
+  update();
+});
+
+[30, 45, 60, 72, 90, 120, 150, 180].forEach(function(a){
+  const b = document.createElement('button');
+  b.className = 'chip' + (a === 72 ? ' on' : '');
+  b.textContent = a + '°';
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    st.phi = a; st.auto = false;
+    $('bAuto').textContent = '开始自动开合';
+    $('sPhi').value = a;
+    update();
+  });
+  $('phiChips').appendChild(b);
+});
+
+$('bAuto').addEventListener('click', function(){
+  st.auto = !st.auto;
+  this.textContent = st.auto ? '停止自动开合' : '开始自动开合';
+});
+
+$('cWrong').addEventListener('change', function(){
+  st.wrong = this.checked;
+  $('deltaWrap').style.opacity = st.wrong ? '1' : '.4';
+  $('deltaWrap').style.pointerEvents = st.wrong ? 'auto' : 'none';
+  update();
+});
+$('sDelta').addEventListener('input', function(){
+  st.delta = parseFloat(this.value);
+  $('vDelta').textContent = st.delta + '°';
+  update();
+});
+
+/* ---------------- 渲染 ---------------- */
+let autoT = 0, lastT = 0;
+const DUR_A = 1.15, DUR_B = 1.15, DUR_ARC = 0.8, GAP = 0.55;
+function advance(dt){
+  let dirty = false;
+  if(st.anim === 'A'){
+    st.gA = Math.min(1, st.gA + dt / DUR_A);
+    if(st.gA >= 1){ st.anim = 'gap'; st.wait = GAP; }
+    dirty = true;
+  } else if(st.anim === 'gap'){
+    st.wait -= dt;
+    if(st.wait <= 0) st.anim = 'B';
+  } else if(st.anim === 'B'){
+    st.gB = Math.min(1, st.gB + dt / DUR_B);
+    if(st.gB >= 1) st.anim = '';
+    dirty = true;
+  } else if(st.anim === 'Arc'){
+    st.gArc = Math.min(1, st.gArc + dt / DUR_ARC);
+    if(st.gArc >= 1) st.anim = '';
+    dirty = true;
+  }
+  if(dirty) update();
+}
+
+function tick(){
+  requestAnimationFrame(tick);
+  const now = performance.now();
+  const dt = lastT ? Math.min((now - lastT) / 1000, 0.06) : 0.016;
+  lastT = now;
+  if(st.anim) advance(dt);
+  if(st.auto){
+    autoT += 0.011;
+    const ph = 90 + 78 * Math.sin(autoT);
+    st.phi = Math.round(ph * 2) / 2;
+    $('sPhi').value = st.phi;
+    update();
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+setStep(st.step);
+tick();
+
+})();
+<\/script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
 <main class="panes" id="panes">
   <section class="pane" data-k="skew">
     <iframe data-src="/visual-classroom/missing.html#embed" title="异面直线所成的角三维模型"></iframe>
@@ -231,7 +2488,14 @@
         f.addEventListener('load', function(){
           if (ld) ld.classList.remove('show');
         }, { once: true });
-        f.src = f.dataset.src;
+        /* SOLO-START */
+        var holder = document.getElementById('src-' + k);
+        if (holder) {
+          f.srcdoc = holder.textContent.split('<\\/script').join('<\/script');
+        } else {
+          f.src = f.dataset.src;
+        }
+        /* SOLO-END */
       }
     });
 

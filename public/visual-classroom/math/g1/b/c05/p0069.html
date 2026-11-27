@@ -101,6 +101,10 @@
     font-family:var(--serif);font-weight:700;transition:transform .12s ease;}
   .prop.coin .prop-inner{background:radial-gradient(circle at 32% 28%,#ffe9a8,#f5c542 58%,#d99f1d);
     color:#7a5410;font-size:22px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.5),0 4px 10px -3px rgba(120,80,10,.5);}
+  .prop.ball .prop-inner{color:transparent;font-size:0;
+    box-shadow:inset -5px -9px 16px rgba(0,0,0,.20),inset 0 0 0 3px rgba(255,255,255,.35),0 4px 10px -3px rgba(30,40,60,.4);}
+  .prop.ball .prop-inner.r{background:radial-gradient(circle at 32% 26%,#ffb3b3,#e5484d 58%,#9c1a1a);}
+  .prop.ball .prop-inner.w{background:radial-gradient(circle at 32% 26%,#ffffff,#eef1f7 55%,#c6cfdd);}
   .prop .coinface{display:block;}
   .prop.cube .coinface{display:none;}
   .prop.spin .prop-inner{animation:tumble .32s linear infinite;}
@@ -150,18 +154,6 @@
   .formula .cap{font-size:12px;color:var(--ink3);text-align:center;margin-top:5px;line-height:1.65;}
   .formula.red{border-color:#fbd5d5;background:linear-gradient(180deg,#fffafa,#fdf1f1);}
   .formula.red .fx{color:#8f1d1d;}
-
-  .note{margin:13px 0 0;font-size:12.5px;color:var(--ink3);line-height:1.75;}
-  .note b{color:var(--ink2);font-weight:600;}
-  .note em{font-style:normal;color:var(--red);font-weight:700;}
-
-  /* 底部说明 */
-  .foot{margin-top:18px;padding:15px 18px;display:flex;gap:14px;align-items:flex-start;}
-  .foot .kbadge{flex:none;font-family:var(--serif);font-weight:700;font-size:13px;color:var(--blue-d);
-    background:var(--blue-soft);border:1px solid #d6e3ff;border-radius:8px;padding:4px 10px;}
-  .foot p{margin:0;font-size:13.5px;color:var(--ink2);line-height:1.8;}
-  .foot p b{color:var(--ink);}
-  .foot i{font-family:var(--serif);font-style:italic;}
 </style>
 </head>
 <body>
@@ -253,15 +245,7 @@
         <div class="fx">频率 = <i>k</i><sub>事件</sub> / <i>n</i><sub>次</sub> → <i>P</i>(<i>A</i>)</div>
         <div class="cap">10.3.1 频率是概率的估计值，试验次数增多时<br>频率逐渐稳定于概率</div>
       </div>
-
-      <p class="note"><b>观察要点：</b>次数较少时频率波动剧烈（可能一次就是 0 或 1）；随着次数累加到数百、数千次，红线上下波动越来越小，频率折线<em>紧贴概率水平线</em>——这就是频率的稳定性。</p>
     </div>
-  </div>
-
-  <!-- 底部结论 -->
-  <div class="card foot">
-    <span class="kbadge">结论</span>
-    <p>对同一个事件 A，<b>随机试验的频率具有随机性</b>（重做一轮，折线并不相同），但<b>频率又具有稳定性</b>：当 <i>n</i> 充分大时，频率总在常数 <i>P</i>(<i>A</i>) 附近摆动且摆动幅度越来越小。因此可以用频率<b>估计</b>概率，而古典概型给出了概率的精确计算方法：<i>P</i>(<i>A</i>) = <i>k</i>/<i>n</i>。</p>
   </div>
 </div>
 
@@ -430,7 +414,12 @@ function toss(times){
     showCubeFace(Math.abs(last), times === 1 ? 950 : 340);   // 立体骰子翻滚到掷出的面
   } else {
     prop.classList.remove("spin"); void prop.offsetWidth;
-    face.textContent = faceLabel(last);
+    if (EXPS[cur].kind === "ball"){
+      face.textContent = "";                       // 球不显示文字，用颜色区分
+      face.className = "prop-inner coinface " + (last === 1 ? "r" : "w");
+    } else {
+      face.textContent = faceLabel(last);
+    }
     prop.classList.add("spin");
     clearTimeout(prop._t);
     prop._t = setTimeout(()=>prop.classList.remove("spin"), times === 1 ? 700 : 350);
@@ -460,7 +449,9 @@ function refresh(){
 function reset(){
   stopAuto();
   n = 0; k = 0; freqs = [];
-  $("propFace").textContent = EXPS[cur].kind === "coin" ? "正" : EXPS[cur].kind === "ball" ? "红" : "?";
+  const kind = EXPS[cur].kind, pf = $("propFace");
+  if (kind === "ball"){ pf.textContent = ""; pf.className = "prop-inner coinface w"; }   // 待投掷显示白球
+  else pf.textContent = kind === "coin" ? "正" : "?";
   cubeRest();
   $("tossRes").textContent = "等待投掷…";
   $("tossCnt").textContent = "尚未开始试验";
@@ -472,7 +463,8 @@ function switchExp(key){
   cur = key;
   document.querySelectorAll(".exp-opt").forEach(o=>o.classList.toggle("active", o.dataset.exp === key));
   const e = EXPS[cur], prop = $("prop");
-  prop.classList.toggle("coin", e.kind !== "cube");
+  prop.classList.toggle("coin", e.kind === "coin");
+  prop.classList.toggle("ball", e.kind === "ball");
   prop.classList.toggle("cube", e.kind === "cube");
   reset();
 }

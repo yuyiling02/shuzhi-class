@@ -3,322 +3,302 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>平面向量三点共线定理 · 交互模型</title>
+<title>三点共线的向量判据 · 试一试</title>
 <style>
   :root{
-    --ink:#1e293b;--ink-2:#475569;--muted:#94a3b8;--line:#e2e8f0;
-    --bg:#f4f6fb;--card:#ffffff;
-    --indigo:#4f46e5;--indigo-soft:#eef0ff;
-    --teal:#0d9488;--teal-soft:#e6fffa;
-    --rose:#e11d48;--rose-soft:#fff1f2;
-    --amber:#ea580c;--amber-g:#fb923c;--amber-soft:#fff7ed;
-    --sky:#0284c7;--sky-g:#38bdf8;--sky-soft:#f0f9ff;
+    --teal:#4d95c4; --teal-d:#2f6f92; --coral:#e0714f; --coral-d:#b8502e;
+    --ink:#2f4457; --muted:#8fa1b2; --card:#f6fbfe; --bg:#e4f1fa; --line:#d2e5f2;
+    --indigo:#4f46e5; --rose:#e11d48; --sky:#0284c7;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    background:radial-gradient(1200px 600px at 20% -10%, #e9edff 0%, rgba(233,237,255,0) 60%),var(--bg);
-    color:var(--ink);
-    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
-    min-height:100vh;padding:32px 32px 48px;
+    font-family:"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); padding:0 0 34px;
+    background:
+      linear-gradient(rgba(120,168,205,.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,168,205,.16) 1px, transparent 1px),
+      var(--bg);
+    background-size:26px 26px, 26px 26px, auto;
   }
-  .app{max-width:1280px;margin:0 auto;}
-  header{margin-bottom:24px;}
-  .tag{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:12px;letter-spacing:.06em;color:var(--indigo);
-    background:var(--indigo-soft);border:1px solid #dfe3ff;
-    padding:5px 12px;border-radius:999px;font-weight:600;
-  }
-  h1{font-size:28px;line-height:1.3;margin:14px 0 8px;letter-spacing:.01em;}
-  .sub{margin:0;color:var(--ink-2);font-size:14.5px;}
-  main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:26px;align-items:start;}
-  .stage{
-    position:relative;background:var(--card);border:1px solid var(--line);
-    border-radius:18px;box-shadow:0 10px 30px -18px rgba(30,41,59,.35);overflow:hidden;
-  }
-  .stage svg{display:block;width:100%;height:auto;touch-action:none;cursor:default;}
-  .hint{
-    position:absolute;left:16px;bottom:14px;font-size:12.5px;color:var(--muted);
-    background:rgba(255,255,255,.88);padding:5px 10px;border-radius:8px;border:1px solid var(--line);
-    pointer-events:none;
-  }
-  .panel{display:flex;flex-direction:column;gap:16px;}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:18px 18px 18px;box-shadow:0 8px 24px -20px rgba(30,41,59,.45);flex:none;
-  }
-  .card-title{
-    display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
-    color:var(--ink-2);letter-spacing:.04em;margin-bottom:14px;
-  }
-  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
-  .dot.indigo{background:var(--indigo);}.dot.teal{background:var(--teal);}
-  .dot.rose{background:var(--rose);}.dot.sky{background:var(--sky);}
-  .dot.amber{background:var(--amber);}
+  header{background:linear-gradient(120deg,#4d95c4,#8cc5e4 52%,#bfe2f4); color:#fff;
+    padding:22px 20px 19px; text-align:center; box-shadow:0 3px 14px rgba(75,130,170,.18);}
+  header h1{font-size:26px; letter-spacing:2px; text-shadow:0 2px 6px rgba(40,90,125,.28);}
+  header p{opacity:.96; margin-top:8px; font-size:14px; letter-spacing:.5px;}
 
-  .coords{display:flex;gap:12px;}
-  .coord{flex:1;border-radius:10px;background:#f8fafc;border:1px solid var(--line);padding:9px 11px;}
-  .coord .lab{font-size:12px;color:var(--ink-2);font-family:"Cambria Math","Times New Roman",serif;}
-  .coord .val{font-size:14px;margin-top:3px;font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;}
-  .coord.a .lab,.coord.a .val{color:var(--indigo);}
-  .coord.b .lab,.coord.b .val{color:var(--teal);}
+  main{max-width:1340px; margin:16px auto 0; padding:0 18px;}
+  .zone{background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px 16px 15px; box-shadow:0 8px 24px rgba(70,120,160,.10);}
+  .layout{display:flex; gap:14px; align-items:flex-start;}
+  .stage-col{flex:1 1 auto; min-width:0;}
 
-  .values{display:flex;gap:12px;}
-  .vbox{
-    flex:1;border-radius:12px;padding:10px 12px 11px;
-    background:var(--amber-soft);border:1px solid #fed7aa;
-  }
-  .vbox.y{background:var(--sky-soft);border-color:#bae6fd;}
-  .vbox .lab{font-size:12px;color:var(--ink-2);}
-  .vbox .num{
-    font-size:24px;font-weight:600;color:var(--amber);margin-top:2px;
-    font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
-  }
-  .vbox.y .num{color:var(--sky);}
-  .sumline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;}
-  .eq{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:16px;color:var(--ink-2);}
-  .eq b{font-weight:600;color:var(--ink);}
-  .badge{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;}
-  .badge.ok{color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;}
-  .badge.no{color:var(--rose);background:var(--rose-soft);border:1px solid #fecdd3;}
+  .statusbar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 0 9px;}
+  .chip{font-size:12.5px; background:#f2f9fe; border:1px solid #dcebf6; border-radius:8px;
+    padding:4px 9px; color:#456a82; white-space:nowrap;
+    font-family:"Cambria Math","Times New Roman",serif;}
+  .chip b{font-weight:700; font-family:inherit; color:#2f6f92;}
+  .chip.i b{color:#4f46e5;}
+  .chip.t b{color:#0d9488;}
+  .chip.r b{color:#e11d48;}
+  .chip.a b{color:#b3680a;}
+  .badge{font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px;
+    border:1px solid #cfe2f0; color:var(--teal-d); background:#f2f9fe; white-space:nowrap;
+    font-family:"Cambria Math","Times New Roman",serif;}
+  .badge.ok{color:#047857; background:#ecfdf5; border-color:#a7f3d0;}
+  .badge.no{color:#e11d48; background:#fff1f2; border-color:#fecdd3;}
 
-  .segbar{margin-top:16px;}
-  .track{
-    position:relative;display:flex;height:16px;border-radius:8px;overflow:hidden;
-    background:#eef1f7;border:1px solid var(--line);
-  }
-  .tx{background:linear-gradient(90deg,#fdba74,#fb923c);height:100%;transition:width .12s;}
-  .ty{background:linear-gradient(90deg,#7dd3fc,#38bdf8);height:100%;transition:width .12s;}
-  .handle{position:absolute;top:-6px;width:2px;height:28px;background:#0f172a;transition:left .12s;}
-  .handle::after{
-    content:"";position:absolute;left:-4px;top:-3px;width:10px;height:10px;border-radius:50%;
-    background:#e11d48;border:2px solid #fff;box-shadow:0 1px 3px rgba(15,23,42,.3);
-  }
-  .ends{display:flex;justify-content:space-between;margin-top:7px;font-size:11.5px;color:var(--muted);}
-  .ends b{color:var(--ink-2);font-weight:600;}
-  .bar-note{margin-top:8px;font-size:12px;color:var(--rose);line-height:1.6;display:none;}
+  .stage-wrap{position:relative; background:#fff; border:1px solid #dcebf6; border-radius:14px; overflow:hidden;}
+  .stage-wrap svg{display:block; width:100%; height:auto; touch-action:none;}
+  .hint{position:absolute; left:13px; bottom:11px; font-size:12px; color:#94a7b7;
+    background:rgba(255,255,255,.9); border:1px solid #e3eef7; border-radius:8px; padding:4px 9px; pointer-events:none;}
 
-  .formula{
-    font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
-    font-size:15px;line-height:2;color:var(--ink);word-break:break-word;
-  }
-  .formula i{font-style:italic;}
-  .formula .xv{color:var(--amber);font-weight:600;}
-  .formula .yv{color:var(--sky);font-weight:600;}
-  .formula .dim{color:var(--ink-2);}
-  .note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.75;}
-  .note b{color:var(--ink-2);font-weight:600;}
+  .toolrow{display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:9px;
+    padding:7px 9px; background:#f7fcff; border:1px solid #dcebf6; border-radius:11px;}
+  .toolrow .lb{font-size:11.6px; color:#8fa1b2;}
+  .toolrow .sep{width:1px; height:16px; background:#e3eef7; margin:0 2px;}
+  .toolrow .brk{flex-basis:100%; height:0;}
+  .tbtn{padding:5px 9px; border:1px solid #cfe2f0; border-radius:8px; background:#f4fafd;
+    color:#557084; font:inherit; font-size:12.2px; cursor:pointer; transition:.14s;}
+  .tbtn:hover{background:#e8f3fb; border-color:#b7d7ea;}
+  .tbtn.on{background:var(--teal); border-color:var(--teal); color:#fff;}
 
-  /* 向量记号：字母上方加箭头 */
-  .v{
-    display:inline-block;position:relative;line-height:1.15;
-    padding:0 .12em 0 .04em;
-  }
-  .v::before{
-    content:"";position:absolute;left:.04em;right:.16em;top:.06em;
-    height:1.4px;background:currentColor;border-radius:1px;
-  }
-  .v::after{
-    content:"";position:absolute;right:.02em;top:-.09em;
-    width:0;height:0;border-left:6px solid currentColor;
-    border-top:2.9px solid transparent;border-bottom:2.9px solid transparent;
-  }
+  /* ---------- 任务单 ---------- */
+  .sidepanel{flex:0 0 336px; display:flex; flex-direction:column;}
+  .ptitle{font-size:20px; font-weight:bold; letter-spacing:4px; color:var(--teal-d); margin:2px 0 4px;}
+  .psub{font-size:12.5px; color:#93a6b6; margin-bottom:10px; letter-spacing:.4px; line-height:1.6;}
 
-  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:11px 0;}
-  .row-label{font-size:13px;color:var(--ink-2);}
-  .switch{
-    position:relative;width:40px;height:22px;border-radius:999px;background:#dbe1ea;
-    cursor:pointer;transition:background .2s;flex:none;
-  }
-  .switch::after{
-    content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
-    background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25);transition:transform .2s;
-  }
-  .switch.on{background:var(--indigo);}
-  .switch.on::after{transform:translateX(18px);}
+  .task{background:#fff; border:1px solid #dbeaf5; border-radius:12px; margin-bottom:8px;
+    overflow:hidden; transition:.2s;}
+  .task.open{border-color:var(--teal); box-shadow:0 4px 14px rgba(70,120,160,.13);}
+  .task.done{background:#f7fcf9; border-color:#d6ecdf;}
+  .thead{display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:9px 12px; cursor:pointer; background:#f4fafd;}
+  .task.open .thead{background:#e9f4fc;}
+  .task.done .thead{background:#f1faf5;}
+  .tno{font-size:14px; font-weight:bold; color:var(--teal-d); letter-spacing:1.5px;}
+  .task.done .tno{color:#5f9a7d;}
+  .tick{font-size:12.5px; color:#8fa1b2;}
+  .task.done .tick{color:#2e8b57; font-weight:bold;}
+  .tbody{padding:2px 12px 12px; display:none;}
+  .task.open .tbody{display:block;}
+  .tdone{display:none; padding:8px 12px; font-size:12.5px; line-height:1.7; color:#5c7d6c;}
+  .task.done .tdone{display:block;}
 
-  .btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
-  .btn{
-    appearance:none;border:1px solid var(--line);background:#fbfcfe;color:var(--ink-2);
-    font:inherit;font-size:12.5px;padding:9px 6px;border-radius:9px;cursor:pointer;
-    transition:all .15s;
-  }
-  .btn:hover{border-color:#c7cffb;background:var(--indigo-soft);color:var(--indigo);}
-  .btn.wide{width:100%;margin-top:8px;}
-  .btn.play{
-    margin-top:14px;border-color:#fecdd3;background:var(--rose-soft);color:var(--rose);
-    font-weight:600;font-size:13px;padding:10px 6px;width:100%;
-  }
-  .btn.play:hover{border-color:#fda4af;background:#ffe4e6;color:var(--rose);}
-  .btn.play.busy{background:var(--rose);color:#fff;border-color:var(--rose);cursor:wait;}
+  .tq{font-size:13.4px; line-height:1.8; color:#3b5568; margin:7px 0 8px;}
+  .tq b{color:var(--coral-d);}
 
-  .cust{margin-top:2px;border-top:1px dashed var(--line);padding-top:14px;}
-  .cust-label{font-size:12.5px;color:var(--ink-2);margin-bottom:9px;font-weight:700;letter-spacing:.04em;}
-  .cust-row{display:flex;align-items:center;gap:6px;margin-bottom:9px;}
-  .cust-row .cust-lbl{font-size:13px;color:var(--ink-2);width:26px;font-family:"Cambria Math","Times New Roman",serif;}
-  .cust-row input{
-    width:62px;appearance:none;border:1px solid var(--line);border-radius:8px;
-    padding:5px 7px;font:inherit;font-size:13px;text-align:center;background:#fbfcfe;
-    color:var(--ink);font-family:"Cambria Math","Times New Roman",serif;
-  }
-  .cust-row input:focus{outline:none;border-color:var(--indigo);background:#fff;}
-  .cust-row .op{color:var(--muted);font-size:13px;}
-  .warn{font-size:12px;color:var(--rose);margin-top:2px;display:none;}
+  .guide{background:#f2f8fd; border:1px solid #dbeaf5; border-left:3px solid #9ac9e5;
+    border-radius:8px; padding:7px 9px; margin:0 0 10px; font-size:12.1px; line-height:1.75; color:#56748a;}
+  .guide .gt{display:block; font-size:11.4px; font-weight:bold; color:var(--teal-d); letter-spacing:1.2px; margin-bottom:3px;}
+  .guide .st{display:block;}
 
-  footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.9;}
-  footer b{color:var(--ink-2);font-weight:600;}
-  @media (max-width:980px){
-    main{grid-template-columns:minmax(0,1fr);}
-    .panel{max-height:none;flex-direction:row;flex-wrap:wrap;overflow:visible;}
-    .panel .card{flex:1 1 320px;}
-    h1{font-size:23px;}
+  .optbtn{display:block; width:100%; text-align:left; padding:8px 11px; margin:6px 0;
+    border:1px solid #d6e7f3; border-radius:9px; background:#fbfdff; font-family:inherit;
+    font-size:13px; color:#3b5568; cursor:pointer; transition:.14s; line-height:1.5;
+    overflow-wrap:anywhere; word-break:break-word;}
+  .optbtn:hover{background:#eef7fd; border-color:#b7d7ea;}
+  .optbtn.ok{background:#eafaf1; border-color:#7ec49a; color:#20734a; font-weight:600;}
+  .optbtn.no{background:#fdf0ec; border-color:#e6a994; color:#b04a2a;}
+
+  .fb{font-size:12.2px; line-height:1.7; margin-top:8px;}
+  .fb:empty{display:none;}
+  .fb.ok{color:#2e8b57; background:#eefaf2; border-left:3px solid #7ec49a; padding:7px 9px; border-radius:6px;}
+  .fb.no{color:#a8402a; background:#fdf4f1; border-left:3px solid #e6a994; padding:7px 9px; border-radius:6px;}
+
+  .final{display:none; margin-top:10px; padding:12px 14px; border-radius:11px; text-align:center;
+    background:linear-gradient(120deg,#eaf5fc,#fdf4ef); border:1px dashed var(--teal);
+    font-size:14px; font-weight:bold; color:var(--coral-d); letter-spacing:.5px; line-height:1.75;}
+  .final.on{display:block;}
+  .final .fml{display:block; margin-top:6px; font-family:"Cambria Math","Times New Roman",serif;
+    font-size:17px; color:var(--teal-d);}
+  .final .again{display:inline-block; margin-top:10px; padding:7px 20px; border:1px solid var(--teal);
+    border-radius:999px; background:var(--teal); color:#fff; font-family:inherit; font-size:13px;
+    font-weight:600; letter-spacing:1px; cursor:pointer; transition:.15s; box-shadow:0 4px 12px rgba(77,149,196,.28);}
+  .final .again:hover{background:#3f86b4; border-color:#3f86b4;}
+
+  .statusbar .chip, .statusbar .badge, .toolrow, .thead, .optbtn, .hint,
+  .final .again{user-select:none; -webkit-user-select:none;}
+
+  @media (max-width:1060px){
+    .layout{flex-direction:column;}
+    .sidepanel{flex:auto; width:100%;}
   }
 </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="tag">人教A版 · 必修第二册 · 第六章 平面向量 · 6.2.3 拓展</div>
-    <h1>平面向量三点共线定理</h1>
-    <p class="sub">拖动点 P 在直线 AB 上滑动，实时观察 <span class="v">OP</span> = x<span class="v">OA</span> + y<span class="v">OB</span> 中 x + y 恒为 1</p>
-  </header>
 
-  <main>
-    <section class="stage">
-      <svg id="plane" viewBox="0 0 700 660" aria-label="平面向量三点共线交互图" role="img">
-        <defs>
-          <marker id="arAxis" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
-          </marker>
-          <marker id="arA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f46e5"/>
-          </marker>
-          <marker id="arB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/>
-          </marker>
-          <marker id="arP" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
-          </marker>
-          <marker id="arTA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#a5b4fc"/>
-          </marker>
-          <marker id="arTB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5eead4"/>
-          </marker>
-        </defs>
-        <g id="gridLayer"></g>
-        <g id="axisLayer"></g>
-        <g id="dynLayer"></g>
-        <g id="overlayLayer"></g>
-      </svg>
-      <div class="hint">拖动 A、B 改变直线 ｜ 拖动 P 沿直线滑动 ｜ ← → 微调 P</div>
-    </section>
+<header>
+  <h1>三点共线的向量判据 · 试一试</h1>
+  <p>先动手试一试 —— x + y 里藏着一个不会变的数</p>
+</header>
 
-    <aside class="panel">
-      <div class="card">
-        <div class="card-title"><span class="dot sky"></span>三个点（O 为原点）</div>
-        <div class="coords">
-          <div class="coord a"><div class="lab">A</div><div class="val" id="coordA"></div></div>
-          <div class="coord b"><div class="lab">B</div><div class="val" id="coordB"></div></div>
-        </div>
-        <div class="coords" style="margin-top:8px;">
-          <div class="coord"><div class="lab" style="color:#e11d48;">P</div><div class="val" style="color:#e11d48;" id="coordP"></div></div>
-          <div class="coord"><div class="lab">直线 AB</div><div class="val" id="lineInfo"></div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="dot rose"></span>分解系数 x、y</div>
-        <div class="values">
-          <div class="vbox"><div class="lab">x（<span class="v">OA</span> 的系数）</div><div class="num" id="xVal"></div></div>
-          <div class="vbox y"><div class="lab">y（<span class="v">OB</span> 的系数）</div><div class="num" id="yVal"></div></div>
-        </div>
-        <div class="sumline">
-          <span class="eq" id="sumEq"></span>
+<main>
+  <section class="zone">
+    <div class="layout">
+      <div class="stage-col">
+        <div class="statusbar">
+          <span class="chip i">A <b id="coordA"></b></span>
+          <span class="chip t">B <b id="coordB"></b></span>
+          <span class="chip r">P <b id="coordP"></b></span>
+          <span class="chip a">x <b id="xVal"></b></span>
+          <span class="chip a">y <b id="yVal"></b></span>
           <span class="badge ok" id="sumBadge">x + y = 1</span>
+          <span class="chip" id="formulaChip">OP = x·OA + y·OB</span>
         </div>
-        <div class="segbar">
-          <div class="track">
-            <div class="tx" id="barX"></div>
-            <div class="ty" id="barY"></div>
-            <div class="handle" id="barHandle"></div>
-          </div>
-          <div class="ends"><span><b>B</b>（x = 0）</span><span><b>A</b>（x = 1）</span></div>
-          <div class="bar-note" id="barNote"></div>
+
+        <div class="stage-wrap">
+          <svg id="plane" viewBox="0 0 880 560" aria-label="三点共线交互图" role="img">
+            <defs>
+              <marker id="arAxis" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+              </marker>
+              <marker id="arA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f46e5"/>
+              </marker>
+              <marker id="arB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/>
+              </marker>
+              <marker id="arP" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
+              </marker>
+              <marker id="arTA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#a5b4fc"/>
+              </marker>
+              <marker id="arTB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#5eead4"/>
+              </marker>
+            </defs>
+            <g id="gridLayer"></g>
+            <g id="axisLayer"></g>
+            <g id="dynLayer"></g>
+            <g id="overlayLayer"></g>
+          </svg>
+          <div class="hint">拖动 A、B 改变直线 ｜ 拖动 P 沿直线滑动 ｜ ← → 微调 P</div>
+        </div>
+
+        <div class="toolrow">
+          <span class="lb">观察</span>
+          <button class="tbtn" id="btnPlay">▶ 演示</button>
+          <button class="tbtn" id="btnB">P→B</button>
+          <button class="tbtn" id="btnMid">中点</button>
+          <button class="tbtn" id="btnA">P→A</button>
+          <span class="sep"></span>
+          <span class="lb">系数定点</span>
+          <button class="tbtn" data-xy="0.4,0.6">(0.4, 0.6)</button>
+          <button class="tbtn" data-xy="0.7,0.5">(0.7, 0.5)</button>
+          <button class="tbtn" data-xy="1.2,-0.3">(1.2, −0.3)</button>
+          <span class="sep"></span>
+          <button class="tbtn" id="btnCol">O 落在 AB 上</button>
+          <button class="tbtn" id="btnReset">复位</button>
+          <button class="tbtn" id="btnRedo">全部重做</button>
+          <span class="brk"></span>
+          <span class="lb">显示</span>
+          <button class="tbtn on" id="swLine">约束在直线上</button>
+          <button class="tbtn on" id="swRatio">比例 BP、PA</button>
+          <button class="tbtn on" id="swLineAB">直线 AB</button>
+          <button class="tbtn on" id="swPara">平行四边形</button>
+          <button class="tbtn on" id="swGrid">网格</button>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title"><span class="dot indigo"></span>向量表达式</div>
-        <div class="formula" id="formula"></div>
-        <div class="note" id="formulaNote"></div>
-      </div>
+      <aside class="sidepanel">
+        <div class="ptitle">试一试</div>
+        <div class="psub">先动手，再发现；四个任务做完，判据自己会浮出来。</div>
+        <div id="tasks">
 
-      <div class="card">
-        <div class="card-title"><span class="dot teal"></span>操作与显示</div>
-        <div class="row">
-          <span class="row-label">约束 P 在直线 AB 上</span>
-          <div class="switch on" id="swLine" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示平行四边形分解</span>
-          <div class="switch on" id="swPara" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示线段比例 BP、PA</span>
-          <div class="switch on" id="swRatio" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示直线 AB</span>
-          <div class="switch on" id="swLineAB" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示坐标网格</span>
-          <div class="switch on" id="swGrid" role="switch" tabindex="0"></div>
-        </div>
-        <button class="btn play" id="btnPlay">▶ 演示：P 沿 AB 滑动</button>
-        <div class="btns">
-          <button class="btn" id="btnB">P → B（x=0）</button>
-          <button class="btn" id="btnMid">中点（x=½）</button>
-          <button class="btn" id="btnA">P → A（x=1）</button>
-        </div>
-        <div class="cust">
-          <div class="cust-label">自定义坐标（拖动时自动同步）</div>
-          <div class="cust-row">
-            <span class="cust-lbl">A</span>
-            <input type="number" id="inAx" value="2.2" step="0.1">
-            <span class="op">,</span>
-            <input type="number" id="inAy" value="1.6" step="0.1">
+          <!-- 任务一 -->
+          <div class="task open" data-id="1">
+            <div class="thead"><span class="tno">任务一</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">把 P 拖到几个不同位置，分别记下 x 和 y。它们的<b>和</b>有规律吗？是多少？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 点【P→B】，记下这一对 (x, y)</span>
+                <span class="st">② 点【中点】，再记一对</span>
+                <span class="st">③ 点【P→A】，再记一对</span>
+                <span class="st">④ 把 P 拖到 A 外侧、B 外侧各试一次，看“和”还是不是那个数</span>
+              </div>
+              <button class="optbtn" data-k="a">和一直在变，没有规律</button>
+              <button class="optbtn" data-k="b">不管 P 在直线 AB 的哪个位置，和总是 1</button>
+              <button class="optbtn" data-k="c">只有 P 在线段上时和是 1，拖出线段就变了</button>
+              <div class="fb" id="t1fb"></div>
+            </div>
+            <div class="tdone">已发现：x + y 恒等于 1，这就是 P 落在直线 AB 上的标志数。</div>
           </div>
-          <div class="cust-row">
-            <span class="cust-lbl">B</span>
-            <input type="number" id="inBx" value="3.6" step="0.1">
-            <span class="op">,</span>
-            <input type="number" id="inBy" value="-1.4" step="0.1">
-          </div>
-          <div class="warn" id="coordWarn">OA 与 OB 不能共线（O 必须在直线 AB 外）</div>
-          <button class="btn wide" id="btnApply">应用自定义坐标</button>
-        </div>
-        <button class="btn wide" id="btnReset">复位</button>
-      </div>
-    </aside>
-  </main>
 
-  <footer>
-    <b>定理：</b>设 O 是直线 AB 外一点，则 A、B、P 三点共线 ⇔ 存在实数 x、y，使
-    <b><span class="v">OP</span> = x<span class="v">OA</span> + y<span class="v">OB</span></b>，且 <b>x + y = 1</b>。<br>
-    由 x + y = 1 得 <span class="v">OP</span> = <span class="v">OB</span> + x(<span class="v">OA</span> − <span class="v">OB</span>) = <span class="v">OB</span> + x·<span class="v">BA</span>，
-    即 <span class="v">BP</span> = x·<span class="v">BA</span>、<span class="v">AP</span> = y·<span class="v">AB</span>（x、y 的正负表示方向），
-    所以 P = A 时 (x, y) = (1, 0)，P = B 时 (0, 1)，P 为中点时 (½, ½)；P 落在线段 AB 外时 x、y 一正一负。
-    反过来，只要 x + y ≠ 1，<span class="v">OP</span> 的终点就一定不在直线 AB 上。
-  </footer>
-</div>
+          <!-- 任务二 -->
+          <div class="task" data-id="2">
+            <div class="thead"><span class="tno">任务二</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">反过来——x + y 一旦<b>不等于 1</b>，P 会落在哪里？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 看画布：约束开关已经是关的，P 落在灰线外</span>
+                <span class="st">② 在远离灰线的地方点一下，P 就换到那里</span>
+                <span class="st">③ 看徽章一直是红的，数字不再是 1</span>
+                <span class="st">④ 点【约束在直线上】拨回去，看 P 回到线上、徽章变绿</span>
+              </div>
+              <button class="optbtn" data-k="a">P 还在直线 AB 上，只是系数换了一种写法</button>
+              <button class="optbtn" data-k="b">P 一定不在直线 AB 上</button>
+              <button class="optbtn" data-k="c">x + y 只决定 P 离 O 多远，与在不在直线上无关</button>
+              <div class="fb" id="t2fb"></div>
+            </div>
+            <div class="tdone">已发现：x + y ≠ 1 可以直接判定 P 不在直线 AB 上，判据是双向的。</div>
+          </div>
+
+          <!-- 任务三 -->
+          <div class="task" data-id="3">
+            <div class="thead"><span class="tno">任务三</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">下面三组 (x, y)，哪一组对应的 P 会<b>落在直线 AB 上</b>？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 先别画图，把每组两个数加起来</span>
+                <span class="st">② 点对应的预设，看 P 实际落到哪</span>
+                <span class="st">③ 对照 x + y 徽章的颜色</span>
+              </div>
+              <button class="optbtn" data-k="a">(0.4, 0.6)</button>
+              <button class="optbtn" data-k="b">(0.7, 0.5)</button>
+              <button class="optbtn" data-k="c">(1.2, −0.3)</button>
+              <div class="fb" id="t3fb"></div>
+            </div>
+            <div class="tdone">已发现：判定三点共线，把两个系数加起来看是不是 1 就够了。</div>
+          </div>
+
+          <!-- 任务四 -->
+          <div class="task" data-id="4">
+            <div class="thead"><span class="tno">任务四</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">如果 O 恰好落在直线 AB 上（OA、OB 共线），x + y 还能判共线吗？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 点【O 落在 AB 上】</span>
+                <span class="st">② 看画布：A、O、B 排成一条线，OA、OB 平行了</span>
+                <span class="st">③ 看 x、y 栏：显示的是“任意”，不是一个数</span>
+                <span class="st">④ 关【约束在直线上】，在远离这条线处点一下：P 一组系数都写不出</span>
+                <span class="st">⑤ 点【复位】回来</span>
+              </div>
+              <button class="optbtn" data-k="a">能，x + y 仍然等于 1</button>
+              <button class="optbtn" data-k="b">不能：OA、OB 共线后 x、y 不是唯一的一对——P 在线上有无穷多组，离开这条线则一组都写不出</button>
+              <button class="optbtn" data-k="c">不能，但只要规定 x + y = 0 就又能用</button>
+              <div class="fb" id="t4fb"></div>
+            </div>
+            <div class="tdone">已发现：“O 不在直线 AB 上”是判据成立的前提：共线时 x、y 要么无穷多组、要么没有，判据失效。</div>
+          </div>
+
+        </div>
+        <div class="final" id="final">
+          P 在直线 AB 上 ⟺ x + y = 1
+          <span class="fml">OP = x·OA + y·OB　（O 不在 AB 上）</span>
+          <button class="again" id="btnAgain">↺ 再做一次（四个任务重来）</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
 
 <script>
 (function(){
 "use strict";
-  var W = 700, H = 660, OX = 350, OY = 330, U = 44;
+  var W = 880, H = 560, OX = 440, OY = 300, U = 44;
   var LIM = 6.4;
 
   var state = {
@@ -329,7 +309,8 @@
     Pf: {x: 2.9, y: 0.1},
     para: true, ratio: true, lineAB: true, grid: true
   };
-  var anim = {on: false, paused: false, raf: 0, t0: 0, elapsed: 0, dur: 2600, fromT: 0, toT: 1, originT: null, goingBack: false};
+  var anim = {on: false, paused: false, raf: 0, t0: 0, elapsed: 0, dur: 2600,
+              fromT: 0, toT: 1, originT: null, goingBack: false};
 
   var svg = document.getElementById('plane');
   var gridLayer = document.getElementById('gridLayer');
@@ -349,9 +330,6 @@
     if (Math.abs(v) < 0.5 / Math.pow(10, n)) v = 0;
     return (v < 0 ? '−' : '') + Math.abs(v).toFixed(n);
   }
-  // 向量记号：字母上方带箭头（HTML）
-  function V(name){ return '<span class="v">' + name + '</span>'; }
-  // 带符号的项：负系数写成 "− 1.88 OB"，unit 可是纯文本或带向量箭头的 HTML
   function term(v, unit){
     var s = f2(v);
     if (Math.abs(v) < 0.005) return ' + 0 ' + unit;
@@ -365,11 +343,16 @@
   }
 
   // ---------- 核心计算 ----------
-  // P = x·OA + y·OB 的克莱姆法则解（OA、OB 不共线时唯一）
   function solveCoeff(P){
     var A = state.A, B = state.B, d = det2(A, B);
-    if (Math.abs(d) < 1e-7) return null;
-    return {x: det2(P, B) / d, y: det2(A, P) / d};
+    var lenA = Math.hypot(A.x, A.y), lenB = Math.hypot(B.x, B.y);
+    if (Math.abs(d) > 1e-7){
+      return {status: 'ok', x: det2(P, B) / d, y: det2(A, P) / d};
+    }
+    // OA ∥ OB：系数不唯一。再判断 P 是否也在这条直线上
+    var long = lenA >= lenB ? A : B, lenL = Math.max(lenA, lenB);
+    var offLine = Math.abs(det2(long, P)) > 1e-6 * (lenL * Math.hypot(P.x, P.y) + 1);
+    return {status: offLine ? 'none' : 'multi', x: NaN, y: NaN};
   }
   function pointP(){
     if (state.onLine){
@@ -382,13 +365,10 @@
   }
   function derive(){
     var A = state.A, B = state.B, P = pointP();
-    var c = solveCoeff(P) || {x: NaN, y: NaN};
+    var c = solveCoeff(P);
     var AB = sub(B, A);
-    return {
-      A: A, B: B, P: P,
-      x: c.x, y: c.y, sum: c.x + c.y,
-      AB: AB, lenAB: Math.hypot(AB.x, AB.y)
-    };
+    return {A: A, B: B, P: P, x: c.x, y: c.y, sum: c.x + c.y, status: c.status,
+            AB: AB, lenAB: Math.hypot(AB.x, AB.y)};
   }
 
   // ---------- SVG 片段 ----------
@@ -408,9 +388,8 @@
            '" fill="' + color + '" stroke="#fff" stroke-width="4" paint-order="stroke" ' +
            'font-family="PingFang SC, Microsoft YaHei, sans-serif">' + txt + '</text>';
   }
-  // 画布上的向量标签：字母上方加箭头（用 canvas 量字宽，箭头才能对准字母）
   var measCtx = null;
-  try { measCtx = document.createElement('canvas').getContext('2d'); } catch (e) { measCtx = null; }
+  try { measCtx = document.createElement('canvas').getContext('2d'); } catch (e){ measCtx = null; }
   var measCache = {};
   function textW(t, font){
     if (!measCtx) return t.length * 6.6;
@@ -435,9 +414,7 @@
     var x1 = x0 + wp + 1;
     var x2 = x0 + wp + wl - 1;
     var s = '';
-    if (prefix){
-      s += svgText(x0, cy, prefix, size, preColor || color);
-    }
+    if (prefix) s += svgText(x0, cy, prefix, size, preColor || color);
     s += svgText(x0 + wp, cy, letters, size, color);
     s += '<line x1="' + x1 + '" y1="' + oy + '" x2="' + (x2 - 6) + '" y2="' + oy +
          '" stroke="' + color + '" stroke-width="1.2" stroke-linecap="round"/>';
@@ -448,10 +425,10 @@
   // ---------- 静态层 ----------
   function buildStatic(){
     var g = '';
-    for (var i = -7; i <= 8; i++){
+    for (var i = -10; i <= 10; i++){
       g += '<line x1="' + px(i) + '" y1="0" x2="' + px(i) + '" y2="' + H + '" stroke="#eef1f7" stroke-width="1"/>';
     }
-    for (var j = -7; j <= 7; j++){
+    for (var j = -6; j <= 6; j++){
       g += '<line x1="0" y1="' + py(j) + '" x2="' + W + '" y2="' + py(j) + '" stroke="#eef1f7" stroke-width="1"/>';
     }
     gridLayer.innerHTML = g;
@@ -461,12 +438,12 @@
              '<text x="' + (W - 20) + '" y="' + (OY + 22) + '" font-size="14" fill="#64748b" font-style="italic" font-family="Georgia, serif">x</text>' +
              '<text x="' + (OX + 12) + '" y="24" font-size="14" fill="#64748b" font-style="italic" font-family="Georgia, serif">y</text>' +
              '<text x="' + (OX - 18) + '" y="' + (OY + 20) + '" font-size="14" fill="#64748b" font-family="Georgia, serif">O</text>';
-    for (var k = -7; k <= 8; k++){
+    for (var k = -9; k <= 9; k++){
       if (k === 0) continue;
       ax += '<line x1="' + px(k) + '" y1="' + (OY - 4) + '" x2="' + px(k) + '" y2="' + (OY + 4) + '" stroke="#94a3b8" stroke-width="1"/>' +
             '<text x="' + px(k) + '" y="' + (OY + 20) + '" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Georgia, serif">' + k + '</text>';
     }
-    for (var m = -6; m <= 7; m++){
+    for (var m = -5; m <= 5; m++){
       if (m === 0) continue;
       ax += '<line x1="' + (OX - 4) + '" y1="' + py(m) + '" x2="' + (OX + 4) + '" y2="' + py(m) + '" stroke="#94a3b8" stroke-width="1"/>' +
             '<text x="' + (OX - 10) + '" y="' + py(m) + '" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94a3b8" font-family="Georgia, serif">' + m + '</text>';
@@ -479,9 +456,9 @@
     var d = derive();
     var s = '';
     var A = d.A, B = d.B, P = d.P;
-    var finite = isFinite(d.x) && isFinite(d.y);
+    var finite = (d.status === 'ok');
 
-    // 1. 直线 AB：只画 A—B；仅当 P 在直线 AB 上且越过 A 或 B 时，那一侧才随 P 延长
+    // 1. 直线 AB
     if (state.lineAB){
       var dirAB = norm(d.AB);
       if (dirAB){
@@ -496,35 +473,41 @@
       }
     }
 
-    // 2. 平行四边形分解 O — xOA — P — yOB
+    // 2. 平行四边形分解
     if (state.para && finite){
       var A1 = {x: d.x * A.x, y: d.x * A.y};
       var B1 = {x: d.y * B.x, y: d.y * B.y};
       s += '<polygon points="' + px(0) + ',' + py(0) + ' ' + px(A1.x) + ',' + py(A1.y) + ' ' +
            px(P.x) + ',' + py(P.y) + ' ' + px(B1.x) + ',' + py(B1.y) +
            '" fill="rgba(124,58,237,0.055)"/>';
-      s += vec({x: 0, y: 0}, A1, '#a5b4fc', 2, 'arTA', '5 4', 1);
-      s += vec({x: 0, y: 0}, B1, '#5eead4', 2, 'arTB', '5 4', 1);
-      s += vec(A1, P, '#c4b5fd', 1.6, null, '5 4', 1);
-      s += vec(B1, P, '#c4b5fd', 1.6, null, '5 4', 1);
-      // 缩放向量标签
-      var nA = norm(A1), nB = norm(B1);
-      if (nA && Math.hypot(A1.x, A1.y) > 0.35){
-        s += vecText(px(A1.x) + nA.x * 20, py(A1.y) - nA.y * 20, 'x·', 'OA', 12, '#4f46e5', '#ea580c');
+      var offA = Math.hypot(A1.x - A.x, A1.y - A.y), offB = Math.hypot(B1.x - B.x, B1.y - B.y);
+      if (offA > 0.28){
+        s += vec({x: 0, y: 0}, A1, '#a5b4fc', 2, 'arTA', '5 4', 1);
+        s += vec(A1, P, '#c4b5fd', 1.6, null, '5 4', 1);
       }
-      if (nB && Math.hypot(B1.x, B1.y) > 0.35){
-        s += vecText(px(B1.x) + nB.x * 20, py(B1.y) - nB.y * 20, 'y·', 'OB', 12, '#0d9488', '#0284c7');
+      if (offB > 0.28){
+        s += vec({x: 0, y: 0}, B1, '#5eead4', 2, 'arTB', '5 4', 1);
+        s += vec(B1, P, '#c4b5fd', 1.6, null, '5 4', 1);
+      }
+      var lenA1 = Math.hypot(A1.x, A1.y), lenB1 = Math.hypot(B1.x, B1.y);
+      if (lenA1 > 0.35 && Math.hypot(A1.x - A.x, A1.y - A.y) > 0.28){
+        var pA = {x: -A1.y / lenA1, y: A1.x / lenA1};
+        if (pA.y < 0) pA = {x: -pA.x, y: -pA.y};
+        s += vecText(px(A1.x) + pA.x * 22, py(A1.y) - pA.y * 22, 'x·', 'OA', 12, '#4f46e5', '#ea580c');
+      }
+      if (lenB1 > 0.35 && Math.hypot(B1.x - B.x, B1.y - B.y) > 0.28){
+        var pB = {x: -B1.y / lenB1, y: B1.x / lenB1};
+        if (pB.y < 0) pB = {x: -pB.x, y: -pB.y};
+        s += vecText(px(B1.x) + pB.x * 22, py(B1.y) - pB.y * 22, 'y·', 'OB', 12, '#0d9488', '#0284c7');
       }
     }
 
-    // 3. 线段比例 BP（x）、PA（y）：柔和配色、细线，与灰色直线 AB 区分
+    // 3. 线段比例 BP（x）、PA（y）
     if (state.ratio && finite && d.lenAB > 1e-6 && Math.abs(d.sum - 1) < 0.005){
       if (d.x < 0){
-        // P 在 B 外侧：PA 整段压住 BP，先画 PA，再把 BP 用虚线叠在上面
         s += vec(P, A, '#0ea5e9', 3, null, null, 1);
         s += vec(B, P, '#fb923c', 3, '7 5', null, 1);
       } else if (d.y < 0){
-        // P 在 A 外侧：BP 整段压住 PA，先画 BP，再把 PA 用虚线叠在上面
         s += vec(B, P, '#fb923c', 3, null, null, 1);
         s += vec(P, A, '#0ea5e9', 3, '7 5', null, 1);
       } else {
@@ -534,10 +517,13 @@
       var mBP = {x: (B.x + P.x) / 2, y: (B.y + P.y) / 2};
       var mPA = {x: (P.x + A.x) / 2, y: (P.y + A.y) / 2};
       var nAB = norm({x: d.AB.y, y: -d.AB.x}) || {x: 0, y: 1};
-      // 标签放到远离原点的一侧，避开平行四边形与向量标签
       var sgn = (P.x * nAB.x + P.y * nAB.y) >= 0 ? 1 : -1;
-      s += haloText(px(mBP.x) + nAB.x * 14 * sgn, py(mBP.y) - nAB.y * 14 * sgn, 'x', 13, '#ea580c', 700);
-      s += haloText(px(mPA.x) + nAB.x * 14 * sgn, py(mPA.y) - nAB.y * 14 * sgn, 'y', 13, '#0284c7', 700);
+      if (Math.abs(d.x) > 0.08){
+        s += haloText(px(mBP.x) + nAB.x * 14 * sgn, py(mBP.y) - nAB.y * 14 * sgn, 'x', 13, '#ea580c', 700);
+      }
+      if (Math.abs(d.y) > 0.08){
+        s += haloText(px(mPA.x) + nAB.x * 14 * sgn, py(mPA.y) - nAB.y * 14 * sgn, 'y', 13, '#0284c7', 700);
+      }
     }
 
     // 4. 三个主向量
@@ -545,11 +531,22 @@
     s += vec({x: 0, y: 0}, B, '#0d9488', 3.2, 'arB');
     s += vec({x: 0, y: 0}, P, '#e11d48', 3.2, 'arP');
 
-    // 5. 端点与标签
+    // 5. 端点与标签（避让 P）
+    var dirABv = norm(d.AB) || {x: 1, y: 0};
     var nOA = norm(A), nOB = norm(B);
-    if (nOA) s += haloText(px(A.x) + nOA.x * 20, py(A.y) - nOA.y * 20, 'A', 16, '#4f46e5', 700);
-    if (nOB) s += haloText(px(B.x) + nOB.x * 20, py(B.y) - nOB.y * 20, 'B', 16, '#0d9488', 700);
-    // P 的标签：沿 AB 法向、背离 O 的一侧
+    var lx = A.x, ly = A.y, bx = B.x, by = B.y;
+    if (Math.hypot(P.x - A.x, P.y - A.y) < 0.7){
+      lx = A.x - dirABv.x * 0.62; ly = A.y - dirABv.y * 0.62;
+    } else if (nOA){
+      lx = A.x + nOA.x * 0.46; ly = A.y + nOA.y * 0.46;
+    }
+    if (Math.hypot(P.x - B.x, P.y - B.y) < 0.7){
+      bx = B.x + dirABv.x * 0.62; by = B.y + dirABv.y * 0.62;
+    } else if (nOB){
+      bx = B.x + nOB.x * 0.46; by = B.y + nOB.y * 0.46;
+    }
+    s += haloText(px(lx), py(ly), 'A', 16, '#4f46e5', 700);
+    s += haloText(px(bx), py(by), 'B', 16, '#0d9488', 700);
     var nrm = norm({x: d.AB.y, y: -d.AB.x});
     if (nrm){
       var side = (P.x * nrm.x + P.y * nrm.y) >= 0 ? 1 : -1;
@@ -558,7 +555,7 @@
       s += haloText(px(P.x) + 18, py(P.y) - 18, 'P', 16, '#e11d48', 700);
     }
 
-    // 6. 可拖点：A、B 不再画小圆圈，只用箭头端点与字母；P 保留一个小圆点
+    // 6. 可拖点
     s += '<circle cx="' + px(P.x) + '" cy="' + py(P.y) + '" r="3.6" fill="#e11d48"/>';
     s += '<circle cx="' + px(A.x) + '" cy="' + py(A.y) + '" r="18" fill="transparent" style="cursor:grab" id="hitA"/>';
     s += '<circle cx="' + px(B.x) + '" cy="' + py(B.y) + '" r="18" fill="transparent" style="cursor:grab" id="hitB"/>';
@@ -566,83 +563,44 @@
 
     dynLayer.innerHTML = s;
     updatePanel(d);
-    syncInputs();
   }
 
-  // ---------- 右侧面板 ----------
+  // ---------- 状态条 ----------
+  function q(id){ return document.getElementById(id); }
   function updatePanel(d){
-    document.getElementById('coordA').innerHTML = '(' + f2(d.A.x) + ', ' + f2(d.A.y) + ')';
-    document.getElementById('coordB').innerHTML = '(' + f2(d.B.x) + ', ' + f2(d.B.y) + ')';
-    document.getElementById('coordP').innerHTML = '(' + f2(d.P.x) + ', ' + f2(d.P.y) + ')';
+    var finite = (d.status === 'ok');
+    q('coordA').textContent = '(' + f2(d.A.x) + ', ' + f2(d.A.y) + ')';
+    q('coordB').textContent = '(' + f2(d.B.x) + ', ' + f2(d.B.y) + ')';
+    q('coordP').textContent = '(' + f2(d.P.x) + ', ' + f2(d.P.y) + ')';
+    q('xVal').textContent = finite ? f2(d.x) : (d.status === 'multi' ? '任意' : '无解');
+    q('yVal').textContent = finite ? f2(d.y) : (d.status === 'multi' ? '随 x 变' : '无解');
 
-    var nAB = norm(d.AB);
-    document.getElementById('lineInfo').innerHTML = nAB
-      ? '|AB| = ' + f2(d.lenAB)
-      : '<span style="color:#e11d48">OA、OB 共线</span>';
-
-    document.getElementById('xVal').textContent = f2(d.x);
-    document.getElementById('yVal').textContent = f2(d.y);
-
-    var onLine = Math.abs(d.sum - 1) < 0.005;
-    document.getElementById('sumEq').innerHTML =
-      'x + y = <b>' + f2(d.x) + '</b> + <b>' + f2(d.y) + '</b> = <b>' + f2(d.sum) + '</b>';
-    var badge = document.getElementById('sumBadge');
-    badge.textContent = onLine ? 'x + y = 1' : 'x + y ≠ 1';
-    badge.className = 'badge ' + (onLine ? 'ok' : 'no');
-
-    // 比例条：左端 B（x=0），右端 A（x=1）
-    var wx = clamp(d.x, 0, 1) * 100;
-    var wy = clamp(1 - d.x, 0, 1) * 100;
-    document.getElementById('barX').style.width = wx + '%';
-    document.getElementById('barY').style.width = wy + '%';
-    document.getElementById('barHandle').style.left = (clamp(d.x, 0, 1) * 100) + '%';
-    var note = document.getElementById('barNote');
-    if (d.x < -0.0005 || d.x > 1.0005){
-      note.style.display = 'block';
-      note.innerHTML = d.x < 0
-        ? 'x &lt; 0：P 落在 B 的外侧（AB 的延长线上），此时 y &gt; 1'
-        : 'x &gt; 1：P 落在 A 的外侧（AB 的延长线上），此时 y &lt; 0';
+    var badge = q('sumBadge');
+    if (d.status === 'multi'){
+      badge.className = 'badge no';
+      badge.textContent = 'OA ∥ OB · 系数无穷多组';
+    } else if (d.status === 'none'){
+      badge.className = 'badge no';
+      badge.textContent = 'OA ∥ OB · 一组都写不出';
+    } else if (Math.abs(d.sum - 1) < 0.005){
+      badge.className = 'badge ok';
+      badge.textContent = 'x + y = 1';
     } else {
-      note.style.display = 'none';
+      badge.className = 'badge no';
+      badge.textContent = 'x + y = ' + f2(d.sum) + ' ≠ 1';
     }
 
-    // 向量表达式（所有向量都标箭头）
-    var F = document.getElementById('formula');
-    var N = document.getElementById('formulaNote');
-    if (!isFinite(d.x)){
-      F.innerHTML = V('OA') + ' 与 ' + V('OB') + ' 共线，无法唯一表示 ' + V('OP') + '。';
-      N.innerHTML = '';
-    } else {
-      var onLineF = Math.abs(d.sum - 1) < 0.005;
-      F.innerHTML =
-        V('OP') + ' = <i>x</i> ' + V('OA') + ' + <i>y</i> ' + V('OB') + '<br>' +
-        '<span class="dim">=</span> <span class="xv">' + f2(d.x) + '</span> ' + V('OA') +
-        '<span class="yv">' + term(d.y, V('OB')) + '</span>' +
-        (onLineF ? '<br><span class="dim">=</span> ' + V('OB') + '<span class="xv">' + term(d.x, V('BA')) + '</span>' : '');
-      N.innerHTML = onLineF
-        ? '<b>x + y = 1</b> 时，' + V('OP') + ' 的终点被「锁定」在直线 AB 上：' + V('OP') + ' = ' + V('OB') +
-          ' + <i>x</i>·' + V('BA') + '，即把 ' + V('OB') + ' 的终点沿 ' + V('BA') + ' 方向按比例 x 平移，终点就是 P。' +
-          '<b>几何意义：</b>' + V('BP') + ' = <i>x</i>·' + V('BA') + '，' + V('AP') + ' = <i>y</i>·' + V('AB') + '。'
-        : '此时 <b>x + y ≠ 1</b>，P 已经离开直线 AB：' + V('OP') + ' 仍可由 ' + V('OA') + '、' + V('OB') +
-          ' 唯一表示，但不能再化简为 ' + V('OB') + ' + <i>x</i>·' + V('BA') +
-          '（两者相差 (' + f2(d.sum - 1) + ')×' + V('OB') + '）。';
-    }
-  }
-
-  function syncInputs(){
-    document.getElementById('inAx').value = f2(state.A.x);
-    document.getElementById('inAy').value = f2(state.A.y);
-    document.getElementById('inBx').value = f2(state.B.x);
-    document.getElementById('inBy').value = f2(state.B.y);
+    q('formulaChip').textContent = (d.status === 'multi')
+      ? 'OP = x·OA + y·OB　x 任取'
+      : (d.status === 'none'
+          ? 'OP 写不成 x·OA + y·OB'
+          : 'OP = ' + f2(d.x) + '·OA' + term(d.y, '·OB'));
   }
 
   // ---------- 拖动 ----------
   function svgPt(evt){
     var r = svg.getBoundingClientRect();
-    return [
-      (evt.clientX - r.left) * (W / r.width),
-      (evt.clientY - r.top) * (H / r.height)
-    ];
+    return [(evt.clientX - r.left) * (W / r.width), (evt.clientY - r.top) * (H / r.height)];
   }
   function snapWorld(sp){
     var p = toWorld(sp[0], sp[1]);
@@ -678,7 +636,6 @@
       var L2 = AB.x * AB.x + AB.y * AB.y;
       if (L2 < 1e-9) return;
       var t = ((M.x - state.A.x) * AB.x + (M.y - state.A.y) * AB.y) / L2;
-      // B 端为 t=1，A 端为 t=0 → 换成以 B 为起点的参数
       state.t = clamp(Math.round((1 - t) * 100) / 100, -1.5, 2.5);
     } else {
       state.Pf = snapWorld(sp);
@@ -687,7 +644,6 @@
   });
   svg.addEventListener('pointerup', function(){ drag = null; });
   svg.addEventListener('pointercancel', function(){ drag = null; });
-  // 关闭约束后，点击画布任意位置即可把 P 放到该点（便于观察 x + y ≠ 1）
   svg.addEventListener('click', function(evt){
     if (state.onLine) return;
     var id = evt.target.id || '';
@@ -699,7 +655,6 @@
 
   // ---------- 键盘微调 ----------
   document.addEventListener('keydown', function(e){
-    if (e.target.tagName === 'INPUT') return;
     var step = e.shiftKey ? 0.1 : 0.02;
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
@@ -710,18 +665,17 @@
   });
 
   // ---------- 演示动画 ----------
-  var btnPlay = document.getElementById('btnPlay');
+  var btnPlay = q('btnPlay');
   function ease(t){ return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
   function resetPlay(){
-    btnPlay.textContent = '▶ 演示：P 沿 AB 滑动';
+    btnPlay.textContent = '▶ 演示';
     btnPlay.classList.remove('busy');
     overlay.innerHTML = '';
   }
   function stopAnim(){
     var was = anim.on;
     anim.on = false; anim.paused = false;
-    anim.originT = null;
-    anim.goingBack = false;
+    anim.originT = null; anim.goingBack = false;
     if (anim.raf) cancelAnimationFrame(anim.raf);
     anim.raf = 0;
     resetPlay();
@@ -733,19 +687,17 @@
       anim.elapsed = performance.now() - anim.t0;
       if (anim.raf) cancelAnimationFrame(anim.raf);
       anim.raf = 0;
-      btnPlay.textContent = '▶ 继续演示';
+      btnPlay.textContent = '⏸ 暂停';
       return;
     }
     if (anim.on && anim.paused){
       anim.paused = false;
       anim.t0 = performance.now() - anim.elapsed;
-      btnPlay.textContent = '⏸ 暂停演示';
+      btnPlay.textContent = '⏸ 暂停';
       anim.raf = requestAnimationFrame(anim.frame);
       return;
     }
     if (!state.onLine) setOnLine(true);
-    // 第一次演示：从 P 当前位置出发滑向 A（若已在 A 外侧则滑向 B），并记住这个起点
-    // 再次点击（重新演示）：从终点滑回刚才记住的拖动位置
     anim.fromT = state.t;
     if (anim.originT === null){
       anim.originT = state.t;
@@ -758,7 +710,7 @@
     anim.dur = Math.max(1600, Math.abs(anim.toT - anim.fromT) * 3200);
     render();
     anim.on = true; anim.paused = false;
-    btnPlay.textContent = '⏸ 暂停演示';
+    btnPlay.textContent = '⏸ 暂停';
     btnPlay.classList.add('busy');
     anim.t0 = performance.now();
     anim.frame = function(now){
@@ -767,7 +719,7 @@
       var v = anim.fromT + (anim.toT - anim.fromT) * ease(k);
       state.t = Math.round(v * 100) / 100;
       render();
-      overlay.innerHTML = haloText(W / 2, 34, 'P 沿直线 AB 滑动，x + y 恒为 1', 16, '#0284c7', 700);
+      overlay.innerHTML = haloText(W / 2, 34, 'P 沿 AB 滑动，x + y 恒为 1', 16, '#0284c7', 700);
       if (k >= 1){
         anim.on = false;
         state.t = anim.toT;
@@ -775,11 +727,11 @@
         btnPlay.classList.remove('busy');
         if (anim.goingBack){
           anim.originT = null;
-          btnPlay.textContent = '▶ 演示：P 沿 AB 滑动';
+          btnPlay.textContent = '▶ 演示';
         } else {
-          btnPlay.textContent = '↩ 返回拖动位置';
+          btnPlay.textContent = '↩ 返回';
         }
-        overlay.innerHTML = haloText(W / 2, 34, 'P 沿直线 AB 滑动，x + y 恒为 1', 16, '#0284c7', 700);
+        overlay.innerHTML = haloText(W / 2, 34, 'P 沿 AB 滑动，x + y 恒为 1', 16, '#0284c7', 700);
         return;
       }
       anim.raf = requestAnimationFrame(anim.frame);
@@ -788,32 +740,17 @@
   }
   btnPlay.addEventListener('click', startAnim);
 
-  // ---------- 控件 ----------
-  function bindSwitch(id, key){
-    var el = document.getElementById(id);
-    el.classList.toggle('on', state[key]);
-    el.addEventListener('click', function(){
-      state[key] = !state[key];
-      el.classList.toggle('on', state[key]);
-      if (key === 'grid'){
-        gridLayer.style.display = state.grid ? '' : 'none';
-      }
-      render();
-    });
-    el.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
-    });
+  // ---------- 开关 ----------
+  function syncSwitches(){
+    q('swLine').classList.toggle('on', state.onLine);
+    q('swRatio').classList.toggle('on', state.ratio);
+    q('swLineAB').classList.toggle('on', state.lineAB);
+    q('swPara').classList.toggle('on', state.para);
+    q('swGrid').classList.toggle('on', state.grid);
+    gridLayer.style.display = state.grid ? '' : 'none';
   }
-  bindSwitch('swPara', 'para');
-  bindSwitch('swRatio', 'ratio');
-  bindSwitch('swLineAB', 'lineAB');
-  bindSwitch('swGrid', 'grid');
-
-  // 约束开关：关闭后可把 P 拖到直线外，观察 x + y ≠ 1
-  var swLine = document.getElementById('swLine');
   function setOnLine(on){
     state.onLine = on;
-    swLine.classList.toggle('on', on);
     if (!on){
       var P = pointP();
       state.Pf = {x: P.x, y: P.y};
@@ -826,75 +763,215 @@
         state.t = clamp(Math.round((1 - t) * 100) / 100, -1.5, 2.5);
       }
     }
+    syncSwitches();
     render();
   }
-  swLine.addEventListener('click', function(){
+  q('swLine').addEventListener('click', function(){
     stopAnim();
     setOnLine(!state.onLine);
-    swLine.classList.toggle('on', state.onLine);
   });
-  swLine.addEventListener('keydown', function(e){
-    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); swLine.click(); }
+  [['swRatio', 'ratio'], ['swLineAB', 'lineAB'], ['swPara', 'para'], ['swGrid', 'grid']].forEach(function(pair){
+    q(pair[0]).addEventListener('click', function(){
+      state[pair[1]] = !state[pair[1]];
+      syncSwitches();
+      render();
+    });
   });
 
+  // ---------- 预设 ----------
   function goP(t){
     stopAnim();
     if (!state.onLine) setOnLine(true);
     state.t = t;
     render();
   }
-  document.getElementById('btnB').addEventListener('click', function(){ goP(0); });
-  document.getElementById('btnMid').addEventListener('click', function(){ goP(0.5); });
-  document.getElementById('btnA').addEventListener('click', function(){ goP(1); });
+  q('btnB').addEventListener('click', function(){ goP(0); });
+  q('btnMid').addEventListener('click', function(){ goP(0.5); });
+  q('btnA').addEventListener('click', function(){ goP(1); });
 
-  // 自定义坐标
-  var warn = document.getElementById('coordWarn');
-  document.getElementById('btnApply').addEventListener('click', function(){
-    var ax = parseFloat(document.getElementById('inAx').value);
-    var ay = parseFloat(document.getElementById('inAy').value);
-    var bx = parseFloat(document.getElementById('inBx').value);
-    var by = parseFloat(document.getElementById('inBy').value);
-    if (isNaN(ax)) ax = state.A.x;
-    if (isNaN(ay)) ay = state.A.y;
-    if (isNaN(bx)) bx = state.B.x;
-    if (isNaN(by)) by = state.B.y;
-    var A = {x: clamp(ax, -LIM, LIM), y: clamp(ay, -LIM, LIM)};
-    var B = {x: clamp(bx, -LIM, LIM), y: clamp(by, -LIM, LIM)};
-    if (Math.abs(det2(A, B)) < 1.0){
-      warn.style.display = 'block';
-      return;
-    }
-    warn.style.display = 'none';
-    stopAnim();
-    state.A = A; state.B = B;
-    render();
-  });
-  ['inAx', 'inAy', 'inBx', 'inBy'].forEach(function(id){
-    document.getElementById(id).addEventListener('keydown', function(e){
-      if (e.key === 'Enter') document.getElementById('btnApply').click();
+  // 按系数定点：P = x·OA + y·OB，并自动解除约束
+  Array.prototype.forEach.call(document.querySelectorAll('[data-xy]'), function(btn){
+    btn.addEventListener('click', function(){
+      stopAnim();
+      var xy = btn.getAttribute('data-xy').split(',');
+      var x = parseFloat(xy[0]), y = parseFloat(xy[1]);
+      state.onLine = false;
+      state.Pf = {x: x * state.A.x + y * state.B.x, y: x * state.A.y + y * state.B.y};
+      syncSwitches();
+      render();
     });
   });
 
-  document.getElementById('btnReset').addEventListener('click', function(){
+  // O 落在 AB 上：A、B 与 O 共线
+  q('btnCol').addEventListener('click', function(){
     stopAnim();
-    state.A = {x: 2.2, y: 1.6};
-    state.B = {x: 3.6, y: -1.4};
-    state.Pf = {x: 2.9, y: 0.1};
-    state.t = 0.5;
+    state.A = {x: -2.0, y: -1.0};
+    state.B = {x: 3.0, y: 1.5};
     state.onLine = true;
-    swLine.classList.add('on');
-    state.para = true; state.ratio = true; state.lineAB = true; state.grid = true;
-    document.getElementById('swPara').classList.add('on');
-    document.getElementById('swRatio').classList.add('on');
-    document.getElementById('swLineAB').classList.add('on');
-    document.getElementById('swGrid').classList.add('on');
-    gridLayer.style.display = '';
-    warn.style.display = 'none';
+    state.t = 0.5;
+    syncSwitches();
     render();
   });
 
+  // ---------- 任务链 ----------
+  var NTASK = 4;
+  var doneArr = [false, false, false, false];
+  var SCENE = {
+    1: {A: [2.2, 1.6], B: [3.6, -1.4], t: 0.5, onLine: true, para: true,  ratio: true,  lineAB: true, grid: true},
+    2: {A: [2.2, 1.6], B: [3.6, -1.4], t: 0.5, onLine: false, Pf: [0.6, 3.0], para: true, ratio: false, lineAB: true, grid: true},
+    3: {A: [2.2, 1.6], B: [3.6, -1.4], t: 0.5, onLine: true, para: true,  ratio: false, lineAB: true, grid: true},
+    4: {A: [-2.0, -1.0], B: [3.0, 1.5], t: 0.5, onLine: true, para: true, ratio: false, lineAB: true, grid: true}
+  };
+  function curTask(){
+    for (var i = 0; i < NTASK; i++){ if (!doneArr[i]) return i + 1; }
+    return NTASK;
+  }
+  function goScene(n){
+    var sc = SCENE[n];
+    if (!sc) return;
+    stopAnim();
+    state.A = {x: sc.A[0], y: sc.A[1]};
+    state.B = {x: sc.B[0], y: sc.B[1]};
+    state.t = sc.t;
+    state.onLine = sc.onLine;
+    if (sc.Pf) state.Pf = {x: sc.Pf[0], y: sc.Pf[1]};
+    state.para = sc.para;
+    state.ratio = sc.ratio;
+    state.lineAB = sc.lineAB;
+    state.grid = sc.grid;
+    syncSwitches();
+    render();
+  }
+  function activate(n){
+    var card = document.querySelector('.task[data-id="' + n + '"]');
+    if (!card) return;
+    var all = document.querySelectorAll('.task');
+    for (var i = 0; i < all.length; i++) all[i].classList.remove('open');
+    card.classList.add('open');
+    card.classList.remove('done');
+    goScene(n);
+  }
+  function complete(n, text){
+    var wasDone = doneArr[n - 1];
+    doneArr[n - 1] = true;
+    var card = document.querySelector('.task[data-id="' + n + '"]');
+    card.classList.remove('open');
+    card.classList.add('done');
+    if (text) card.querySelector('.tdone').textContent = '已发现：' + text;
+    card.querySelector('.tick').textContent = '✓';
+
+    var next = 0, allDone = true;
+    for (var i = n; i < NTASK; i++){
+      if (!doneArr[i]){ next = i + 1; break; }
+    }
+    for (var j = 0; j < NTASK; j++){ if (!doneArr[j]) allDone = false; }
+    if (allDone){
+      q('final').classList.add('on');
+      if (q('final').scrollIntoView) q('final').scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    } else if (!wasDone && next){
+      activate(next);
+    }
+  }
+  function bindChoice(n, correct, fbId, okMsg, badMsgs, doneMsg){
+    var body = document.querySelector('.task[data-id="' + n + '"] .tbody');
+    body.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('.optbtn') : null;
+      if (!b) return;
+      var fb = q(fbId);
+      var k = b.getAttribute('data-k');
+      var btns = body.querySelectorAll('.optbtn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('no');
+      if (k === correct){
+        b.classList.add('ok');
+        fb.className = 'fb ok';
+        fb.textContent = okMsg;
+        complete(n, doneMsg);
+      } else {
+        b.classList.add('no');
+        fb.className = 'fb no';
+        fb.textContent = (badMsgs[k] || '回到模型上再拖一遍。');
+      }
+    });
+  }
+
+  bindChoice(1, 'b', 't1fb',
+    '对。0+1、½+½、1+0，拖到外侧 1.4+(−0.4)——每一处加起来都是 1。为什么恰好是 1？打开【比例 BP、PA】：BP = x·BA、PA = y·AB，两段拼回整条 AB，和自然是 1。',
+    {
+      a: '三组读数加起来全是 1。再拖到 A 外侧、B 外侧，也是一个变负、另一个补上来，和不动。',
+      c: '出了线段只是两个系数一正一负，和并没有变。把 P 拖到 A 外侧，看那对 1.4 和 −0.4。'
+    },
+    'x + y 恒等于 1，这就是 P 落在直线 AB 上的标志数。');
+
+  bindChoice(2, 'b', 't2fb',
+    '对。x + y 不为 1，P 就离开了直线 AB——判据是双向的。',
+    {
+      a: 'OA、OB 不共线，同一个 P 的系数只有一对，所以 x + y 是确定的数；它不等于 1，就说明 P 不在线上。',
+      c: 'x + y 的大小管的是 P 离 O 多远，但“在不在直线上”只看它等不等于 1。'
+    },
+    'x + y ≠ 1 可以直接判定 P 不在直线 AB 上，判据是双向的。');
+
+  bindChoice(3, 'a', 't3fb',
+    '对。0.4 + 0.6 = 1，点一下预设，P 正好落在直线上。',
+    {
+      b: '0.7 + 0.5 = 1.2，和不是 1，P 会偏到直线外。',
+      c: '1.2 + (−0.3) = 0.9，看着像 1，差了 0.1，P 就偏出去一点。'
+    },
+    '判定三点共线，把两个系数加起来看是不是 1 就够了。');
+
+  bindChoice(4, 'b', 't4fb',
+    '对。OA、OB 平行后撑不出平面：P 还在这条线上时，x 随便取、y 跟着变，x + y 能凑成任何数；P 一离开这条线，一组系数都写不出来。1 既不是唯一答案，也不再是判据。',
+    {
+      a: 'P 在线上时 x 可以随便取，x + y 就能凑成任何值，“仍等于 1”没有确定依据。',
+      c: '没有这种附加规定；前提一破，判据整体失效。'
+    },
+    '“O 不在直线 AB 上”是判据成立的前提：缺了它，x、y 要么无穷多组、要么一组都没有。');
+
+  /* 卡片点击 */
+  Array.prototype.forEach.call(document.querySelectorAll('.task'), function(card){
+    card.querySelector('.thead').addEventListener('click', function(){
+      var id = parseInt(card.getAttribute('data-id'), 10);
+      if (card.classList.contains('open')){ card.classList.remove('open'); return; }
+      if (doneArr[id - 1]){ card.classList.add('open'); return; }
+      activate(id);
+    });
+  });
+
+  /* 全部重做 */
+  function resetAll(){
+    for (var i = 0; i < NTASK; i++) doneArr[i] = false;
+    var cards = document.querySelectorAll('.task');
+    for (var j = 0; j < cards.length; j++){
+      var c = cards[j];
+      c.classList.remove('done', 'open');
+      c.querySelector('.tick').textContent = '›';
+      var btns = c.querySelectorAll('.optbtn');
+      for (var k = 0; k < btns.length; k++) btns[k].classList.remove('ok', 'no');
+      var fb = c.querySelector('.fb');
+      if (fb){ fb.className = 'fb'; fb.textContent = ''; }
+    }
+    q('final').classList.remove('on');
+    activate(1);
+    if (q('tasks').scrollIntoView) q('tasks').scrollIntoView({block: 'nearest', behavior: 'smooth'});
+  }
+  /* 复位：回到当前任务的初始场景，不清任务进度 */
+  q('btnReset').addEventListener('click', function(){
+    var n = curTask();
+    var card = document.querySelector('.task[data-id="' + n + '"]');
+    if (card){
+      var btns = card.querySelectorAll('.optbtn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('ok', 'no');
+      var fb = card.querySelector('.fb');
+      if (fb){ fb.className = 'fb'; fb.textContent = ''; }
+    }
+    goScene(n);
+  });
+
+  q('btnAgain').addEventListener('click', resetAll);
+  q('btnRedo').addEventListener('click', resetAll);
+
   // ---------- 初始化 ----------
   buildStatic();
+  syncSwitches();
   render();
 })();
 </script>

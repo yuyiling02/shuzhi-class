@@ -11,7 +11,7 @@
     --bg:#f2f6f8; --line:#dde6ec;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); padding-bottom:60px;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); padding-bottom:32px;}
   header{background:linear-gradient(120deg,#1f8a80,#2aa198 55%,#3cb8ae); color:#fff; padding:26px 20px 20px; text-align:center;}
   header h1{font-size:26px; letter-spacing:2px;}
   header p{opacity:.94; margin-top:9px; font-size:14px; line-height:1.8;}
@@ -46,10 +46,6 @@
     border:1px solid #dcd9f5; border-radius:20px; padding:5px 12px;}
   .draghint::before{content:"☝ ";}
   #svg1{draggable:false;}
-  .expl{font-size:14.5px; line-height:2; color:#3d5262; margin-top:14px;}
-  .expl b{color:#e91e63;}
-  .expl .hl{color:var(--violet); font-weight:bold;}
-  .expl .hl2{color:var(--teal); font-weight:bold;}
   .ctrl{display:flex; gap:26px; flex-wrap:wrap; margin:14px 0 2px;}
   .ctrl label{flex:1 1 240px; font-size:14px; color:#3d5262;}
   .ctrl input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; margin-top:12px;
@@ -77,11 +73,6 @@
   table.tbl tr.on td.res{color:var(--violet); font-weight:bold; background:#f6f5fe;}
   .bar{border-radius:12px; padding:12px 16px; background:#f8fbfc; border:1px solid #e2ecf0; margin-top:14px; font-size:14px; line-height:1.9; color:#3d5262;}
   .bar b{color:#e91e63;}
-  ul.tips{margin:12px 0 0 4px; list-style:none; font-size:14px; line-height:2.05; color:#3d5262;}
-  ul.tips li{padding-left:24px; position:relative;}
-  ul.tips li::before{content:"✕"; position:absolute; left:2px; top:0; color:var(--pink); font-weight:bold;}
-  ul.tips li.ok::before{content:"✓"; color:var(--teal);}
-  ul.tips li span.w{color:#8d99aa;}
   /* ---- ③ 复原（反向还原） ---- */
   .restore{margin-top:24px; padding-top:18px; border-top:1px dashed #d5e0e6;}
   .restore .zone-head{margin-bottom:8px;}
@@ -91,9 +82,6 @@
     border-radius:10px; padding:7px 14px; line-height:1.6;}
   .rread b{color:#e91e63; font-family:"Times New Roman",serif; font-size:16px;}
   .rread span.hit{background:#f2faf8; border-color:#bfe6e0;}
-  footer{max-width:1080px; margin:0 auto; padding:0 16px; color:#5b6b78; font-size:13.5px; line-height:2.05;}
-  footer b{color:var(--ink);}
-  footer .t{color:var(--teal); font-weight:bold;}
 </style>
 </head>
 <body>
@@ -150,9 +138,6 @@
         <label>纵坐标 <span class="mi">y</span> = <b id="vy">3</b>
           <input type="range" id="ry" min="-4" max="4" step="0.5" value="3"></label>
       </div>
-      <div class="expl">
-        <p>四步走完，点 <span class="mi">P</span>′ 就位。这时<b>直接拖动左图里的 P</b>（或拖下面的滑块），右图的 M、P′ 会同步跟着走 —— <span class="hl2">换任何一个点，规则都一模一样</span>：先沿 <span class="mi">x</span>′ 轴量横坐标（原长），再沿 45° 的 <span class="mi">y</span>′ 轴量纵坐标的<b>一半</b>。</p>
-      </div>
     </div>
 
     <div class="pane" id="pane2" hidden>
@@ -208,26 +193,9 @@
           <span id="wK">纵向系数 k = <b id="rK">0.5</b></span>
           <span>当前面积 = <b id="rArea">0.35 S</b></span>
         </div>
-        <div class="expl">
-          <p>右边这张图会跟着滑杆<b>变形回去</b>：前一半行程只动角度（<span class="hl">45° → 90°</span>），后一半行程只动长度（<span class="hl">k：1/2 → 1</span>）。走到头时它与左边虚线画的原图<b>完全重合</b> —— 反过来印证了斜二测画法改掉的只是长度和角度，<span class="hl2">平行性一点没变</span>（面积按 <i>k</i>·sin θ 变化，从 (√2/4)<i>S</i> 回到 <i>S</i>）。</p>
-        </div>
       </div>
     </div>
   </section>
-
-  <footer>
-    <b>小结（教材 8.2 原文）：</b><br>
-    ① 取互相垂直的 <i>x</i>、<i>y</i> 轴，画直观图时画成对应的 <i>x</i>′、<i>y</i>′ 轴，交角为 <span class="t">45°</span>（也可取 135°），它们确定的平面表示水平平面。<br>
-    ② 原图中<b>平行于 <i>x</i> 轴或 <i>y</i> 轴</b>的线段，在直观图中分别画成<b>平行于 <i>x</i>′ 轴或 <i>y</i>′ 轴</b>的线段（平行性不变）。<br>
-    ③ 平行于 <i>x</i> 轴的线段<b>长度不变</b>；平行于 <i>y</i> 轴的线段<b>长度减半</b>。<br>
-    ④ 由此得到：直观图面积 = (√2/4) × 原图面积；反过来，原图面积 = 2√2 × 直观图面积。
-    <ul class="tips">
-      <li><span class="w">把 <i>y</i>′ 轴画成竖直的（忘了 45°）</span></li>
-      <li><span class="w">只减半了长度，却把线仍画成竖直方向（少了 45° 的斜）</span></li>
-      <li><span class="w">把"平行于 <i>x</i> 轴的线段不变、平行于 <i>y</i> 轴的减半"记反，做成了"全都减半"</span></li>
-      <li class="ok">正确顺序：先定 45° 的轴 → 平行 <i>x</i> 的照抄长度 → 平行 <i>y</i> 的长度减半 → 最后连线</li>
-    </ul>
-  </footer>
 
 </main>
 

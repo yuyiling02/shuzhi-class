@@ -2,359 +2,277 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>18.1 分式及其基本性质 · 条件判断器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18.1 分式 · 条件判断器</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","PingFang SC",sans-serif;}
-  body{background:#eef2f7;min-height:100vh;padding:18px 22px;color:#2b3a4d;}
-  .wrap{max-width:1460px;margin:0 auto;}
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  h1{font-size:24px;color:#1e3a5f;}
-  h1 small{font-size:14px;color:#7a8ba0;font-weight:normal;margin-left:10px;}
-  .motto{background:#fff8e6;border:1px solid #f0d98c;color:#8a6d1a;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:bold;}
-  .cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;}
-  .card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(30,58,95,.07);}
-  .card h2{font-size:17px;color:#1e3a5f;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-  .card h2 .dot{width:10px;height:10px;border-radius:50%;background:#4a7dde;display:inline-block;}
-  /* 表达式选择 */
-  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
-  .preset{border:1.5px solid #c9d6e8;background:#f6f9fd;border-radius:9px;padding:7px 13px;font-size:15px;cursor:pointer;color:#2b3a4d;transition:.15s;}
-  .preset:hover{border-color:#4a7dde;}
-  .preset.on{background:#4a7dde;border-color:#4a7dde;color:#fff;font-weight:bold;}
-  /* 分式大展示 */
-  .stage{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;}
-  .fracBox{text-align:center;min-width:230px;}
-  .fx{font-size:15px;color:#5b6b7d;margin-bottom:6px;font-weight:bold;}
+  :root{--blue:#4a7dde;--green:#31b57d;--red:#d9453c;--purple:#7048a8;--orange:#e07a1f;--ink:#2b3a4d;--sub:#7a8ba0;--line:#dde6f2;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:"Microsoft YaHei","PingFang SC",sans-serif;}
+  body{background:#eef2f7;color:var(--ink);padding:14px 12px 30px;min-height:100vh;}
+  .wrap{max-width:920px;margin:0 auto;}
+  header{text-align:center;margin-bottom:8px;}
+  header h1{font-size:21px;color:#1e3a5f;}
+  .motto{display:inline-block;background:#fff8e6;border:1px solid #f0d98c;color:#8a6d1a;border-radius:999px;padding:6px 16px;font-size:14px;font-weight:bold;margin-top:6px;}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+  .tab{padding:9px 18px;border-radius:999px;border:2px solid var(--line);background:#fff;font-size:15px;font-weight:700;color:var(--sub);cursor:pointer;}
+  .tab.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(30,58,95,.06);margin-bottom:12px;}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;}
+  .preset{border:1.5px solid #c9d6e8;background:#f6f9fd;border-radius:9px;padding:7px 13px;font-size:15px;cursor:pointer;font-family:"Cambria Math",Georgia,serif;}
+  .preset.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:bold;}
+  .stage{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .fracBox{text-align:center;}
   .frac{display:inline-flex;flex-direction:column;align-items:center;padding:4px 10px;}
-  .frac .part{font-size:27px;font-family:"Cambria Math",Georgia,serif;padding:3px 14px;white-space:nowrap;}
-  .frac .bar{height:2.5px;background:#2b3a4d;align-self:stretch;border-radius:2px;margin:2px 0;}
-  .subs{margin-top:12px;font-size:17px;font-family:"Cambria Math",Georgia,serif;color:#33475e;min-height:26px;}
-  .subs b{color:#1e9e74;}
-  .subs .bad{color:#d9453c;}
-  /* 判定徽章 */
-  .verdict{border-radius:12px;padding:14px 18px;font-size:19px;font-weight:bold;text-align:center;margin-bottom:10px;transition:.2s;}
+  .frac .part{font-size:30px;font-family:"Cambria Math",Georgia,serif;padding:3px 14px;white-space:nowrap;}
+  .frac .bar{height:3px;background:var(--ink);align-self:stretch;border-radius:2px;margin:2px 0;}
+  .subs{margin-top:10px;font-size:17px;font-family:"Cambria Math",Georgia,serif;min-height:26px;}
+  .subs b{color:var(--green);} .subs .bad{color:var(--red);font-weight:bold;}
+  .verdict{border-radius:14px;padding:18px 26px;font-size:26px;font-weight:800;text-align:center;min-width:220px;transition:.25s;}
+  .verdict .reason{font-size:14px;font-weight:normal;margin-top:6px;}
   .v-ok{background:#e6f7ef;color:#177a52;border:2px solid #7fd6ae;}
   .v-zero{background:#eef0fd;color:#4a3fbf;border:2px solid #a9a3ec;}
-  .v-bad{background:#fdeaea;color:#b52f27;border:2px solid #eda39e;}
-  .reason{font-size:14px;font-weight:normal;margin-top:4px;}
-  /* 条件判断器 */
-  .cond{border:1.5px solid #dde6f2;border-radius:10px;padding:10px 12px;margin-bottom:9px;display:flex;gap:10px;align-items:flex-start;}
-  .cond .ic{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#fff;}
-  .ic.y{background:#31b57d;} .ic.n{background:#d9453c;} .ic.w{background:#e0a52e;}
-  .cond .tx{font-size:14px;line-height:1.55;}
-  .cond .tx b{font-size:14.5px;}
-  .cond .tx .sm{color:#7a8ba0;font-size:12.5px;}
-  /* 滑杆 */
-  .sliderRow{display:flex;align-items:center;gap:10px;margin:8px 0 4px;}
-  .sliderRow label{font-size:14px;font-weight:bold;color:#33475e;white-space:nowrap;}
-  input[type=range]{flex:1;accent-color:#4a7dde;height:26px;}
-  .xval{font-family:"Cambria Math",serif;font-size:17px;font-weight:bold;color:#e07a1f;min-width:56px;text-align:center;}
-  /* 数轴 */
-  .numline-wrap{margin-top:6px;}
-  .nl-note{font-size:12.5px;color:#7a8ba0;margin-top:4px;display:flex;gap:18px;justify-content:center;}
-  .nl-note span b{font-size:14px;}
-  .pole-mark{color:#d9453c;font-weight:bold;} .zero-mark{color:#1e9e74;font-weight:bold;}
-  /* 基本性质 */
-  .propRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0;}
-  .fbtn{border:1.5px solid #c9d6e8;background:#f6f9fd;border-radius:8px;padding:6px 12px;font-size:14px;cursor:pointer;font-family:"Cambria Math",serif;}
-  .fbtn.on{background:#7048a8;border-color:#7048a8;color:#fff;font-weight:bold;}
-  .propEq{font-family:"Cambria Math",Georgia,serif;font-size:19px;text-align:center;padding:10px 6px;background:#f8f5fd;border-radius:10px;border:1px dashed #c9b6ea;color:#3d2a63;line-height:1.9;}
-  .propEq .hl{color:#7048a8;font-weight:bold;}
-  .propWarn{font-size:13px;color:#b52f27;margin-top:6px;font-weight:bold;}
-  /* 挑战 */
-  .quizQ{font-size:15px;margin-bottom:10px;line-height:1.6;}
-  .quizQ .f{font-family:"Cambria Math",Georgia,serif;font-size:19px;color:#1e3a5f;}
-  .quizOpts{display:flex;flex-direction:column;gap:8px;}
-  .opt{border:1.5px solid #c9d6e8;background:#f6f9fd;border-radius:9px;padding:9px 13px;font-size:14.5px;cursor:pointer;text-align:left;color:#2b3a4d;}
-  .opt:hover{border-color:#4a7dde;background:#eef4fd;}
-  .opt.right{background:#e6f7ef;border-color:#31b57d;color:#177a52;font-weight:bold;}
-  .opt.wrong{background:#fdeaea;border-color:#d9453c;color:#b52f27;}
-  .opt:disabled{cursor:default;opacity:.92;}
-  .quizFb{margin-top:10px;font-size:13.5px;line-height:1.7;padding:9px 12px;border-radius:9px;display:none;}
+  .v-bad{background:#fdeaea;color:#b52f27;border:2px solid #eda39e;animation:shake .35s;}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .sliderRow{display:flex;align-items:center;gap:10px;margin:14px 0 4px;}
+  .sliderRow label{font-size:14px;font-weight:bold;white-space:nowrap;}
+  input[type=range]{flex:1;accent-color:var(--blue);height:26px;}
+  .xval{font-family:"Cambria Math",serif;font-size:18px;font-weight:bold;color:var(--orange);min-width:70px;text-align:center;}
+  .bigbtn{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:15px;font-weight:bold;cursor:pointer;}
+  svg{display:block;width:100%;height:auto;touch-action:none;}
+  .nl-note{font-size:12.5px;color:var(--sub);margin-top:4px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+  .nl-note b.r{color:var(--red);} .nl-note b.g{color:var(--green);} .nl-note b.o{color:var(--orange);}
+  .propRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0;}
+  .fbtn{border:1.5px solid #c9d6e8;background:#f6f9fd;border-radius:8px;padding:7px 14px;font-size:15px;cursor:pointer;font-family:"Cambria Math",serif;}
+  .fbtn.on{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:bold;}
+  .propEq{font-family:"Cambria Math",Georgia,serif;font-size:21px;text-align:center;padding:14px 8px;background:#f8f5fd;border-radius:12px;border:1px dashed #c9b6ea;color:#3d2a63;line-height:1.9;}
+  .propEq .hl{color:var(--purple);font-weight:bold;}
+  .propWarn{font-size:14px;color:#b52f27;margin-top:8px;font-weight:bold;text-align:center;}
+  .quizQ{font-size:18px;text-align:center;margin-bottom:14px;line-height:1.7;}
+  .quizQ .f{font-family:"Cambria Math",Georgia,serif;font-size:22px;color:#1e3a5f;font-weight:bold;}
+  .quizOpts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .opt{border:2px solid #c9d6e8;background:#f6f9fd;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:700;cursor:pointer;min-width:150px;}
+  .opt.right{background:#e6f7ef;border-color:var(--green);color:#177a52;}
+  .opt.wrong{background:#fdeaea;border-color:var(--red);color:#b52f27;}
+  .opt:disabled{cursor:default;}
+  .quizFb{margin-top:12px;font-size:14px;line-height:1.7;padding:10px 14px;border-radius:10px;display:none;text-align:center;}
   .quizFb.good{background:#e6f7ef;color:#177a52;display:block;}
   .quizFb.badfb{background:#fdf3e0;color:#8a6d1a;display:block;}
-  .bigbtn{background:#4a7dde;color:#fff;border:none;border-radius:9px;padding:9px 18px;font-size:15px;font-weight:bold;cursor:pointer;}
-  .bigbtn:hover{background:#3a6bcd;}
-  .stepTip{font-size:13px;color:#7a8ba0;margin-top:8px;line-height:1.7;}
-  .stepTip b{color:#33475e;}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.verdict{font-size:20px;min-width:160px;}.frac .part{font-size:24px;}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>18.1 分式及其基本性质 <small>「从分数到分式」条件判断器</small></h1>
-    <div class="motto">口诀：分母为零无意义 · 分子为零分母非零才是 0</div>
+    <h1>18.1 分式 · 它有意义吗？值是 0 吗？</h1>
+    <div class="motto">先看分母，再看分子</div>
   </header>
 
-  <div class="cols">
-    <!-- 左列 -->
-    <div>
-      <div class="card" style="margin-bottom:16px;">
-        <h2><span class="dot"></span>① 选一个分式，拖动 x 的值</h2>
-        <div class="presets" id="presets"></div>
-        <div class="stage">
-          <div class="fracBox">
-            <div class="fx">当前分式</div>
-            <div class="frac" id="fracShow"></div>
-            <div class="subs" id="subsShow"></div>
-          </div>
-          <div>
-            <div class="verdict v-ok" id="verdict">有意义</div>
-            <div class="cond" id="cond1">
-              <div class="ic y">✓</div>
-              <div class="tx"><b>条件一：分母 ≠ 0 ？</b><br><span class="sm" id="c1detail"></span></div>
-            </div>
-            <div class="cond" id="cond2">
-              <div class="ic w">…</div>
-              <div class="tx"><b>条件二：分子 = 0 且 分母 ≠ 0 ？</b><br><span class="sm" id="c2detail"></span></div>
-            </div>
-          </div>
-        </div>
-        <div class="sliderRow">
-          <label>x 的值</label>
-          <input type="range" id="xslider" min="-6" max="6" step="0.5" value="1">
-          <span class="xval" id="xval">x = 1</span>
-          <button class="bigbtn" id="btnRand" style="font-size:13px;padding:7px 12px;">🎲 随机 x</button>
-        </div>
-        <div class="numline-wrap">
-          <svg id="numline" width="100%" height="86" viewBox="0 0 900 86"></svg>
-          <div class="nl-note">
-            <span><b class="pole-mark">○ 红圈 = 分母为0的"禁区"</b>（x 取这些值时分式无意义）</span>
-            <span><b class="zero-mark">● 绿点 = 使分式值为0的 x</b>（分子为0且不在禁区）</span>
-            <span style="color:#e07a1f;font-weight:bold;">▼ 橙色指针 = 当前 x（可直接在数轴上拖动）</span>
-          </div>
-        </div>
-      </div>
+  <div class="tabs">
+    <button class="tab on" data-t="judge">① 判断器</button>
+    <button class="tab" data-t="prop">② 基本性质</button>
+    <button class="tab" data-t="quiz">③ 挑战</button>
+  </div>
 
-      <div class="card">
-        <h2><span class="dot" style="background:#7048a8"></span>③ 基本性质：分子分母同乘(除)一个不为0的整式，分式值不变</h2>
-        <div class="propRow">
-          <span style="font-size:14px;color:#5b6b7d;">同乘的整式：</span>
-          <button class="fbtn" data-f="c2">×2</button>
-          <button class="fbtn" data-f="x1">×(x+1)</button>
-          <button class="fbtn" data-f="x2">×(x−2)</button>
-          <button class="fbtn" data-f="cancel" id="btnCancel" style="display:none;background:#fff8e6;border-color:#f0d98c;color:#8a6d1a;font-weight:bold;">⇣ 反向：约分！</button>
-        </div>
-        <div class="propEq" id="propEq"></div>
-        <div class="propWarn" id="propWarn"></div>
-        <div class="stepTip" id="propTip"></div>
-      </div>
-    </div>
-
-    <!-- 右列 -->
+  <!-- 判断器 -->
+  <div id="secJudge">
     <div class="card">
-      <h2><span class="dot" style="background:#e07a1f"></span>② 判断挑战：它现在处于哪种状态？</h2>
-      <div class="quizQ" id="quizQ"></div>
-      <div class="quizOpts">
-        <button class="opt" data-a="zero">值为 0</button>
-        <button class="opt" data-a="ok">有意义，且值不为 0</button>
-        <button class="opt" data-a="bad">无意义</button>
-      </div>
-      <div class="quizFb" id="quizFb"></div>
-      <button class="bigbtn" id="btnQuiz" style="margin-top:12px;width:100%;">🔄 出下一题（随机分式 + 随机 x）</button>
-      <div style="margin-top:16px;border-top:1px dashed #dde6f2;padding-top:12px;">
-        <div style="font-size:13.5px;color:#5b6b7d;line-height:1.9;">
-          <b style="color:#1e3a5f;">知识卡</b><br>
-          · 分式 A/B 中 <b>B 含字母</b>，这是它与分数的本质区别<br>
-          · 分式<b>有意义</b> ⇔ 分母 B ≠ 0（先看分母！）<br>
-          · 分式<b>值为 0</b> ⇔ 分子 A = 0 <b>且</b> 分母 B ≠ 0（两个条件缺一不可）<br>
-          · 基本<b>性质</b>：分子分母同乘(除)同一个<b>不为 0</b> 的整式，值不变——约分、通分的依据
+      <div class="presets" id="presets"></div>
+      <div class="stage">
+        <div class="fracBox">
+          <div class="frac" id="fracShow"></div>
+          <div class="subs" id="subsShow"></div>
         </div>
+        <div class="verdict v-ok" id="verdict"></div>
+      </div>
+      <div class="sliderRow">
+        <label>x 的值</label>
+        <input type="range" id="xslider" min="-6" max="6" step="0.5" value="1">
+        <span class="xval" id="xval">x = 1</span>
+        <button class="bigbtn" id="btnRand" style="font-size:13px;padding:7px 12px;">🎲 随机</button>
+      </div>
+      <svg id="numline" viewBox="0 0 900 90"></svg>
+      <div class="nl-note">
+        <span><b class="r">○ 红圈</b> = 分母为 0 的禁区</span>
+        <span><b class="g">● 绿点</b> = 值为 0 的 x</span>
+        <span><b class="o">▼ 橙指针</b> = 当前 x（可拖动）</span>
       </div>
     </div>
   </div>
+
+  <!-- 基本性质 -->
+  <div id="secProp" class="hide">
+    <div class="card">
+      <div class="presets" id="presets2"></div>
+      <div class="propRow">
+        <span style="font-size:14px;color:var(--sub);">分子分母同乘：</span>
+        <button class="fbtn" data-f="c2">×2</button>
+        <button class="fbtn" data-f="x1">×(x+1)</button>
+        <button class="fbtn" data-f="x2">×(x−2)</button>
+        <button class="fbtn" data-f="cancel" id="btnCancel" style="display:none;background:#fff8e6;border-color:#f0d98c;color:#8a6d1a;font-weight:bold;">⇣ 约分</button>
+      </div>
+      <div class="propEq" id="propEq"></div>
+      <div class="propWarn" id="propWarn"></div>
+      <div class="caption" style="text-align:center;font-size:14px;color:var(--sub);margin-top:10px;">同乘（除）同一个<b>不为 0</b> 的整式，分式的值不变 —— 约分、通分的依据</div>
+    </div>
+  </div>
+
+  <!-- 挑战 -->
+  <div id="secQuiz" class="hide">
+    <div class="card">
+      <div class="quizQ" id="quizQ"></div>
+      <div class="quizOpts">
+        <button class="opt" data-a="zero">值为 0</button>
+        <button class="opt" data-a="ok">有意义，值不为 0</button>
+        <button class="opt" data-a="bad">无意义</button>
+      </div>
+      <div class="quizFb" id="quizFb"></div>
+      <div style="text-align:center;margin-top:14px;"><button class="bigbtn" id="btnQuiz">🔄 下一题</button></div>
+    </div>
+  </div>
+
+  <footer>人教版八年级上册 · 18.1 分式及其基本性质</footer>
 </div>
 
 <script>
-// ---------- 数据：分式 = 常数 × Π(x-零点) / ( 常数 × Π(x-极点) ) ----------
+"use strict";
+const $=id=>document.getElementById(id);
 const PRESETS=[
-  {label:'1/x',            cf:1, nz:[],    cd:1, dz:[0]},
-  {label:'(x−2)/(x+3)',    cf:1, nz:[2],   cd:1, dz:[-3]},
-  {label:'x/(x²−4)',       cf:1, nz:[0],   cd:1, dz:[2,-2]},
-  {label:'(x²−1)/(x−1)',   cf:1, nz:[1,-1],cd:1, dz:[1]},
-  {label:'(x+1)/[ (x+3)(x−3) ]', cf:1, nz:[-1], cd:1, dz:[-3,3]},
-  {label:'3/(x−2)',        cf:3, nz:[],    cd:1, dz:[2]},
+  {label:'1/x',cf:1,nz:[],cd:1,dz:[0]},
+  {label:'(x−2)/(x+3)',cf:1,nz:[2],cd:1,dz:[-3]},
+  {label:'x/(x²−4)',cf:1,nz:[0],cd:1,dz:[2,-2]},
+  {label:'(x²−1)/(x−1)',cf:1,nz:[1,-1],cd:1,dz:[1]},
+  {label:'(x+1)/[(x+3)(x−3)]',cf:1,nz:[-1],cd:1,dz:[-3,3]},
+  {label:'3/(x−2)',cf:3,nz:[],cd:1,dz:[2]}
 ];
 let S={pi:0,x:1,mul:'none'};
-
-const numStr=p=>{
-  const fs=p.nz.map(r=>`x${fmtR(r)}`);
-  let base=fs.length===1?fs[0]:fs.map(r=>`(${r})`).join('');
-  if(p.cf!==1)base=(p.cf<0?'−'+Math.abs(p.cf):p.cf)+(base?'·'+base:'');
-  return base||'1';
-};
-const denStr=p=>{
-  const fs=p.dz.map(r=>`x${fmtR(r)}`);
-  const base=fs.length===1?fs[0]:fs.map(r=>`(${r})`).join('');
-  return (p.cd!==1?p.cd+'·':'')+base;
-};
-function fmtR(r){r=+r.toFixed(1);return r===0?'':(r>0?`−${r}`:`+${-r}`);}
+function fmtR(r){r=+r.toFixed(1);return r===0?'':(r>0?'−'+r:'+'+(-r));}
+const numStr=p=>{const fs=p.nz.map(r=>'x'+fmtR(r));let base=fs.length===1?fs[0]:fs.map(r=>'('+r+')').join('');if(p.cf!==1)base=(p.cf<0?'−'+Math.abs(p.cf):p.cf)+(base?'·'+base:'');return base||'1';};
+const denStr=p=>{const fs=p.dz.map(r=>'x'+fmtR(r));const base=fs.length===1?fs[0]:fs.map(r=>'('+r+')').join('');return (p.cd!==1?p.cd+'·':'')+base;};
 const numVal=(p,x)=>p.cf*p.nz.reduce((a,r)=>a*(x-r),1);
 const denVal=(p,x)=>p.cd*p.dz.reduce((a,r)=>a*(x-r),1);
 const fmtNum=v=>{v=+v.toFixed(2);return (Object.is(v,-0)?0:v).toString().replace('-','−');};
 
-// ---------- 左侧：分式展示与判定 ----------
 function renderFrac(){
-  const p=PRESETS[S.pi],x=S.x;
-  document.getElementById('fracShow').innerHTML=
-    `<div class="part">${numStr(p)}</div><div class="bar"></div><div class="part">${denStr(p)}</div>`;
-  const nv=numVal(p,x),dv=denVal(p,x);
-  const subs=document.getElementById('subsShow');
-  if(dv===0){
-    subs.innerHTML=`x = ${fmtNum(x)} 时：分母 = <span class="bad">0</span> → 分式没意义，谈不上值`;
-  }else{
-    subs.innerHTML=`x = ${fmtNum(x)} 时：= ${fmtNum(nv)} ÷ ${fmtNum(dv)} = <b>${fmtNum(nv/dv)}</b>`;
-  }
-  // 判定徽章
-  const v=document.getElementById('verdict');
-  if(dv===0){v.className='verdict v-bad';v.innerHTML=`✕ 无意义<span class="reason">分母 = 0，分式没有意义</span>`;}
-  else if(nv===0){v.className='verdict v-zero';v.innerHTML=`值为 0<span class="reason">分子 = 0 且 分母 = ${fmtNum(dv)} ≠ 0</span>`;}
-  else{v.className='verdict v-ok';v.innerHTML=`✓ 有意义<span class="reason">分母 = ${fmtNum(dv)} ≠ 0，值为 ${fmtNum(nv/dv)}</span>`;}
-  // 条件卡
-  const c1=document.getElementById('cond1'),c2=document.getElementById('cond2');
-  c1.querySelector('.ic').className='ic '+(dv!==0?'y':'n');
-  document.getElementById('c1detail').innerHTML=
-    dv!==0?`分母 = ${fmtNum(dv)} ≠ 0 → 条件满足，分式有意义`:`分母 = 0 → 条件不满足，分式无意义（禁区 x = ${p.dz.map(fmtNum).join('、')}）`;
-  if(dv===0){c2.querySelector('.ic').className='ic w';document.getElementById('c2detail').textContent='分母已为 0，此问无从谈起——先保有意义，再谈值为 0';}
-  else if(nv===0){c2.querySelector('.ic').className='ic y';document.getElementById('c2detail').textContent=`分子 = 0 且分母 ≠ 0，两个条件都满足 → 值为 0`;}
-  else{c2.querySelector('.ic').className='ic n';document.getElementById('c2detail').textContent=`分子 = ${fmtNum(nv)} ≠ 0，不满足 → 值不是 0`;}
-  document.getElementById('xval').textContent='x = '+fmtNum(x);
-  document.getElementById('xslider').value=x;
-  renderNumline(); renderProp();
+  const p=PRESETS[S.pi],x=S.x,nv=numVal(p,x),dv=denVal(p,x);
+  $('fracShow').innerHTML='<div class="part">'+numStr(p)+'</div><div class="bar"></div><div class="part">'+denStr(p)+'</div>';
+  if(dv===0)$('subsShow').innerHTML='x = '+fmtNum(x)+'：分母 = <span class="bad">0</span> → 无意义';
+  else $('subsShow').innerHTML='x = '+fmtNum(x)+'：= '+fmtNum(nv)+' ÷ '+fmtNum(dv)+' = <b>'+fmtNum(nv/dv)+'</b>';
+  const v=$('verdict');
+  if(dv===0){v.className='verdict v-bad';v.innerHTML='✕ 无意义<div class="reason">分母 = 0，触碰禁区</div>';}
+  else if(nv===0){v.className='verdict v-zero';v.innerHTML='值为 0<div class="reason">分子 = 0 且 分母 = '+fmtNum(dv)+' ≠ 0</div>';}
+  else{v.className='verdict v-ok';v.innerHTML='✓ 有意义<div class="reason">分母 = '+fmtNum(dv)+' ≠ 0，值 = '+fmtNum(nv/dv)+'</div>';}
+  $('xval').textContent='x = '+fmtNum(x);
+  $('xslider').value=x;
+  renderNumline();
 }
-
-// ---------- 数轴 ----------
 function renderNumline(){
-  const svg=document.getElementById('numline'),p=PRESETS[S.pi],x=S.x;
-  const X0=40,X1=860,Y=38,scale=(X1-X0)/12;
-  const px=v=>X0+(v+6)*scale;
-  let s='';
-  s+=`<line x1="${X0}" y1="${Y}" x2="${X1}" y2="${Y}" stroke="#8fa3ba" stroke-width="2"/>`;
-  s+=`<path d="M ${X1+4} ${Y} l -10 -5 v 10 z" fill="#8fa3ba"/>`;
-  for(let t=-6;t<=6;t++){
-    s+=`<line x1="${px(t)}" y1="${Y-6}" x2="${px(t)}" y2="${Y+6}" stroke="#8fa3ba" stroke-width="${t===0?2.4:1.4}"/>`;
-    s+=`<text x="${px(t)}" y="${Y+22}" font-size="12" fill="#7a8ba0" text-anchor="middle">${t}</text>`;
-  }
-  p.dz.forEach(r=>{
-    s+=`<circle cx="${px(r)}" cy="${Y}" r="9" fill="#fff" stroke="#d9453c" stroke-width="3"/>`;
-    s+=`<text x="${px(r)}" y="${Y-16}" font-size="12" fill="#d9453c" text-anchor="middle" font-weight="bold">分母=0</text>`;
-  });
-  const zeros=p.nz.filter(r=>!p.dz.some(d=>Math.abs(d-r)<1e-9));
-  zeros.forEach(r=>{
-    s+=`<circle cx="${px(r)}" cy="${Y}" r="7" fill="#1e9e74"/>`;
-    s+=`<text x="${px(r)}" y="${Y-16}" font-size="12" fill="#177a52" text-anchor="middle" font-weight="bold">值为0</text>`;
-  });
-  s+=`<path d="M ${px(x)} ${Y+34} l -7 -11 h 14 z" fill="#e07a1f"/>`;
-  s+=`<line x1="${px(x)}" y1="${Y-11}" x2="${px(x)}" y2="${Y+26}" stroke="#e07a1f" stroke-width="2.5" stroke-dasharray="4 3"/>`;
-  s+=`<text x="${px(x)}" y="${Y+52}" font-size="13" fill="#e07a1f" text-anchor="middle" font-weight="bold">x=${fmtNum(x)}</text>`;
+  const svg=$('numline'),p=PRESETS[S.pi],x=S.x;
+  const X0=40,X1=860,Y=40,scale=(X1-X0)/12,px=v=>X0+(v+6)*scale;
+  let s='<line x1="'+X0+'" y1="'+Y+'" x2="'+X1+'" y2="'+Y+'" stroke="#8fa3ba" stroke-width="2"/>';
+  s+='<path d="M '+(X1+4)+' '+Y+' l -10 -5 v 10 z" fill="#8fa3ba"/>';
+  for(let t=-6;t<=6;t++){s+='<line x1="'+px(t)+'" y1="'+(Y-6)+'" x2="'+px(t)+'" y2="'+(Y+6)+'" stroke="#8fa3ba" stroke-width="'+(t===0?2.4:1.4)+'"/><text x="'+px(t)+'" y="'+(Y+22)+'" font-size="12" fill="#7a8ba0" text-anchor="middle">'+t+'</text>';}
+  p.dz.forEach(r=>{s+='<circle cx="'+px(r)+'" cy="'+Y+'" r="9" fill="#fff" stroke="#d9453c" stroke-width="3"/><text x="'+px(r)+'" y="'+(Y-16)+'" font-size="12" fill="#d9453c" text-anchor="middle" font-weight="bold">分母=0</text>';});
+  p.nz.filter(r=>!p.dz.some(d=>Math.abs(d-r)<1e-9)).forEach(r=>{s+='<circle cx="'+px(r)+'" cy="'+Y+'" r="7" fill="#1e9e74"/><text x="'+px(r)+'" y="'+(Y-16)+'" font-size="12" fill="#177a52" text-anchor="middle" font-weight="bold">值为0</text>';});
+  s+='<path d="M '+px(x)+' '+(Y+34)+' l -7 -11 h 14 z" fill="#e07a1f"/>';
+  s+='<line x1="'+px(x)+'" y1="'+(Y-11)+'" x2="'+px(x)+'" y2="'+(Y+26)+'" stroke="#e07a1f" stroke-width="2.5" stroke-dasharray="4 3"/>';
+  s+='<text x="'+px(x)+'" y="'+(Y+52)+'" font-size="13" fill="#e07a1f" text-anchor="middle" font-weight="bold">x='+fmtNum(x)+'</text>';
   svg.innerHTML=s;
-  svg.onpointerdown=e=>{drag(e);svg.setPointerCapture(e.pointerId);};
-  svg.onpointermove=e=>{if(e.buttons)drag(e);};
-  function drag(e){
-    const rect=svg.getBoundingClientRect();
-    let v=(e.clientX-rect.left)*(900/rect.width)-X0;
-    v=Math.round(v/scale*2)/2; v=Math.max(-6,Math.min(6,v));
-    S.x=v; renderFrac(); renderQuizSub();
-  }
 }
+(function(){
+  const svg=$('numline');
+  const drag=e=>{const rect=svg.getBoundingClientRect();let v=(e.clientX-rect.left)*(900/rect.width)-40;v=Math.round(v/((860-40)/12)*2)/2;S.x=Math.max(-6,Math.min(6,v));renderFrac();};
+  svg.addEventListener('pointerdown',e=>{drag(e);svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',e=>{if(e.buttons)drag(e);});
+})();
 
-// ---------- 基本性质 ----------
-const MULS={c2:{s:'2',f:x=>2,extra:null},x1:{s:'(x+1)',f:x=>x+1,extra:-1},x2:{s:'(x−2)',f:x=>x-2,extra:2}};
+/* 基本性质 */
+const MULS={c2:{s:'2',extra:null},x1:{s:'(x+1)',extra:-1},x2:{s:'(x−2)',extra:2}};
 function renderProp(){
   const p=PRESETS[S.pi],m=S.mul;
-  const bc=document.getElementById('btnCancel');
   const common=p.nz.some(z=>p.dz.some(d=>Math.abs(z-d)<1e-9));
-  bc.style.display=common?'':'none';
-  const eq=document.getElementById('propEq'),warn=document.getElementById('propWarn'),tip=document.getElementById('propTip');
+  $('btnCancel').style.display=common?'':'none';
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('on',b.dataset.f===m));
-  if(common){
+  const eq=$('propEq'),warn=$('propWarn');
+  if(m==='cancel'&&common){
     const z=p.nz.find(z0=>p.dz.some(d=>Math.abs(z0-d)<1e-9));
     const rest=p.nz.filter(v=>Math.abs(v-z)>1e-9),rd=p.dz.filter(v=>Math.abs(v-z)>1e-9);
-    const restN=rest.map(r=>`(x${fmtR(r)})`).join('')||'1';
-    const restD=rd.map(r=>`(x${fmtR(r)})`).join('')||'1';
-    const rN=(z!==0?`(x${fmtR(z)})·`:'')+restN, rD=(z!==0?`(x${fmtR(z)})·`:'')+restD;
-    const simp=restD==='1'?restN:`${restN} / ${restD}`;
-    eq.innerHTML=`<span class="hl">约分</span>：${numStr(p)} / ${denStr(p)} = ${rN} / ${rD} = <b style="color:#177a52">${simp}</b>`;
-    warn.textContent=`⚠ 注意：约分后必须注明 x ≠ ${fmtNum(z)}（让原分母为 0 的值要排除）`;
-    tip.innerHTML=`这就是基本性质中"<b>除以</b>同一个不为 0 的整式"——这里的 (x${fmtR(z)}) 就不为 0（因为 x ≠ ${fmtNum(z)}），所以可以约去。`;
+    const restN=rest.map(r=>'(x'+fmtR(r)+')').join('')||'1';
+    const restD=rd.map(r=>'(x'+fmtR(r)+')').join('')||'1';
+    const simp=restD==='1'?restN:restN+' / '+restD;
+    eq.innerHTML='<span class="hl">约分</span>：'+numStr(p)+' / '+denStr(p)+' = <b style="color:#177a52">'+simp+'</b>';
+    warn.textContent='⚠ 约分后必须注明 x ≠ '+fmtNum(z)+'（原分母为 0 的值要排除）';
     return;
   }
-  if(m==='none'){
-    eq.innerHTML=`${numStr(p)} / ${denStr(p)}　<span style="color:#8a97a5;font-size:14px">← 点击上方按钮，试试分子分母同乘一个整式</span>`;
-    warn.textContent='';tip.innerHTML=`基本性质：<b>分式的分子与分母同乘（或同除以）同一个不为 0 的整式，分式的值不变</b>。类比分数：3/4 = (3×2)/(4×2) = 6/8。`;
-    return;
+  if(m==='none'||!MULS[m]){
+    eq.innerHTML=numStr(p)+' / '+denStr(p)+'　<span style="color:#8a97a5;font-size:14px">← 点上方按钮，试试同乘一个整式</span>';
+    warn.textContent='';return;
   }
   const M=MULS[m];
-  const newN=numStr(p)=== '1' ? M.s : `${numStr(p)}·${M.s}`;
-  const newD=`${denStr(p)}·${M.s}`;
-  eq.innerHTML=`${numStr(p)} / ${denStr(p)} = <span class="hl">(${numStr(p)}·${M.s}) / (${denStr(p)}·${M.s})</span> = ${newN} / ${newD}`;
-  if(M.extra!==null){
-    warn.textContent=`⚠ 同乘 ${M.s} 后，新分式还要求 ${M.s} ≠ 0，即 x ≠ ${fmtNum(M.extra)}（原分式没有这条限制）`;
-    tip.innerHTML=`值确实没变（可以拖 x 验证），但新式子的"<b>禁区</b>"多了 x = ${fmtNum(M.extra)}——所以性质里必须强调"<b>不为 0</b>"的整式。`;
-  }else{
-    warn.textContent='×2 恒不为 0，没有新增禁区，任意 x（原禁区除外）两式值都相等';
-    tip.innerHTML=`类比分数 3/4 = 6/8：同乘一个<b>非零常数</b>最安全，值不变、禁区不变。`;
-  }
+  const newN=numStr(p)==='1'?M.s:numStr(p)+'·'+M.s;
+  const newD=denStr(p)+'·'+M.s;
+  eq.innerHTML=numStr(p)+' / '+denStr(p)+' = <span class="hl">('+numStr(p)+'·'+M.s+') / ('+denStr(p)+'·'+M.s+')</span> = '+newN+' / '+newD;
+  if(M.extra!==null)warn.textContent='⚠ 同乘 '+M.s+' 后，新增限制 '+M.s+' ≠ 0，即 x ≠ '+fmtNum(M.extra)+'（原分式本无此限制）';
+  else warn.textContent='×2 恒不为 0，禁区不变，任意 x（原禁区除外）两式值都相等';
 }
 document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{S.mul=(S.mul===b.dataset.f)?'none':b.dataset.f;renderProp();});
 
-// ---------- 判断挑战 ----------
+/* 挑战 */
 let Q=null;
 function newQuiz(){
-  const pi=Math.floor(Math.random()*PRESETS.length);
-  const p=PRESETS[pi];
-  let xs=[];
-  for(let v=-6;v<=6;v+=0.5) xs.push(v);
-  // 提高戏剧性：50% 概率落在禁区或零点附近
+  const pi=Math.floor(Math.random()*PRESETS.length),p=PRESETS[pi];
   let x;
-  if(Math.random()<0.5){
-    const hot=[...p.dz,...p.nz.filter(z=>!p.dz.some(d=>Math.abs(d-z)<1e-9))];
-    x=hot[Math.floor(Math.random()*hot.length)];
-    if(Math.random()<0.4) x=x+(Math.random()<.5?-0.5:0.5); // 有时差半格，考"差一点"
-  }else{
-    x=xs[Math.floor(Math.random()*xs.length)];
-  }
+  if(Math.random()<0.5){const hot=[...p.dz,...p.nz.filter(z=>!p.dz.some(d=>Math.abs(d-z)<1e-9))];x=hot[Math.floor(Math.random()*hot.length)];if(Math.random()<0.4)x+=Math.random()<.5?-0.5:0.5;}
+  else x=Math.round((Math.random()*12-6)*2)/2;
+  x=Math.max(-6,Math.min(6,x));
   Q={pi,x,done:false};
-  renderQuizSub();
-  document.getElementById('quizFb').className='quizFb';
+  $('quizQ').innerHTML='当 <b style="color:#e07a1f">x = '+fmtNum(x)+'</b> 时，分式 <span class="f">'+numStr(p)+' / '+denStr(p)+'</span> 处于哪种状态？';
+  $('quizFb').className='quizFb';
   document.querySelectorAll('.opt').forEach(o=>{o.disabled=false;o.classList.remove('right','wrong');});
 }
-function renderQuizSub(){
-  if(!Q)return;
-  const p=PRESETS[Q.pi];
-  document.getElementById('quizQ').innerHTML=
-    `当 <b style="color:#e07a1f">x = ${fmtNum(Q.x)}</b> 时，分式 <span class="f">${numStr(p)} / ${denStr(p)}</span> 处于哪种状态？`;
-}
 document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
-  if(!Q||Q.done)return;
-  Q.done=true;
+  if(!Q||Q.done)return;Q.done=true;
   const p=PRESETS[Q.pi],x=Q.x,nv=numVal(p,x),dv=denVal(p,x);
   const truth=dv===0?'bad':(nv===0?'zero':'ok');
-  const fb=document.getElementById('quizFb');
   o.classList.add(truth===o.dataset.a?'right':'wrong');
-  document.querySelector(`.opt[data-a="${truth}"]`).classList.add('right');
+  document.querySelector('.opt[data-a="'+truth+'"]').classList.add('right');
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
-  const why=dv===0
-    ?`代入 x = ${fmtNum(x)}：分母 = 0 → 触碰"禁区"，分式无意义（此时根本谈不上值是多少）。`
-    :nv===0
-    ?`代入 x = ${fmtNum(x)}：分子 = 0，分母 = ${fmtNum(dv)} ≠ 0，两个条件同时满足 → 值为 0。`
-    :`代入 x = ${fmtNum(x)}：分母 = ${fmtNum(dv)} ≠ 0 有意义；分子 = ${fmtNum(nv)} ≠ 0，值 = ${fmtNum(nv/dv)}。`;
+  const why=dv===0?'分母 = 0 → 触碰禁区，无意义。':nv===0?'分子 = 0 且分母 = '+fmtNum(dv)+' ≠ 0 → 值为 0。':'分母 = '+fmtNum(dv)+' ≠ 0 有意义，值 = '+fmtNum(nv/dv)+'。';
+  const fb=$('quizFb');
   fb.className='quizFb '+(truth===o.dataset.a?'good':'badfb');
-  fb.innerHTML=(truth===o.dataset.a?'🎉 答对了！':'再想想～')+why+' 判断顺序：先看分母，再看分子。';
+  fb.innerHTML=(truth===o.dataset.a?'🎉 答对了！':'再想想～')+why+' 顺序：先看分母，再看分子。';
 });
-document.getElementById('btnQuiz').onclick=newQuiz;
+$('btnQuiz').onclick=newQuiz;
 
-// ---------- 初始化 ----------
-const pr=document.getElementById('presets');
-PRESETS.forEach((p,i)=>{
-  const b=document.createElement('button');b.className='preset';b.textContent=p.label;
-  b.onclick=()=>{S.pi=i;S.mul='none';document.querySelectorAll('.preset').forEach((x,j)=>x.classList.toggle('on',j===i));renderFrac();};
-  pr.appendChild(b);
-});
-pr.children[0].classList.add('on');
-document.getElementById('xslider').oninput=e=>{S.x=+e.target.value;renderFrac();renderQuizSub();};
-document.getElementById('btnRand').onclick=()=>{S.x=Math.round((Math.random()*12-6)*2)/2;renderFrac();};
+/* 页签 & 预设 */
+function syncPresetUI(){
+  ['presets','presets2'].forEach(id=>{
+    Array.from($(id).children).forEach((b,j)=>b.classList.toggle('on',j===S.pi));
+  });
+}
+function buildPresets(container,onPick){
+  const pr=$(container);pr.innerHTML='';
+  PRESETS.forEach((p,i)=>{const b=document.createElement('button');b.className='preset'+(i===S.pi?' on':'');b.textContent=p.label;
+    b.onclick=()=>{S.pi=i;S.mul='none';syncPresetUI();onPick();};
+    pr.appendChild(b);});
+}
+function setTab(t){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  $('secJudge').classList.toggle('hide',t!=='judge');
+  $('secProp').classList.toggle('hide',t!=='prop');
+  $('secQuiz').classList.toggle('hide',t!=='quiz');
+  if(t==='prop')renderProp();
+  if(t==='quiz'&&!Q)newQuiz();
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+$('xslider').oninput=e=>{S.x=+e.target.value;renderFrac();};
+$('btnRand').onclick=()=>{S.x=Math.round((Math.random()*12-6)*2)/2;renderFrac();};
+
+buildPresets('presets',renderFrac);
+buildPresets('presets2',renderProp);
 newQuiz();
 renderFrac();
+renderProp();
 </script>
 </body>
 </html>

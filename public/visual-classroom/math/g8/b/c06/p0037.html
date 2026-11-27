@@ -2,518 +2,174 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>24.4 数据的分组 · 频数分布表与直方图</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24.4 数据的分组</title>
 <style>
-  :root{
-    --blue:#2f6fe4; --blue-d:#1d4fb0; --green:#12996a; --red:#dc4646;
-    --orange:#f08c1e; --purple:#7a5cd6; --ink:#22303f; --sub:#5c6b7c;
-    --line:#d8e4f0; --panel:#ffffff;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
-  body{
-    font-family:"Microsoft YaHei","PingFang SC",sans-serif; color:var(--ink);
-    background:linear-gradient(135deg,#eef5fd 0%,#e2edf9 60%,#dfeaf6 100%);
-    display:flex; flex-direction:column; min-width:1020px; min-height:600px; overflow:auto;
-  }
-  header{flex:none; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:10px 18px 4px;}
-  header h1{font-size:clamp(17px,1.9vw,24px); color:var(--blue-d); display:flex; align-items:center; gap:10px;}
-  header h1 .badge{display:inline-block; background:var(--blue); color:#fff; border-radius:8px;
-    padding:2px 10px; font-size:.62em; letter-spacing:1px;}
-  header .memo{font-size:clamp(11px,1.05vw,13px); color:var(--sub);}
-
-  main{flex:1; min-height:0; display:grid; grid-template-columns:300px 1fr; gap:12px; padding:6px 16px 12px;}
-  .panel{background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    box-shadow:0 2px 8px rgba(47,111,228,.07);}
-
-  /* ---------- 左侧知识点导航 ---------- */
-  #nav{min-height:0; display:flex; flex-direction:column; gap:8px; overflow-y:auto; padding-right:2px;}
-  .kp{padding:10px 12px; cursor:pointer; border-left:4px solid var(--blue); transition:.2s;}
-  .kp:hover{border-left-width:8px;}
-  .kp h3{font-size:13.5px; color:var(--blue-d); margin-bottom:5px; display:flex; gap:6px; align-items:center;}
-  .kp ul{list-style:none; font-size:12px; color:var(--sub); line-height:1.65;}
-  .kp ul b{color:var(--ink);}
-  .kp .mini-eq{background:#f1f7ff; border-radius:6px; padding:4px 8px; margin-top:5px;
-    font-size:12px; color:var(--blue-d); font-weight:700; text-align:center;}
-  .kp.warn{border-left-color:var(--red);}
-  .kp.warn h3{color:var(--red);}
-  .warnbox{background:#fff3f3; border:1.5px solid var(--red); border-radius:8px;
-    padding:6px 9px; font-size:11.8px; color:#a33030; line-height:1.6; margin-top:5px;}
-  .warnbox b{color:var(--red);}
-  .kp.gold{border-left-color:var(--orange);}
-  .kp.gold h3{color:#b26a10;}
-  .kp.flash{animation:kpFlash 1s ease;}
-  @keyframes kpFlash{0%,100%{background:var(--panel);}40%{background:#fff7dd;}}
-
-  /* ---------- 右侧 ---------- */
-  #right{min-height:0; display:flex; flex-direction:column; gap:8px; min-width:0;}
-  #ctrls{flex:none; display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:8px 12px;}
-  .chip{font-size:clamp(11.5px,1.15vw,13.5px); font-weight:700; background:#f1f7ff;
-    border:1px solid var(--line); border-radius:8px; padding:4px 10px; white-space:nowrap;}
-  .chip b{color:var(--blue-d);}
-  .chip.s1{background:#fdeeee; border-color:var(--red); color:var(--red);}
-  .chip.s2{background:#fff4e8; border-color:var(--orange); color:#b26a10;}
-  .chip.hot{outline:2.5px solid var(--orange); outline-offset:1px; animation:pulse .8s ease infinite;}
-  @keyframes pulse{50%{outline-color:rgba(240,140,30,.25);}}
-  .btn{font-family:inherit; font-size:clamp(11.5px,1.1vw,13.5px); padding:7px 13px; border-radius:9px;
-    cursor:pointer; border:1.5px solid var(--line); background:#f5faff; color:var(--ink); transition:.15s; white-space:nowrap;}
-  .btn:hover{border-color:var(--blue); color:var(--blue);}
-  .btn.main{background:var(--orange); border-color:var(--orange); color:#fff; font-weight:700;}
-  .btn.main:hover{background:#d97a10; color:#fff;}
-  .btn.main.playing{background:var(--red); border-color:var(--red);}
-
-  #sliderPanel{flex:none; padding:8px 14px 10px; transition:.25s;}
-  #sliderPanel.hot{outline:2.5px solid var(--orange); outline-offset:-1px;}
-  .sl .lab{display:flex; justify-content:space-between; font-size:12.5px; color:var(--sub); margin-bottom:3px;}
-  .sl .lab .val{font-size:15px; font-weight:800; color:var(--blue-d);}
-  input[type=range]{width:100%; appearance:none; height:7px; border-radius:6px; cursor:pointer;
-    background:linear-gradient(90deg,#e3edf9 var(--p,50%), var(--orange) var(--p,50%), #e3edf9 var(--p,50%));
-    outline:none;}
-  input[type=range]::-webkit-slider-thumb{appearance:none; width:20px; height:20px; border-radius:50%;
-    background:#fff; border:3px solid var(--orange); box-shadow:0 2px 5px rgba(0,0,0,.18); cursor:grab;}
-  #dCalc{margin-top:6px; font-size:12.5px; color:var(--sub);}
-  #dCalc b{color:var(--orange);}
-
-  #steps{flex:none; display:flex; gap:6px; flex-wrap:wrap; padding:6px 12px; align-items:center;}
-  #steps .st{font-size:12px; font-weight:700; padding:4px 10px; border-radius:14px; cursor:pointer;
-    background:#f1f7ff; border:1.5px solid var(--line); color:var(--sub); transition:.2s;}
-  #steps .st.done{background:#e9f9f1; border-color:var(--green); color:var(--green);}
-  #steps .st.act{color:#fff; border-color:transparent;}
-  #steps .st.act[data-c="1"]{background:var(--red);}
-  #steps .st.act[data-c="2"]{background:var(--orange);}
-  #steps .st.act[data-c="3"]{background:var(--green);}
-  #steps .st.act[data-c="4"]{background:var(--blue);}
-  #steps .st.act[data-c="5"]{background:var(--purple);}
-
-  #canvasPanel{flex:1; min-height:250px; padding:4px; transition:.25s;}
-  #canvasPanel.hot{outline:2.5px solid var(--blue); outline-offset:-1px;}
-  svg#cv{width:100%; height:100%; min-height:240px; display:block;}
-
-  #tablePanel{flex:none; max-height:215px; overflow:auto; padding:8px 12px; transition:.25s;}
-  #tablePanel.hot{outline:2.5px solid var(--green); outline-offset:-1px;}
-  #tablePanel h3{font-size:13px; color:var(--green); margin-bottom:4px;}
-  table{border-collapse:collapse; width:100%; font-size:12px;}
-  th,td{border:1px solid var(--line); padding:3px 8px; text-align:center; white-space:nowrap;}
-  th{background:#e9f9f1; color:#0b7d55; font-size:11.8px;}
-  tr.hi td{background:#fff7dd; font-weight:700; transition:background .2s;}
-  td.tally{letter-spacing:2px; font-family:"Microsoft YaHei";}
-  tr.sum td{background:#f1f7ff; font-weight:800; color:var(--blue-d);}
-
-  #concl{flex:none; display:none; padding:10px 14px; border:2px solid var(--purple);
-    background:linear-gradient(90deg,#f4efff,#fdf3ff); color:#4a3591; font-size:13.5px; font-weight:700; line-height:1.7;}
-  #concl.show{display:block; animation:conclIn .5s ease;}
-  #concl .big{font-size:14.5px; color:var(--purple);}
-  #concl b{color:#8a2be2;}
-  @keyframes conclIn{from{opacity:0; transform:translateY(6px);}to{opacity:1; transform:none;}}
-
-  footer{flex:none; text-align:center; font-size:clamp(11px,1.05vw,13px); font-weight:700;
-    color:var(--blue-d); background:#e7f0fb; border-top:1px solid var(--line); padding:7px 10px;}
-  footer span{margin:0 10px; white-space:nowrap;}
+  :root{--blue:#2563eb;--blueL:#dbeafe;--green:#16a34a;--greenL:#dcfce7;--orange:#f59e0b;--purple:#7c3aed;--purpleL:#ede9fe;--red:#ef4444;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f4f7fb;color:var(--ink);padding:14px 12px 30px;}
+  .wrap{max-width:940px;margin:0 auto;}
+  header{text-align:center;margin-bottom:10px;}
+  header h1{font-size:21px;}
+  header p{color:var(--sub);font-size:13px;margin-top:2px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.05);margin-bottom:12px;}
+  svg{display:block;width:100%;height:auto;}
+  .caption{text-align:center;font-size:16px;font-weight:700;min-height:26px;margin:6px 0;}
+  .caption .em{color:var(--purple);}
+  .sliderRow{display:flex;align-items:center;gap:10px;justify-content:center;margin:8px 0;font-size:15px;font-weight:700;}
+  .sliderRow input{width:220px;accent-color:var(--purple);}
+  .sliderRow b{color:var(--purple);min-width:30px;text-align:center;font-size:17px;}
+  .dots{display:flex;gap:7px;justify-content:center;margin:8px 0 2px;}
+  .dots i{width:11px;height:11px;border-radius:50%;background:#cbd5e1;transition:.3s;cursor:pointer;}
+  .dots i.on{background:var(--purple);transform:scale(1.2);}
+  .ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .ctrl button{padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  .ctrl button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ctrl button.play{background:var(--green);border-color:var(--green);color:#fff;}
+  .ctrl button.play.on{background:var(--orange);border-color:var(--orange);}
+  .ctrl button:disabled{opacity:.4;cursor:default;}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #eef2f7;text-align:center;}
+  th{color:var(--sub);font-size:13px;}
+  td.hl{background:var(--purpleL);font-weight:800;color:var(--purple);}
+  .concl{text-align:center;font-size:15px;font-weight:700;background:var(--purpleL);color:var(--purple);border-radius:12px;padding:12px;margin-top:10px;}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.caption{font-size:14px;}}
 </style>
 </head>
 <body>
-<header>
-  <h1><span class="badge">24.4</span>数据的分组
-    <small style="font-size:.55em;color:var(--sub);font-weight:400;">频数分布表 · 频数分布直方图 · 用样本估计总体</small></h1>
-  <div class="memo">拖动组距滑块实时重新分组 ▶ 播放演示看完整五步</div>
-</header>
+<div class="wrap">
+  <header>
+    <h1>24.4 数据的分组</h1>
+    <p>50 名学生身高（cm）· 口诀：算极差 → 定组距组数 → 数频数 → 画直方图</p>
+  </header>
 
-<main>
-  <!-- ============ 左：知识点导航 ============ -->
-  <div id="nav">
-    <div class="panel kp" id="kp1">
-      <h3>📋 频数分布表</h3>
-      <ul>
-        <li><b>组距</b>：每个小组两个端点的距离</li>
-        <li><b>组数</b>：分组的个数</li>
-        <li><b>频数</b>：落在各组内的数据个数</li>
-        <li><b>频率</b>：频数 ÷ 数据总数</li>
-      </ul>
-      <div class="mini-eq">组距 × 组数 ≥ 极差</div>
-    </div>
-    <div class="panel kp" id="kp2">
-      <h3>📊 频数分布直方图</h3>
-      <ul>
-        <li>横轴表示<b>数据（分组）</b>，纵轴表示<b>频数</b></li>
-        <li>矩形<b>连续排列，无空隙</b></li>
-        <li>矩形面积 = 频数，直观看出<b>分布规律</b></li>
-      </ul>
-    </div>
-    <div class="panel kp" id="kp3">
-      <h3>🔍 用样本估计总体</h3>
-      <ul>
-        <li>样本的频率分布 ≈ 总体的分布规律</li>
-        <li>样本容量越<b>大</b>，估计越<b>精确</b></li>
-        <li>总体中某范围数量 ≈ 频率 × 总体个数</li>
-      </ul>
-    </div>
-    <div class="panel kp warn" id="kp4">
-      <h3>🚨 易错警示</h3>
-      <div class="warnbox"><b>① 直方图 ≠ 条形图！</b>直方图矩形<b>连续无空隙</b>（数据连续分组）；条形图有空隙（离散类别）。纵轴是<b>频数</b>（或频率/组距），别混淆。</div>
-      <div class="warnbox"><b>② 组距不等时</b>，纵轴必须用<b>频率/组距</b>（矩形面积才是频率），不能直接用频数！</div>
-    </div>
-    <div class="panel kp gold" id="kp5">
-      <h3>🗝️ 分组四步口诀</h3>
-      <ul style="font-size:12.5px; color:#8a6a2a; line-height:1.8;">
-        <li><b>一算</b>：求极差（最大 − 最小）</li>
-        <li><b>二定</b>：定组距，极差÷组距 → 组数（进一）</li>
-        <li><b>三数</b>：分组划记，数出频数、算频率</li>
-        <li><b>四画</b>：绘直方图，连续矩形看分布</li>
-      </ul>
+  <div class="card">
+    <div class="sliderRow"><span>组距 d</span><input type="range" id="dSlider" min="0.5" max="6" step="0.5" value="3"><b id="dVal">3</b><span id="grpInfo" style="color:var(--sub);font-size:13px;"></span></div>
+    <svg id="svg" viewBox="0 0 900 340"></svg>
+    <div class="caption" id="cap"></div>
+    <div class="dots" id="dots"></div>
+    <div class="ctrl">
+      <button id="prev">◀ 上一步</button>
+      <button id="next" class="primary">下一步 ▶</button>
+      <button id="play" class="play">▶ 自动播放</button>
+      <button id="reset">↺ 重置</button>
     </div>
   </div>
 
-  <!-- ============ 右：可视化 ============ -->
-  <div id="right">
-    <div class="panel" id="ctrls">
-      <button class="btn main" id="btnPlay">▶ 播放演示</button>
-      <button class="btn" id="btnReset">↺ 复位</button>
-      <span class="chip s1" id="chipRange">极差 = 23</span>
-      <span class="chip">样本容量 n = <b>50</b></span>
-      <span class="chip s2" id="chipGroup">组距×组数 = <b>24 ≥ 23 ✓</b></span>
-      <span class="chip" id="chipHint" style="background:#e9f9f1;border-color:var(--green);color:var(--green);"></span>
-    </div>
-
-    <div class="panel" id="sliderPanel">
-      <div class="sl">
-        <div class="lab"><span>组距 d（0.5 ~ 6 cm，步长 0.5）</span><span class="val" id="vD">3 cm</span></div>
-        <input type="range" id="sD" min="0.5" max="6" step="0.5" value="3">
-      </div>
-      <div id="dCalc">极差 23 ÷ 组距 <b>3</b> ≈ 7.67 → 组数取 <b>8</b>（进一法，组距×组数 = 24 ≥ 23）</div>
-    </div>
-
-    <div class="panel" id="steps">
-      <span style="font-size:12px;color:var(--sub);font-weight:700;">播放进度：</span>
-      <span class="st" data-i="1" data-c="1">① 算极差</span>
-      <span class="st" data-i="2" data-c="2">② 定组距组数</span>
-      <span class="st" data-i="3" data-c="3">③ 划记数频数</span>
-      <span class="st" data-i="4" data-c="4">④ 绘直方图</span>
-      <span class="st" data-i="5" data-c="5">⑤ 样本→总体</span>
-    </div>
-
-    <div class="panel" id="canvasPanel">
-      <svg id="cv" preserveAspectRatio="xMidYMid meet"></svg>
-    </div>
-
-    <div class="panel" id="tablePanel">
-      <h3>频数分布表（50 名学生身高样本，单位：cm）</h3>
-      <table id="ftab"></table>
-    </div>
-
-    <div id="concl" class="panel"></div>
+  <div class="card" id="tableCard">
+    <table id="freqTable"></table>
+    <div class="concl hide" id="concl"></div>
   </div>
-</main>
 
-<footer>
-  <span>一算极差</span><span>二定组距组数</span><span>三数频数频率</span><span>四绘连续直方图</span><span>样本频率估总体</span>
-</footer>
+  <footer>人教版八年级下册 · 24.4 数据的分组 · 直方图矩形连续无空隙，纵轴为频数</footer>
+</div>
 
 <script>
 "use strict";
 const $=id=>document.getElementById(id);
-const NS="http://www.w3.org/2000/svg";
-
-/* ============ 样本数据：50 名学生身高（cm） ============ */
-const DATA=[155.5,157.0,158.5,159.0,160.0,160.5,161.0,161.5,162.0,162.5,
-            163.0,163.0,163.5,164.0,164.5,165.0,165.0,165.5,166.0,166.0,
-            166.5,167.0,167.0,167.5,168.0,168.0,168.5,169.0,169.0,169.5,
-            170.0,170.0,170.5,171.0,171.5,172.0,172.0,172.5,173.0,173.5,
-            174.0,174.5,175.0,175.5,176.0,176.5,177.0,177.5,178.0,178.5];
-const N=DATA.length, MIN=Math.min(...DATA), MAX=Math.max(...DATA);
-const RANGE=MAX-MIN;                       // 极差 23
-
-/* ============ 状态 ============ */
-let d=3, curStep=0, playing=false, stopFlag=false;
-let barAnim=[], curveT=0, tableHi=-1, popMode=false, showMM=false, showDiv=false;
-
-/* ============ 分组计算 ============ */
+const NS='http://www.w3.org/2000/svg';
+const svg=$('svg');
+const DATA=[155.5,157.0,158.5,159.0,160.0,160.5,161.0,161.5,162.0,162.5,163.0,163.0,163.5,164.0,164.5,165.0,165.0,165.5,166.0,166.0,166.5,167.0,167.0,167.5,168.0,168.0,168.5,169.0,169.0,169.5,170.0,170.0,170.5,171.0,171.5,172.0,172.0,172.5,173.0,173.5,174.0,174.5,175.0,175.5,176.0,176.5,177.0,177.5,178.0,178.5];
+const MIN=Math.min(...DATA),MAX=Math.max(...DATA),START=Math.floor(MIN),RANGE=MAX-MIN;
+let d=3;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+function T(x,y,s,fill,size,op,w){const t=el('text',{x,y,'text-anchor':'middle','font-size':size||13,fill:fill||'#334155','font-weight':w||'bold','paint-order':'stroke',stroke:'#fff','stroke-width':4,opacity:op===undefined?1:op});t.textContent=s;return t;}
 function groups(){
-  const start=Math.floor(MIN);                    // 155
-  const numG=Math.ceil((MAX-start)/d);            // 进一法
-  const freq=new Array(numG).fill(0);
-  DATA.forEach(x=>{
-    let i=Math.floor((x-start)/d);
-    if(i>=numG) i=numG-1;                         // 最大值落入最后一组（闭区间）
-    freq[i]++;
+  const k=Math.ceil((MAX-START)/d),gs=[];
+  for(let i=0;i<k;i++){const lo=START+i*d,hi=lo+d;gs.push({lo,hi,count:0});}
+  DATA.forEach(v=>{let idx=Math.floor((v-START)/d);if(idx>=k)idx=k-1;gs[idx].count++;});
+  return gs;
+}
+const CAP=[
+  '① 算极差：最大 '+MAX+' − 最小 '+MIN+' = <span class="em">'+RANGE+'</span>',
+  '② 定组距组数：从 '+START+' 起，组距 d='+d+'，组数 = ⌈(最大−起点)÷d⌉ 进一法',
+  '③ 数频数：每个数据落进哪一组，划记计数（频率 = 频数÷50）',
+  '④ 画直方图：矩形连续无空隙，高 = 频数',
+  '⑤ 用样本估计总体：频数最高组的占比，估计全年级'
+];
+let target=0,cur=0,raf=null,playTimer=null;
+function ensureAnim(){if(raf==null)raf=requestAnimationFrame(tick);}
+function tick(){cur+=(target-cur)*0.16;if(Math.abs(target-cur)<0.002)cur=target;render(cur);if(cur!==target)raf=requestAnimationFrame(tick);else raf=null;}
+function setTarget(n){target=clamp(n,0,4);ensureAnim();updateUI();}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}$('play').textContent='▶ 自动播放';$('play').classList.remove('on');}
+function startPlay(){if(target>=4)setTarget(0);$('play').textContent='⏸ 暂停';$('play').classList.add('on');playTimer=setInterval(()=>{if(target<4)setTarget(target+1);else stopPlay();},2000);}
+
+function render(t){
+  svg.innerHTML='';
+  const gs=groups(),k=gs.length;
+  const rangeOp=clamp(t,0,1),boundOp=clamp(t-1,0,1),freqOp=clamp(t-2,0,1),histOp=clamp(t-3,0,1),estOp=clamp(t-4,0,1);
+  const x0=70,x1=850,y0=280;
+  const vmin=START,vmax=START+k*d;
+  const px=v=>x0+(v-vmin)/(vmax-vmin)*(x1-x0);
+  const maxC=Math.max(...gs.map(g=>g.count));
+  const py=c=>y0-c/maxC*200;
+  el('line',{x1:x0,y1:y0,x2:x1,y2:y0,stroke:'#cbd5e1','stroke-width':2});
+  // 数据点（底部抖动）
+  DATA.forEach((v,i)=>{el('circle',{cx:px(v),cy:y0+18+(i%3)*5,r:3,fill:'#93c5fd',opacity:0.7});});
+  // 极差标注
+  if(rangeOp>0){
+    el('line',{x1:px(MIN),y1:40,x2:px(MIN),y2:y0,stroke:'#ef4444','stroke-width':1.5,'stroke-dasharray':'5 4',opacity:rangeOp});
+    el('line',{x1:px(MAX),y1:40,x2:px(MAX),y2:y0,stroke:'#ef4444','stroke-width':1.5,'stroke-dasharray':'5 4',opacity:rangeOp});
+    T(px(MIN),32,'最小'+MIN,'#ef4444',12,rangeOp);
+    T(px(MAX),32,'最大'+MAX,'#ef4444',12,rangeOp);
+    el('line',{x1:px(MIN),y1:52,x2:px(MAX),y2:52,stroke:'#ef4444','stroke-width':2,opacity:rangeOp});
+    T((px(MIN)+px(MAX))/2,70,'极差 = '+RANGE,'#ef4444',14,rangeOp);
+  }
+  // 组界 + 直方图
+  gs.forEach((g,i)=>{
+    if(boundOp>0)el('line',{x1:px(g.lo),y1:90,x2:px(g.lo),y2:y0,stroke:'#c4b5fd','stroke-width':1.5,'stroke-dasharray':'4 3',opacity:boundOp});
+    if(histOp>0){
+      const h=(y0-py(g.count))*histOp;
+      const isMax=g.count===maxC;
+      el('rect',{x:px(g.lo)+1,y:y0-h,width:px(g.hi)-px(g.lo)-2,height:h,fill:estOp>0&&isMax?'#c4b5fd':'#93c5fd',stroke:'#2563eb','stroke-width':1.5,opacity:histOp});
+      if(freqOp>0.3)T((px(g.lo)+px(g.hi))/2,y0-h-8,String(g.count),'#1d4ed8',13,freqOp);
+    }
+    if(boundOp>0.3)T((px(g.lo)+px(g.hi))/2,y0+44,g.lo+'~'+g.hi,'#64748b',10,boundOp);
   });
-  return {start,numG,freq,b:i=>start+i*d};
+  if(boundOp>0)el('line',{x1:px(vmax),y1:90,x2:px(vmax),y2:y0,stroke:'#c4b5fd','stroke-width':1.5,'stroke-dasharray':'4 3',opacity:boundOp});
+  if(estOp>0){
+    const mg=gs.find(g=>g.count===maxC);
+    T((px(mg.lo)+px(mg.hi))/2,py(maxC)-30,'最高组 '+mg.lo+'~'+mg.hi,'#7c3aed',13,estOp);
+  }
 }
-
-/* ============ SVG 工具 ============ */
-const svg=$("cv");
-function el(tag,at,parent){
-  const e=document.createElementNS(NS,tag);
-  for(const k in at) e.setAttribute(k,at[k]);
-  (parent||svg).appendChild(e); return e;
-}
-function fmt(v){ return (v%1===0? v.toFixed(0) : v.toFixed(1)); }
-
-/* ============ 绘制直方图 ============ */
-function draw(){
-  while(svg.firstChild) svg.removeChild(svg.firstChild);
-  const G=groups(), {start,numG,freq}=G;
-  const span=numG*d;
-  const W=960,H=420,padL=64,padR=30,padT=46,padB=64;
-  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const sx=(W-padL-padR)/span, sy=(H-padT-padB)/Math.max(1,Math.max(...freq));
-  const X=x=>padL+(x-start)*sx, Y=f=>H-padB-f*sy;
-
-  /* 极差标记（步骤①）：最小/最大值竖虚线 */
-  if(showMM){
-    [[MIN,"最小值 "+fmt(MIN),"#dc4646"],[MAX,"最大值 "+fmt(MAX),"#dc4646"]].forEach(([x,t,c])=>{
-      el("line",{x1:X(x),y1:padT,x2:X(x),y2:H-padB,stroke:c,"stroke-width":2,
-        "stroke-dasharray":"6 5",opacity:.85});
-      el("text",{x:X(x),y:padT-14,"text-anchor":"middle",fill:c,
-        "font-size":15,"font-weight":700}).textContent=t;
+function updateUI(){
+  const gs=groups(),k=gs.length;
+  $('cap').innerHTML=CAP[target].replace('d='+d,'d='+d);
+  $('grpInfo').textContent='共 '+k+' 组'+(k>15?'（偏多）':k<4?'（偏少）':'');
+  $('dots').innerHTML=CAP.map((_,i)=>'<i class="'+(i<=target?'on':'')+'" data-i="'+i+'"></i>').join('');
+  document.querySelectorAll('.dots i').forEach(dd=>dd.onclick=()=>{stopPlay();setTarget(+dd.dataset.i);});
+  $('prev').disabled=target===0;$('next').disabled=target===4;
+  // 频数表
+  if(target>=2){
+    let html='<tr><th>分组</th><th>划记</th><th>频数</th><th>频率</th></tr>';
+    gs.forEach((g,i)=>{
+      const tally='正'.repeat(Math.floor(g.count/5))+(g.count%5?'·'.repeat(g.count%5):'');
+      html+='<tr><td>'+g.lo+'~'+g.hi+'</td><td>'+(tally||'—')+'</td><td class="'+(target>=2?'hl':'')+'">'+g.count+'</td><td>'+(g.count/50).toFixed(2)+'</td></tr>';
     });
-    /* 极差双向箭头 */
-    const y0=padT+6;
-    el("path",{d:`M${X(MIN)},${y0} L${X(MAX)},${y0}`,stroke:"#dc4646","stroke-width":2.4,fill:"none"});
-    el("path",{d:`M${X(MIN)},${y0} l9,-4.5 l0,9 Z`,fill:"#dc4646"});
-    el("path",{d:`M${X(MAX)},${y0} l-9,-4.5 l0,9 Z`,fill:"#dc4646"});
-    el("text",{x:(X(MIN)+X(MAX))/2,y:y0-8,"text-anchor":"middle",fill:"#dc4646",
-      "font-size":16,"font-weight":800}).textContent=`极差 = ${fmt(MAX)} − ${fmt(MIN)} = ${fmt(RANGE)}`;
-  }
-
-  /* 分组界线（步骤②） */
-  if(showDiv && curStep===2){
-    for(let i=0;i<=numG;i++){
-      const x=start+i*d;
-      el("line",{x1:X(x),y1:padT+18,x2:X(x),y2:H-padB,stroke:"#f08c1e",
-        "stroke-width":1.4,"stroke-dasharray":"4 4",opacity:.6});
-    }
-  }
-
-  /* 直方图矩形：连续无空隙 */
-  const barCol = popMode? "#9a83e0" : "#2f6fe4";
-  freq.forEach((f,i)=>{
-    const g=barAnim[i]===undefined?1:barAnim[i];
-    const h=f*sy*g, x=X(start+i*d), w=d*sx, y=Y(f)-f*sy*(1-g);
-    el("rect",{x:x+0.6,y:y,width:Math.max(1,w-1.2),height:Math.max(0.5,h),
-      fill:barCol,opacity:popMode?0.45:0.82,rx:0});
-    if(f>0 && g>0.55)
-      el("text",{x:x+w/2,y:y-6,"text-anchor":"middle",fill:"#1d4fb0",
-        "font-size":14,"font-weight":700}).textContent=f;
-    /* 组距标注（当前组距>每组宽才标） */
-    if(i===Math.floor(numG/2) && w>52)
-      el("text",{x:x+w/2,y:H-padB+40,"text-anchor":"middle",fill:"#b26a10",
-        "font-size":12.5,"font-weight":700}).textContent=`组距 d = ${fmt(d)}`;
-  });
-
-  /* 步骤⑤：总体分布趋势曲线（正态近似） */
-  if(popMode && curveT>0){
-    const mean=DATA.reduce((a,b)=>a+b,0)/N;
-    const sd=Math.sqrt(DATA.reduce((a,b)=>a+(b-mean)**2,0)/N);
-    const peak=Math.max(...freq)/ (sd*Math.sqrt(2*Math.PI)) / 1;   // 缩放系数
-    const pts=[];
-    const x1=start, x2=start+span, steps=60;
-    const lim=Math.ceil(steps*curveT);
-    for(let i=0;i<=lim;i++){
-      const x=x1+(x2-x1)*i/steps;
-      const f=Math.max(...freq)*Math.exp(-((x-mean)**2)/(2*sd*sd));
-      pts.push([X(x),Y(f)]);
-    }
-    if(pts.length>1)
-      el("path",{d:"M"+pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" L"),
-        stroke:"#dc4646","stroke-width":3,fill:"none","stroke-linecap":"round",opacity:.9});
-    if(curveT>0.98)
-      el("text",{x:W/2,y:padT-12,"text-anchor":"middle",fill:"#8a2be2",
-        "font-size":15,"font-weight":800}).textContent="总体分布趋势（由样本频率分布估计）";
-  }
-
-  /* 坐标轴 */
-  el("line",{x1:padL-8,y1:H-padB,x2:W-padR+14,y2:H-padB,stroke:"#8fa6bd","stroke-width":2});
-  el("path",{d:`M${W-padR+14},${H-padB} l-11,-4.5 l0,9 Z`,fill:"#8fa6bd"});
-  el("line",{x1:padL,y1:H-padB+8,x2:padL,y2:padT-8,stroke:"#8fa6bd","stroke-width":2});
-  el("path",{d:`M${padL},${padT-8} l-4.5,11 l9,0 Z`,fill:"#8fa6bd"});
-  el("text",{x:W-padR,y:H-padB+46,"text-anchor":"end",fill:"#5c6b7c","font-size":14,"font-weight":700})
-    .textContent="身高/cm（横轴：数据分组，连续） →";
-  el("text",{x:padL+6,y:padT+4,"text-anchor":"start",fill:"#5c6b7c","font-size":14,"font-weight":700})
-    .textContent="↑ 纵轴：频数（名）"+(popMode?"　※ 组距相等时可直接用频数":"（组距相等）");
-
-  /* 刻度 */
-  const tickEvery=span>15?2:1;
-  for(let i=0;i<=numG;i++){
-    const x=start+i*d;
-    el("line",{x1:X(x),y1:H-padB,x2:X(x),y2:H-padB+6,stroke:"#8fa6bd","stroke-width":1.5});
-    if(i%tickEvery===0)
-      el("text",{x:X(x),y:H-padB+22,"text-anchor":"middle",fill:"#5c6b7c","font-size":12}).textContent=fmt(x);
-  }
+    html+='<tr><td><b>合计</b></td><td></td><td><b>50</b></td><td><b>1.00</b></td></tr>';
+    $('freqTable').innerHTML=html;
+  }else $('freqTable').innerHTML='';
+  if(target>=4){
+    const mg=gs.find(g=>g.count===Math.max(...gs.map(g=>g.count)));
+    const r=mg.count/50,est=Math.round(r*1000);
+    $('concl').classList.remove('hide');
+    $('concl').innerHTML='样本中 '+mg.lo+'~'+mg.hi+' cm 占 '+mg.count+'/50 = '+(r*100).toFixed(0)+'%，估计全年级 1000 人中约有 <b>'+est+'</b> 人身高在此范围。';
+  }else $('concl').classList.add('hide');
 }
-
-/* ============ 频数分布表 ============ */
-function tallyStr(f){
-  if(f===0) return "—";
-  return "正".repeat(Math.floor(f/5)) + "✓".repeat(f%5);   // 每 5 个记"正"，余数用 ✓
-}
-function buildTable(){
-  const G=groups(), {start,numG,freq}=G;
-  let html=`<tr><th>分组</th><th>划记</th><th>频数</th><th>频率（频数÷50）</th></tr>`;
-  freq.forEach((f,i)=>{
-    const lo=start+i*d, hi=lo+d;
-    const cls=(i===tableHi?" class='hi'":"");
-    html+=`<tr${cls}><td>${fmt(lo)} ~ ${fmt(hi)}${i===numG-1?"（含最大值）":""}</td>
-      <td class="tally">${tallyStr(f)}</td><td>${f}</td><td>${(f/N).toFixed(2)}</td></tr>`;
-  });
-  html+=`<tr class="sum"><td>合计</td><td>n = 50</td><td>50</td><td>1.00</td></tr>`;
-  $("ftab").innerHTML=html;
-}
-
-/* ============ 面板文字 ============ */
-function updatePanels(){
-  const G=groups(), numG=G.numG;
-  $("vD").textContent=fmt(d)+" cm";
-  $("sD").value=d;
-  $("sD").style.setProperty("--p",((d-0.5)/5.5*100)+"%");
-  $("chipRange").innerHTML=`极差 = ${fmt(MAX)} − ${fmt(MIN)} = <b>${fmt(RANGE)}</b>`;
-  $("chipGroup").innerHTML=`组距×组数 = ${fmt(d)}×${numG} = <b>${fmt(d*numG)} ≥ ${fmt(RANGE)} ✓</b>`;
-  $("dCalc").innerHTML=`极差 ${fmt(RANGE)} ÷ 组距 <b>${fmt(d)}</b> ≈ ${(RANGE/d).toFixed(2)} → 组数取 <b>${numG}</b>（进一法）`;
-  const hint=$("chipHint");
-  if(numG>15){ hint.style.display=""; hint.textContent=`⚠️ 组数 ${numG} 过多：组距太小，规律被切碎`; }
-  else if(numG<4){ hint.style.display=""; hint.textContent=`⚠️ 组数 ${numG} 过少：组距太大，丢失分布信息`; }
-  else { hint.style.display=""; hint.textContent=`✔ 组数 ${numG} 合适：分布规律清晰`; }
-  /* 步骤 chips */
-  document.querySelectorAll("#steps .st").forEach(e=>{
-    const i=+e.dataset.i;
-    e.classList.toggle("act",i===curStep);
-    e.classList.toggle("done",i<curStep);
-  });
-}
-
-/* ============ 播放控制 ============ */
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-function tween(dur,fn){
-  return new Promise(res=>{
-    const t0=performance.now();
-    (function f(t){
-      if(stopFlag){ fn(1); res(); return; }
-      const p=Math.min(1,(t-t0)/dur);
-      fn(p);
-      if(p<1) requestAnimationFrame(f); else res();
-    })(t0);
-  });
-}
-function setStep(n,opts={}){
-  curStep=n;
-  showMM = n===1;
-  showDiv = n>=2;
-  popMode = n===5;
-  if(n===5 && !opts.animCurve) curveT=1;        // 直接跳转⑤时曲线直接呈现
-  if(n<4 && !opts.keepAnim) barAnim=barAnim.map(()=>1);
-  if(n===5 && !opts.keepAnim) barAnim=barAnim.map(()=>1);
-  draw(); updatePanels();
-  $("tablePanel").classList.toggle("hot",n===3);
-  $("sliderPanel").classList.toggle("hot",n===2);
-  $("canvasPanel").classList.toggle("hot",n===4||n===5);
-  tableHi=-1;
-  if(n===3) buildTable();
-}
-function flashNav(id){
-  const e=$(id); e.classList.remove("flash"); void e.offsetWidth; e.classList.add("flash");
-}
-function showConcl(){
-  const G=groups(), {freq,numG}=G;
-  let mi=0; freq.forEach((f,i)=>{ if(f>freq[mi]) mi=i; });
-  const lo=G.start+mi*d, hi=lo+d, r=freq[mi]/N;
-  $("concl").innerHTML=
-    `<div class="big">📌 分组结论：样本频率分布 ≈ 总体分布规律</div>
-     样本中身高在 <b>${fmt(lo)} ~ ${fmt(hi)} cm</b> 的频率最高，为 <b>${(r*100).toFixed(0)}%</b>（${freq[mi]} 人）；
-     若全校八年级共有 <b>1000</b> 人，估计该范围约有 <b>${Math.round(r*1000)}</b> 人。
-     所有组频率之和 = <b>1.00</b>。`;
-  $("concl").classList.add("show");
-}
-function hideConcl(){ $("concl").classList.remove("show"); }
-
-async function play(){
-  if(playing){ stopFlag=true; return; }
-  playing=true; stopFlag=false;
-  $("btnPlay").textContent="■ 停止演示"; $("btnPlay").classList.add("playing");
-  hideConcl();
-  barAnim=new Array(groups().numG).fill(0);
-  curveT=0; tableHi=-1;
-
-  try{
-    /* ① 算极差 */
-    setStep(1); flashNav("kp5");
-    await sleep(200); if(stopFlag) return;
-    await tween(700,p=>{ /* 极差箭头出现即可 */ });
-    await sleep(900); if(stopFlag) return;
-
-    /* ② 定组距与组数 */
-    setStep(2); flashNav("kp1");
-    await sleep(1400); if(stopFlag) return;
-
-    /* ③ 划记与频数统计 */
-    setStep(3); flashNav("kp1");
-    const G=groups();
-    for(let i=0;i<G.numG;i++){
-      if(stopFlag) return;
-      tableHi=i; buildTable();
-      await sleep(300);
-    }
-    tableHi=-1; buildTable();
-    await sleep(500); if(stopFlag) return;
-
-    /* ④ 直方图矩形逐条生长 */
-    setStep(4,{noPop:true}); flashNav("kp2");
-    barAnim=new Array(G.numG).fill(0);
-    for(let i=0;i<G.numG;i++){
-      if(stopFlag) return;
-      await tween(240,p=>{ barAnim[i]=p; draw(); });
-    }
-    await sleep(600); if(stopFlag) return;
-
-    /* ⑤ 样本→总体 */
-    curStep=5; popMode=true; updatePanels(); flashNav("kp3");
-    await tween(1300,p=>{ curveT=p; draw(); });
-    showConcl();
-    await sleep(300);
-  } finally {
-    playing=false; stopFlag=false;
-    $("btnPlay").textContent="▶ 播放演示"; $("btnPlay").classList.remove("playing");
-  }
-}
-
-/* ============ 交互 ============ */
-$("sD").oninput=e=>{
-  d=+e.target.value;
-  if(playing) stopFlag=true;
-  barAnim=barAnim.map(()=>1); curveT=0;
-  tableHi=-1; buildTable(); draw(); updatePanels();
-  if(curStep>0) setStep(curStep,{keepAnim:true});
-};
-$("btnPlay").onclick=play;
-$("btnReset").onclick=()=>{
-  if(playing) stopFlag=true;
-  setTimeout(()=>{
-    curStep=0; d=3; barAnim=[]; curveT=0; tableHi=-1;
-    popMode=false; showMM=false; showDiv=false;
-    hideConcl(); buildTable(); draw(); updatePanels();
-    $("tablePanel").classList.remove("hot");
-    $("sliderPanel").classList.remove("hot");
-    $("canvasPanel").classList.remove("hot");
-  },60);
-};
-document.querySelectorAll("#steps .st").forEach(e=>{
-  e.onclick=()=>{
-    if(playing) stopFlag=true;
-    setTimeout(()=>{
-      setStep(+e.dataset.i);
-      if(+e.dataset.i===5) showConcl(); else hideConcl();
-    },60);
-  };
+$('dSlider').oninput=e=>{d=+e.target.value;$('dVal').textContent=d;setTarget(1);cur=1;render(1);updateUI();};
+$('next').onclick=()=>{stopPlay();setTarget(target+1);};
+$('prev').onclick=()=>{stopPlay();setTarget(target-1);};
+$('reset').onclick=()=>{stopPlay();d=3;$('dSlider').value=3;$('dVal').textContent=3;setTarget(0);};
+$('play').onclick=()=>playTimer?stopPlay():startPlay();
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){stopPlay();setTarget(target+1);}
+  if(e.key==='ArrowLeft'){stopPlay();setTarget(target-1);}
+  if(e.key===' '){e.preventDefault();playTimer?stopPlay():startPlay();}
 });
-/* 左侧知识点卡片点击 → 高亮对应区域 */
-$("kp1").onclick=()=>{ $("tablePanel").classList.add("hot"); flashNav("kp1");
-  setTimeout(()=>$("tablePanel").classList.remove("hot"),1600); };
-$("kp2").onclick=()=>{ $("canvasPanel").classList.add("hot"); flashNav("kp2");
-  setTimeout(()=>$("canvasPanel").classList.remove("hot"),1600); };
-$("kp3").onclick=()=>{ showConcl(); flashNav("kp3"); };
-$("kp4").onclick=()=>flashNav("kp4");
-$("kp5").onclick=()=>{ if(!playing) play(); };
-
-/* ============ 初始化 ============ */
-buildTable(); draw(); updatePanels();
+render(0);updateUI();
 </script>
 </body>
 </html>

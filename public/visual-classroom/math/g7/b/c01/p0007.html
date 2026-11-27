@@ -38,13 +38,13 @@
   .panel::-webkit-scrollbar{width:6px}
   .panel::-webkit-scrollbar-thumb{background:#d6e0ee;border-radius:3px}
 
-  .grp{padding:9px 0;border-bottom:1px dashed #e5ecf6}
+  .grp{padding:7px 0;border-bottom:1px dashed #e5ecf6}
   .grp.first{padding-top:1px}
   .grp.last{border-bottom:none;padding-bottom:0}
 
   .lab{
     display:flex;justify-content:space-between;align-items:baseline;
-    font-size:12px;color:#7f8fa5;letter-spacing:.05em;margin-bottom:6px;
+    font-size:12px;color:#7f8fa5;letter-spacing:.05em;margin-bottom:5px;
   }
   .lab b{font-size:13px;color:#1b2b45;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:0}
 
@@ -56,6 +56,70 @@
   }
   .seg button:hover{color:#2b4166}
   .seg button.on{background:#fff;color:#2563c9;font-weight:600;box-shadow:0 1px 5px rgba(40,70,120,.16)}
+  .seg.two{grid-template-columns:repeat(2,1fr)}
+  .seg.four{grid-template-columns:repeat(4,1fr)}
+  .seg.three{grid-template-columns:repeat(3,1fr)}
+  .seg.grid3{grid-template-columns:repeat(3,1fr)}
+  .seg.grid3 button{padding:7px 2px;font-size:11.8px}
+
+  .note{font-size:11.8px;line-height:1.62;color:#7c8ca2}
+  .note b{color:#41597c;font-weight:600}
+  .bigq{font-size:13px;line-height:1.45;font-weight:700;color:#1b2b45}
+  body.m-prop .grp.pv0Only{display:none}
+  body.m-prop.pv0 .grp.pv0Only{display:block}
+
+  .seg.tabs{background:#e8eff9;padding:4px}
+  .seg.tabs button{padding:8px 2px;font-size:12.5px}
+  .seg.tabs button.on{background:#fff;color:#1c53b8}
+
+  /* 五个模式互斥显示 */
+  .propOnly,.patOnly,.coordOnly,.drawOnly,.applyOnly{display:none}
+  body.m-prop .propOnly{display:block}
+  body.m-pat .patOnly{display:block}
+  body.m-coord .coordOnly{display:block}
+  body.m-draw .drawOnly{display:block}
+  body.m-apply .applyOnly{display:block}
+  .legend.propOnly,.legend.patOnly,.legend.coordOnly,.legend.drawOnly,.legend.applyOnly{display:none}
+  body.m-prop .legend.propOnly{display:flex}
+  body.m-pat .legend.patOnly{display:flex}
+  body.m-coord .legend.coordOnly{display:flex}
+  body.m-draw .legend.drawOnly{display:flex}
+  body.m-apply .legend.applyOnly{display:flex}
+
+  /* 作图模式：教学 / 练习 两个子面板 */
+  .dTeachOnly,.dPracOnly{display:none}
+  body.m-draw.dt .dTeachOnly{display:block}
+  body.m-draw.dp .dPracOnly{display:block}
+  body.m-draw.dt .dPracOnly{display:none}
+  body.m-draw.dp .dTeachOnly{display:none}
+
+  .parts{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:9px}
+  .parts span{display:flex;align-items:center;font-size:12px;color:#43536b}
+  .parts i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px}
+  .stepnum{display:inline-block;background:#eaf2fd;color:#2563c9;border-radius:7px;padding:2.5px 9px;font-size:11.5px;font-weight:700;letter-spacing:.03em}
+
+  .seg.tabs.five{grid-template-columns:repeat(3,1fr)}
+  .seg.tabs.five button{padding:7px 2px;font-size:11.8px}
+
+  /* 坐标 / 作图 / 应用 三种模式共用的小样式 */
+  .tbl{font-size:11.8px;line-height:1.62;color:#3d4f6b;font-variant-numeric:tabular-nums}
+  .tbl .row{display:flex;justify-content:space-between;gap:8px;padding:1px 0;border-bottom:1px dotted #eef2f9}
+  .tbl .row:last-child{border-bottom:none}
+  .tbl .k{color:#8798ae}
+  .tbl .v{color:#1b2b45;font-weight:600}
+  .tbl .v i{font-style:normal;color:#c2691b}
+  .formula{
+    font-size:12.3px;line-height:1.6;color:#2f4260;background:#f5f8fd;
+    border:1px solid #e6edf8;border-radius:9px;padding:7px 9px;margin-top:6px;
+    font-variant-numeric:tabular-nums;
+  }
+  .formula b{color:#4a21b8;font-weight:700}
+  .msg{font-size:12.2px;line-height:1.55;margin-top:7px;font-weight:600}
+  .msg.ok{color:#0f8f6c}
+  .msg.bad{color:#cc4a3f}
+  .msg.idle{color:#8595aa;font-weight:500}
+  .task{font-size:12.8px;line-height:1.6;color:#2b3d59;font-weight:500}
+  .task b{color:#a4520f}
 
   input[type=range]{
     -webkit-appearance:none;appearance:none;
@@ -78,6 +142,8 @@
     padding:8px 6px;border-radius:10px;cursor:pointer;transition:.16s;
   }
   .btn:hover{border-color:#b9cdea;background:#f7fafe}
+  .btn:disabled{opacity:.48;cursor:default}
+  .btn:disabled:hover{border-color:#d9e3f0;background:#fff}
   .btn.primary{background:linear-gradient(180deg,#4c86ee,#3a71dd);border:0;color:#fff;font-weight:600;box-shadow:0 3px 10px rgba(56,110,220,.28)}
   .btn.primary:hover{background:linear-gradient(180deg,#5a90f2,#3f76e2)}
   .btn.primary.playing{background:linear-gradient(180deg,#f0914f,#e07a34);box-shadow:0 3px 10px rgba(224,122,52,.3)}
@@ -114,6 +180,45 @@
       rgba(150,116,240,.55);
   }
 
+  /* ============ 闯关检验 ============ */
+  .quizOnly{display:none}
+  body.m-quiz .quizOnly{display:block}
+  .legend.quizOnly{display:none}
+  body.m-quiz .legend.quizOnly{display:flex}
+
+  .qbar{display:flex;gap:5px;margin:2px 0 1px}
+  .qbar i{flex:1;height:6px;border-radius:3px;background:#e4ebf5;transition:.2s}
+  .qbar i.cur{background:#bcd3f7;box-shadow:0 0 0 2px rgba(63,123,234,.20)}
+  .qbar i.ok{background:#2fbf94}
+  .qbar i.help{background:#eab04a}
+
+  .opts{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+  .opt{
+    display:flex;align-items:flex-start;gap:8px;text-align:left;width:100%;
+    border:1px solid #dde6f2;background:#fff;border-radius:10px;
+    padding:8px 10px;font-family:inherit;font-size:12.6px;line-height:1.42;
+    color:#33445f;cursor:pointer;transition:.15s;
+  }
+  .opt span{flex:1}
+  .opt b{
+    flex:none;width:18px;height:18px;border-radius:6px;background:#eef3fb;color:#5d7391;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px;
+  }
+  .opt:hover:not(:disabled){border-color:#b9cdea;background:#f7fafe}
+  .opt.bad{border-color:#e6b3ad;background:#fdf2f1;color:#a8403a;opacity:.72;text-decoration:line-through}
+  .opt.bad b{background:#e2a29c;color:#fff}
+  .opt.ok{border-color:#2fbf94;background:#eefaf5;color:#126b51;font-weight:600}
+  .opt.ok b{background:#2fbf94;color:#fff}
+  .opt:disabled{cursor:default}
+
+  .stamp{
+    font-size:30px;font-weight:800;color:#17967a;text-align:center;letter-spacing:.02em;
+    background:linear-gradient(180deg,#eefaf5,#e0f5ed);
+    border:1px solid #bfe8da;border-radius:14px;padding:9px 6px;
+    font-variant-numeric:tabular-nums;
+  }
+  .stamp small{display:block;font-size:11.5px;font-weight:600;color:#5b8d7d;letter-spacing:.06em;margin-top:1px}
+
   @media (max-width:900px){
     .panel{width:272px;top:auto;bottom:14px;right:14px;max-height:56vh}
     .hdr{left:16px;top:14px}
@@ -128,11 +233,22 @@
 <header class="hdr">
   <h1>平 移<em>Translation</em></h1>
   <div class="rule"></div>
-  <p>拖动<b style="color:#e07a34;font-weight:600">橙色图形</b>即可平移 · 拖动空白处旋转视角 · 滚轮缩放</p>
+  <p id="hint">拖动<b style="color:#e07a34;font-weight:600">橙色图形</b>即可平移 · 拖动空白处旋转视角 · 滚轮缩放</p>
 </header>
 
 <aside class="panel">
   <div class="grp first">
+    <div class="seg tabs five" id="modeSeg">
+      <button data-mode="prop" class="on">性质探究</button>
+      <button data-mode="draw">平移作图</button>
+      <button data-mode="pat">组合图案</button>
+      <button data-mode="coord">坐标平移</button>
+      <button data-mode="apply">面积应用</button>
+      <button data-mode="quiz">闯关检验</button>
+    </div>
+  </div>
+
+  <div class="grp propOnly">
     <div class="lab"><span>选择图形</span></div>
     <div class="seg" id="figSeg">
       <button data-fig="rect" class="on">长方形</button>
@@ -143,51 +259,285 @@
     </div>
   </div>
 
-  <div class="grp">
+  <div class="grp propOnly">
     <div class="lab"><span>平移方向</span><b id="dirVal">正东 0°</b></div>
     <input type="range" id="dir" min="0" max="360" step="1" value="0" />
-    <div class="lab" style="margin-top:8px"><span>平移距离</span><b id="distVal">1.10</b></div>
-    <input type="range" id="dist" min="0.6" max="5" step="0.02" value="1.1" />
-    <div class="rowbtn">
-      <button class="btn primary" id="autoBtn">自动演示</button>
-    </div>
-    <div class="rowbtn" style="margin-top:7px">
-      <button class="btn" id="topBtn">平面视角</button>
-      <button class="btn" id="resetBtn">复位视角</button>
-    </div>
+    <div class="lab" style="margin-top:8px"><span>平移距离</span><b id="distVal">3.80</b></div>
+    <input type="range" id="dist" min="0.6" max="5" step="0.02" value="3.8" />
   </div>
 
-  <div class="grp">
+  <div class="grp propOnly">
+    <div class="lab"><span>平移前后比什么（三步）</span><b id="pvLab">第 1 步 / 共 3 步</b></div>
+    <div class="seg three" id="pvSeg">
+      <button data-pv="0" class="on">① 形状大小</button>
+      <button data-pv="1">② 对应点</button>
+      <button data-pv="2">③ 边和角</button>
+    </div>
+    <div class="bigq" id="pvTitle" style="margin-top:11px"></div>
+    <div class="msg idle" id="pvDesc"></div>
+  </div>
+
+  <div class="grp propOnly">
+    <div class="lab"><span>量一量（原图 / 平移后的图形）</span></div>
+    <div class="tbl" id="pvTable"></div>
+  </div>
+
+  <div class="grp propOnly pv0Only">
+    <button class="btn primary" id="foldBtn" style="width:100%">把橙色图形移回去，看能否重合</button>
+  </div>
+
+  <div class="grp propOnly">
     <div class="lab"><span>显示</span></div>
     <div class="checks">
-      <label class="chk"><input type="checkbox" id="cOverlap" checked /> 重叠分区</label>
-      <label class="chk"><input type="checkbox" id="cEdgeLen" checked /> 阴影边长</label>
-      <label class="chk"><input type="checkbox" id="cLinks" checked /> 对应点连线</label>
       <label class="chk"><input type="checkbox" id="cLetters" checked /> 顶点字母</label>
-      <label class="chk"><input type="checkbox" id="cEdges" /> 高亮对应边</label>
+      <label class="chk"><input type="checkbox" id="cLinks" checked /> 对应点连线</label>
+      <label class="chk"><input type="checkbox" id="cOverlap" /> 重叠（阴影）区</label>
       <label class="chk"><input type="checkbox" id="cGrid" checked /> 参照网格</label>
     </div>
   </div>
 
-  <div class="grp">
-    <div class="lab"><span>阴影（重叠）区</span><b class="big" id="ovArea">S = 1.69</b></div>
-    <div class="kv"><span>阴影各边</span><b class="wrap" id="ovEdges">1.04 / 1.63 / 1.04 / 1.63</b></div>
+  <div class="grp last propOnly">
+    <div class="note" id="pvNote"></div>
   </div>
 
-  <div class="grp last">
-    <div class="lab"><span>性质检验（拖动时实时更新）</span></div>
-    <div class="prop"><i>✓</i><div class="t">形状、大小不变<b id="p1">AB = A′B′ = 2.27，各边各角都不变</b></div></div>
-    <div class="prop"><i>✓</i><div class="t">对应点连线平行且相等<b id="p2">AA′ = BB′ = 1.10，互相平行</b></div></div>
-    <div class="prop"><i>✓</i><div class="t">对应线段平行，对应角相等<b id="p3">AB ∥ A′B′，∠A = ∠A′ = 90°</b></div></div>
+  <!-- ============ 坐标平移 ============ -->
+  <div class="grp coordOnly">
+    <div class="lab"><span>图形</span></div>
+    <div class="seg two" id="cFigSeg">
+      <button data-cfig="tri" class="on">三角形 ABC</button>
+      <button data-cfig="pt">一个点 P</button>
+    </div>
+  </div>
+
+  <div class="grp coordOnly">
+    <div class="lab"><span>向右平移</span><b id="caVal">+3</b></div>
+    <input type="range" id="ca" min="-5" max="5" step="1" value="3" />
+    <div class="lab" style="margin-top:8px"><span>向上平移</span><b id="cbVal">+2</b></div>
+    <input type="range" id="cb" min="-5" max="5" step="1" value="2" />
+  </div>
+
+  <div class="grp coordOnly">
+    <div class="lab"><span>对应点坐标（实时）</span></div>
+    <div class="tbl" id="coordTable"></div>
+  </div>
+
+  <div class="grp coordOnly">
+    <div class="lab"><span>规律</span></div>
+    <div class="formula" id="coordRule"></div>
+  </div>
+
+  <div class="grp last coordOnly">
+    <div class="note">左右平移只改变<b>横坐标</b>，上下平移只改变<b>纵坐标</b>。向右加、向左减；向上加、向下减。</div>
+  </div>
+
+  <!-- ============ 平移作图 ============ -->
+  <div class="grp drawOnly">
+    <div class="seg two" id="dModeSeg">
+      <button data-dm="teach" class="on">四步法教学</button>
+      <button data-dm="practice">动手练习</button>
+    </div>
+  </div>
+
+  <div class="grp drawOnly dTeachOnly">
+    <div class="lab"><span>任务</span></div>
+    <div class="task" id="teachTask"></div>
+  </div>
+
+  <div class="grp drawOnly dTeachOnly">
+    <div class="lab"><span class="stepnum" id="dStepLab">第 1 步 · 共 4 步</span></div>
+    <div class="task" id="dStepTitle"></div>
+    <div class="msg idle" id="dStepDesc"></div>
+    <div class="rowbtn">
+      <button class="btn" id="dPrev">◀ 上一步</button>
+      <button class="btn primary" id="dNext">下一步 ▶</button>
+    </div>
+    <div class="rowbtn" style="margin-top:7px">
+      <button class="btn" id="dAuto">自动演示</button>
+      <button class="btn" id="dRestart">重新演示</button>
+    </div>
+  </div>
+
+  <div class="grp drawOnly dPracOnly">
+    <div class="lab"><span>任务</span><b id="drawProg">0 / 3</b></div>
+    <div class="task" id="drawTask"></div>
+    <div class="msg idle" id="drawMsg">在方格纸上依次点出 A′、B′、C′ 的位置</div>
+  </div>
+
+  <div class="grp drawOnly dPracOnly">
+    <div class="rowbtn">
+      <button class="btn" id="drawCheck">检查</button>
+      <button class="btn" id="drawAns">显示答案</button>
+    </div>
+    <div class="rowbtn" style="margin-top:7px">
+      <button class="btn primary" id="drawNew">换一题</button>
+    </div>
+  </div>
+
+  <div class="grp last drawOnly">
+    <div class="note" id="drawNote">画平移后的图形六步走：<b>① 找关键点</b> → <b>② 定方向</b> → <b>③ 数格子</b> → <b>④ 描 A′</b> → <b>⑤ 描 B′、C′</b> → <b>⑥ 顺次连线</b>。每个点都沿<b>同一方向</b>移动<b>相同格数</b>。</div>
+  </div>
+
+  <!-- ============ 面积应用 ============ -->
+  <div class="grp applyOnly">
+    <div class="lab"><span>题目场景</span></div>
+    <div class="seg two" id="apSeg">
+      <button data-ap="lawn" class="on">草坪中的小路</button>
+      <button data-ap="stair">楼梯铺地毯</button>
+    </div>
+  </div>
+
+  <div class="grp applyOnly" id="apLawnGrp">
+    <div class="lab"><span>草坪长（米）</span><b id="apAVal">8</b></div>
+    <input type="range" id="apA" min="5" max="12" step="1" value="8" />
+    <div class="lab" style="margin-top:8px"><span>草坪宽（米）</span><b id="apBVal">6</b></div>
+    <input type="range" id="apB" min="4" max="10" step="1" value="6" />
+    <div class="lab" style="margin-top:8px"><span>小路宽（米）</span><b id="apWVal">1</b></div>
+    <input type="range" id="apW" min="1" max="3" step="0.5" value="1" />
+  </div>
+
+  <div class="grp applyOnly" id="apStairGrp">
+    <div class="lab"><span>每级宽（米）</span><b id="apSWVal">1.0</b></div>
+    <input type="range" id="apSW" min="0.6" max="1.6" step="0.1" value="1" />
+    <div class="lab" style="margin-top:8px"><span>每级高（米）</span><b id="apSHVal">0.6</b></div>
+    <input type="range" id="apSH" min="0.4" max="1.2" step="0.1" value="0.6" />
+    <div class="lab" style="margin-top:8px"><span>级数</span><b id="apSNVal">5</b></div>
+    <input type="range" id="apSN" min="3" max="8" step="1" value="5" />
+  </div>
+
+  <div class="grp applyOnly">
+    <div class="lab"><span class="stepnum" id="apStepLab">第 1 步 · 共 3 步</span></div>
+    <div class="task" id="apStepTitle"></div>
+    <div class="msg idle" id="apStepDesc"></div>
+    <div class="rowbtn">
+      <button class="btn" id="apPrev">◀ 上一步</button>
+      <button class="btn primary" id="apNext">下一步 ▶</button>
+    </div>
+    <div class="rowbtn" style="margin-top:7px">
+      <button class="btn" id="apPlay">再看一次平移动画</button>
+    </div>
+  </div>
+
+  <div class="grp applyOnly" id="apResultGrp">
+    <div class="lab"><span id="apResultLab">答案</span><b class="big" id="apResult">42.0</b></div>
+    <div class="formula" id="apFormula"></div>
+  </div>
+
+  <div class="grp last applyOnly">
+    <div class="note" style="margin-top:8px" id="apNote"></div>
+  </div>
+
+  <!-- ============ 闯关检验 ============ -->
+  <div class="grp quizOnly" id="qzBoardGrp">
+    <div class="lab"><span>闯关进度</span><b id="qzScore">0 / 7</b></div>
+    <div class="qbar" id="qzBar"></div>
+  </div>
+
+  <div class="grp quizOnly" id="qzQGrp">
+    <div class="lab"><span class="stepnum" id="qzTag">第 1 关 · 共 7 关</span><b id="qzType">数格子</b></div>
+    <div class="bigq" id="qzQ" style="margin-top:6px"></div>
+    <div class="opts" id="qzOpts"></div>
+    <div class="msg idle" id="qzMsg">选出你认为正确的一个</div>
+    <div class="formula" id="qzSol" style="display:none"></div>
+  </div>
+
+  <div class="grp quizOnly" id="qzFinGrp" style="display:none">
+    <div class="stamp" id="qzStamp">0 / 7<small>一次答对</small></div>
+    <div class="tbl" id="qzFinList" style="margin-top:8px"></div>
+  </div>
+
+  <div class="grp quizOnly" id="qzNavGrp">
+    <div class="rowbtn">
+      <button class="btn" id="qzPrev">◀ 上一关</button>
+      <button class="btn primary" id="qzNext">先作答</button>
+    </div>
+    <div class="rowbtn" style="margin-top:7px">
+      <button class="btn" id="qzReset">重新挑战</button>
+      <button class="btn" id="qzShow">看答案</button>
+    </div>
+  </div>
+
+  <div class="grp last quizOnly">
+    <div class="note" id="qzNote">共 7 关，覆盖「性质、作图、图案、坐标、面积」。画面里能数、能比、能量，先用眼睛看，再选答案。</div>
+  </div>
+
+  <!-- ============ 组合图案 ============ -->
+  <div class="grp patOnly">
+    <div class="lab"><span>选一幅图案</span></div>
+    <div class="seg grid3" id="motifSeg">
+      <button data-pat="rhomb" class="on">菱形地砖</button>
+      <button data-pat="hex">六边形纹</button>
+      <button data-pat="square">方格拼花</button>
+      <button data-pat="comb">梳齿花边</button>
+      <button data-pat="zigzag">折线花边</button>
+      <button data-pat="frames">小窗花边</button>
+    </div>
+    <div class="parts" id="pParts"></div>
+  </div>
+
+  <div class="grp patOnly">
+    <div class="lab"><span>想一想</span></div>
+    <div class="task" id="pQ">这幅图案是把<b>哪个图形</b>、沿<b>什么方向</b>平移得到的？</div>
+    <div class="rowbtn">
+      <button class="btn primary" id="pAnsBtn">显示答案</button>
+    </div>
+    <div class="formula" id="pAnsText" style="display:none"></div>
+  </div>
+
+  <div class="grp patOnly">
+    <div class="lab"><span>横向个数</span><b id="pnxVal">5</b></div>
+    <input type="range" id="pnx" min="2" max="8" step="1" value="5" />
+    <div class="lab" style="margin-top:8px"><span>纵向个数</span><b id="pnyVal">4</b></div>
+    <input type="range" id="pny" min="1" max="6" step="1" value="4" />
+    <div class="rowbtn">
+      <button class="btn primary" id="pPlayBtn">看它怎样一块块铺开</button>
+    </div>
+    <div class="rowbtn" style="margin-top:7px">
+      <button class="btn" id="pTopBtn">正上方看</button>
+      <button class="btn" id="pResetBtn">复位视角</button>
+    </div>
+    <div class="note" style="margin-top:10px" id="pNote"></div>
   </div>
 </aside>
 
-<div class="legend">
+<div class="legend propOnly">
   <span><i style="background:#4f7fe0"></i>原图形</span>
   <span><i style="background:#f28c3a"></i>平移后的图形</span>
-  <span><i class="hatch"></i>重叠（阴影）区</span>
+  <span><i class="dash"></i>对应点连线 AA′</span>
+  <span><i style="background:#d8315b"></i>对应线段（刻度相同 = 相等）</span>
+  <span><i style="background:#8a3ffc"></i>对应角（相等）</span>
+  <span><i style="background:#0e9b86"></i>平移方向与距离</span>
+</div>
+
+<div class="legend patOnly">
+  <span><i style="background:#4f7fe0"></i>母本（第一个基本图形）</span>
+  <span><i style="background:#c3cddc"></i>其余都是它平移出来的</span>
+  <span><i style="background:#0e9b86"></i>平移方向</span>
+</div>
+
+<div class="legend coordOnly">
+  <span><i style="background:#4f7fe0"></i>原图形</span>
+  <span><i style="background:#f28c3a"></i>平移后</span>
+  <span><i class="dash"></i>先右后上的分步路径</span>
+</div>
+
+<div class="legend drawOnly">
+  <span><i style="background:#4f7fe0"></i>原三角形</span>
+  <span><i style="background:#8f8fa8"></i>你标的点</span>
+  <span><i style="background:#f28c3a"></i>答案</span>
+</div>
+
+<div class="legend applyOnly">
+  <span><i style="background:#57b894"></i>草坪 / 地毯</span>
+  <span><i style="background:#c9d2df"></i>小路 / 台阶</span>
+  <span><i style="background:#e07a34"></i>平移方向</span>
+</div>
+
+<div class="legend quizOnly">
+  <span><i style="background:#4f7fe0"></i>原图形</span>
+  <span><i style="background:#f28c3a"></i>平移后</span>
   <span><i class="dash"></i>对应点连线</span>
   <span><i style="background:#0e9b86"></i>平移方向与距离</span>
+  <span><i style="background:#2fbf94"></i>答对</span>
 </div>
 
 <script>
@@ -215,6 +565,7 @@
   function mul3(a, s) { return { x: a.x * s, y: a.y * s, z: a.z * s }; }
   function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
   function hsl(h, s, l) { return 'hsl(' + Math.round(h) + ',' + Math.round(s) + '%,' + clamp(l, 5, 96).toFixed(1) + '%)'; }
+  function hsla(h, s, l, a) { return 'hsla(' + Math.round(h) + ',' + Math.round(s) + '%,' + clamp(l, 5, 96).toFixed(1) + '%,' + a + ')'; }
   function fmt(n, d) { return n.toFixed(d === undefined ? 2 : d); }
 
   /* ============================================================
@@ -223,6 +574,9 @@
   var FOV = 46 * Math.PI / 180;
   var CAM0 = { yaw: -0.52, pitch: 0.76, dist: 7.8 };
   var CAM_TOP = { yaw: 0, pitch: 1.42, dist: 8.4 };
+  var CAM_PAT = { yaw: -0.06, pitch: 1.34, dist: 15 };
+  var CAM_PAT_TOP = { yaw: 0, pitch: 1.44, dist: 15 };
+  var CAM_FLAT = { yaw: 0, pitch: 1.44, dist: 13.6 };   // 坐标 / 作图 / 应用：正上方俯视
   var cam = {
     yaw: CAM0.yaw, pitch: CAM0.pitch, dist: CAM0.dist,
     tYaw: CAM0.yaw, tPitch: CAM0.pitch, tDist: CAM0.dist,
@@ -241,7 +595,7 @@
     var r = cross3(f, { x: 0, y: 1, z: 0 });
     if (len3(r) < 1e-6) r = { x: 1, y: 0, z: 0 }; else r = norm3(r);
     var u = cross3(r, f);
-    var shiftX = W > 1100 ? 92 : 0;
+    var shiftX = W > 1100 ? (state.mode === 'pat' ? 172 : 92) : (W > 900 ? 150 : 0);
     return { e: e, f: f, r: r, u: u, cx: W / 2 - shiftX, cy: H / 2, fpx: (H / 2) / Math.tan(FOV / 2) };
   }
 
@@ -324,6 +678,50 @@
     ctx.lineWidth = 2.4;
     ctx.strokeStyle = color;
     ctx.stroke();
+  }
+
+  // 带白色底衬的标签：即使压到字母也清楚
+  function textPill(x, y, str, color, size, weight) {
+    size = size || 12;
+    ctx.font = (weight || 700) + ' ' + size + 'px ' + FONT;
+    var w = ctx.measureText(str).width + 15, h = size + 10, r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x - w / 2 + r, y - h / 2);
+    ctx.lineTo(x + w / 2 - r, y - h / 2);
+    ctx.arc(x + w / 2 - r, y, r, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(x - w / 2 + r, y + h / 2);
+    ctx.arc(x - w / 2 + r, y, r, Math.PI / 2, Math.PI * 1.5);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(196,212,234,0.95)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = color;
+    ctx.fillText(str, x, y);
+  }
+
+  // 等长刻度：两条边相等时，中点处刻相同道数的短斜线（几何记号）
+  function drawTicks(P, Q, count, color) {
+    var mx = (P.x + Q.x) / 2, my = (P.y + Q.y) / 2;
+    var dx = Q.x - P.x, dy = Q.y - P.y;
+    var L = Math.hypot(dx, dy) || 1;
+    var ux = dx / L, uy = dy / L;
+    var nx = -uy, ny = ux;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.1;
+    ctx.lineCap = 'round';
+    for (var k = 0; k < count; k++) {
+      var o = (k - (count - 1) / 2) * 4.4;
+      ctx.beginPath();
+      ctx.moveTo(mx + nx * 6.2 + ux * o, my + ny * 6.2 + uy * o);
+      ctx.lineTo(mx - nx * 6.2 + ux * o, my - ny * 6.2 + uy * o);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function drawArrow(p0, p1, color, width) {
@@ -474,21 +872,51 @@
       poly: [[-0.62, -1.30], [-0.14, -1.30], [-0.14, -0.20], [0.86, -0.20],
              [0.86, 0.18], [-0.14, 0.18], [-0.14, 0.55], [1.08, 0.55],
              [1.08, 0.95], [-0.62, 0.95]],
-      marks: [[9, 'A'], [0, 'B'], [7, 'C']], hl: [9, 0]
+      marks: [[0, 'A'], [1, 'B'], [2, 'C'], [3, 'D'], [4, 'E'], [5, 'F'],
+              [6, 'G'], [7, 'H'], [8, 'I'], [9, 'J']], hl: [0, 1]
     }
   };
 
   var state = {
+    mode: 'prop',
     fig: 'rect',
     dir: 0,
-    dist: 1.1,
-    showOverlap: true,
-    showEdgeLen: true,
+    dist: 3.8,
+    showOverlap: false,
     showLinks: true,
     showLetters: true,
-    showEdges: false,
     showGrid: true,
-    auto: false
+    auto: false,
+    /* 性质：三步验证 + 叠合 */
+    pv: 0,
+    foldT: 0,
+    foldGoal: 0,
+    /* 组合图案 */
+    pat: 'rhomb',
+    patNx: 5,
+    patNy: 4,
+    patAns: false,
+    patProg: null,
+    /* 坐标平移 */
+    cfig: 'tri',
+    ca: 3,
+    cb: 2,
+    /* 平移作图 */
+    dMode: 'teach',
+    dStep: 0,
+    dPlay: false,
+    dAcc: 0,
+    dTask: { a: 3, b: 2, verts: [[-4, -1], [-1, -2], [-2, 2]] },
+    dPlaced: [],
+    dAns: false,
+    dMsg: '',
+    dMsgType: 'idle',
+    /* 面积应用 */
+    ap: 'lawn',
+    apStep: 0,
+    apA: 8, apB: 6, apW: 1,
+    apSW: 1.0, apSH: 0.6, apSN: 5,
+    apT: 0, apAnim: false
   };
 
   (function initTarget() {
@@ -502,17 +930,28 @@
      ============================================================ */
   var BOARD = 8.6;
 
+  // 图案模式下板面随图案一起放大，避免露出底板边
+  function boardHalf() {
+    if (state.mode === 'coord' || state.mode === 'draw' || state.mode === 'apply' || state.mode === 'quiz') return 26;
+    if (state.mode !== 'pat') return BOARD;
+    if (typeof patBBox !== 'function') return 11;
+    var b = patBBox();
+    return clamp(Math.max(b.maxx - b.minx, b.maxy - b.miny) * 0.5 + 1.5, 9, 16);
+  }
+
   function drawBoard() {
-    var c = [[-BOARD, -BOARD], [BOARD, -BOARD], [BOARD, BOARD], [-BOARD, BOARD]]
+    var B = boardHalf();
+    var c = [[-B, -B], [B, -B], [B, B], [-B, B]]
       .map(function (p) { return pj({ x: p[0], y: 0, z: p[1] }); });
     fillPoly(c, 'rgba(255,255,255,0.88)', 'rgba(174,194,220,0.55)', 1.5);
   }
 
-  function drawGrid() {
-    var N = 8;
+  function drawGrid(k) {
+    k = k || 1;
+    var N = Math.ceil(boardHalf());
     for (var i = -N; i <= N; i++) {
       var major = (i % 5 === 0);
-      var col = major ? 'rgba(108,138,180,0.30)' : 'rgba(108,138,180,0.15)';
+      var col = major ? 'rgba(108,138,180,' + (0.30 * k) + ')' : 'rgba(108,138,180,' + (0.15 * k) + ')';
       var lw = major ? 1.35 : 1;
       line3({ x: -N, y: 0.004, z: i }, { x: N, y: 0.004, z: i }, col, lw);
       line3({ x: i, y: 0.004, z: -N }, { x: i, y: 0.004, z: N }, col, lw);
@@ -602,61 +1041,282 @@
   }
 
   /* ============================================================
-     6. 主渲染
+     5b. 组合图案：由相同的基本图形，沿两个方向反复平移铺成
+     u / v = 两个方向「平移一步」的向量（局部坐标：x 向右、y 向上）
      ============================================================ */
+  var PAT = {
+    rhomb: {
+      name: '菱形地砖', unit: '菱形',
+      u: [1.02, 0], v: [0.51, 0.8833], nx: 5, ny: 4,
+      polys: [[[0, 0], [1.02, 0], [1.53, 0.8833], [0.51, 0.8833]]],
+      palette: [[45, 88, 62], [340, 72, 76], [204, 76, 62], [158, 46, 56]],
+      colorBy: 'seq',
+      note: '每个菱形都完全相同。把其中一个<b>向右</b>平移一格、或<b>向右上</b>平移一格，都能和相邻的菱形严丝合缝地拼在一起。'
+    },
+    hex: {
+      name: '六边形纹', unit: '正六边形',
+      u: [1.0392, 0], v: [0.5196, 0.9], nx: 5, ny: 4,
+      polys: [[[0.5196, 0.3], [0, 0.6], [-0.5196, 0.3], [-0.5196, -0.3], [0, -0.6], [0.5196, -0.3]]],
+      palette: [[170, 42, 55], [20, 62, 68]],
+      colorBy: 'checker',
+      note: '每个正六边形都和邻居共用一条边，像蜂巢一样密铺。平移时方向、距离都一样，所以既没有缝隙也没有重叠。'
+    },
+    square: {
+      name: '方格拼花', unit: '正方形',
+      u: [1, 0], v: [0, 1], nx: 5, ny: 5,
+      polys: [[[0, 0], [1, 0], [1, 1], [0, 1]],
+              [[0.5, 0.30], [0.70, 0.5], [0.5, 0.70], [0.30, 0.5]]],
+      extra: [{ h: 30, s: 84, l: 66 }],
+      palette: [[206, 66, 56], [200, 34, 82]],
+      colorBy: 'checker',
+      note: '正方形按行、按列平移，正好铺满整块地面；中间的小菱形也是同一个正方形平移、缩小后拼进去的装饰。'
+    },
+    comb: {
+      band: true, name: '梳齿花边', unit: '「梳子」',
+      u: [1, 0], v: [0, 1], nx: 7, ny: 1,
+      polys: [[[0, 0.76], [1, 0.76], [1, 0.86], [0, 0.86]],
+              [[0.16, 0.52], [0.26, 0.52], [0.26, 0.76], [0.16, 0.76]]],
+      palette: [[204, 62, 50]],
+      colorBy: 'seq',
+      note: '把上面那把「梳子」（一条横杠 + 一根竖齿）沿水平方向<b>连续平移</b>，就得到了整条花边。'
+    },
+    zigzag: {
+      band: true, name: '折线花边', unit: '「V 形折线」',
+      u: [1, 0], v: [0, 1], nx: 7, ny: 1,
+      lines: [[[0, 0.62], [0.5, 0.14], [1, 0.62]]],
+      palette: [[18, 78, 50]],
+      colorBy: 'seq',
+      note: '一个 V 形折线平移一次，端点正好接上，连成一条连续的折线 —— 每次平移的方向、距离都相同。'
+    },
+    frames: {
+      band: true, name: '小窗花边', unit: '「小窗格」',
+      u: [0.9, 0], v: [0, 1], nx: 6, ny: 1,
+      lines: [[[0, 0.10], [0.90, 0.10], [0.90, 0.90], [0, 0.90], [0, 0.10]],
+              [[0.45, 0.10], [0.45, 0.90]]],
+      palette: [[188, 52, 40]],
+      colorBy: 'seq',
+      note: '每个窗格都是长方形加一条中线，平移到一起时共用边框，连成一排小窗。'
+    }
+  };
+
+  function patDef() { return PAT[state.pat]; }
+
+  /* 满铺图案用略斜的俯视；花边用接近正上方，线条才横平竖直 */
+  function patCam() {
+    return patDef().band
+      ? { yaw: 0, pitch: 1.44 }
+      : { yaw: CAM_PAT.yaw, pitch: CAM_PAT.pitch };
+  }
+
+  function patCellCenter(P, i, j) {
+    return { x: P.u[0] * i + P.v[0] * j, y: P.u[1] * i + P.v[1] * j };
+  }
+
+  /* 整幅图案的外框（局部坐标） */
+  function patBBox() {
+    var P = patDef(), nx = state.patNx, ny = state.patNy;
+    var minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+    function add(x, y) {
+      if (x < minx) minx = x;
+      if (x > maxx) maxx = x;
+      if (y < miny) miny = y;
+      if (y > maxy) maxy = y;
+    }
+    for (var j = 0; j < ny; j++) {
+      for (var i = 0; i < nx; i++) {
+        var c = patCellCenter(P, i, j);
+        (P.polys || []).forEach(function (poly) {
+          poly.forEach(function (q) { add(c.x + q[0], c.y + q[1]); });
+        });
+        (P.lines || []).forEach(function (ln) {
+          ln.forEach(function (q) { add(c.x + q[0], c.y + q[1]); });
+        });
+      }
+    }
+    return { minx: minx, maxx: maxx, miny: miny, maxy: maxy,
+             cx: (minx + maxx) / 2, cy: (miny + maxy) / 2 };
+  }
+
+  /* 基本图形的重心（画箭头用） */
+  function patAnchor(P, i, j) {
+    var c = patCellCenter(P, i, j), pts = [];
+    (P.polys || []).forEach(function (poly) { poly.forEach(function (q) { pts.push(q); }); });
+    if (!pts.length) (P.lines || []).forEach(function (ln) { ln.forEach(function (q) { pts.push(q); }); });
+    if (!pts.length) return { x: c.x, y: c.y };
+    var sx = 0, sy = 0;
+    pts.forEach(function (q) { sx += q[0]; sy += q[1]; });
+    return { x: c.x + sx / pts.length, y: c.y + sy / pts.length };
+  }
+
+  function patColor(P, i, j) {
+    var pal = P.palette;
+    if (state.patAns) {
+      return (i === 0 && j === 0) ? { h: 217, s: 74, l: 59 } : { h: 214, s: 12, l: 84 };
+    }
+    var k = P.colorBy === 'checker' ? (i + j) % 2 : (i + j) % pal.length;
+    var c = pal[k];
+    return { h: c[0], s: c[1], l: c[2] };
+  }
+
+  // 在给定机位下的「归一化投影」（乘以 fpx/dist 即得像素）
+  function projNorm(p, yaw, pitch, dist) {
+    var cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var e = { x: dist * cp * Math.sin(yaw), y: 0.15 + dist * sp, z: dist * cp * Math.cos(yaw) };
+    var f = norm3({ x: -e.x, y: 0.15 - e.y, z: -e.z });
+    var r = cross3(f, { x: 0, y: 1, z: 0 });
+    r = len3(r) < 1e-6 ? { x: 1, y: 0, z: 0 } : norm3(r);
+    var u = cross3(r, f);
+    var dd = sub3(p, e);
+    var zc = dot3(dd, f);
+    if (zc < 0.2) return null;
+    return { x: dot3(dd, r) / zc, y: -dot3(dd, u) / zc };
+  }
+
+  // 让整幅图案刚好放进画面（按当前机位真实投影计算）
+  function patFit() {
+    var b = patBBox();
+    var pts = [];
+    [[b.minx, b.miny], [b.maxx, b.miny], [b.maxx, b.maxy], [b.minx, b.maxy]].forEach(function (c) {
+      var x = c[0] - b.cx, y = c[1] - b.cy;
+      pts.push({ x: x, y: 0, z: -y }, { x: x, y: HGT, z: -y });
+    });
+    var trial = 10, mx = 0, my = 0;
+    for (var i = 0; i < pts.length; i++) {
+      var q = projNorm(pts[i], cam.tYaw, cam.tPitch, trial);
+      if (!q) continue;
+      mx = Math.max(mx, Math.abs(q.x));
+      my = Math.max(my, Math.abs(q.y));
+    }
+    var fpx = (H / 2) / Math.tan(FOV / 2);
+    var halfW = (W - (W > 1100 ? 330 : 32)) / 2 * 0.86;
+    var halfH = (H / 2 - 74) * 0.86;
+    var need = Math.max(mx * trial * fpx / Math.max(halfW, 200),
+                        my * trial * fpx / Math.max(halfH, 160));
+    return clamp(need, 4.5, 44);
+  }
+
+  function renderPattern() {
+    var P = patDef(), nx = state.patNx, ny = state.patNy;
+    var b = patBBox(), total = nx * ny;
+    var prog = state.patProg;
+
+    drawBoard();
+
+    var cells = [];
+    for (var j = 0; j < ny; j++) {
+      for (var i = 0; i < nx; i++) {
+        var idx = j * nx + i;
+        if (prog !== null && idx > Math.floor(prog)) continue;
+        var c = patCellCenter(P, i, j);
+        var ox = c.x - b.cx, oy = c.y - b.cy, a = 1;
+        if (prog !== null && idx === Math.floor(prog) && idx < total) {
+          var t = prog - idx;
+          ox -= P.u[0] * (1 - t);
+          oy -= P.u[1] * (1 - t);
+          a = 0.55 + 0.45 * t;
+        }
+        cells.push({ i: i, j: j, idx: idx, ox: ox, oy: oy, a: a });
+      }
+    }
+
+    cells.forEach(function (cl) {
+      var base = patColor(P, cl.i, cl.j);
+      (P.polys || []).forEach(function (poly, pi) {
+        var pts = poly.map(function (q) { return [cl.ox + q[0], cl.oy + q[1]]; });
+        var shd = pts.map(function (q) { return [q[0] + 0.05, q[1] - 0.06]; });
+        flatPoly(shd, 'rgba(40,64,104,0.10)', null, 0, 0.015);
+        var col = pi === 0 ? base : (P.extra ? P.extra[Math.min(pi - 1, P.extra.length - 1)] : base);
+        flatPoly(pts, hsla(col.h, col.s, col.l, cl.a), 'rgba(255,255,255,0.62)', 1.2, 0.03 + pi * 0.006);
+      });
+      if (P.lines) {
+        P.lines.forEach(function (ln) {
+          var pts = ln.map(function (q) { return [cl.ox + q[0], cl.oy + q[1]]; });
+          flatLine(pts, hsla(base.h, base.s, base.l, cl.a), 4.6, null, 0.045);
+        });
+      }
+    });
+
+    /* 显示答案：母本高亮 + 两个方向的平移箭头 */
+    if (state.patAns) {
+      (P.polys || []).forEach(function (poly) {
+        var pts = poly.map(function (q) { return [-b.cx + q[0], -b.cy + q[1]]; });
+        flatPoly(pts, null, 'rgba(255,255,255,0.98)', 3.6, 0.075);
+      });
+      if (P.lines) {
+        P.lines.forEach(function (ln) {
+          var pts = ln.map(function (q) { return [-b.cx + q[0], -b.cy + q[1]]; });
+          flatLine(pts, 'rgba(255,255,255,0.98)', 7.6, null, 0.07);
+          flatLine(pts, hsla(P.palette[0][0], P.palette[0][1], P.palette[0][2], 1), 4.6, null, 0.075);
+        });
+      }
+      var A0 = patAnchor(P, 0, 0);
+      var p0 = pj(mb(A0.x - b.cx, A0.y - b.cy, 0.12));
+
+      if (p0 && nx > 1) {
+        var A1 = patAnchor(P, 1, 0);
+        var p1 = pj(mb(A1.x - b.cx, A1.y - b.cy, 0.12));
+        if (p1) {
+          drawArrow(p0, p1, '#0e9b86', 3.4);
+          textPill((p0.x + p1.x) / 2, (p0.y + p1.y) / 2 + 22, '平移 1 次', '#0b7d6c', 11.5, 700);
+        }
+      }
+      if (p0 && ny > 1) {
+        var A2 = patAnchor(P, 0, 1);
+        var p2 = pj(mb(A2.x - b.cx, A2.y - b.cy, 0.12));
+        if (p2) {
+          drawArrow(p0, p2, '#0e9b86', 3.4);
+          textPill((p0.x + p2.x) / 2 - 38, (p0.y + p2.y) / 2, '平移 1 次', '#0b7d6c', 11.5, 700);
+        }
+      }
+    }
+
+    lastGeom = null;
+  }
   var lastGeom = null;
 
   function render() {
     ctx.clearRect(0, 0, W, H);
     VP = buildVP();
 
-    var th = state.dir * Math.PI / 180;
-    var vec = { x: Math.cos(th) * state.dist, z: Math.sin(th) * state.dist };
+    if (state.mode === 'pat') { renderPattern(); return; }
+    if (state.mode === 'coord') { renderCoord(); return; }
+    if (state.mode === 'draw') { renderDraw(); return; }
+    if (state.mode === 'apply') { renderApply(); return; }
+    if (state.mode === 'quiz') { renderQuiz(); return; }
 
+    renderProp();
+  }
+
+  /* ---------- 性质：三步验证 ---------- */
+  function renderProp() {
     var fig = FIG[state.fig];
     var poly = fig.poly.map(function (p) { return { x: p[0] * SCL, z: -p[1] * SCL }; });
     var marks = fig.marks;
-    var offA = { x: 0, z: 0 };
-    var offB = { x: vec.x, z: vec.z };
+    var n = poly.length;
+    var th = state.dir * Math.PI / 180;
+    var vec = { x: Math.cos(th) * state.dist, z: Math.sin(th) * state.dist };
+    var f = state.foldT;
+    var mv = { x: vec.x * (1 - f), z: vec.z * (1 - f) };
 
     var tA = function (i) { return { x: poly[i].x, y: HGT, z: poly[i].z }; };
-    var tB = function (i) { return { x: poly[i].x + vec.x, y: HGT, z: poly[i].z + vec.z }; };
-
-    var moved = poly.map(function (p) { return { x: p.x + vec.x, z: p.z + vec.z }; });
+    var tB = function (i) { return { x: poly[i].x + mv.x, y: HGT, z: poly[i].z + mv.z }; };
+    var moved = poly.map(function (p) { return { x: p.x + mv.x, z: p.z + mv.z }; });
     var over = fig.convex ? polyIntersect(poly, moved) : [];
-    var overArea = over.length >= 3 ? polyArea(over) : 0;
-
-    // 箭头落点：选“最空旷”的对应点
-    var gx = 0, gz = 0;
-    for (var g = 0; g < poly.length; g++) { gx += poly[g].x; gz += poly[g].z; }
-    gx /= poly.length; gz /= poly.length;
-
-    var arrowIdx = marks[0][0], arrowCost = -1;
-    for (var s2 = 0; s2 < marks.length; s2++) {
-      var vi = poly[marks[s2][0]];
-      var mx0 = vi.x + vec.x / 2, mz0 = vi.z + vec.z / 2;
-      var dA0 = Math.hypot(mx0 - gx, mz0 - gz);
-      var dB0 = Math.hypot(mx0 - gx - vec.x, mz0 - gz - vec.z);
-      var cost = Math.min(dA0, dB0);
-      if (cost > arrowCost) { arrowCost = cost; arrowIdx = marks[s2][0]; }
-    }
 
     drawBoard();
     if (state.showGrid) drawGrid();
-    drawShadow(poly, offA);
-    drawShadow(poly, offB);
+    drawShadow(poly, { x: 0, z: 0 });
+    drawShadow(poly, mv);
 
-    /* 对应点连线：先画，被立体图形自然遮挡 */
-    if (state.showLinks) {
+    /* 对应点连线 AA′ BB′ CC′（A 那一条改画成箭头，避免叠在一起） */
+    if (state.showLinks && f < 0.88) {
       ctx.save();
-      ctx.setLineDash([7, 7]);
-      ctx.strokeStyle = 'rgba(122,143,172,0.95)';
-      ctx.lineWidth = 1.9;
+      ctx.setLineDash([7, 6]);
+      ctx.strokeStyle = 'rgba(110,132,164,0.92)';
+      ctx.lineWidth = 2;
       ctx.lineCap = 'round';
-      for (var m = 0; m < marks.length; m++) {
-        var idx = marks[m][0];
-        if (idx === arrowIdx) continue;
-        var q0 = pj(tA(idx)), q1 = pj(tB(idx));
+      for (var m = 1; m < marks.length; m++) {
+        var q0 = pj(tA(marks[m][0])), q1 = pj(tB(marks[m][0]));
         if (!q0 || !q1) continue;
         ctx.beginPath();
         ctx.moveTo(q0.x, q0.y);
@@ -666,125 +1326,170 @@
       ctx.restore();
     }
 
-    /* 立体图形 */
-    var sA = buildPrism(poly, offA, COL_A);
-    var sB = buildPrism(poly, offB, COL_B);
-    [sA, sB].sort(function (a, b) { return b.depth - a.depth; }).forEach(drawShape);
-
+    var sA = buildPrism(poly, { x: 0, z: 0 }, COL_A);
+    var sB = buildPrism(poly, mv, COL_B);
+    if (f > 0.02) {
+      drawShape(sA);
+      drawShape(sB);
+      if (f > 0.9) fillPoly(sA.top.map(pj), null, 'rgba(255,255,255,0.95)', 2.8);
+    } else {
+      [sA, sB].sort(function (a, b) { return b.depth - a.depth; }).forEach(drawShape);
+    }
     var cen2A = pj(sA.cen), cen2B = pj(sB.cen);
 
-    /* 重叠（阴影）区 */
-    var oc2 = null;
-    if (state.showOverlap && over.length >= 3) {
+    /* 重叠（阴影）区：可选 */
+    if (state.showOverlap && over.length >= 3 && f < 0.98) {
       var yTop = HGT + 0.016;
       var topPts = over.map(function (p) { return pj({ x: p.x, y: yTop, z: p.z }); });
-      var zPts = over.map(function (p) { return pj({ x: p.x, y: 0.006, z: p.z }); });
-
-      fillPoly(zPts, 'rgba(122,82,232,0.12)', 'rgba(122,82,232,0.30)', 1);
       fillPoly(topPts, COL_O.fill, null);
       hatchPolygon(over, yTop, COL_O.hatch, 0.26, 45);
-      fillPoly(topPts, null, 'rgba(255,255,255,0.95)', 3.6);
-      fillPoly(topPts, null, COL_O.edge, 1.7);
+      fillPoly(topPts, null, 'rgba(255,255,255,0.95)', 3.4);
+      fillPoly(topPts, null, COL_O.edge, 1.6);
+      var oc = polyCentroid(over), ocp = pj({ x: oc.x, y: yTop, z: oc.z });
+      if (ocp) textPill(ocp.x, ocp.y - 26, 'S = ' + fmt(polyArea(over)), '#4a21b8', 12.5, 800);
+    }
 
-      var oc = polyCentroid(over);
-      oc2 = pj({ x: oc.x, y: yTop, z: oc.z });
+    /* ③ 对应线段（红、等长刻度）与对应角（紫角弧） */
+    if (state.pv === 2 && f < 0.9) {
+      for (var ei = 0; ei < n; ei++) {
+        var ej = (ei + 1) % n;
+        line3Cased(tA(ei), tA(ej), 'rgba(96,120,156,0.40)', 1.5);
+        line3Cased(tB(ei), tB(ej), 'rgba(96,120,156,0.40)', 1.5);
+      }
+      var i1 = fig.hl[0], i2 = fig.hl[1];
+      line3Cased(tA(i1), tA(i2), '#d8315b', 4.4);
+      line3Cased(tB(i1), tB(i2), '#d8315b', 4.4);
 
-      if (oc2) {
-        text2(oc2.x, oc2.y - 18, 'S = ' + fmt(overArea), '#4a21b8', 14.5, 800);
-
-        if (state.showEdgeLen) {
-          for (var q = 0; q < over.length; q++) {
-            var a1 = over[q], a2 = over[(q + 1) % over.length];
-            var Le = Math.hypot(a2.x - a1.x, a2.z - a1.z);
-            if (Le < 0.45) continue;
-            var m2 = pj({ x: (a1.x + a2.x) / 2, y: yTop, z: (a1.z + a2.z) / 2 });
-            if (!m2) continue;
-            var ox2 = m2.x - oc2.x, oy2 = m2.y - oc2.y;
-            var lo = Math.hypot(ox2, oy2) || 1;
-            text2(m2.x + ox2 / lo * 17, m2.y + oy2 / lo * 17, fmt(Le), '#4a21b8', 11.5, 700);
-          }
+      var tkA0 = pj(tA(i1)), tkA1 = pj(tA(i2));
+      var tkB0 = pj(tB(i1)), tkB1 = pj(tB(i2));
+      var Lh = Math.hypot(poly[i2].x - poly[i1].x, poly[i2].z - poly[i1].z);
+      if (tkA0 && tkA1) {
+        drawTicks(tkA0, tkA1, 2, '#8f1436');
+        if (cen2A) {
+          var eA = offsetFrom({ x: (tkA0.x + tkA1.x) / 2, y: (tkA0.y + tkA1.y) / 2 }, cen2A, 27);
+          textPill(eA.x, eA.y, fmt(Lh), '#b3203f', 11.5, 700);
         }
       }
+      if (tkB0 && tkB1) {
+        drawTicks(tkB0, tkB1, 2, '#8f1436');
+        if (cen2B) {
+          var eB = offsetFrom({ x: (tkB0.x + tkB1.x) / 2, y: (tkB0.y + tkB1.y) / 2 }, cen2B, 27);
+          textPill(eB.x, eB.y, fmt(Lh), '#b3203f', 11.5, 700);
+        }
+      }
+
+      var i0 = (i1 - 1 + n) % n, i3 = (i1 + 1) % n;
+      var deg = boardAngleDeg(poly[i0], poly[i1], poly[i3]);
+      drawAngleMark(tA(i1), tA(i0), tA(i3), sA.cen, '#8a3ffc', fmt(deg, 1) + '°');
+      drawAngleMark(tB(i1), tB(i0), tB(i3), sB.cen, '#8a3ffc', '');
     }
 
-    /* 高亮对应边 */
-    if (state.showEdges) {
-      var hi = fig.hl;
-      line3Cased(tA(hi[0]), tA(hi[1]), '#d8315b', 4);
-      line3Cased(tB(hi[0]), tB(hi[1]), '#d8315b', 4);
-    }
-
-    /* 平移方向与距离 */
-    var pA = pj(tA(arrowIdx)), pB = pj(tB(arrowIdx));
-    if (pA && pB) {
+    /* 平移箭头（A → A′） */
+    var pA = pj(tA(marks[0][0])), pB = pj(tB(marks[0][0]));
+    if (pA && pB && f < 0.9) {
       drawArrow(pA, pB, '#0e9b86', 3.4);
-      var dxp = pB.x - pA.x, dyp = pB.y - pA.y;
-      var Lp = Math.sqrt(dxp * dxp + dyp * dyp) || 1;
-      var nxL = -dyp / Lp, nyL = dxp / Lp;
-
-      // 顶点字母占位，距离标注自动躲开
-      var occ = [];
-      for (var oi = 0; oi < marks.length; oi++) {
-        var pa2 = pj(tA(marks[oi][0])), pb2 = pj(tB(marks[oi][0]));
-        if (pa2 && cen2A) occ.push(offsetFrom(pa2, cen2A, 18));
-        if (pb2 && cen2B) occ.push(offsetFrom(pb2, cen2B, 18));
-      }
-      var topA2 = sA.top.map(pj), topB2 = sB.top.map(pj);
-      var bestP = null, bestScore = -1;
-      for (var tt = 0.22; tt <= 0.8601; tt += 0.16) {
-        for (var sg = -1; sg <= 1; sg += 2) {
-          var cxp = pA.x + dxp * tt + nxL * 28 * sg;
-          var cyp = pA.y + dyp * tt + nyL * 28 * sg;
-          // 按文字外框估算：标签约 62×16
-          var mnd = Infinity;
-          for (var oj = 0; oj < occ.length; oj++) {
-            var ddx = Math.max(Math.abs(cxp - occ[oj].x) - 31, 0);
-            var ddy = Math.max(Math.abs(cyp - occ[oj].y) - 9, 0);
-            var dd = Math.hypot(ddx, ddy);
-            if (dd < mnd) mnd = dd;
+      if (state.pv === 0) {
+        var ux = pB.x - pA.x, uy = pB.y - pA.y;
+        var lu = Math.hypot(ux, uy) || 1;
+        var topA2 = sA.top.map(pj), topB2 = sB.top.map(pj);
+        var bestP2 = null, bestS2 = -1e9;
+        for (var tt = 0.24; tt <= 0.77; tt += 0.175) {
+          for (var sg = -1; sg <= 1; sg += 2) {
+            var cxp = pA.x + ux * tt - uy / lu * 32 * sg;
+            var cyp = pA.y + uy * tt + ux / lu * 32 * sg;
+            var sc2 = 0;
+            if (topA2.every(Boolean) && pointInPoly({ x: cxp, y: cyp }, topA2)) sc2 -= 120;
+            if (topB2.every(Boolean) && pointInPoly({ x: cxp, y: cyp }, topB2)) sc2 -= 120;
+            sc2 += Math.min(Math.hypot(cxp - cen2A.x, cyp - cen2A.y),
+                            Math.hypot(cxp - cen2B.x, cyp - cen2B.y)) * 0.35;
+            if (sc2 > bestS2) { bestS2 = sc2; bestP2 = { x: cxp, y: cyp }; }
           }
-          // 落在图形本身上要扣分，尽量把标注放在空白处
-          var pt0 = { x: cxp, y: cyp };
-          if (topA2.every(Boolean) && pointInPoly(pt0, topA2)) mnd -= 45;
-          if (topB2.every(Boolean) && pointInPoly(pt0, topB2)) mnd -= 45;
-          if (mnd > bestScore) { bestScore = mnd; bestP = { x: cxp, y: cyp }; }
         }
-      }
-      if (bestP && bestScore > 8) {
-        text2(bestP.x, bestP.y, '距离 ' + fmt(state.dist), '#0b7d6c', 12.5, 700);
+        if (bestP2) textPill(bestP2.x, bestP2.y, '平移 ' + fmt(state.dist), '#0b7d6c', 12, 700);
       }
     }
 
-    /* 对应点与字母 */
-    for (var k = 0; k < marks.length; k++) {
-      var ia = marks[k][0];
-      var aa = pj(tA(ia)), bb = pj(tB(ia));
-      if (aa) dot2(aa.x, aa.y, hsl(COL_A.h, COL_A.s, COL_A.l * 0.7), 3.3);
-      if (bb) dot2(bb.x, bb.y, hsl(COL_B.h, COL_B.s, COL_B.l * 0.62), 3.3);
+    /* ② 每条对应点连线的长度 */
+    if (state.pv === 1 && f < 0.9 && n <= 6) {
+      for (var q = 1; q < marks.length; q++) {
+        var l0 = pj(tA(marks[q][0])), l1 = pj(tB(marks[q][0]));
+        if (!l0 || !l1) continue;
+        var lmx = (l0.x + l1.x) / 2, lmy = (l0.y + l1.y) / 2;
+        var ldx = l1.x - l0.x, ldy = l1.y - l0.y, ll = Math.hypot(ldx, ldy) || 1;
+        textPill(lmx - ldy / ll * 18, lmy + ldx / ll * 18, fmt(state.dist), '#3d5f8f', 10.5, 700);
+      }
     }
 
+    /* 顶点字母 */
     if (state.showLetters) {
-      for (var z = 0; z < marks.length; z++) {
-        var ii = marks[z][0], letter = marks[z][1];
-        var pa = pj(tA(ii)), pb = pj(tB(ii));
+      for (var k = 0; k < marks.length; k++) {
+        var ia = marks[k][0];
+        var pa = pj(tA(ia)), pb = pj(tB(ia));
         if (pa && cen2A) {
-          var q1 = offsetFrom(pa, cen2A, 18);
-          text2(q1.x, q1.y, letter, '#1e3a68', 15, 700);
+          var q1 = offsetFrom(pa, cen2A, 22);
+          text2(q1.x, q1.y, marks[k][1], '#1e3a68', 15, 700);
         }
-        if (pb && cen2B) {
-          var q2 = offsetFrom(pb, cen2B, 18);
-          text2(q2.x, q2.y, letter + '′', '#a4520f', 15, 700);
+        if (pb && cen2B && f < 0.9) {
+          var q2 = offsetFrom(pb, cen2B, 22);
+          text2(q2.x, q2.y, marks[k][1] + '′', '#a4520f', 15, 700);
         }
       }
     }
 
-    lastGeom = { topB: sB.top.map(pj), botB: sB.bot.map(pj) };
+    if (f > 0.9 && cen2A) {
+      textPill(cen2A.x, cen2A.y - 34, '完全重合 ✓', '#0f8f6c', 13, 800);
+    }
+
+    lastGeom = f < 0.9 ? { topB: sB.top.map(pj), botB: sB.bot.map(pj) } : null;
   }
 
   function offsetFrom(p2, cen2, r) {
     var dx = p2.x - cen2.x, dy = p2.y - cen2.y;
     var l = Math.hypot(dx, dy) || 1;
     return { x: p2.x + dx / l * r, y: p2.y + dy / l * r };
+  }
+
+  function wrapPi(a) {
+    while (a > Math.PI) a -= 2 * Math.PI;
+    while (a < -Math.PI) a += 2 * Math.PI;
+    return a;
+  }
+
+  // 板面坐标下的真实内角（度）
+  function boardAngleDeg(prev, cur, next) {
+    var v1 = { x: prev.x - cur.x, z: prev.z - cur.z };
+    var v2 = { x: next.x - cur.x, z: next.z - cur.z };
+    var c = (v1.x * v2.x + v1.z * v2.z) /
+      ((Math.hypot(v1.x, v1.z) || 1) * (Math.hypot(v2.x, v2.z) || 1));
+    return Math.acos(clamp(c, -1, 1)) * 180 / Math.PI;
+  }
+
+  // 在顶点 P1 处画内角弧：P0、P2 为相邻顶点，cen 为图形中心（用于判别内侧）
+  function drawAngleMark(cur3, prev3, next3, cen3, color, label) {
+    var P1 = pj(cur3), P0 = pj(prev3), P2 = pj(next3), C = cen3 ? pj(cen3) : null;
+    if (!P1 || !P0 || !P2) return;
+    var a1 = Math.atan2(P0.y - P1.y, P0.x - P1.x);
+    var a2 = Math.atan2(P2.y - P1.y, P2.x - P1.x);
+    var d1 = wrapPi(a2 - a1);
+    var d2 = d1 > 0 ? d1 - 2 * Math.PI : d1 + 2 * Math.PI;
+    var vx = C ? C.x - P1.x : 1, vy = C ? C.y - P1.y : 0;
+    var m1 = a1 + d1 / 2, m2 = a1 + d2 / 2;
+    var pick = (Math.cos(m1) * vx + Math.sin(m1) * vy) >= (Math.cos(m2) * vx + Math.sin(m2) * vy) ? d1 : d2;
+    var R = 16;
+    ctx.save();
+    ctx.beginPath();
+    for (var t = 0; t <= 12; t++) {
+      var a = a1 + pick * (t / 12);
+      var px2 = P1.x + Math.cos(a) * R, py2 = P1.y + Math.sin(a) * R;
+      if (t === 0) ctx.moveTo(px2, py2); else ctx.lineTo(px2, py2);
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.6;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.restore();
+    var bis = a1 + pick / 2;
+    if (label) text2(P1.x + Math.cos(bis) * 44, P1.y + Math.sin(bis) * 44, label, color, 10.5, 700);
   }
 
   function pointInPoly(pt, p2) {
@@ -797,6 +1502,11 @@
   }
 
   function hitImage(sx, sy) {
+    if (state.mode === 'coord') {
+      if (!lastGeom || !lastGeom.moved) return false;
+      return lastGeom.moved.every(Boolean) && pointInPoly({ x: sx, y: sy }, lastGeom.moved);
+    }
+    if (state.mode !== 'prop') return false;
     if (!lastGeom) return false;
     var pt = { x: sx, y: sy };
     var a = lastGeom.topB.every(Boolean) && pointInPoly(pt, lastGeom.topB);
@@ -812,15 +1522,24 @@
   cvs.addEventListener('pointerdown', function (e) {
     if (cvs.setPointerCapture) { try { cvs.setPointerCapture(e.pointerId); } catch (err) {} }
 
+    if (state.mode === 'draw' && state.dMode === 'practice') { placeDrawPoint(e.clientX, e.clientY); return; }
+
     if (hitImage(e.clientX, e.clientY)) {
       var bp = screenToBoard(e.clientX, e.clientY);
       if (bp) {
+        if (state.mode === 'coord') {
+          figDrag = { kind: 'coord', ox: bp.x - state.ca, oy: -bp.z - state.cb };
+          cvs.style.cursor = 'grabbing';
+          return;
+        }
         var th = state.dir * Math.PI / 180;
         figDrag = {
+          kind: 'prop',
           gx: bp.x - Math.cos(th) * state.dist,
           gz: bp.z - Math.sin(th) * state.dist
         };
-        if (state.auto) setAuto(false);
+        state.foldT = 0;
+        state.foldGoal = 0;
         cam.goal.x = cam.target.x;          // 冻结相机，图形不跟手漂移
         cam.goal.z = cam.target.z;
         cvs.style.cursor = 'grabbing';
@@ -835,6 +1554,13 @@
     if (figDrag) {
       var bp2 = screenToBoard(e.clientX, e.clientY);
       if (!bp2) return;
+      if (figDrag.kind === 'coord') {
+        state.ca = clamp(Math.round(bp2.x - figDrag.ox), -5, 5);
+        state.cb = clamp(Math.round(-bp2.z - figDrag.oy), -5, 5);
+        syncInputs();
+        updateUI();
+        return;
+      }
       var nx = bp2.x - figDrag.gx;
       var nz = bp2.z - figDrag.gz;
       var d = Math.hypot(nx, nz);
@@ -902,21 +1628,105 @@
     dist: document.getElementById('dist'),
     dirVal: document.getElementById('dirVal'),
     distVal: document.getElementById('distVal'),
-    autoBtn: document.getElementById('autoBtn'),
-    resetBtn: document.getElementById('resetBtn'),
-    topBtn: document.getElementById('topBtn'),
     figSeg: document.getElementById('figSeg'),
     cOverlap: document.getElementById('cOverlap'),
-    cEdgeLen: document.getElementById('cEdgeLen'),
     cLinks: document.getElementById('cLinks'),
     cLetters: document.getElementById('cLetters'),
-    cEdges: document.getElementById('cEdges'),
     cGrid: document.getElementById('cGrid'),
-    ovArea: document.getElementById('ovArea'),
-    ovEdges: document.getElementById('ovEdges'),
-    p1: document.getElementById('p1'),
-    p2: document.getElementById('p2'),
-    p3: document.getElementById('p3')
+    pvSeg: document.getElementById('pvSeg'),
+    pvLab: document.getElementById('pvLab'),
+    pvTitle: document.getElementById('pvTitle'),
+    pvDesc: document.getElementById('pvDesc'),
+    pvTable: document.getElementById('pvTable'),
+    pvNote: document.getElementById('pvNote'),
+    foldBtn: document.getElementById('foldBtn'),
+    hint: document.getElementById('hint'),
+    modeSeg: document.getElementById('modeSeg'),
+    /* 组合图案 */
+    motifSeg: document.getElementById('motifSeg'),
+    pnx: document.getElementById('pnx'),
+    pny: document.getElementById('pny'),
+    pnxVal: document.getElementById('pnxVal'),
+    pnyVal: document.getElementById('pnyVal'),
+    pNote: document.getElementById('pNote'),
+    pParts: document.getElementById('pParts'),
+    pAnsBtn: document.getElementById('pAnsBtn'),
+    pAnsText: document.getElementById('pAnsText'),
+    pPlayBtn: document.getElementById('pPlayBtn'),
+    pTopBtn: document.getElementById('pTopBtn'),
+    pResetBtn: document.getElementById('pResetBtn'),
+    /* 坐标平移 */
+    cFigSeg: document.getElementById('cFigSeg'),
+    ca: document.getElementById('ca'),
+    cb: document.getElementById('cb'),
+    caVal: document.getElementById('caVal'),
+    cbVal: document.getElementById('cbVal'),
+    coordTable: document.getElementById('coordTable'),
+    coordRule: document.getElementById('coordRule'),
+    /* 平移作图 */
+    dModeSeg: document.getElementById('dModeSeg'),
+    teachTask: document.getElementById('teachTask'),
+    dStepLab: document.getElementById('dStepLab'),
+    dStepTitle: document.getElementById('dStepTitle'),
+    dStepDesc: document.getElementById('dStepDesc'),
+    dPrev: document.getElementById('dPrev'),
+    dNext: document.getElementById('dNext'),
+    dAuto: document.getElementById('dAuto'),
+    dRestart: document.getElementById('dRestart'),
+    drawNote: document.getElementById('drawNote'),
+    drawTask: document.getElementById('drawTask'),
+    drawProg: document.getElementById('drawProg'),
+    drawMsg: document.getElementById('drawMsg'),
+    drawCheck: document.getElementById('drawCheck'),
+    drawAns: document.getElementById('drawAns'),
+    drawNew: document.getElementById('drawNew'),
+    /* 面积应用 */
+    apSeg: document.getElementById('apSeg'),
+    apLawnGrp: document.getElementById('apLawnGrp'),
+    apStairGrp: document.getElementById('apStairGrp'),
+    apA: document.getElementById('apA'),
+    apB: document.getElementById('apB'),
+    apW: document.getElementById('apW'),
+    apAVal: document.getElementById('apAVal'),
+    apBVal: document.getElementById('apBVal'),
+    apWVal: document.getElementById('apWVal'),
+    apSW: document.getElementById('apSW'),
+    apSH: document.getElementById('apSH'),
+    apSN: document.getElementById('apSN'),
+    apSWVal: document.getElementById('apSWVal'),
+    apSHVal: document.getElementById('apSHVal'),
+    apSNVal: document.getElementById('apSNVal'),
+    apResult: document.getElementById('apResult'),
+    apResultLab: document.getElementById('apResultLab'),
+    apResultGrp: document.getElementById('apResultGrp'),
+    apFormula: document.getElementById('apFormula'),
+    apStepLab: document.getElementById('apStepLab'),
+    apStepTitle: document.getElementById('apStepTitle'),
+    apStepDesc: document.getElementById('apStepDesc'),
+    apPrev: document.getElementById('apPrev'),
+    apNext: document.getElementById('apNext'),
+    apPlay: document.getElementById('apPlay'),
+    apNote: document.getElementById('apNote'),
+    /* 闯关检验 */
+    qzBoardGrp: document.getElementById('qzBoardGrp'),
+    qzScore: document.getElementById('qzScore'),
+    qzBar: document.getElementById('qzBar'),
+    qzQGrp: document.getElementById('qzQGrp'),
+    qzTag: document.getElementById('qzTag'),
+    qzType: document.getElementById('qzType'),
+    qzQ: document.getElementById('qzQ'),
+    qzOpts: document.getElementById('qzOpts'),
+    qzMsg: document.getElementById('qzMsg'),
+    qzSol: document.getElementById('qzSol'),
+    qzFinGrp: document.getElementById('qzFinGrp'),
+    qzStamp: document.getElementById('qzStamp'),
+    qzFinList: document.getElementById('qzFinList'),
+    qzNavGrp: document.getElementById('qzNavGrp'),
+    qzPrev: document.getElementById('qzPrev'),
+    qzNext: document.getElementById('qzNext'),
+    qzReset: document.getElementById('qzReset'),
+    qzShow: document.getElementById('qzShow'),
+    qzNote: document.getElementById('qzNote')
   };
 
   function dirText(deg) {
@@ -933,73 +1743,298 @@
   function syncInputs() {
     el.dir.value = state.dir;
     el.dist.value = state.dist;
+    el.ca.value = state.ca;
+    el.cb.value = state.cb;
+  }
+
+  function sgn(n) {
+    if (n > 0) return '+' + n;
+    if (n < 0) return String(n).replace('-', '−');
+    return '0';
+  }
+
+  function updateCoordUI() {
+    var f = COORD_FIG[state.cfig], a = state.ca, b = state.cb;
+    el.caVal.textContent = sgn(a);
+    el.cbVal.textContent = sgn(b);
+    el.ca.value = a;
+    el.cb.value = b;
+
+    var html = '';
+    for (var i = 0; i < f.pts.length; i++) {
+      var p = f.pts[i], lb = f.lb[i];
+      html += '<div class="row"><span class="k">' + lb + '(' + p[0] + ', ' + p[1] + ')</span>' +
+        '<span class="v">' + lb + '′(<i>' + (p[0] + a) + ', ' + (p[1] + b) + '</i>)</span></div>';
+    }
+    el.coordTable.innerHTML = html;
+
+    var parts = [];
+    if (a !== 0) parts.push('横坐标' + (a > 0 ? '加 ' + a : '减 ' + Math.abs(a)) + '（向' + (a > 0 ? '右' : '左') + '）');
+    if (b !== 0) parts.push('纵坐标' + (b > 0 ? '加 ' + b : '减 ' + Math.abs(b)) + '（向' + (b > 0 ? '上' : '下') + '）');
+    if (!parts.length) parts.push('没有平移');
+    el.coordRule.innerHTML = 'x′ = x + (' + sgn(a) + ')，y′ = y + (' + sgn(b) + ')<br>' + parts.join('，');
+  }
+
+  function drawTaskText() {
+    var t = state.dTask;
+    var vs = [];
+    if (t.a !== 0) vs.push('向' + (t.a > 0 ? '右' : '左') + '平移 ' + Math.abs(t.a) + ' 格');
+    if (t.b !== 0) vs.push('向' + (t.b > 0 ? '上' : '下') + '平移 ' + Math.abs(t.b) + ' 格');
+    return '把 △ABC ' + vs.join('、') + '，画出 △A′B′C′。';
+  }
+
+  /* 六步法：找关键点 → 定方向 → 数格子 → 描A′ → 描B′C′ → 顺次连线 */
+  function stepInfo() {
+    var t = state.dTask;
+    var hor = t.a !== 0 ? '向' + (t.a > 0 ? '右' : '左') + '平移 ' + Math.abs(t.a) + ' 格' : '';
+    var ver = t.b !== 0 ? '向' + (t.b > 0 ? '上' : '下') + '平移 ' + Math.abs(t.b) + ' 格' : '';
+    var both = [hor, ver].filter(Boolean).join('，再');
+    var S = [
+      { t: '① 找关键点', d: '图形的位置是由顶点决定的。三角形的关键点就是 A、B、C 三个顶点 —— 平移时图形的形状、大小都不变，所以只要把每个顶点移过去，再连起来就行了。' },
+      { t: '② 定方向', d: '平移有两个要素：方向和距离。本题要求把 △ABC ' + both + '。看左下角的箭头：这就是平移方向，每个点都必须沿这个方向移动，方向偏了整个图形就错了。' },
+      { t: '③ 数格子', d: '从点 A 出发，一格一格地数：先' + (hor || '不动') + (ver ? '，再' + ver : '') + '。图中的数字就是数的第几格，数到头就是 A′ 的位置 —— 一格都不能多数、少数。' },
+      { t: '④ 描出 A′', d: '数好格子，点出 A′，并用虚线把 A 和 A′ 连起来。这条虚线的方向就是平移方向，长度就是平移的距离，它是后面两个点的"样板"。' },
+      { t: '⑤ 描出 B′ 和 C′', d: 'B、C 用完全相同的办法：同样的方向、同样的格数，分别描出 B′、C′。检查一下：三条虚线应当互相平行，而且一样长 —— 对应点连线平行且相等。' },
+      { t: '⑥ 顺次连线', d: '把 A′、B′、C′ 用直尺顺次连接，就画出了 △A′B′C′。最后检验：对应线段平行且相等、对应角相等，新三角形与原三角形形状、大小完全相同。' }
+    ];
+    return S[state.dStep];
+  }
+
+  function applyDrawSub() {
+    document.body.classList.toggle('dt', state.dMode === 'teach');
+    document.body.classList.toggle('dp', state.dMode === 'practice');
+    Array.prototype.forEach.call(el.dModeSeg.querySelectorAll('button'), function (b) {
+      b.classList.toggle('on', b.getAttribute('data-dm') === state.dMode);
+    });
+    if (state.mode === 'draw') {
+      el.hint.innerHTML = state.dMode === 'teach'
+        ? '点「<b style="color:#3a67c8;font-weight:600">下一步</b>」按四步法演示怎样画平移后的图形 · 拖动空白处旋转视角'
+        : '在方格上<b style="color:#3a67c8;font-weight:600">点一下</b>就能标点（自动吸附到格点）· 依次标出 A′、B′、C′';
+    }
+  }
+
+  function updateDrawUI() {
+    el.drawTask.textContent = drawTaskText();
+    el.drawProg.textContent = state.dPlaced.length + ' / 3';
+    el.drawMsg.textContent = state.dMsg || '在方格纸上依次点出 A′、B′、C′ 的位置';
+    el.drawMsg.className = 'msg ' + (state.dMsgType || 'idle');
+
+    if (state.dMode === 'teach') {
+      el.teachTask.textContent = drawTaskText();
+      var si = stepInfo();
+      el.dStepTitle.textContent = si.t;
+      el.dStepDesc.textContent = si.d;
+      el.dStepLab.textContent = '第 ' + (state.dStep + 1) + ' 步 · 共 6 步';
+    }
+  }
+
+  /* 三步讲题：读题 → 平移拼整 → 列式计算 */
+  function apStepInfo() {
+    var lawn = state.ap === 'lawn';
+    var a = state.apA, b = state.apB, w = state.apW;
+    var Wd = state.apSN * state.apSW, Ht = state.apSN * state.apSH;
+    if (lawn) {
+      return [
+        { t: '读题 · 找条件', d: '一块长方形草坪，长 ' + a + ' 米、宽 ' + b + ' 米，中间修了一条宽 ' + fmt(w, 1) + ' 米的小路。求草坪（绿色部分）的面积。注意：小路把草坪分成了<b>左右两块</b>，不能直接套长方形面积公式。' },
+        { t: '平移 · 拼整块', d: '关键一步：小路是竖直的，两块草坪的形状、大小都一样高。把<b>左边那块草坪沿水平方向向右平移 ' + fmt(w, 1) + ' 米</b>（正好是小路的宽度），两块草坪就无缝拼成了一个完整的长方形 —— 中间不再有缺口。' },
+        { t: '列式 · 算结果', d: '拼成的新长方形：宽不变，还是 ' + b + ' 米；长缩短了，长 = ' + a + ' − ' + fmt(w, 1) + ' = ' + fmt(a - w, 1) + ' 米。用长方形面积公式算出答案。' }
+      ];
+    }
+    return [
+      { t: '读题 · 找条件', d: '楼梯有 ' + state.apSN + ' 级，每级宽 ' + fmt(state.apSW, 1) + ' 米、高 ' + fmt(state.apSH, 1) + ' 米。要在台阶上铺一条地毯（红色折线），求地毯的长度。台阶是折来折去的，直接量很麻烦。' },
+      { t: '平移 · 拉直', d: '把地毯上每一段<b>竖直的部分</b>向下平移，都移到同一条竖直线上，正好是总高 ' + fmt(Ht, 1) + ' 米；每一段<b>水平的部分</b>向左平移，都移到同一条水平线上，正好是总宽 ' + fmt(Wd, 1) + ' 米。折线就"拉直"了。' },
+      { t: '列式 · 算结果', d: '拉直后的地毯长度 = 总宽 + 总高，列式算出答案。' }
+    ];
+  }
+
+  function setApStep(i) {
+    state.apStep = clamp(i, 0, 2);
+    if (state.apStep === 1) {
+      state.apT = 0;
+      state.apAnim = true;
+      el.apPlay.classList.add('playing');
+    } else {
+      state.apAnim = false;
+      el.apPlay.classList.remove('playing');
+      state.apT = state.apStep === 2 ? 1 : 0;
+    }
+    updateApplyUI();
+  }
+
+  function updateApplyUI() {
+    var lawn = state.ap === 'lawn';
+    el.apLawnGrp.style.display = lawn ? '' : 'none';
+    el.apStairGrp.style.display = lawn ? 'none' : '';
+    el.apAVal.textContent = fmt(state.apA, 0);
+    el.apBVal.textContent = fmt(state.apB, 0);
+    el.apWVal.textContent = fmt(state.apW, 1);
+    el.apSWVal.textContent = fmt(state.apSW, 1);
+    el.apSHVal.textContent = fmt(state.apSH, 1);
+    el.apSNVal.textContent = state.apSN;
+
+    var si = apStepInfo()[state.apStep];
+    el.apStepTitle.textContent = si.t;
+    el.apStepDesc.innerHTML = si.d;
+    el.apStepLab.textContent = '第 ' + (state.apStep + 1) + ' 步 · 共 3 步';
+
+    var a = state.apA, b = state.apB, w = state.apW;
+    var Wd = state.apSN * state.apSW, Ht = state.apSN * state.apSH;
+    if (lawn) {
+      if (state.apStep === 0) {
+        el.apResultGrp.style.display = 'none';
+        el.apNote.innerHTML = '先别急着算 —— 想一想：被小路隔开的两块草坪，<b>能不能只靠平移拼成一个长方形</b>？';
+      } else if (state.apStep === 1) {
+        el.apResultGrp.style.display = '';
+        el.apResultLab.textContent = '拼成的新长方形';
+        el.apResult.textContent = fmt(a - w, 1) + ' × ' + fmt(b, 1);
+        el.apFormula.innerHTML = '左块草坪向右平移 <b>' + fmt(w, 1) + '</b> 米后与右块无缝相接：<br>新长 = ' + a + ' − ' + fmt(w, 1) + ' = <b>' + fmt(a - w, 1) + '</b>（米），宽不变 = ' + b + ' 米';
+        el.apNote.innerHTML = '面积没有变 —— 平移只改变<b>位置</b>，不改变<b>形状和大小</b>。';
+      } else {
+        el.apResultGrp.style.display = '';
+        el.apResultLab.textContent = '草坪面积';
+        el.apResult.textContent = fmt((a - w) * b, 1);
+        el.apFormula.innerHTML = 'S = (' + a + ' − ' + fmt(w, 1) + ') × ' + b + ' = ' + fmt(a - w, 1) + ' × ' + b + ' = <b>' + fmt((a - w) * b, 1) + '</b>（平方米）';
+        el.apNote.innerHTML = '以后再遇到"中间挖去一条"的图形，就想想<b>能不能用平移拼成完整的长方形</b>。';
+      }
+    } else {
+      if (state.apStep === 0) {
+        el.apResultGrp.style.display = 'none';
+        el.apNote.innerHTML = '地毯是<b>折线</b>，一段一段量太麻烦 —— 竖的和横的能不能<b>分别平移到一条线上</b>？';
+      } else if (state.apStep === 1) {
+        el.apResultGrp.style.display = '';
+        el.apResultLab.textContent = '拉直后的地毯';
+        el.apResult.textContent = fmt(Wd + Ht, 1);
+        el.apFormula.innerHTML = '竖直各段平移到一条竖线上 = 总高 <b>' + fmt(Ht, 1) + '</b> 米<br>水平各段平移到一条横线上 = 总宽 <b>' + fmt(Wd, 1) + '</b> 米';
+        el.apNote.innerHTML = '平移不改变线段的<b>长度</b>，所以拉直前后地毯一样长。';
+      } else {
+        el.apResultGrp.style.display = '';
+        el.apResultLab.textContent = '地毯长度';
+        el.apResult.textContent = fmt(Wd + Ht, 1);
+        el.apFormula.innerHTML = 'L = 总宽 + 总高 = ' + fmt(Wd, 1) + ' + ' + fmt(Ht, 1) + ' = <b>' + fmt(Wd + Ht, 1) + '</b>（米）';
+        el.apNote.innerHTML = '平移把<b>弯曲的线段拼直</b>，复杂的题就变简单了。';
+      }
+    }
+  }
+
+  /* 性质三步的文案与测量数据 */
+  function pvInfo() {
+    var fig = FIG[state.fig];
+    var poly = fig.poly.map(function (p) { return { x: p[0] * SCL, z: -p[1] * SCL }; });
+    var nm = {};
+    fig.marks.forEach(function (m) { nm[m[0]] = m[1]; });
+    var n = poly.length;
+
+    var P2 = 0, S2 = Math.abs(signedArea(poly));
+    for (var i = 0; i < n; i++) {
+      var j = (i + 1) % n;
+      P2 += Math.hypot(poly[j].x - poly[i].x, poly[j].z - poly[i].z);
+    }
+
+    var i1 = fig.hl[0], i2 = fig.hl[1];
+    var NA = nm[i1] || 'A', NB = nm[i2] || 'B';
+    var Lh = Math.hypot(poly[i2].x - poly[i1].x, poly[i2].z - poly[i1].z);
+    var degH = boardAngleDeg(poly[(i1 - 1 + n) % n], poly[i1], poly[(i1 + 1) % n]);
+
+    if (state.pv === 0) {
+      return {
+        t: '① 平移前后，形状和大小变了吗？',
+        d: '点下面的按钮，把橙色图形<b>移回原位置</b>，看它能不能和蓝色图形完全重合。',
+        rows: [['面积 S', fmt(S2) + ' / ' + fmt(S2)],
+               ['周长 C', fmt(P2) + ' / ' + fmt(P2)],
+               ['顶点个数', n + ' / ' + n]],
+        note: '结论：平移前后的两个图形<b>全等</b> —— 只有位置变了，形状、大小都没变。'
+      };
+    }
+    if (state.pv === 1) {
+      var mL = [];
+      for (var k = 0; k < Math.min(fig.marks.length, 3); k++) {
+        mL.push(fig.marks[k][1] + fig.marks[k][1] + '′');
+      }
+      var rows = [[mL.join(' = '), fmt(state.dist)],
+                  ['方向', dirText(state.dir)],
+                  ['是否互相平行', '是']];
+      return {
+        t: '② 对应点连成的线段，有什么关系？',
+        d: '把每个顶点和它的对应点连起来：AA′、BB′、CC′。它们不仅<b>一样长</b>，而且互相<b>平行</b>（或在同一条直线上）。',
+        rows: rows,
+        note: '结论：对应点所连的线段<b>平行（或在同一直线上）且相等</b>，长度就是平移的距离。'
+      };
+    }
+    return {
+      t: '③ 对应线段、对应角，有什么关系？',
+      d: '红色加粗的一对边是<b>对应线段</b> AB 与 A′B′，紫色角弧是<b>对应角</b> ∠A 与 ∠A′。',
+      rows: [[NA + NB + ' / ' + NA + '′' + NB + '′', fmt(Lh) + ' / ' + fmt(Lh)],
+             ['∠' + NA + ' / ∠' + NA + '′', fmt(degH, 1) + '° / ' + fmt(degH, 1) + '°'],
+             ['重合情况', '完全重合']],
+      note: '结论：对应线段<b>平行且相等</b>，对应角<b>相等</b>。这三条就是平移的性质。'
+    };
   }
 
   function updateUI() {
+    if (state.mode === 'pat') { updatePatUI(); return; }
+    if (state.mode === 'coord') { updateCoordUI(); return; }
+    if (state.mode === 'draw') { updateDrawUI(); return; }
+    if (state.mode === 'apply') { updateApplyUI(); return; }
+    if (state.mode === 'quiz') { updateQuizUI(); return; }
+
     el.dirVal.textContent = dirText(state.dir);
     el.distVal.textContent = fmt(state.dist);
 
-    var fig = FIG[state.fig];
-    var poly = fig.poly.map(function (p) { return { x: p[0] * SCL, z: -p[1] * SCL }; });
-    var th = state.dir * Math.PI / 180;
-    var vec = { x: Math.cos(th) * state.dist, z: Math.sin(th) * state.dist };
-
-    if (fig.convex) {
-      var moved = poly.map(function (p) { return { x: p.x + vec.x, z: p.z + vec.z }; });
-      var over = polyIntersect(poly, moved);
-      if (over.length >= 3) {
-        el.ovArea.textContent = 'S = ' + fmt(polyArea(over));
-        var ls = [];
-        for (var i = 0; i < over.length; i++) {
-          var a = over[i], b = over[(i + 1) % over.length];
-          ls.push(fmt(Math.hypot(b.x - a.x, b.z - a.z), 2));
-        }
-        el.ovEdges.textContent = ls.join(' / ');
-      } else {
-        el.ovArea.textContent = 'S = 0';
-        el.ovEdges.textContent = '两块图形已经完全分开，没有重叠';
-      }
-    } else {
-      el.ovArea.textContent = '—';
-      el.ovEdges.textContent = '字母 F 是凹图形，不做重叠分析';
+    var info = pvInfo();
+    el.pvLab.textContent = '第 ' + (state.pv + 1) + ' 步 / 共 3 步';
+    el.pvTitle.textContent = info.t;
+    el.pvDesc.innerHTML = info.d;
+    var html = '';
+    for (var r = 0; r < info.rows.length; r++) {
+      html += '<div class="row"><span class="k">' + info.rows[r][0] +
+        '</span><span class="v">' + info.rows[r][1] + '</span></div>';
     }
+    el.pvTable.innerHTML = html;
+    el.pvNote.innerHTML = info.note;
+    el.foldBtn.textContent = state.foldGoal > 0.5 ? '还原到平移后的位置' : '把橙色图形移回去，看能否重合';
 
-    var m = fig.marks, nm = {};
-    for (var k = 0; k < m.length; k++) nm[m[k][0]] = m[k][1];
-
-    var i1 = fig.hl[0], i2 = fig.hl[1];
-    var L1 = Math.hypot(poly[i2].x - poly[i1].x, poly[i2].z - poly[i1].z);
-    el.p1.textContent = nm[i1] + nm[i2] + ' = ' + nm[i1] + '′' + nm[i2] + '′ = ' +
-      fmt(L1) + '，每条边、每个角都不变';
-
-    el.p2.textContent = 'AA′ = BB′ = ' + fmt(state.dist) + '，且互相平行';
-
-    var n = poly.length;
-    var pre = poly[(i1 - 1 + n) % n], nxt = poly[(i1 + 1) % n], cur = poly[i1];
-    var vx1 = pre.x - cur.x, vz1 = pre.z - cur.z;
-    var vx2 = nxt.x - cur.x, vz2 = nxt.z - cur.z;
-    var cosA = (vx1 * vx2 + vz1 * vz2) / ((Math.hypot(vx1, vz1) || 1) * (Math.hypot(vx2, vz2) || 1));
-    var ang = Math.acos(clamp(cosA, -1, 1)) * 180 / Math.PI;
-    el.p3.textContent = nm[i1] + nm[i2] + ' ∥ ' + nm[i1] + '′' + nm[i2] + '′，∠' +
-      nm[i1] + ' = ∠' + nm[i1] + '′ = ' + fmt(ang, 1) + '°';
+    document.body.classList.toggle('pv0', state.pv === 0);
+    document.body.classList.toggle('pv1', state.pv === 1);
+    document.body.classList.toggle('pv2', state.pv === 2);
+    Array.prototype.forEach.call(el.pvSeg.querySelectorAll('button'), function (b) {
+      b.classList.toggle('on', parseInt(b.getAttribute('data-pv'), 10) === state.pv);
+    });
   }
+
+  function setPv(i) {
+    state.pv = clamp(i, 0, 2);
+    state.foldT = 0;
+    state.foldGoal = 0;
+    updateUI();
+  }
+
+  Array.prototype.forEach.call(el.pvSeg.querySelectorAll('button'), function (btn) {
+    btn.addEventListener('click', function () {
+      setPv(parseInt(btn.getAttribute('data-pv'), 10));
+    });
+  });
+
+  el.foldBtn.addEventListener('click', function () {
+    state.foldGoal = state.foldGoal > 0.5 ? 0 : 1;
+    updateUI();
+  });
 
   el.dir.addEventListener('input', function () {
     state.dir = parseFloat(el.dir.value);
+    state.foldT = 0; state.foldGoal = 0;
     updateUI();
   });
   el.dist.addEventListener('input', function () {
     state.dist = parseFloat(el.dist.value);
-    if (state.auto) setAuto(false);
+    state.foldT = 0; state.foldGoal = 0;
     updateUI();
   });
 
   function applyFigUI() {
     var convex = FIG[state.fig].convex;
     el.cOverlap.disabled = !convex;
-    el.cEdgeLen.disabled = !convex;
     el.cOverlap.parentNode.classList.toggle('dim', !convex);
-    el.cEdgeLen.parentNode.classList.toggle('dim', !convex);
+    if (!convex) state.showOverlap = false;
   }
 
   Array.prototype.forEach.call(el.figSeg.querySelectorAll('button'), function (btn) {
@@ -1007,37 +2042,1350 @@
       Array.prototype.forEach.call(el.figSeg.querySelectorAll('button'), function (b) { b.classList.remove('on'); });
       btn.classList.add('on');
       state.fig = btn.getAttribute('data-fig');
+      state.foldT = 0; state.foldGoal = 0;
       applyFigUI();
       updateUI();
     });
   });
 
   el.cOverlap.addEventListener('change', function () { state.showOverlap = el.cOverlap.checked; });
-  el.cEdgeLen.addEventListener('change', function () { state.showEdgeLen = el.cEdgeLen.checked; });
   el.cLinks.addEventListener('change', function () { state.showLinks = el.cLinks.checked; });
   el.cLetters.addEventListener('change', function () { state.showLetters = el.cLetters.checked; });
-  el.cEdges.addEventListener('change', function () { state.showEdges = el.cEdges.checked; });
   el.cGrid.addEventListener('change', function () { state.showGrid = el.cGrid.checked; });
 
-  el.resetBtn.addEventListener('click', function () {
-    cam.tYaw = CAM0.yaw; cam.tPitch = CAM0.pitch; cam.tDist = CAM0.dist;
-  });
-  el.topBtn.addEventListener('click', function () {
-    cam.tYaw = CAM_TOP.yaw; cam.tPitch = CAM_TOP.pitch; cam.tDist = CAM_TOP.dist;
+  cvs.addEventListener('dblclick', function () {
+    if (state.mode === 'prop') {
+      cam.tYaw = CAM0.yaw; cam.tPitch = CAM0.pitch; cam.tDist = CAM0.dist;
+    } else if (state.mode === 'pat') {
+      var pc0 = patCam();
+      cam.tYaw = pc0.yaw; cam.tPitch = pc0.pitch; cam.tDist = patFit();
+    }
   });
 
-  var phase = 0;
-  var AUTO_MIN = 0.7, AUTO_MAX = 4.4;
-  function setAuto(on) {
-    state.auto = on;
-    el.autoBtn.classList.toggle('playing', on);
-    el.autoBtn.textContent = on ? '暂停演示' : '自动演示';
-    if (on) {
-      var t = clamp((state.dist - AUTO_MIN) / (AUTO_MAX - AUTO_MIN), 0, 1);
-      phase = Math.acos(1 - 2 * t);
+  function setAuto(on) { state.auto = false; }
+
+  /* ============================================================
+     8a2. 坐标平移 / 平移作图 / 面积应用 的事件
+     ============================================================ */
+  Array.prototype.forEach.call(el.cFigSeg.querySelectorAll('button'), function (btn) {
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(el.cFigSeg.querySelectorAll('button'), function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      state.cfig = btn.getAttribute('data-cfig');
+      updateCoordUI();
+    });
+  });
+
+  el.ca.addEventListener('input', function () {
+    state.ca = parseInt(el.ca.value, 10);
+    updateCoordUI();
+  });
+  el.cb.addEventListener('input', function () {
+    state.cb = parseInt(el.cb.value, 10);
+    updateCoordUI();
+  });
+
+  function placeDrawPoint(sx, sy) {
+    if (state.dPlaced.length >= 3) {
+      state.dMsg = '三个点都标好了，点「检查」看看对不对';
+      state.dMsgType = 'idle';
+      updateDrawUI();
+      return;
+    }
+    var bp = screenToBoard(sx, sy);
+    if (!bp) return;
+    var mx = bp.x, my = -bp.z;
+    var gx = Math.round(mx), gy = Math.round(my);
+    if (Math.hypot(mx - gx, my - gy) > 0.9) return;          // 离格点太远，不吸附
+    if (Math.abs(gx) > 7 || Math.abs(gy) > 7) return;
+    for (var i = 0; i < state.dPlaced.length; i++) {
+      if (state.dPlaced[i][0] === gx && state.dPlaced[i][1] === gy) return;
+    }
+    state.dPlaced.push([gx, gy]);
+    state.dMsg = '';
+    state.dMsgType = 'idle';
+    updateDrawUI();
+  }
+
+  function checkDraw() {
+    var t = state.dTask;
+    if (state.dPlaced.length < 3) {
+      state.dMsg = '还差 ' + (3 - state.dPlaced.length) + ' 个点，按 A′、B′、C′ 的顺序标';
+      state.dMsgType = 'idle';
+      updateDrawUI();
+      return;
+    }
+    var wrong = [];
+    for (var i = 0; i < 3; i++) {
+      var ex = t.verts[i][0] + t.a, ey = t.verts[i][1] + t.b;
+      if (state.dPlaced[i][0] !== ex || state.dPlaced[i][1] !== ey) {
+        wrong.push(['A′', 'B′', 'C′'][i]);
+      }
+    }
+    if (!wrong.length) {
+      state.dMsg = '全对！三个点沿同一方向、平移了相同格数，所以 △A′B′C′ 与 △ABC 形状、大小完全相同。';
+      state.dMsgType = 'ok';
+      state.dAns = true;
+    } else {
+      state.dMsg = wrong.join('、') + ' 的位置不对。从对应顶点出发，先数左右、再数上下。';
+      state.dMsgType = 'bad';
+    }
+    updateDrawUI();
+  }
+
+  el.drawCheck.addEventListener('click', function () { checkDraw(); });
+
+  /* 四步法教学按钮 */
+  Array.prototype.forEach.call(el.dModeSeg.querySelectorAll('button'), function (btn) {
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(el.dModeSeg.querySelectorAll('button'), function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      state.dMode = btn.getAttribute('data-dm');
+      state.dPlay = false;
+      el.dAuto.textContent = '自动演示';
+      el.dAuto.classList.remove('playing');
+      applyDrawSub();
+      updateDrawUI();
+    });
+  });
+  el.dPrev.addEventListener('click', function () {
+    state.dPlay = false;
+    el.dAuto.textContent = '自动演示';
+    el.dAuto.classList.remove('playing');
+    state.dStep = Math.max(0, state.dStep - 1);
+    updateDrawUI();
+  });
+  el.dNext.addEventListener('click', function () {
+    state.dPlay = false;
+    el.dAuto.textContent = '自动演示';
+    el.dAuto.classList.remove('playing');
+    state.dStep = Math.min(5, state.dStep + 1);
+    updateDrawUI();
+  });
+  el.dAuto.addEventListener('click', function () {
+    if (!state.dPlay && state.dStep >= 5) state.dStep = 0;
+    state.dPlay = !state.dPlay;
+    state.dAcc = 0;
+    el.dAuto.textContent = state.dPlay ? '停止演示' : '自动演示';
+    el.dAuto.classList.toggle('playing', state.dPlay);
+  });
+  el.dRestart.addEventListener('click', function () {
+    state.dStep = 0;
+    state.dAcc = 0;
+    state.dPlay = true;
+    el.dAuto.textContent = '停止演示';
+    el.dAuto.classList.add('playing');
+    updateDrawUI();
+  });
+
+  el.drawAns.addEventListener('click', function () {
+    state.dAns = true;
+    state.dMsg = '橙色就是标准答案，虚线把对应点连了起来。';
+    state.dMsgType = 'ok';
+    updateDrawUI();
+  });
+
+  el.drawNew.addEventListener('click', function () {
+    function ri(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+    var verts = [[-4, -1], [-1, -2], [-2, 2]];
+    var a = 0, b = 0, tries = 0;
+    do {
+      a = ri(-3, 3); b = ri(-3, 3); tries++;
+      var ok = (a !== 0 && b !== 0);
+      for (var i = 0; ok && i < verts.length; i++) {
+        var x = verts[i][0] + a, y = verts[i][1] + b;
+        if (x < -6 || x > 6 || y < -5 || y > 5) ok = false;
+      }
+    } while (!ok && tries < 80);
+    if (!ok) { a = 3; b = 2; }                 // 兜底，保证一定在格内
+    state.dTask = { a: a, b: b, verts: verts };
+    state.dPlaced = [];
+    state.dAns = false;
+    state.dMsg = '';
+    state.dMsgType = 'idle';
+    updateDrawUI();
+  });
+
+  Array.prototype.forEach.call(el.apSeg.querySelectorAll('button'), function (btn) {
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(el.apSeg.querySelectorAll('button'), function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      state.ap = btn.getAttribute('data-ap');
+      cam.tDist = state.ap === 'lawn' ? 16.2 : 12.0;
+      setApStep(0);
+    });
+  });
+
+  function apSliderChanged() {
+    if (state.apStep === 1) { state.apT = 0; state.apAnim = true; el.apPlay.classList.add('playing'); }
+    else if (state.apStep === 2) state.apT = 1;
+    else state.apT = 0;
+    updateApplyUI();
+  }
+  el.apA.addEventListener('input', function () { state.apA = parseInt(el.apA.value, 10); apSliderChanged(); });
+  el.apB.addEventListener('input', function () { state.apB = parseInt(el.apB.value, 10); apSliderChanged(); });
+  el.apW.addEventListener('input', function () { state.apW = parseFloat(el.apW.value); apSliderChanged(); });
+  el.apSW.addEventListener('input', function () { state.apSW = parseFloat(el.apSW.value); apSliderChanged(); });
+  el.apSH.addEventListener('input', function () { state.apSH = parseFloat(el.apSH.value); apSliderChanged(); });
+  el.apSN.addEventListener('input', function () { state.apSN = parseInt(el.apSN.value, 10); apSliderChanged(); });
+
+  el.apPrev.addEventListener('click', function () { setApStep(state.apStep - 1); });
+  el.apNext.addEventListener('click', function () { setApStep(state.apStep + 1); });
+
+  el.apPlay.addEventListener('click', function () {
+    state.apT = 0;
+    state.apAnim = true;
+    el.apPlay.classList.add('playing');
+  });
+
+  /* ============================================================
+     8b. 模式切换 / 图案面板
+     ============================================================ */
+  function dirWord(v) {
+    var hor = Math.abs(v[0]) < 1e-6 ? '' : (v[0] > 0 ? '右' : '左');
+    var ver = Math.abs(v[1]) < 1e-6 ? '' : (v[1] > 0 ? '上' : '下');
+    return hor + ver || '正上方';
+  }
+
+  function updatePatUI() {
+    var P = patDef(), nx = state.patNx, ny = state.patNy;
+    el.pnx.value = nx;
+    el.pny.value = ny;
+    el.pnxVal.textContent = nx;
+    el.pnyVal.textContent = P.band ? 1 : ny;
+    el.pny.disabled = !!P.band;
+
+    var uL = Math.hypot(P.u[0], P.u[1]);
+    var vL = Math.hypot(P.v[0], P.v[1]);
+    var head = '共 <b>' + (nx * (P.band ? 1 : ny)) + '</b> 块，平移 <b>' +
+      (nx * (P.band ? 1 : ny) - 1) + '</b> 次。<br>横向每次 ' + fmt(uL) + '（向' + dirWord(P.u) + '）';
+    if (!P.band) head += '，纵向每次 ' + fmt(vL) + '（向' + dirWord(P.v) + '）';
+    el.pNote.innerHTML = head + '。<br>' + P.note;
+    el.pNote.style.display = state.patAns ? 'none' : '';
+
+    var ph = '<span><i style="background:' + hsl(P.palette[0][0], P.palette[0][1], P.palette[0][2]) +
+      '"></i>基本图形：' + P.unit + '</span>';
+    if (P.extra) {
+      ph += '<span><i style="background:' + hsl(P.extra[0].h, P.extra[0].s, P.extra[0].l) +
+        '"></i>装饰小菱形</span>';
+    }
+    el.pParts.innerHTML = ph;
+
+    if (state.patAns) {
+      if (P.band) {
+        el.pAnsText.innerHTML = '把 <b>' + P.unit + '</b> 沿<b>水平方向</b>连续平移 <b>' + (nx - 1) +
+          '</b> 次（每次 ' + fmt(uL) + '），就得到整条花边。<br>相邻两个图形正好首尾相接 —— 方向相同、距离相等，图案才整齐。';
+      } else {
+        el.pAnsText.innerHTML = '这幅图案是由 <b>' + P.unit + '</b> 反复平移得到的：<br>' +
+          '① 先把它向<b>' + dirWord(P.u) + '</b>平移 ' + (nx - 1) + ' 次，得到一行 ' + nx + ' 个；<br>' +
+          '② 再把这一行向<b>' + dirWord(P.v) + '</b>平移 ' + (ny - 1) + ' 次，就铺成了 ' +
+          nx + ' × ' + ny + ' = <b>' + (nx * ny) + '</b> 块。<br>' +
+          '每次平移的方向相同、距离相等，所以图案既不重叠、也没有缝隙。';
+      }
     }
   }
-  el.autoBtn.addEventListener('click', function () { setAuto(!state.auto); });
+
+  function setPatPlay(on) {
+    el.pPlayBtn.classList.toggle('playing', on);
+    el.pPlayBtn.textContent = on ? '停止' : '看它怎样一块块铺开';
+  }
+
+  function startPatAnim() {
+    state.patProg = 0;
+    setPatPlay(true);
+  }
+
+  function applyMode() {
+    ['m-prop', 'm-pat', 'm-coord', 'm-draw', 'm-apply', 'm-quiz'].forEach(function (c) {
+      document.body.classList.remove(c);
+    });
+    document.body.classList.add('m-' + state.mode);
+    document.body.classList.toggle('pat', state.mode === 'pat');
+
+    Array.prototype.forEach.call(el.modeSeg.querySelectorAll('button'), function (b) {
+      b.classList.toggle('on', b.getAttribute('data-mode') === state.mode);
+    });
+
+    if (state.mode === 'pat') {
+      el.hint.innerHTML = '先想一想这幅图案由<b style="color:#e07a34;font-weight:600">什么图形</b>平移拼成，再点「显示答案」看母本和平移方向 · 拖动空白处旋转视角';
+      var pc = patCam();
+      cam.tYaw = pc.yaw; cam.tPitch = pc.pitch; cam.tDist = patFit();
+    } else if (state.mode === 'coord') {
+      el.hint.innerHTML = '拖动<b style="color:#e07a34;font-weight:600">橙色图形</b>改变平移量（吸附到整数格）· 看左右两侧坐标怎么变 · 拖动空白处旋转视角';
+      cam.tYaw = CAM_FLAT.yaw; cam.tPitch = CAM_FLAT.pitch; cam.tDist = CAM_FLAT.dist;
+    } else if (state.mode === 'draw') {
+      applyDrawSub();
+      cam.tYaw = CAM_FLAT.yaw; cam.tPitch = CAM_FLAT.pitch; cam.tDist = CAM_FLAT.dist;
+    } else if (state.mode === 'apply') {
+      el.hint.innerHTML = '按<b style="color:#e07a34;font-weight:600">下一步</b>三步讲题：读题 → 平移拼整 → 列式计算 · 拖动空白处旋转视角';
+      cam.tYaw = CAM_FLAT.yaw; cam.tPitch = CAM_FLAT.pitch;
+      cam.tDist = state.ap === 'lawn' ? 16.2 : 12.0;
+    } else if (state.mode === 'quiz') {
+      el.hint.innerHTML = '读题，在画面里<b style="color:#0e9b86;font-weight:600">数一数、比一比</b>，再选出答案 · 答完画面会自动标出答案 · 拖动空白处旋转视角';
+      qzSetCam();
+    } else {
+      el.hint.innerHTML = '按 <b style="color:#3a67c8;font-weight:600">①②③</b> 三步比一比平移前后 · 也可拖动橙色图形改变方向和距离 · 拖动空白处旋转视角，双击复位';
+      cam.tYaw = CAM0.yaw; cam.tPitch = CAM0.pitch; cam.tDist = CAM0.dist;
+    }
+    cam.target.x = 0; cam.target.z = 0;
+    cam.goal.x = 0; cam.goal.z = 0;
+  }
+
+  function setMode(md) {
+    if (state.mode === md) return;
+    state.mode = md;
+    if (md === 'pat') { if (!state.patAns) startPatAnim(); }
+    else { state.patProg = null; setPatPlay(false); }
+    if (md === 'apply') {
+      setApStep(0);
+    }
+    applyMode();
+    updateUI();
+  }
+
+  Array.prototype.forEach.call(el.modeSeg.querySelectorAll('button'), function (btn) {
+    btn.addEventListener('click', function () { setMode(btn.getAttribute('data-mode')); });
+  });
+
+  Array.prototype.forEach.call(el.motifSeg.querySelectorAll('button'), function (btn) {
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(el.motifSeg.querySelectorAll('button'), function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      state.pat = btn.getAttribute('data-pat');
+      var P = PAT[state.pat];
+      state.patNx = P.nx;
+      state.patNy = P.ny;
+      state.patProg = null;
+      setPatPlay(false);
+      var pc2 = patCam();
+      cam.tYaw = pc2.yaw; cam.tPitch = pc2.pitch;
+      cam.tDist = patFit();
+      updatePatUI();
+    });
+  });
+
+  el.pnx.addEventListener('input', function () {
+    state.patNx = parseInt(el.pnx.value, 10);
+    state.patProg = null; setPatPlay(false);
+    cam.tDist = patFit();
+    updatePatUI();
+  });
+  el.pny.addEventListener('input', function () {
+    state.patNy = parseInt(el.pny.value, 10);
+    state.patProg = null; setPatPlay(false);
+    cam.tDist = patFit();
+    updatePatUI();
+  });
+
+  el.pPlayBtn.addEventListener('click', function () {
+    if (state.patProg !== null) { state.patProg = null; setPatPlay(false); }
+    else startPatAnim();
+  });
+
+  el.pAnsBtn.addEventListener('click', function () {
+    state.patAns = !state.patAns;
+    el.pAnsBtn.textContent = state.patAns ? '隐藏答案' : '显示答案';
+    el.pAnsBtn.classList.toggle('playing', state.patAns);
+    el.pAnsText.style.display = state.patAns ? '' : 'none';
+    state.patProg = null; setPatPlay(false);
+    updatePatUI();
+  });
+
+  el.pTopBtn.addEventListener('click', function () {
+    cam.tYaw = CAM_PAT_TOP.yaw; cam.tPitch = CAM_PAT_TOP.pitch; cam.tDist = patFit();
+  });
+  el.pResetBtn.addEventListener('click', function () {
+    var pc3 = patCam();
+    cam.tYaw = pc3.yaw; cam.tPitch = pc3.pitch; cam.tDist = patFit();
+  });
+
+  /* ============================================================
+     8c. 平面型模式：坐标平移 / 平移作图 / 面积应用
+     ============================================================ */
+  function mb(mx, my, dy) { return { x: mx, y: dy === undefined ? 0.02 : dy, z: -my }; }
+
+  function flatPoly(ptsMath, fill, stroke, lw, dy) {
+    var q = [];
+    for (var i = 0; i < ptsMath.length; i++) {
+      var v = pj(mb(ptsMath[i][0], ptsMath[i][1], dy));
+      if (!v) return;
+      q.push(v);
+    }
+    fillPoly(q, fill || null, stroke || null, lw || 1);
+  }
+
+  function flatLine(ptsMath, color, lw, dash, dy) {
+    ctx.save();
+    if (dash) ctx.setLineDash(dash);
+    ctx.strokeStyle = color; ctx.lineWidth = lw;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    var started = false;
+    for (var i = 0; i < ptsMath.length; i++) {
+      var q = pj(mb(ptsMath[i][0], ptsMath[i][1], dy));
+      if (!q) { started = false; continue; }
+      if (!started) { ctx.moveTo(q.x, q.y); started = true; } else { ctx.lineTo(q.x, q.y); }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function ptText(mx, my, str, color, size, weight, dy) {
+    var q = pj(mb(mx, my, dy));
+    if (!q) return null;
+    text2(q.x, q.y, str, color, size, weight);
+    return q;
+  }
+
+  // 带刻度数字的坐标网格
+  function drawMathGrid(R) {
+    var i;
+    for (i = -R; i <= R; i++) {
+      var major = (i === 0);
+      var col = major ? 'rgba(96,122,163,0.40)' : 'rgba(116,142,180,0.16)';
+      line3(mb(-R, i, 0.006), mb(R, i, 0.006), col, major ? 1.5 : 1);
+      line3(mb(i, -R, 0.006), mb(i, R, 0.006), col, major ? 1.5 : 1);
+    }
+    // 轴箭头
+    var o = pj(mb(0, 0, 0.012));
+    var ex = pj(mb(R, 0, 0.012)), ey = pj(mb(0, R, 0.012));
+    if (o && ex) drawArrow(o, ex, 'rgba(108,130,166,0.75)', 1.5);
+    if (o && ey) drawArrow(o, ey, 'rgba(108,130,166,0.75)', 1.5);
+    if (ex) text2(ex.x + 12, ex.y + 4, 'x', '#8598b0', 12, 700);
+    if (ey) text2(ey.x - 12, ey.y - 6, 'y', '#8598b0', 12, 700);
+    if (o) text2(o.x - 13, o.y + 12, 'O', '#8598b0', 11, 600);
+
+    // 刻度数字
+    for (i = -R + 1; i <= R - 1; i++) {
+      if (i === 0) continue;
+      var qx = pj(mb(i, 0, 0.012)), qy = pj(mb(0, i, 0.012));
+      if (qx) text2(qx.x, qx.y + 13, String(i), 'rgba(133,152,176,0.95)', 9.5, 500);
+      if (qy) text2(qy.x - 12, qy.y + 3, String(i), 'rgba(133,152,176,0.95)', 9.5, 500);
+    }
+  }
+
+  /* ---------- 坐标平移 ---------- */
+  var COORD_FIG = {
+    tri: { pts: [[-4, -1], [-1, -1], [-4, 2]], lb: ['A', 'B', 'C'] },
+    pt: { pts: [[-3, 1]], lb: ['P'] }
+  };
+
+  function coordCentroid(pts) {
+    var sx = 0, sy = 0;
+    for (var i = 0; i < pts.length; i++) { sx += pts[i][0]; sy += pts[i][1]; }
+    return [sx / pts.length, sy / pts.length];
+  }
+
+  function renderCoord() {
+    var R = 6;
+    drawBoard();
+    drawMathGrid(R);
+
+    var f = COORD_FIG[state.cfig];
+    var a = state.ca, b = state.cb;
+    var pts = f.pts, lb = f.lb;
+    var moved = pts.map(function (p) { return [p[0] + a, p[1] + b]; });
+    var cen = coordCentroid(pts), cenM = [cen[0] + a, cen[1] + b];
+
+    // 先右后上的“分步路径”（只对第一个点画，避免画面太乱）
+    if (a !== 0) {
+      flatLine([[pts[0][0], pts[0][1]], [pts[0][0] + a, pts[0][1]]], 'rgba(150,166,190,0.95)', 1.7, [7, 5]);
+    }
+    if (b !== 0) {
+      flatLine([[pts[0][0] + a, pts[0][1]], [pts[0][0] + a, pts[0][1] + b]], 'rgba(150,166,190,0.95)', 1.7, [7, 5]);
+    }
+
+    // 对应点连线
+    for (var i = 0; i < pts.length; i++) {
+      flatLine([pts[i], moved[i]], 'rgba(120,141,170,0.8)', 1.6, [6, 6]);
+    }
+
+    // 图形
+    flatPoly(pts, 'rgba(79,127,224,0.26)', '#3a67c8', 2.1);
+    flatPoly(moved, 'rgba(242,140,58,0.24)', '#cf7420', 2.1);
+
+    // 平移箭头
+    var pA = pj(mb(pts[0][0], pts[0][1], 0.06)), pB = pj(mb(moved[0][0], moved[0][1], 0.06));
+    if (pA && pB && (a !== 0 || b !== 0)) {
+      drawArrow(pA, pB, '#0e9b86', 3.0);
+      var mx = (pA.x + pB.x) / 2, my = (pA.y + pB.y) / 2;
+      var dxp = pB.x - pA.x, dyp = pB.y - pA.y;
+      var lp = Math.hypot(dxp, dyp) || 1;
+      var cA = pj(mb(cen[0], cen[1], 0.06)), cB2 = pj(mb(cenM[0], cenM[1], 0.06));
+      var polyA2 = pts.map(function (p) { return pj(mb(p[0], p[1], 0.06)); });
+      var polyB2 = moved.map(function (p) { return pj(mb(p[0], p[1], 0.06)); });
+      var nxp = -dyp / lp, nyp = dxp / lp;
+
+      // 在箭头沿线取若干候选位置，挑“不在图形上、离两个图形都远”的那一个
+      var best = null, bestScore = -1e9;
+      [0.35, 0.55, 0.75].forEach(function (tt) {
+        [-1, 1].forEach(function (sg) {
+          [38, 70, 100].forEach(function (off) {
+          var px2 = pA.x + dxp * tt + nxp * off * sg;
+          var py2 = pA.y + dyp * tt + nyp * off * sg;
+          var m = 1e9;
+          if (cA) m = Math.min(m, Math.hypot(px2 - cA.x, py2 - cA.y));
+          if (cB2) m = Math.min(m, Math.hypot(px2 - cB2.x, py2 - cB2.y));
+          if (polyA2.every(Boolean) && pointInPoly({ x: px2, y: py2 }, polyA2)) m -= 60;
+          if (polyB2.every(Boolean) && pointInPoly({ x: px2, y: py2 }, polyB2)) m -= 60;
+          if (m > bestScore) { bestScore = m; best = { x: px2, y: py2 }; }
+          });
+        });
+      });
+      if (best) text2(best.x, best.y, '平移 (' + a + ', ' + b + ')', '#0b7d6c', 12.5, 700);
+    }
+
+    // 顶点与坐标
+    var single = pts.length === 1;
+    for (var k = 0; k < pts.length; k++) {
+      var q1 = pj(mb(pts[k][0], pts[k][1], 0.06));
+      var q2 = pj(mb(moved[k][0], moved[k][1], 0.06));
+      if (q1) {
+        dot2(q1.x, q1.y, '#2c5cbf', 3.4);
+        var ox1 = single ? -1 : q1.x - pj(mb(cen[0], cen[1], 0.06)).x;
+        var oy1 = single ? 1.1 : q1.y - pj(mb(cen[0], cen[1], 0.06)).y;
+        var l1 = Math.hypot(ox1, oy1) || 1;
+        text2(q1.x + ox1 / l1 * 30, q1.y + oy1 / l1 * 30,
+          lb[k] + '(' + pts[k][0] + ', ' + pts[k][1] + ')', '#1e3a68', 12, 700);
+      }
+      if (q2) {
+        dot2(q2.x, q2.y, '#c2691b', 3.4);
+        var ox2 = single ? 1 : q2.x - pj(mb(cenM[0], cenM[1], 0.06)).x;
+        var oy2 = single ? -1.1 : q2.y - pj(mb(cenM[0], cenM[1], 0.06)).y;
+        var l2 = Math.hypot(ox2, oy2) || 1;
+        text2(q2.x + ox2 / l2 * 30, q2.y + oy2 / l2 * 30,
+          lb[k] + '′(' + moved[k][0] + ', ' + moved[k][1] + ')', '#a4520f', 12, 700);
+      }
+    }
+
+    lastGeom = { moved: moved.map(function (p) { return pj(mb(p[0], p[1], 0.06)); }) };
+  }
+
+  /* ---------- 平移作图 ---------- */
+  function drawPolyScreen(ptsMath) {
+    return ptsMath.map(function (p) { return pj(mb(p[0], p[1], 0.06)); });
+  }
+
+  function renderDraw() {
+    var R = 6;
+    drawBoard();
+    drawMathGrid(R);
+    if (state.dMode === 'teach') { renderDrawTeach(); return; }
+
+    var t = state.dTask, pts = t.verts;
+    var cen = coordCentroid(pts);
+
+    // 原三角形
+    flatPoly(pts, 'rgba(79,127,224,0.26)', '#3a67c8', 2.2);
+    for (var i = 0; i < pts.length; i++) {
+      var q = pj(mb(pts[i][0], pts[i][1], 0.06));
+      if (!q) continue;
+      dot2(q.x, q.y, '#2c5cbf', 3.2);
+      var ox = q.x - pj(mb(cen[0], cen[1], 0.06)).x;
+      var oy = q.y - pj(mb(cen[0], cen[1], 0.06)).y;
+      var ll = Math.hypot(ox, oy) || 1;
+      text2(q.x + ox / ll * 20, q.y + oy / ll * 20, ['A', 'B', 'C'][i], '#1e3a68', 14, 700);
+    }
+
+    // 方向提示箭头：放在左下角空白处，只示方向不示距离
+    var dl = Math.hypot(t.a, t.b) || 1;
+    var ux = t.a / dl, uy = t.b / dl;
+    var bx0 = -4.7, by0 = -3.0;
+    var s0 = pj(mb(bx0, by0, 0.06));
+    var s1 = pj(mb(bx0 + ux * 1.6, by0 + uy * 1.6, 0.06));
+    if (s0 && s1) {
+      drawArrow(s0, s1, 'rgba(14,155,134,0.9)', 2.6);
+      text2(s1.x + 12, s1.y + 4, '方向', '#0b7d6c', 11.5, 700);
+    }
+
+    // 学生标的点
+    var lb2 = ['A′', 'B′', 'C′'];
+    for (var j = 0; j < state.dPlaced.length; j++) {
+      var pq = pj(mb(state.dPlaced[j][0], state.dPlaced[j][1], 0.06));
+      if (!pq) continue;
+      dot2(pq.x, pq.y, '#6d6d86', 5.2);
+      dot2(pq.x, pq.y, '#ffffff', 2.2);
+      if (!state.dAns) {
+        text2(pq.x + 11, pq.y - 10,
+          lb2[j] + '(' + state.dPlaced[j][0] + ', ' + state.dPlaced[j][1] + ')', '#5a5a72', 11.5, 700);
+      }
+    }
+
+    // 答案
+    if (state.dAns) {
+      var mv = pts.map(function (p) { return [p[0] + t.a, p[1] + t.b]; });
+      flatPoly(mv, 'rgba(242,140,58,0.20)', '#cf7420', 2.2, 0.05);
+      for (var m = 0; m < pts.length; m++) {
+        flatLine([pts[m], mv[m]], 'rgba(120,141,170,0.75)', 1.5, [6, 6]);
+        var bq = pj(mb(mv[m][0], mv[m][1], 0.06));
+        if (bq) {
+          dot2(bq.x, bq.y, '#c2691b', 3.2);
+          text2(bq.x + 11, bq.y + 16,
+            lb2[m] + '(' + mv[m][0] + ', ' + mv[m][1] + ')', '#a4520f', 11.5, 700);
+        }
+      }
+    }
+
+    lastGeom = { moved: drawPolyScreen(pts.map(function (p) { return [p[0] + t.a, p[1] + t.b]; })) };
+  }
+
+  /* 六步法教学渲染：每一步只新增一件事，讲清楚再做下一步 */
+  function renderDrawTeach() {
+    var t = state.dTask, pts = t.verts;
+    var cen = coordCentroid(pts);
+    var lb = ['A', 'B', 'C'], lbm = ['A′', 'B′', 'C′'];
+    var mv = pts.map(function (p) { return [p[0] + t.a, p[1] + t.b]; });
+    var st = state.dStep;
+
+    /* 原三角形与顶点（第 1 步强调关键点） */
+    flatPoly(pts, 'rgba(79,127,224,0.26)', '#3a67c8', 2.2);
+    for (var i = 0; i < pts.length; i++) {
+      var q = pj(mb(pts[i][0], pts[i][1], 0.06));
+      if (!q) continue;
+      dot2(q.x, q.y, '#2c5cbf', st === 0 ? 5.6 : 3.4);
+      text2(q.x - 4, q.y - 16, lb[i], '#1e3a68', 14, 700);
+    }
+    if (st === 0) {
+      ptText(cen[0], cen[1] - 1.7, '关键点：A、B、C', '#2563c9', 13.5, 700, 0.06);
+    }
+
+    /* 第 2 步起：左下角方向箭头 */
+    if (st >= 1) {
+      var dl = Math.hypot(t.a, t.b) || 1;
+      var ux = t.a / dl, uy = t.b / dl;
+      var s0 = pj(mb(-4.7, -3.0, 0.06));
+      var s1 = pj(mb(-4.7 + ux * 1.6, -3.0 + uy * 1.6, 0.06));
+      if (s0 && s1) {
+        drawArrow(s0, s1, 'rgba(14,155,134,0.9)', 2.6);
+        text2(s1.x + 12, s1.y + 4, '方向', '#0b7d6c', 11.5, 700);
+      }
+    }
+
+    /* 第 3 步：从 A 一格一格数（带每格数字），之后的步骤不再显示数格过程 */
+    if (st === 2) {
+      var bx = pts[0][0], by = pts[0][1];
+      if (t.a !== 0) {
+        var sgx = t.a > 0 ? 1 : -1;
+        for (var gi = 1; gi <= Math.abs(t.a); gi++) {
+          var gxN = bx + sgx * gi;
+          flatLine([[gxN, by - 0.14], [gxN, by + 0.14]], 'rgba(224,122,52,0.9)', 1.7, null, 0.06);
+          ptText(bx + sgx * (gi - 0.5), by - 0.34, String(gi), '#a4520f', 11.5, 700, 0.06);
+        }
+        flatLine([[bx, by], [bx + t.a, by]], 'rgba(224,122,52,0.95)', 2.6, [8, 5], 0.06);
+        ptText(bx + t.a / 2, by - 0.78,
+          '第 1 步：' + (t.a > 0 ? '向右' : '向左') + ' ' + Math.abs(t.a) + ' 格', '#a4520f', 12.5, 700, 0.06);
+      }
+      if (t.b !== 0) {
+        var sgy = t.b > 0 ? 1 : -1;
+        for (var gj = 1; gj <= Math.abs(t.b); gj++) {
+          var gyN = by + sgy * gj;
+          flatLine([[bx + t.a - 0.14, gyN], [bx + t.a + 0.14, gyN]], 'rgba(224,122,52,0.9)', 1.7, null, 0.06);
+          ptText(bx + t.a - 0.46, by + sgy * (gj - 0.5), String(gj), '#a4520f', 11.5, 700, 0.06);
+        }
+        flatLine([[bx + t.a, by], [bx + t.a, by + t.b]], 'rgba(224,122,52,0.95)', 2.6, [8, 5], 0.06);
+        ptText(bx + t.a + 0.55, by + t.b + (t.b > 0 ? 0.42 : -0.42),
+          '第 2 步：' + (t.b > 0 ? '向上' : '向下') + ' ' + Math.abs(t.b) + ' 格', '#a4520f', 12.5, 700, 0.06);
+      }
+    }
+
+    /* 第 4 步：A → A′（虚线样板） */
+    if (st >= 3) {
+      flatLine([pts[0], mv[0]], 'rgba(224,122,52,0.85)', 2.2, [7, 5], 0.06);
+      var qA = pj(mb(mv[0][0], mv[0][1], 0.06));
+      if (qA) {
+        dot2(qA.x, qA.y, st >= 4 ? '#c2691b' : '#a4520f', st >= 4 ? 4.6 : 5.6);
+        text2(qA.x + 4, qA.y - 16, lbm[0], st >= 4 ? '#a4520f' : '#a4520f', 14, 700);
+      }
+      if (st === 3) {
+        ptText((pts[0][0] + mv[0][0]) / 2, (pts[0][1] + mv[0][1]) / 2 + 0.55,
+          '方向相同 · 距离相等', '#0b7d6c', 12, 700, 0.06);
+      }
+    }
+
+    /* 第 5 步：B′、C′ 用同样的办法描出 */
+    if (st >= 4) {
+      for (var j = 1; j < pts.length; j++) {
+        flatLine([pts[j], mv[j]], 'rgba(224,122,52,0.75)', 2.0, [7, 5], 0.06);
+        var q2 = pj(mb(mv[j][0], mv[j][1], 0.06));
+        if (q2) {
+          dot2(q2.x, q2.y, st >= 5 ? '#c2691b' : '#a4520f', st >= 5 ? 4.6 : 5.6);
+          text2(q2.x + 4, q2.y - 16, lbm[j], '#a4520f', 14, 700);
+        }
+      }
+      if (st === 4) {
+        ptText(mv[1][0] + 0.1, (mv[1][1] + mv[2][1]) / 2 + 0.5,
+          '同样方向 · 同样格数', '#0b7d6c', 12, 700, 0.06);
+      }
+    }
+
+    /* 第 6 步：连线成图 + 检验小结 */
+    if (st >= 5) {
+      flatPoly(mv, 'rgba(242,140,58,0.24)', '#cf7420', 2.4, 0.06);
+      var cm = coordCentroid(mv);
+      ptText(cm[0] + 0.25, cm[1] + 0.46, '形状、大小完全相同', '#1f6b53', 13.5, 800, 0.06);
+      ptText(cm[0] + 0.25, cm[1] + 0.03, '对应线段平行且相等 · 对应角相等', '#1f6b53', 11.5, 700, 0.06);
+    }
+
+    lastGeom = null;
+  }
+
+  /* ---------- 面积应用 ---------- */
+  function drawPlainGrid(R) {
+    for (var i = -R; i <= R; i++) {
+      var col = (i === 0) ? 'rgba(120,142,175,0.18)' : 'rgba(116,142,180,0.12)';
+      line3(mb(-R, i, 0.006), mb(R, i, 0.006), col, 1);
+      line3(mb(i, -R, 0.006), mb(i, R, 0.006), col, 1);
+    }
+  }
+
+  function renderApply() {
+    var R = 7;
+    drawBoard();
+    drawPlainGrid(R);
+    if (state.ap === 'lawn') renderLawn(); else renderStair();
+  }
+
+  function renderLawn() {
+    var a = state.apA, b = state.apB, w = state.apW;
+    var x0 = -a / 2, y0 = -b / 2, x1 = a / 2, y1 = b / 2;
+    var px = x0 + a * 0.44;                    // 小路左边界
+    var t = state.apT;
+    var st = state.apStep;
+    var dx = (st >= 1) ? w * t : 0;
+
+    // 小路（先画，后面被草坪盖住）；合并完成后小路消失
+    if (t < 0.98) {
+      flatPoly([[px, y0], [px + w, y0], [px + w, y1], [px, y1]],
+        'rgba(203,213,226,0.95)', 'rgba(150,163,182,0.95)', 1.4);
+    }
+
+    // 右侧草坪
+    flatPoly([[px + w, y0], [x1, y0], [x1, y1], [px + w, y1]],
+      'rgba(108,196,164,0.88)', 'rgba(63,156,124,0.95)', 2);
+
+    // 左侧草坪：向右平移 w·t
+    flatPoly([[x0 + dx, y0], [px + dx, y0], [px + dx, y1], [x0 + dx, y1]],
+      'rgba(108,196,164,0.88)', 'rgba(63,156,124,0.95)', 2);
+
+    // 平移箭头
+    if (st >= 1 && t < 0.99) {
+      var sA = pj(mb(x0 + 0.25, y0 + 0.35, 0.06));
+      var sB = pj(mb(x0 + dx + 0.05, y0 + 0.35, 0.06));
+      if (sA && sB) drawArrow(sA, sB, '#e07a34', 2.8);
+    }
+
+    // 尺寸标注
+    if (st === 0) {
+      ptText(0, y0 - 0.55, '长 ' + a + ' 米', '#3d5f8f', 13, 700, 0.04);
+      ptText(x0 - 0.62, 0, '宽 ' + b + ' 米', '#3d5f8f', 13, 700, 0.04);
+      ptText(px + w / 2, y1 + 0.5, '小路宽 ' + fmt(w, 1) + ' 米', '#6d7f96', 12, 700, 0.04);
+      ptText(0, y1 + 1.35, '求草坪（绿色部分）的面积', '#c2691b', 13.5, 800, 0.04);
+    } else if (st >= 2) {
+      // 拼好后：新长方形的长宽标注
+      ptText((x0 + x1) / 2, y0 - 0.55, '长 = ' + a + ' − ' + fmt(w, 1) + ' = ' + fmt(a - w, 1) + ' 米', '#1f6b53', 13, 700, 0.04);
+      ptText(x0 - 0.62, 0, '宽 = ' + b + ' 米', '#1f6b53', 13, 700, 0.04);
+      ptText((x0 + x1) / 2, y1 / 2 + 0.1, 'S = ' + fmt(a - w, 1) + ' × ' + b + ' = ' + fmt((a - w) * b, 1), '#1f6b53', 14.5, 800, 0.05);
+    } else if (st === 1) {
+      ptText(x0 + dx / 2, y0 - 0.55, '向右平移 ' + fmt(w, 1) + ' 米', '#a4520f', 12.5, 700, 0.04);
+      if (t > 0.95) {
+        ptText((x0 + x1) / 2, y1 + 0.7, '两块拼成了一个完整的长方形！', '#1f6b53', 13, 800, 0.05);
+      }
+    }
+
+    lastGeom = null;
+  }
+
+  function renderStair() {
+    var w = state.apSW, h = state.apSH, n = state.apSN;
+    var k = 0.95;
+    var Wd = n * w, Ht = n * h;
+    var x0 = -Wd * k / 2, y0 = -Ht * k / 2;
+    var M = function (u, v) { return [x0 + u * k, y0 + v * k]; };
+    var st = state.apStep;
+
+    // 台阶（每级一个矩形块）
+    for (var i = 0; i < n; i++) {
+      var rx = i * w, ry = 0, rw = w, rh = (i + 1) * h;
+      flatPoly([M(rx, ry), M(rx + rw, ry), M(rx + rw, ry + rh), M(rx, ry + rh)],
+        'rgba(203,213,226,0.85)', 'rgba(154,168,187,0.95)', 1.2);
+    }
+
+    // 地毯：沿着踏步折线
+    var path = [M(0, 0)];
+    for (var s = 0; s < n; s++) {
+      path.push(M((s + 1) * w, s * h));
+      path.push(M((s + 1) * w, (s + 1) * h));
+    }
+    ctx.save();
+    ctx.strokeStyle = '#e07a34'; ctx.lineWidth = 5.2;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    var begun = false;
+    for (var p = 0; p < path.length; p++) {
+      var q = pj(mb(path[p][0], path[p][1], 0.06));
+      if (!q) { begun = false; continue; }
+      if (!begun) { ctx.moveTo(q.x, q.y); begun = true; } else { ctx.lineTo(q.x, q.y); }
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // 尺寸
+    ptText(x0 + Wd * k / 2, y0 - 0.42, '总宽 ' + fmt(Wd, 1) + ' 米', '#3d5f8f', 12, 700, 0.04);
+    ptText(x0 - 0.72, 0, '总高 ' + fmt(Ht, 1) + ' 米', '#3d5f8f', 12, 700, 0.04);
+
+    if (st === 0) {
+      ptText(0, y0 + Ht * k + 0.65, '铺满台阶的地毯有多长？', '#c2691b', 13.5, 800, 0.04);
+    } else {
+      // 拉直后的地毯：一段直线（随动画生长）
+      var L = Wd + Ht;
+      var len = L * k * state.apT;
+      var by = y0 - 1.25;
+      if (len > 0.02) {
+        var b0 = pj(mb(x0, by, 0.07)), b1 = pj(mb(x0 + len, by, 0.07));
+        if (b0 && b1) {
+          ctx.save();
+          ctx.strokeStyle = '#e07a34'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(b0.x, b0.y); ctx.lineTo(b1.x, b1.y); ctx.stroke();
+          ctx.restore();
+          if (st >= 2) {
+            // 两段标注：横段总宽 + 竖段总高
+            var wLen = Wd * k, tickX = x0 + Math.min(len, wLen);
+            var tk = pj(mb(tickX, by, 0.07));
+            if (tk) {
+              ctx.save();
+              ctx.strokeStyle = 'rgba(120,106,80,0.9)'; ctx.lineWidth = 2;
+              ctx.beginPath(); ctx.moveTo(tk.x, tk.y - 8); ctx.lineTo(tk.x, tk.y + 8); ctx.stroke();
+              ctx.restore();
+            }
+            var half1 = pj(mb(x0 + Math.min(len, wLen) / 2, by, 0.07));
+            if (half1 && len > wLen * 0.6) text2(half1.x, half1.y - 20, '总宽 ' + fmt(Wd, 1), '#3d5f8f', 12.5, 700);
+            var half2 = pj(mb(x0 + (wLen + len) / 2, by, 0.07));
+            if (half2 && len > wLen + 0.3) text2(half2.x, half2.y - 20, '总高 ' + fmt(Ht, 1), '#3d5f8f', 12.5, 700);
+          } else {
+            text2((b0.x + b1.x) / 2, b0.y + 20, '拉直中…', '#a4520f', 12, 700);
+          }
+        }
+      }
+      if (st >= 2) {
+        ptText(0, y0 + Ht * k + 0.65, 'L = ' + fmt(Wd, 1) + ' + ' + fmt(Ht, 1) + ' = ' + fmt(Wd + Ht, 1) + ' 米', '#1f6b53', 14, 800, 0.04);
+      }
+    }
+
+    lastGeom = null;
+  }
+
+  /* ============================================================
+     8d. 闯关检验：7 关，每关画面里都有可以「看、数、比」的 3D 场景
+     ============================================================ */
+  var QUIZ = [
+    {
+      tag: '数格子', cam: { yaw: -0.58, pitch: 0.84, dist: 17 },
+      q: '蓝色三角形平移到橙色位置。数一数，它向右平移了几格？',
+      opts: ['3 格', '4 格', '5 格', '6 格'], ans: 1,
+      tip: '沿着 A 到 A′ 的虚线，一格一格地数。',
+      why: '从点 A 到点 A′，正好走过 4 条网格线，也就是 4 格。平移的距离，就是对应点连线的长度。'
+    },
+    {
+      tag: '对应点连线', cam: { yaw: -0.58, pitch: 0.86, dist: 18 },
+      q: '图中虚线是 AA′、BB′、CC′。它们的长度和方向有什么关系？',
+      opts: ['互相平行，而且长度都相等', '互相垂直，长度都相等',
+             '互相平行，但长度不一定相等', '三条线交于一点'], ans: 0,
+      tip: '把三条虚线平移到一起比一比，方向一样吗？长度一样吗？',
+      why: '平移时每个点都沿同一方向、移动同样的距离，所以对应点连线互相平行（或在同一直线上）且相等，长度就是平移的距离。'
+    },
+    {
+      tag: '坐标平移', cam: { yaw: 0, pitch: 1.44, dist: 13.2 },
+      q: '点 P(−4, 1) 先向右平移 5 个单位，再向上平移 3 个单位。P′ 的坐标是？',
+      opts: ['(1, 4)', '(−1, 4)', '(1, −2)', '(−9, 4)'], ans: 0,
+      tip: '向右 → 横坐标加 5；向上 → 纵坐标加 3，别把两个坐标弄反。',
+      why: '向右 5：横坐标 −4 + 5 = 1；向上 3：纵坐标 1 + 3 = 4。所以 P′(1, 4)。'
+    },
+    {
+      tag: '组合图案', cam: { yaw: 0, pitch: 1.44, dist: 12.4 },
+      q: '这幅 3 × 3 的菱形地砖，以其中一块为母本，要平移几次才能铺满？',
+      opts: ['6 次', '8 次', '9 次', '12 次'], ans: 1,
+      tip: '母本自己不用平移，剩下几块就要移几次。',
+      why: '一共 9 块，母本不动，其余 8 块都是它平移得到的，所以要平移 8 次。每次方向、距离都相同，图案才没有缝隙、也不重叠。'
+    },
+    {
+      tag: '判断平移', cam: { yaw: 0, pitch: 1.44, dist: 15.2 },
+      q: '下面哪一块图形，是由 △ABC 平移得到的？',
+      opts: ['甲', '乙', '丙', '都不是'], ans: 0,
+      tip: '平移只改变位置。形状、大小、方向都不能变。',
+      why: '只有甲与 △ABC 形状、大小都相同，方向也没变，只是位置不同；乙是翻折（方向相反），丙被放大了。'
+    },
+    {
+      tag: '面积应用', cam: { yaw: 0, pitch: 1.44, dist: 14.6 },
+      q: '一块长 8 米、宽 6 米的草坪，中间有一条宽 1 米的直路。草坪（绿色）的面积是多少？',
+      opts: ['48 平方米', '42 平方米', '40 平方米', '35 平方米'], ans: 1,
+      tip: '把左边那块草坪向右推 1 米，两块能拼成什么图形？',
+      why: '把左边草坪向右平移 1 米，两块正好拼成长 8 − 1 = 7 米、宽 6 米的长方形：S = 7 × 6 = 42 平方米。'
+    },
+    {
+      tag: '楼梯地毯', cam: { yaw: 0, pitch: 1.44, dist: 12.2 },
+      q: '楼梯每级宽 1 米、高 0.5 米，共 4 级。沿台阶铺地毯，地毯至少要多少米？',
+      opts: ['4 米', '5 米', '6 米', '8 米'], ans: 2,
+      tip: '竖着的各段拼起来是总高，横着的各段拼起来是总宽。',
+      why: '竖直各段平移到一条竖线上 = 总高 4 × 0.5 = 2 米；水平各段平移到一条横线上 = 总宽 4 × 1 = 4 米。拉直后 L = 4 + 2 = 6 米。'
+    }
+  ];
+
+  var QZ = { i: 0, pick: -1, st: 'idle', tries: 0, bad: [], rec: [] };
+
+  function qzReveal() { return QZ.st === 'ok' || QZ.tries >= 2; }
+
+  function qzSetCam() {
+    var c = QZ.i >= QUIZ.length
+      ? { yaw: 0, pitch: 0.78, dist: 12.6 }
+      : QUIZ[QZ.i].cam;
+    var k = W < 1180 ? 1.16 : 1;          // 窄屏留出面板的位置
+    cam.tYaw = c.yaw; cam.tPitch = c.pitch; cam.tDist = c.dist * k;
+  }
+
+  /* 带顶点字母的棱柱（字母沿「中心 → 顶点」方向往外挪，避免压线） */
+  function qPrismAt(fig, sc, off, col, prime, labCol) {
+    var poly = fig.poly.map(function (p) { return { x: p[0] * sc, z: -p[1] * sc }; });
+    drawShadow(poly, off);
+    var s = buildPrism(poly, off, col);
+    drawShape(s);
+
+    var cen = polyCentroid(poly);
+    var cs = pj({ x: cen.x + off.x, y: HGT, z: cen.z + off.z });
+    if (cs && fig.marks) {
+      fig.marks.forEach(function (m) {
+        var v = poly[m[0]];
+        var q = pj({ x: v.x + off.x, y: HGT, z: v.z + off.z });
+        if (!q) return;
+        var ux = q.x - cs.x, uy = q.y - cs.y;
+        var L = Math.hypot(ux, uy) || 1;
+        textPill(q.x + ux / L * 17, q.y + uy / L * 17, m[1] + (prime ? '′' : ''), labCol || '#2b4166', 11.5, 700);
+      });
+    }
+    return { poly: poly, s: s };
+  }
+
+  /* ① 数格子 */
+  function qDrawQ1(rv) {
+    drawBoard(); drawGrid(1.7);
+    var A = { x: -2.4, z: 0.6 }, B = { x: 1.6, z: 0.6 };
+    qPrismAt(FIG.tri, 0.8, A, COL_A, false, '#2f4c7a');
+    qPrismAt(FIG.tri, 0.8, B, COL_B, true, '#a2591a');
+
+    /* 在图形前方的地面上拉一条“尺子”，数格子时不会被图形挡住视线 */
+    var zL = 2.9, yL = 0.03;
+    line3({ x: A.x, y: yL, z: A.z }, { x: A.x, y: yL, z: zL }, 'rgba(96,124,160,0.75)', 1.4, [5, 5]);
+    line3({ x: B.x, y: yL, z: B.z }, { x: B.x, y: yL, z: zL }, 'rgba(96,124,160,0.75)', 1.4, [5, 5]);
+
+    var pa = pj({ x: A.x, y: yL, z: zL });
+    var pb = pj({ x: B.x, y: yL, z: zL });
+    var pm = pj({ x: (A.x + B.x) / 2, y: yL, z: zL });
+    if (!pa || !pb || !pm) return;
+
+    line3({ x: A.x, y: yL, z: zL }, { x: B.x, y: yL, z: zL }, '#0e9b86', 2.4);
+    drawArrow(pm, pa, '#0e9b86', 3.0);
+    drawArrow(pm, pb, '#0e9b86', 3.0);
+    [[pa, -1], [pb, 1]].forEach(function (t) {
+      var q = t[0], s = t[1];
+      var ux = pb.x - pa.x, uy = pb.y - pa.y, L = Math.hypot(ux, uy) || 1;
+      var nx = -uy / L, ny = ux / L;
+      ctx.save();
+      ctx.strokeStyle = '#0e9b86'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(q.x - nx * 9, q.y - ny * 9);
+      ctx.lineTo(q.x + nx * 9, q.y + ny * 9);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    if (!rv) {
+      textPill(pm.x + 8, pm.y + 34, '？格', '#0b7d6c', 13, 800);
+    } else {
+      for (var k = 1; k <= 4; k++) {
+        var q = pj({ x: A.x + k, y: yL, z: zL });
+        if (!q) continue;
+        dot2(q.x, q.y, '#0b7d6c', 3.6);
+        text2(q.x, q.y - 14, String(k), '#0b7d6c', 10.5, 700);
+      }
+      textPill(pm.x + 24, pm.y + 50, '一共 4 格', '#0b7d6c', 12, 800);
+    }
+  }
+
+  /* ② 对应点连线 */
+  function qDrawQ2(rv) {
+    drawBoard(); drawGrid(1.7);
+    var A = { x: -1.9, z: 0.9 }, B = { x: 2.1, z: -1.1 };
+    qPrismAt(FIG.tri, 0.95, A, COL_A, false, '#2f4c7a');
+    qPrismAt(FIG.tri, 0.95, B, COL_B, true, '#a2591a');
+
+    for (var m = 0; m < FIG.tri.poly.length; m++) {
+      var vx = FIG.tri.poly[m][0] * 0.95, vz = -FIG.tri.poly[m][1] * 0.95;
+      var a0 = pj({ x: vx + A.x, y: HGT + 0.004, z: vz + A.z });
+      var a1 = pj({ x: vx + B.x, y: HGT + 0.004, z: vz + B.z });
+      if (!a0 || !a1) continue;
+      line3({ x: vx + A.x, y: HGT + 0.004, z: vz + A.z },
+            { x: vx + B.x, y: HGT + 0.004, z: vz + B.z },
+            rv ? '#1f9d7c' : 'rgba(96,120,156,0.9)', rv ? 3.2 : 2, rv ? null : [7, 6]);
+      if (rv) drawTicks(a0, a1, 1, '#12735a');
+    }
+    if (rv) {
+      textPill(VP.cx, H - 118, 'AA′、BB′、CC′ 互相平行，长度都相等', '#12735a', 13, 800);
+    }
+  }
+
+  /* ③ 坐标平移 */
+  function qDrawQ3(rv) {
+    drawBoard(); drawMathGrid(7);
+    var P = [-4, 1], Q = [1, 4];
+    var o = pj(mb(P[0], P[1], 0.03)), e1 = pj(mb(Q[0], P[1], 0.03)), e2 = pj(mb(Q[0], Q[1], 0.03));
+    if (!o || !e1 || !e2) return;
+
+    flatLine([[P[0], P[1]], [Q[0], P[1]]], 'rgba(150,166,190,0.95)', 1.8, [7, 5], 0.03);
+    flatLine([[Q[0], P[1]], [Q[0], Q[1]]], 'rgba(150,166,190,0.95)', 1.8, [7, 5], 0.03);
+    drawArrow(o, e1, '#0e9b86', 3.0);
+    drawArrow(e1, e2, '#0e9b86', 3.0);
+
+    dot2(o.x, o.y, '#3a67c8', 5.2);
+    textPill(o.x - 32, o.y + 18, 'P(−4, 1)', '#2f4c7a', 11.5, 700);
+    text2((o.x + e1.x) / 2, (o.y + e1.y) / 2 + 17, '向右 5', '#0b7d6c', 12, 700);
+    text2((e1.x + e2.x) / 2 + 26, (e1.y + e2.y) / 2, '向上 3', '#0b7d6c', 12, 700);
+
+    if (rv) {
+      dot2(e2.x, e2.y, '#cf7420', 5.5);
+      textPill(e2.x + 36, e2.y - 18, 'P′(1, 4)', '#a2591a', 12.5, 800);
+      textPill(VP.cx, H - 78, 'x′ = −4 + 5 = 1 ，  y′ = 1 + 3 = 4', '#4a21b8', 12.5, 700);
+    } else {
+      text2(e2.x, e2.y - 17, '？', '#c2691b', 19, 800);
+    }
+  }
+
+  /* ④ 组合图案 */
+  function qDrawQ4(rv) {
+    var P = PAT.rhomb, n = 3, poly = P.polys[0];
+    var cells = [], minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+    for (var j = 0; j < n; j++) {
+      for (var i = 0; i < n; i++) {
+        var c = { x: 1.02 * i + 0.51 * j, y: 0.8833 * j };
+        poly.forEach(function (q) {
+          var X = c.x + q[0], Y = c.y + q[1];
+          if (X < minx) minx = X;
+          if (X > maxx) maxx = X;
+          if (Y < miny) miny = Y;
+          if (Y > maxy) maxy = Y;
+        });
+        cells.push({ i: i, j: j, c: c });
+      }
+    }
+    var cx = (minx + maxx) / 2, cy = (miny + maxy) / 2;
+
+    drawBoard();
+    cells.forEach(function (cl) {
+      var col = P.palette[(cl.i + cl.j) % P.palette.length];
+      var pts = poly.map(function (q) { return [cl.c.x + q[0] - cx, cl.c.y + q[1] - cy]; });
+      flatPoly(pts, hsl(col[0], col[1], col[2]), 'rgba(255,255,255,0.72)', 1.4, 0.03);
+    });
+
+    if (rv) {
+      var mp = poly.map(function (q) { return [q[0] - cx, q[1] - cy]; });
+      flatPoly(mp, null, '#ffffff', 5, 0.06);
+      flatPoly(mp, null, '#2fbf94', 2.2, 0.065);
+      var a0 = patAnchor(P, 0, 0), a1 = patAnchor(P, 1, 0), a2 = patAnchor(P, 0, 1);
+      var p0 = pj(mb(a0.x - cx, a0.y - cy, 0.09));
+      var p1 = pj(mb(a1.x - cx, a1.y - cy, 0.09));
+      var p2 = pj(mb(a2.x - cx, a2.y - cy, 0.09));
+      if (p0 && p1) drawArrow(p0, p1, '#0e9b86', 3.4);
+      if (p0 && p2) drawArrow(p0, p2, '#0e9b86', 3.4);
+      if (p0) textPill(p0.x, p0.y - 30, '母本', '#12735a', 11.5, 800);
+    }
+  }
+
+  /* ⑤ 判断哪个是平移得到的 */
+  function qDrawQ5(rv) {
+    drawBoard();
+    var T = [[-0.8, -0.7], [0.9, -0.9], [0.1, 0.85]];
+    function tf(pts, dx, dy, s) {
+      s = s || 1;
+      return pts.map(function (p) { return [p[0] * s + dx, p[1] * s + dy]; });
+    }
+    var orig = tf(T, -3.5, 1.9);
+    var jia = tf(T, 2.5, 1.9);
+    var yi = tf(T.map(function (p) { return [-p[0], p[1]]; }), -3.5, -2.2);
+    var bing = tf(T, 2.5, -2.2, 1.28);
+
+    flatPoly(orig, 'rgba(79,127,224,0.30)', '#3a67c8', 2.2, 0.03);
+    [jia, yi, bing].forEach(function (pts) {
+      flatPoly(pts, 'rgba(143,143,168,0.20)', '#8a8aa4', 2.0, 0.03);
+    });
+    if (rv) {
+      for (var k = 0; k < 3; k++) flatLine([orig[k], jia[k]], 'rgba(23,166,126,0.9)', 1.6, [6, 5], 0.05);
+      flatPoly(jia, 'rgba(47,191,148,0.30)', '#17a67e', 3.4, 0.052);
+    }
+
+    function tag(pts, s, col) {
+      var mx = 0, my = -1e9;
+      pts.forEach(function (p) { mx += p[0] / pts.length; if (p[1] > my) my = p[1]; });
+      var q = pj(mb(mx, my + 0.58, 0.04));
+      if (q) textPill(q.x, q.y, s, col, 12, 800);
+    }
+    tag(orig, '△ABC', '#2f4c7a');
+    tag(jia, '甲', rv ? '#12735a' : '#4b4b63');
+    tag(yi, '乙', '#4b4b63');
+    tag(bing, '丙', '#4b4b63');
+
+    if (rv) {
+      [yi, bing].forEach(function (pts) {
+        var mx = 0, my = 0;
+        pts.forEach(function (p) { mx += p[0] / pts.length; my += p[1] / pts.length; });
+        var q = pj(mb(mx, my, 0.06));
+        if (q) text2(q.x, q.y, '×', 'rgba(200,70,58,0.85)', 30, 800);
+      });
+    }
+  }
+
+  /* ⑥ 草坪面积 */
+  function qDrawQ6(rv) {
+    drawBoard();
+    var k = 0.72, a = 8, b = 6;
+    var x0 = -a * k / 2, y0 = -b * k / 2;
+    function R(x, y, w, h) {
+      return [[x0 + x * k, y0 + y * k], [x0 + (x + w) * k, y0 + y * k],
+              [x0 + (x + w) * k, y0 + (y + h) * k], [x0 + x * k, y0 + (y + h) * k]];
+    }
+    flatPoly(R(0, 0, 3.5, 6), 'rgba(87,184,148,0.55)', '#3f9d7c', 1.6, 0.02);
+    flatPoly(R(4.5, 0, 3.5, 6), 'rgba(87,184,148,0.55)', '#3f9d7c', 1.6, 0.02);
+    flatPoly(R(3.5, 0, 1, 6), 'rgba(201,210,223,0.95)', 'rgba(154,168,187,0.95)', 1.4, 0.025);
+
+    var t1 = pj(mb(rv ? 0.36 : 0, -(b * k / 2) - 0.55, 0.04));
+    if (t1) textPill(t1.x, t1.y, rv ? '长 7 米' : '长 8 米', '#3d5f8f', 12, 700);
+    var t2 = pj(mb(a * k / 2 + 0.75, 0, 0.04));
+    if (t2) textPill(t2.x, t2.y, '宽 6 米', '#3d5f8f', 12, 700);
+    var t3 = pj(mb(0, b * k / 2 + 0.62, 0.04));
+    if (t3) textPill(t3.x, t3.y, '中间一条宽 1 米的直路', '#7b8a9e', 11.5, 700);
+
+    if (rv) {
+      /* 先淡化原来的草坪，再画出“拼好”的两块，学生一眼能看出是平移拼成的 */
+      flatPoly(R(0, 0, 8, 6), 'rgba(255,255,255,0.96)', null, 0, 0.045);
+      flatPoly(R(1, 0, 3.5, 6), 'rgba(87,184,148,0.62)', 'rgba(224,122,52,0.95)', 2.2, 0.05);
+      flatPoly(R(4.5, 0, 3.5, 6), 'rgba(87,184,148,0.62)', 'rgba(63,157,124,0.95)', 1.6, 0.05);
+
+      var c0 = pj(mb(x0 + 1.75 * k, 0, 0.06)), c1 = pj(mb(x0 + 2.75 * k, 0, 0.06));
+      if (c0 && c1) {
+        drawArrow(c0, c1, '#e07a34', 3.2);
+        textPill((c0.x + c1.x) / 2, (c0.y + c1.y) / 2 - 32, '左块平移 1 米', '#a4520f', 11.5, 800);
+      }
+      var m = R(1, 0, 7, 6); m.push(m[0]);
+      flatLine(m, '#17a67e', 3.4, null, 0.06);
+      var q7 = pj(mb(-a * k / 2 + 3.6, -(b * k / 2) - 1.15, 0.05));
+      if (q7) textPill(q7.x, q7.y, '拼成 7 × 6，面积 42 平方米', '#12735a', 12, 800);
+    }
+  }
+
+  /* ⑦ 楼梯地毯 */
+  function qDrawQ7(rv) {
+    drawBoard();
+    var n = 4, w = 1, h = 0.5, k = 1.05;
+    var Wd = n * w * k, Ht = n * h * k;
+    var x0 = -Wd / 2, y0 = -Ht / 2;
+    for (var i = 0; i < n; i++) {
+      var rx = i * w * k;
+      flatPoly([[x0 + rx, y0], [x0 + rx + w * k, y0],
+                [x0 + rx + w * k, y0 + (i + 1) * h * k], [x0 + rx, y0 + (i + 1) * h * k]],
+        'rgba(203,213,226,0.92)', 'rgba(154,168,187,0.95)', 1.2, 0.02);
+    }
+    var path = [[x0, y0]];
+    for (var s = 0; s < n; s++) {
+      path.push([x0 + (s + 1) * w * k, y0 + s * h * k]);
+      path.push([x0 + (s + 1) * w * k, y0 + (s + 1) * h * k]);
+    }
+    flatLine(path, '#e07a34', 5, null, 0.05);
+
+    var t1 = pj(mb(0, y0 / k - 1.05, 0.04));
+    if (t1) textPill(t1.x, t1.y, '总宽 4 米', '#3d5f8f', 12, 700);
+    var t2 = pj(mb(x0 / k - 0.95, 0, 0.04));
+    if (t2) textPill(t2.x, t2.y, '总高 2 米', '#3d5f8f', 12, 700);
+
+    if (rv) {
+      var by = y0 / k - 2.3;
+      var s0 = pj(mb(x0 / k, by, 0.06)), s1 = pj(mb(x0 / k + Wd / k, by, 0.06));
+      if (s0 && s1) {
+        ctx.save();
+        ctx.strokeStyle = '#e07a34'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(s0.x, s0.y); ctx.lineTo(s1.x, s1.y); ctx.stroke();
+        ctx.restore();
+        var mid1 = pj(mb(x0 / k + 2, by, 0.06)), mid2 = pj(mb(x0 / k + 5, by, 0.06));
+        if (mid1) textPill(mid1.x, mid1.y + 31, '4 米（水平各段）', '#a4520f', 11, 700);
+        if (mid2) textPill(mid2.x, mid2.y + 31, '2 米（竖直各段）', '#a4520f', 11, 700);
+        var tk = pj(mb(x0 / k + 4, by, 0.06));
+        if (tk) {
+          ctx.save(); ctx.strokeStyle = 'rgba(120,106,80,0.9)'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(tk.x, tk.y - 9); ctx.lineTo(tk.x, tk.y + 9); ctx.stroke(); ctx.restore();
+        }
+        var bot = pj(mb(0, by - 0.95, 0.05));
+        if (bot) textPill(bot.x, bot.y, 'L = 4 + 2 = 6 米', '#12735a', 13, 800);
+      }
+    }
+  }
+
+  /* 结算页：7 个方块，绿色 = 一次答对，黄色 = 借助解析完成 */
+  function qDrawResult() {
+    drawBoard();
+    var n = QUIZ.length, sp = 1.18, sc = 0.40;
+    for (var i = 0; i < n; i++) {
+      var off = { x: (i - (n - 1) / 2) * sp, z: 0 };
+      var rec = QZ.rec[i];
+      var col = rec === 'ok' ? { h: 160, s: 56, l: 44 }
+              : rec === 'help' ? { h: 38, s: 76, l: 56 }
+              : { h: 216, s: 12, l: 80 };
+      var poly = [{ x: -sc, z: sc }, { x: sc, z: sc }, { x: sc, z: -sc }, { x: -sc, z: -sc }];
+      drawShadow(poly, off);
+      drawShape(buildPrism(poly, off, col));
+      var q = pj({ x: off.x, y: HGT, z: 0 });
+      if (q) textPill(q.x, q.y - 22, String(i + 1), '#2b4166', 10.5, 700);
+    }
+    var okN = 0;
+    for (var k = 0; k < QZ.rec.length; k++) if (QZ.rec[k] === 'ok') okN++;
+    var t = pj({ x: 0, y: HGT, z: -2.2 });
+    if (t) text2(t.x, t.y, '一次答对 ' + okN + ' / ' + n, '#17967a', 22, 800);
+  }
+
+  function renderQuiz() {
+    if (QZ.i >= QUIZ.length) { qDrawResult(); lastGeom = null; return; }
+    var rv = qzReveal();
+    if (QZ.i === 0) qDrawQ1(rv);
+    else if (QZ.i === 1) qDrawQ2(rv);
+    else if (QZ.i === 2) qDrawQ3(rv);
+    else if (QZ.i === 3) qDrawQ4(rv);
+    else if (QZ.i === 4) qDrawQ5(rv);
+    else if (QZ.i === 5) qDrawQ6(rv);
+    else qDrawQ7(rv);
+    lastGeom = null;
+  }
+
+  function pickOpt(k) {
+    var Q = QUIZ[QZ.i];
+    if (!Q || QZ.st === 'ok' || QZ.bad.indexOf(k) >= 0) return;
+    QZ.pick = k;
+    if (k === Q.ans) {
+      QZ.st = 'ok';
+      if (QZ.rec[QZ.i] !== 'help') QZ.rec[QZ.i] = 'ok';
+    } else {
+      QZ.bad.push(k);
+      QZ.tries++;
+      if (QZ.tries >= 2 && !QZ.rec[QZ.i]) QZ.rec[QZ.i] = 'help';
+    }
+    updateQuizUI();
+  }
+
+  function goQ(i) {
+    QZ.i = clamp(i, 0, QUIZ.length);
+    QZ.st = 'idle'; QZ.pick = -1; QZ.bad = []; QZ.tries = 0;
+    qzSetCam();
+    updateQuizUI();
+  }
+
+  function updateQuizUI() {
+    var last = QUIZ.length, fin = QZ.i >= last;
+
+    el.qzBoardGrp.style.display = fin ? 'none' : '';
+    el.qzQGrp.style.display = fin ? 'none' : '';
+    el.qzFinGrp.style.display = fin ? '' : 'none';
+    el.qzShow.style.display = fin ? 'none' : '';
+
+    var okN = 0, helpN = 0, i;
+    for (i = 0; i < QZ.rec.length; i++) {
+      if (QZ.rec[i] === 'ok') okN++;
+      else if (QZ.rec[i] === 'help') helpN++;
+    }
+
+    if (fin) {
+      el.qzStamp.innerHTML = okN + ' / ' + last + '<small>一次答对</small>';
+      var lh = '';
+      for (i = 0; i < last; i++) {
+        var r = QZ.rec[i];
+        var mark = r === 'ok' ? '<span style="color:#17967a;font-weight:800">✓ 一次答对</span>'
+                 : r === 'help' ? '<span style="color:#b57f16;font-weight:700">○ 看解析后完成</span>'
+                 : '<span style="color:#93a4bb">— 未作答</span>';
+        lh += '<div class="row"><span class="k">' + (i + 1) + '. ' + QUIZ[i].tag +
+              '</span><span class="v">' + mark + '</span></div>';
+      }
+      el.qzFinList.innerHTML = lh;
+      el.qzNext.textContent = '再来一轮';
+      el.qzNext.disabled = false;
+      el.qzPrev.disabled = QZ.i > 0 ? false : true;
+      el.qzNote.innerHTML = okN >= 6 ? '掌握得很扎实 —— 平移的性质、作图、坐标和面积应用都能用上了。'
+        : okN >= 4 ? '基本掌握。把做错那几关的演示再看一遍，然后再挑战一次。'
+        : '别急，回到前面几个模式，重点看「性质三步」和「平移作图」的四步法，再回来闯一次。';
+      return;
+    }
+
+    var Q = QUIZ[QZ.i];
+    el.qzNote.innerHTML = '共 7 关，覆盖「性质、作图、图案、坐标、面积」。画面里能数、能比、能量，先用眼睛看，再选答案。';
+    el.qzScore.textContent = okN + ' / ' + last;
+    var bh = '';
+    for (i = 0; i < last; i++) {
+      var c = QZ.rec[i] === 'ok' ? ' ok' : (QZ.rec[i] === 'help' ? ' help' : '');
+      if (i === QZ.i) c += ' cur';
+      bh += '<i class="' + c + '"></i>';
+    }
+    el.qzBar.innerHTML = bh;
+
+    el.qzTag.textContent = '第 ' + (QZ.i + 1) + ' 关 · 共 ' + last + ' 关';
+    el.qzType.textContent = Q.tag;
+    el.qzQ.innerHTML = Q.q;
+
+    var LET = '①②③④';
+    var html = '';
+    for (var k = 0; k < Q.opts.length; k++) {
+      var cls = 'opt';
+      if (QZ.st === 'ok' && k === Q.ans) cls += ' ok';
+      if (QZ.bad.indexOf(k) >= 0) cls += ' bad';
+      var dis = (QZ.bad.indexOf(k) >= 0 || QZ.st === 'ok') ? ' disabled' : '';
+      html += '<button class="' + cls + '" data-o="' + k + '"' + dis + '>' +
+        '<b>' + LET.charAt(k) + '</b><span>' +
+        (QZ.st === 'ok' && k === Q.ans ? '✓ ' : '') + Q.opts[k] + '</span></button>';
+    }
+    el.qzOpts.innerHTML = html;
+    Array.prototype.forEach.call(el.qzOpts.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () {
+        pickOpt(parseInt(b.getAttribute('data-o'), 10));
+      });
+    });
+
+    if (QZ.st === 'ok') {
+      el.qzMsg.className = 'msg ok';
+      el.qzMsg.textContent = '答对了！继续下一关吧。';
+    } else if (QZ.tries > 0) {
+      el.qzMsg.className = 'msg bad';
+      el.qzMsg.textContent = QZ.tries < 2 ? '再想一想 —— ' + Q.tip : '看看下面的解析：';
+    } else {
+      el.qzMsg.className = 'msg idle';
+      el.qzMsg.textContent = '选出你认为正确的一个';
+    }
+
+    var show = (QZ.st === 'ok' || QZ.tries >= 2);
+    el.qzSol.style.display = show ? '' : 'none';
+    if (show) el.qzSol.innerHTML = '<b>解析</b><br>' + Q.why;
+
+    el.qzPrev.disabled = QZ.i === 0;
+    el.qzNext.disabled = !show;
+    el.qzNext.textContent = show ? (QZ.i === last - 1 ? '查看成绩 ▶' : '下一关 ▶') : '先作答';
+  }
+
+  el.qzPrev.addEventListener('click', function () {
+    if (QZ.i > 0) goQ(QZ.i - 1);
+  });
+  el.qzNext.addEventListener('click', function () {
+    if (QZ.i >= QUIZ.length) { QZ.rec = []; goQ(0); return; }
+    goQ(QZ.i + 1);
+  });
+  el.qzReset.addEventListener('click', function () {
+    QZ.rec = [];
+    goQ(0);
+  });
+  el.qzShow.addEventListener('click', function () {
+    QZ.tries = 2;
+    if (!QZ.rec[QZ.i]) QZ.rec[QZ.i] = 'help';
+    updateQuizUI();
+  });
 
   /* ============================================================
      9. 主循环
@@ -1061,11 +3409,44 @@
     var dt = lastTs ? Math.min(0.05, (ts - lastTs) / 1000) : 0.016;
     lastTs = ts;
 
-    if (state.auto) {
-      phase += dt * 0.8;
-      state.dist = AUTO_MIN + (0.5 - 0.5 * Math.cos(phase)) * (AUTO_MAX - AUTO_MIN);
-      el.dist.value = state.dist;
-      updateUI();
+
+    // 图案模式：一块块平移铺开
+    if (state.mode === 'pat' && state.patProg !== null) {
+      var ptot = state.patNx * (patDef().band ? 1 : state.patNy);
+      state.patProg += dt * 3.0;
+      if (state.patProg >= ptot) { state.patProg = null; setPatPlay(false); }
+    }
+
+    // 性质模式：叠合动画
+    if (state.mode === 'prop' && Math.abs(state.foldT - state.foldGoal) > 0.002) {
+      var fsp = dt * 1.7;
+      if (state.foldGoal > state.foldT) state.foldT = Math.min(state.foldGoal, state.foldT + fsp);
+      else state.foldT = Math.max(state.foldGoal, state.foldT - fsp);
+    }
+
+    // 作图四步法：自动演示逐步推进
+    if (state.mode === 'draw' && state.dMode === 'teach' && state.dPlay) {
+      state.dAcc += dt;
+      if (state.dAcc >= 3.2) {
+        state.dAcc = 0;
+        if (state.dStep < 5) {
+          state.dStep++;
+          updateDrawUI();
+        } else {
+          state.dPlay = false;
+          el.dAuto.textContent = '自动演示';
+          el.dAuto.classList.remove('playing');
+        }
+      }
+    }
+
+    // 面积应用：平移合并动画
+    if (state.mode === 'apply' && state.apAnim) {
+      state.apT = Math.min(1, state.apT + dt * 0.6);
+      if (state.apT >= 1) {
+        state.apAnim = false;
+        el.apPlay.classList.remove('playing');
+      }
     }
 
     var kc = 1 - Math.exp(-8 * dt);
@@ -1074,9 +3455,14 @@
     cam.dist += (cam.tDist - cam.dist) * kc;
 
     if (!figDrag) {
-      var th = state.dir * Math.PI / 180;
-      cam.goal.x = Math.cos(th) * state.dist * 0.5;
-      cam.goal.z = Math.sin(th) * state.dist * 0.5;
+      if (state.mode === 'prop') {
+        var th = state.dir * Math.PI / 180;
+        cam.goal.x = Math.cos(th) * state.dist * 0.5;
+        cam.goal.z = Math.sin(th) * state.dist * 0.5;
+      } else {
+        cam.goal.x = 0;
+        cam.goal.z = 0;
+      }
       var k = 1 - Math.exp(-7 * dt);
       cam.target.x += (cam.goal.x - cam.target.x) * k;
       cam.target.z += (cam.goal.z - cam.target.z) * k;
@@ -1086,9 +3472,71 @@
     requestAnimationFrame(loop);
   }
 
+  /* 支持 #mode=draw&step=3&ans=1 直接进入指定视图 */
+  var HM = (location.hash.match(/mode=(\w+)/) || [])[1];
+  if (HM && ['prop', 'draw', 'pat', 'coord', 'apply', 'quiz'].indexOf(HM) >= 0) {
+    state.mode = HM;
+    if (HM === 'draw') {
+      var HS = parseInt((location.hash.match(/step=(\d)/) || [])[1], 10);
+      if (HS >= 1 && HS <= 6) state.dStep = HS - 1;
+      if (/sub=practice/.test(location.hash)) state.dMode = 'practice';
+    }
+    if (HM === 'apply') {
+      if (/ap=stair/.test(location.hash)) state.ap = 'stair';
+      var HAS = parseInt((location.hash.match(/step=(\d)/) || [])[1], 10);
+      if (HAS >= 1 && HAS <= 3) state.apStep = HAS - 1;
+      if (HAS === 2) state.apT = 1;
+    }
+    if (HM === 'pat') {
+      if (/ans=1/.test(location.hash)) state.patAns = true;
+      var HPA = (location.hash.match(/pat=(\w+)/) || [])[1];
+      if (HPA && PAT[HPA]) {
+        state.pat = HPA;
+        state.patNx = PAT[HPA].nx;
+        state.patNy = PAT[HPA].ny;
+      }
+      var HN = parseInt((location.hash.match(/nx=(\d)/) || [])[1], 10);
+      if (HN >= 2) state.patNx = HN;
+      var HNY = parseInt((location.hash.match(/ny=(\d)/) || [])[1], 10);
+      if (HNY >= 1) state.patNy = HNY;
+    }
+    if (HM === 'prop') {
+      var HF = (location.hash.match(/fig=(\w+)/) || [])[1];
+      if (HF && FIG[HF]) state.fig = HF;
+      var HPV = parseInt((location.hash.match(/pv=(\d)/) || [])[1], 10);
+      if (HPV >= 0 && HPV <= 2) state.pv = HPV;
+      if (/fold=1/.test(location.hash)) { state.foldT = 1; state.foldGoal = 1; }
+    }
+    if (HM === 'quiz') {
+      var HQ = parseInt((location.hash.match(/q=(\d+)/) || [])[1], 10);
+      if (HQ >= 1 && HQ <= QUIZ.length) QZ.i = HQ - 1;
+      if (/ans=1/.test(location.hash)) QZ.tries = 2;
+      if (/fin=1/.test(location.hash)) QZ.i = QUIZ.length;
+    }
+  }
+
   syncInputs();
   applyFigUI();
+  applyDrawSub();
+  applyMode();
+  if (/snap=1/.test(location.hash)) {
+    cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.dist = cam.tDist;
+    cam.target.x = cam.goal.x; cam.target.z = cam.goal.z;
+  }
   updateUI();
+  Array.prototype.forEach.call(el.motifSeg.querySelectorAll('button'), function (b) {
+    b.classList.toggle('on', b.getAttribute('data-pat') === state.pat);
+  });
+  updatePatUI();
+  if (state.patAns) {
+    el.pAnsBtn.textContent = '隐藏答案';
+    el.pAnsBtn.classList.add('playing');
+    el.pAnsText.style.display = '';
+  }
+  updateCoordUI();
+  updateDrawUI();
+  updateApplyUI();
+  updateQuizUI();
   requestAnimationFrame(loop);
 })();
 </script>

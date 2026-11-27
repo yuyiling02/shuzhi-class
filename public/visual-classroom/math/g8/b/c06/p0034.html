@@ -2,500 +2,282 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>24.1 数据的集中趋势 · 课堂实验（数据可编辑 · 指标实时重算）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24.1 数据的集中趋势</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;overflow-x:auto;font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;background:#eef2f7;color:#1e293b;display:flex;flex-direction:column}
-header{display:flex;align-items:center;gap:14px;padding:10px 18px;background:#fff;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
-header h1{font-size:18px;font-weight:800}
-header h1 small{font-size:12px;color:#64748b;font-weight:500;margin-left:8px}
-.tabs{margin-left:auto;display:flex;gap:8px}
-.tabbtn{padding:8px 18px;border:1px solid #cbd5e1;background:#fff;border-radius:999px;cursor:pointer;font-size:14px;color:#334155}
-.tabbtn.active{background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600}
-main{flex:1;min-height:calc(100vh - 130px)}
-.panel{display:none;padding:14px 16px 20px;gap:14px}
-.panel.active{display:grid}
-#tab1{grid-template-columns:minmax(430px,1.05fr) minmax(400px,1fr);align-items:start}
-#tab2{grid-template-columns:minmax(430px,1.15fr) minmax(400px,1fr);align-items:start}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.05)}
-.card h3{font-size:15px;margin-bottom:8px;color:#0f172a}
-.card h3 .tag{display:inline-block;font-size:12px;border-radius:6px;padding:2px 8px;margin-right:8px;color:#fff;vertical-align:2px}
-.btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-.btn{padding:7px 14px;border:1px solid #cbd5e1;background:#fff;border-radius:9px;cursor:pointer;font-size:13px;color:#334155;transition:all .15s}
-.btn:hover{border-color:#2563eb;color:#2563eb}
-.btn.primary{background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600}
-.btn.primary:hover{background:#1d4ed8}
-.btn.gold{background:#fef3c7;border-color:#f59e0b;color:#92400e;font-weight:700}
-.btn.gold:hover{background:#fde68a}
-.sbtn{padding:6px 12px;border:1px solid #cbd5e1;background:#fff;border-radius:9px;font-size:12.5px;cursor:pointer}
-.sbtn:hover{border-color:#2563eb;color:#2563eb}
-.sbtn.on{background:#dbeafe;border-color:#2563eb;color:#1d4ed8;font-weight:700}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{background:#f1f5f9;padding:6px 8px;border:1px solid #e2e8f0;font-size:12.5px;color:#475569}
-td{border:1px solid #e2e8f0;padding:4px 8px;text-align:center}
-tr.midrow td{background:#fef9c3;font-weight:700}
-td input{width:88px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:7px;font-size:13.5px;text-align:center}
-td input.bad{border-color:#dc2626;background:#fef2f2}
-td input.winp{width:60px}
-svg{width:100%;height:auto;display:block}
-.msg{margin-top:8px;font-size:13px;font-weight:700;color:#059669;min-height:20px}
-.motto{padding:10px 14px;border-radius:12px;background:#713f12;color:#fde047;font-size:16.5px;font-weight:800;text-align:center;margin-bottom:14px;letter-spacing:2px}
-.motto small{display:block;font-size:12px;font-weight:600;color:#fde68a;letter-spacing:0;margin-top:3px}
-.metric .formula{font-family:Georgia,"Times New Roman",serif;font-size:15.5px;font-weight:700;color:#0f172a;line-height:2}
-.metric .result{font-size:22px;font-weight:800;color:#1d4ed8;font-family:Georgia,serif}
-.chiprow{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
-.dchip{padding:3px 10px;border-radius:8px;font-size:12.5px;font-weight:700;background:#f1f5f9;color:#334155;border:1px solid #e2e8f0}
-.dchip.gold{background:#fef9c3;border-color:#eab308;color:#854d0e}
-.dchip.mode{background:#fee2e2;border-color:#dc2626;color:#b91c1c}
-.warnbox{margin-top:8px;padding:7px 10px;border-radius:9px;background:#fef2f2;border:1px dashed #fca5a5;color:#b91c1c;font-size:12.5px;line-height:1.8}
-.vsbox{display:flex;gap:10px;align-items:stretch}
-.vsbox>div{flex:1;border-radius:10px;padding:8px 10px;text-align:center}
-.vsbox .a{background:#dbeafe;border:1px solid #93c5fd}
-.vsbox .b{background:#fde8d0;border:1px solid #fdba74}
-.vsbox .big{font-size:20px;font-weight:800;font-family:Georgia,serif}
-.report{white-space:pre-wrap;font-size:13.5px;line-height:1.95;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 12px;color:#14532d;min-height:120px}
-footer{padding:10px 16px;background:#0f172a;color:#fde047;font-size:15px;font-weight:800;text-align:center;letter-spacing:2px}
-footer small{display:block;color:#fca5a5;font-size:12px;font-weight:600;letter-spacing:0;margin-top:3px}
-text{font-family:"PingFang SC","Microsoft YaHei",sans-serif}
-.mono{font-family:Georgia,"Times New Roman",serif}
-.fadein{animation:fi .5s ease both}
-@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.pulse{animation:pl 1.4s ease-in-out infinite}
-@keyframes pl{0%,100%{opacity:1}50%{opacity:.45}}
+  :root{--blue:#2563eb;--blueL:#dbeafe;--green:#16a34a;--greenL:#dcfce7;--orange:#f59e0b;--orangeL:#fef3c7;--purple:#7c3aed;--red:#ef4444;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f4f7fb;color:var(--ink);padding:14px 12px 30px;}
+  .wrap{max-width:940px;margin:0 auto;}
+  header{text-align:center;margin-bottom:10px;}
+  header h1{font-size:21px;}
+  header p{color:var(--sub);font-size:13px;margin-top:2px;}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+  .tab{padding:9px 18px;border-radius:999px;border:2px solid var(--line);background:#fff;font-size:15px;font-weight:700;color:var(--sub);cursor:pointer;}
+  .tab.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.05);margin-bottom:12px;}
+  svg{display:block;width:100%;height:auto;}
+  .caption{text-align:center;font-size:16px;font-weight:700;min-height:26px;margin:6px 0;}
+  .caption .em{color:var(--blue);}
+  .formula{text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:22px;font-weight:bold;line-height:1.8;padding:6px;}
+  .formula b{color:var(--green);}
+  .dataRow{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0;}
+  .dataRow input{width:58px;padding:7px 4px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;text-align:center;font-weight:700;}
+  .dataRow input.w{width:42px;border-color:#fcd34d;background:#fffbeb;}
+  .ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .ctrl button{padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  .ctrl button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ctrl button.green{background:var(--green);border-color:var(--green);color:#fff;}
+  .ctrl button:disabled{opacity:.4;cursor:default;}
+  .toggle{display:flex;gap:8px;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin:6px 0;}
+  .toggle input{width:18px;height:18px;accent-color:var(--orange);}
+  .stat{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .stat .s{padding:10px 18px;border-radius:12px;text-align:center;min-width:120px;}
+  .stat .s .t{font-size:13px;color:var(--sub);}
+  .stat .s .v{font-size:24px;font-weight:800;margin-top:2px;}
+  .s.blue{background:var(--blueL);color:var(--blue);} .s.green{background:var(--greenL);color:var(--green);} .s.orange{background:var(--orangeL);color:#b45309;}
+  .ext-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .ext-head h3{font-size:15px;color:var(--purple);}
+  .ext-head span{font-size:13px;color:var(--sub);}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.formula{font-size:18px;}.caption{font-size:14px;}.dataRow input{width:48px;}}
 </style>
 </head>
 <body>
-<header>
-  <h1>24.1 数据的集中趋势<small>算术/加权平均 · 中位数 · 众数 ｜ 数据可编辑 · 指标实时重算</small></h1>
+<div class="wrap">
+  <header>
+    <h1>24.1 数据的集中趋势</h1>
+    <p>10 名学生立定跳远成绩（cm）· 平均数 / 中位数 / 众数</p>
+  </header>
+
   <div class="tabs">
-    <button class="tabbtn active" data-t="1">实验台：数据与三大指标</button>
-    <button class="tabbtn" data-t="2">综合实践：学生体质健康调查</button>
+    <button class="tab on" data-t="mean">平均数</button>
+    <button class="tab" data-t="median">中位数</button>
+    <button class="tab" data-t="mode">众数</button>
+    <button class="tab" data-t="which">该用谁</button>
   </div>
-</header>
-<main>
-  <!-- 实验台 -->
-  <section class="panel active" id="tab1">
-    <div>
-      <div class="card">
-        <h3><span class="tag" style="background:#2563eb">模块一</span>数据录入（默认：10 名学生立定跳远成绩 / cm）</h3>
-        <div class="btnrow">
-          <button class="btn primary" id="btnRand">🎲 随机生成一组数据</button>
-          <button class="btn" id="btnAsc">⬆ 升序排序（动画）</button>
-          <button class="btn" id="btnDesc">⬇ 降序排序（动画）</button>
-          <button class="btn" id="btnRestore">↺ 还原无序</button>
-          <button class="sbtn" id="tgWeight">权重列：关</button>
-        </div>
-        <table>
-          <thead><tr><th style="width:52px">序号</th><th>数据（cm）</th><th id="thW" style="width:80px;display:none">权重 w</th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-        <div class="msg" id="sortMsg"></div>
-      </div>
-      <div class="card">
-        <h3><span class="tag" style="background:#7c3aed">排序可视化</span>柱状图（排序动画 · 中间位置高亮）</h3>
-        <div class="btnrow">
-          <span style="font-size:12.5px;color:#64748b;font-weight:700">显示：</span>
-          <button class="sbtn on" id="tgMean">平均值线</button>
-          <button class="sbtn on" id="tgMedian">中位数位置</button>
-          <button class="sbtn" id="tgFreq">众数频次条</button>
-          <button class="sbtn on" id="tgChart">统计图表</button>
-        </div>
-        <div id="vizWrap"><svg id="viz" viewBox="0 0 660 450" preserveAspectRatio="xMidYMid meet"></svg></div>
-      </div>
+
+  <!-- 平均数 -->
+  <div id="secMean">
+    <div class="card">
+      <div class="caption">改一改下面的成绩，平均数立刻跟着变</div>
+      <div class="dataRow" id="meanData"></div>
+      <div class="toggle"><input type="checkbox" id="wToggle"><label for="wToggle">加入"权"（加权平均数）</label></div>
+      <div class="dataRow hide" id="weightRow"></div>
+      <svg id="svgMean" viewBox="0 0 900 300"></svg>
+      <div class="formula" id="meanFormula"></div>
     </div>
-    <div>
-      <div class="motto">平均看全部，中位站中间，众数数最多
-        <small>中位数必先排序！这是最容易漏掉的一步</small>
+  </div>
+
+  <!-- 中位数 -->
+  <div id="secMedian" class="hide">
+    <div class="card">
+      <div class="caption" id="medCap">中位数必须先<b>排序</b>！点「开始排序」看冒泡排序</div>
+      <svg id="svgMed" viewBox="0 0 900 220"></svg>
+      <div class="ctrl">
+        <button id="medSort" class="primary">▶ 开始排序</button>
+        <button id="medReset">↺ 还原无序</button>
       </div>
-      <div class="card metric" id="cardMean"></div>
-      <div class="card metric" id="cardMedian"></div>
-      <div class="card metric" id="cardMode"></div>
-      <div class="card metric" id="cardWeight"></div>
+      <div class="formula" id="medFormula"></div>
     </div>
-  </section>
-  <!-- 综合实践 -->
-  <section class="panel" id="tab2">
-    <div>
-      <div class="card">
-        <h3><span class="tag" style="background:#059669">综合与实践</span>某班 20 名学生体质健康调查</h3>
-        <div style="font-size:13.5px;line-height:1.9;margin-bottom:10px">
-          学校开展体质健康测试，记录了 20 名同学的 <b>身高、体重、肺活量、50米跑</b> 四项指标。
-          选择一项指标，观察三大集中趋势指标的变化，并生成简要分析报告。
-        </div>
-        <div class="btnrow" id="indBtns">
-          <span style="font-size:12.5px;color:#64748b;font-weight:700">选择指标：</span>
-          <button class="sbtn" data-ind="h">身高 (cm)</button>
-          <button class="sbtn" data-ind="w">体重 (kg)</button>
-          <button class="sbtn" data-ind="f">肺活量 (ml)</button>
-          <button class="sbtn" data-ind="r">50米跑 (s)</button>
-          <button class="btn gold" id="btnReport" style="margin-left:auto">📋 一键生成分析报告</button>
-          <button class="btn" id="btnResample">🎲 重新抽样</button>
-        </div>
-        <svg id="viz2" viewBox="0 0 660 360" preserveAspectRatio="xMidYMid meet"></svg>
-      </div>
+  </div>
+
+  <!-- 众数 -->
+  <div id="secMode" class="hide">
+    <div class="card">
+      <div class="caption">哪个成绩出现次数最多？最高的柱子就是<span class="em">众数</span></div>
+      <svg id="svgMode" viewBox="0 0 900 300"></svg>
+      <div class="formula" id="modeFormula"></div>
     </div>
-    <div>
-      <div class="card metric" id="suMetrics"></div>
-      <div class="card">
-        <h3><span class="tag" style="background:#dc2626">分析报告</span>统计结论（综合与实践）</h3>
-        <div class="report" id="report">点击左上方「📋 一键生成分析报告」，基于当前指标的三大集中趋势指标自动生成简要报告。</div>
+  </div>
+
+  <!-- 该用谁 -->
+  <div id="secWhich" class="hide">
+    <div class="card">
+      <div class="caption">把最好成绩 220 拖成一个"极端值"，看三个统计量谁被带跑</div>
+      <div class="toggle"><span>极端值</span><input type="range" id="extSlider" min="220" max="600" step="10" value="220" style="width:200px;accent-color:var(--red);"><b id="extVal" style="color:var(--red);">220</b></div>
+      <div class="stat">
+        <div class="s blue"><div class="t">平均数</div><div class="v" id="wMean"></div></div>
+        <div class="s green"><div class="t">中位数</div><div class="v" id="wMed"></div></div>
+        <div class="s orange"><div class="t">众数</div><div class="v" id="wMode"></div></div>
       </div>
-      <div class="card" style="font-size:13px;line-height:1.9">
-        <b>实践链接：</b>统计在生活中无处不在——班级的平均身高、月平均气温、评分的去掉最高最低取平均……
-        <b>平均数</b>利用全部信息但易受极端值影响；<b>中位数</b>站在这组数据的"中间位置"，不受极端值干扰；<b>众数</b>反映出现最多的水平。三者结合，才能全面刻画数据的集中趋势。
-      </div>
+      <div class="caption" id="wCap" style="margin-top:12px;"></div>
     </div>
-  </section>
-</main>
-<footer>平均看全部，中位站中间，众数数最多<small>易错提醒：求中位数必须先排序！加权平均：每个数据乘以各自的"权"再求平均</small></footer>
+  </div>
+
+  <!-- 拓展 -->
+  <div class="card">
+    <div class="ext-head" id="extHead">
+      <h3>综合实践 · 某班 20 名学生体质健康调查</h3>
+      <span id="extArrow">展开 ▼</span>
+    </div>
+    <div id="extBody" class="hide">
+      <div class="ctrl"><button id="resample" class="green">🎲 重新抽样 20 人身高</button></div>
+      <div class="stat" id="surveyStat"></div>
+      <div class="caption" id="surveyNote" style="font-weight:normal;color:var(--sub);"></div>
+    </div>
+  </div>
+
+  <footer>人教版八年级下册 · 24.1 数据的集中趋势</footer>
+</div>
 
 <script>
 "use strict";
-const $ = id => document.getElementById(id);
-const fmt2 = x => String(Number((+x).toFixed(2)));
-const clampN = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
-const randInt = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+let DATA=[185,198,200,185,210,198,175,205,198,220];
+let W=[1,2,1,1,3,2,1,1,2,1];
+const ORIG=DATA.slice();
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||svgMean).appendChild(e);return e;}
+function T(p,x,y,s,fill,size,op,w){const t=el('text',{x,y,'text-anchor':'middle','font-size':size||14,fill:fill||'#334155','font-weight':w||'bold','paint-order':'stroke',stroke:'#fff','stroke-width':4,opacity:op===undefined?1:op},p);t.textContent=s;return t;}
+const mean=a=>a.reduce((s,v)=>s+v,0)/a.length;
+const median=a=>{const s=[...a].sort((x,y)=>x-y),n=s.length,m=n>>1;return n%2?s[m]:(s[m-1]+s[m])/2;};
+function mode(a){const c={};a.forEach(v=>c[v]=(c[v]||0)+1);const mx=Math.max(...Object.values(c));if(mx===1)return[];return Object.keys(c).filter(k=>c[k]===mx).map(Number);}
+const r1=v=>Math.round(v*10)/10;
 
-const S = {
-  rows: [], snap: [], sorted: null, animating: false, frame: null,
-  weighted: false, show: {mean:true, median:true, freq:false, chart:true},
-  survey: null, ind: "f"
+/* ---- 平均数 ---- */
+function buildMeanInputs(){
+  const d=$('meanData');d.innerHTML='';
+  DATA.forEach((v,i)=>{const inp=document.createElement('input');inp.type='number';inp.value=v;
+    inp.oninput=()=>{const n=+inp.value;if(!isNaN(n)&&n>0){DATA[i]=n;renderMean();renderMode();renderWhich();}};d.appendChild(inp);});
+  const w=$('weightRow');w.innerHTML='';
+  W.forEach((v,i)=>{const inp=document.createElement('input');inp.type='number';inp.className='w';inp.value=v;inp.min=1;
+    inp.oninput=()=>{const n=+inp.value;if(!isNaN(n)&&n>0){W[i]=n;renderMean();}};w.appendChild(inp);});
+}
+function renderMean(){
+  const svg=$('svgMean');svg.innerHTML='';
+  const weighted=$('wToggle').checked;
+  $('weightRow').classList.toggle('hide',!weighted);
+  const n=DATA.length,x0=60,x1=860,y0=250,bw=(x1-x0)/n;
+  const min=150,max=Math.max(240,...DATA);
+  const py=v=>y0-(v-min)/(max-min)*200;
+  el('line',{x1:x0,y1:y0,x2:x1,y2:y0,stroke:'#cbd5e1','stroke-width':2},svg);
+  DATA.forEach((v,i)=>{
+    const cx=x0+i*bw+bw/2;
+    el('rect',{x:cx-18,y:py(v),width:36,height:y0-py(v),rx:5,fill:'#93c5fd',stroke:'#2563eb','stroke-width':1.5},svg);
+    T(svg,cx,py(v)-8,String(v),'#1d4ed8',13);
+    T(svg,cx,y0+18,'#'+(i+1),'#94a3b8',11);
+    if(weighted)T(svg,cx,y0+34,'权'+W[i],'#b45309',11);
+  });
+  let mv,label;
+  if(weighted){const sw=W.reduce((a,b)=>a+b,0);mv=DATA.reduce((s,v,i)=>s+v*W[i],0)/sw;label='加权平均数';}
+  else{mv=mean(DATA);label='平均数';}
+  el('line',{x1:x0,y1:py(mv),x2:x1,y2:py(mv),stroke:'#16a34a','stroke-width':2.5,'stroke-dasharray':'8 5'},svg);
+  T(svg,x1-40,py(mv)-10,label+' '+r1(mv),'#16a34a',15);
+  if(weighted){
+    const sw=W.reduce((a,b)=>a+b,0);
+    $('meanFormula').innerHTML='加权平均数 = Σ(成绩×权) ÷ Σ权 = '+DATA.reduce((s,v,i)=>s+v*W[i],0)+' ÷ '+sw+' = <b>'+r1(mv)+'</b>';
+  }else{
+    $('meanFormula').innerHTML='平均数 = ('+DATA.join('+')+') ÷ '+n+' = '+DATA.reduce((a,b)=>a+b,0)+' ÷ '+n+' = <b>'+r1(mv)+'</b>';
+  }
+}
+$('wToggle').onchange=renderMean;
+
+/* ---- 中位数（冒泡排序动画）---- */
+let medArr=DATA.slice(),medFrames=[],medIdx=0,medTimer=null,medDone=false;
+function buildFrames(){
+  const a=DATA.slice(),frames=[{a:a.slice(),cmp:-1,swap:false}];
+  for(let i=0;i<a.length-1;i++)for(let j=0;j<a.length-1-i;j++){
+    frames.push({a:a.slice(),cmp:j,swap:false});
+    if(a[j]>a[j+1]){[a[j],a[j+1]]=[a[j+1],a[j]];frames.push({a:a.slice(),cmp:j,swap:true});}
+  }
+  frames.push({a:a.slice(),cmp:-1,swap:false,done:true});
+  return frames;
+}
+function renderMed(){
+  const svg=$('svgMed');svg.innerHTML='';
+  const f=medFrames[medIdx]||{a:medArr,cmp:-1};
+  const a=f.a,n=a.length,x0=60,x1=860,bw=(x1-x0)/n;
+  a.forEach((v,i)=>{
+    const cx=x0+i*bw+bw/2;
+    let fill='#dbeafe',stroke='#93c5fd',tc='#1d4ed8';
+    if(f.done){const m=n>>1;if(n%2){if(i===m){fill='#fef3c7';stroke='#f59e0b';tc='#b45309';}}else if(i===m-1||i===m){fill='#fef3c7';stroke='#f59e0b';tc='#b45309';}}
+    else if(f.cmp===i||f.cmp+1===i){fill=f.swap?'#fee2e2':'#fef9c3';stroke=f.swap?'#ef4444':'#f59e0b';tc=f.swap?'#b91c1c':'#b45309';}
+    el('rect',{x:cx-26,y:70,width:52,height:52,rx:10,fill,stroke,'stroke-width':2.5},svg);
+    T(svg,cx,102,String(v),tc,18);
+    T(svg,cx,145,'第'+(i+1)+'个','#94a3b8',11);
+  });
+  if(f.done){
+    const s=[...a].sort((x,y)=>x-y),m=n>>1;
+    const mv=n%2?s[m]:(s[m-1]+s[m])/2;
+    $('medCap').innerHTML='排序完成！'+(n%2?'正中间第 '+(m+1)+' 个':'中间第 '+m+'、'+(m+1)+' 个的平均')+' = <span class="em">'+r1(mv)+'</span>';
+    $('medFormula').innerHTML='中位数 = <b>'+r1(mv)+'</b>　（排序后取中间位置，不受极端值影响）';
+  }else if(f.cmp>=0){
+    $('medCap').innerHTML=f.swap?'逆序！交换这两个数':'比较相邻两个数，大的往后挪';
+    $('medFormula').innerHTML='';
+  }
+}
+function stopMed(){if(medTimer){clearInterval(medTimer);medTimer=null;}$('medSort').textContent='▶ 开始排序';}
+$('medSort').onclick=()=>{
+  if(medTimer){stopMed();return;}
+  if(medDone||medIdx>=medFrames.length-1){medFrames=buildFrames();medIdx=0;medDone=false;}
+  $('medSort').textContent='⏸ 暂停';
+  medTimer=setInterval(()=>{
+    if(medIdx<medFrames.length-1){medIdx++;renderMed();}
+    if(medIdx>=medFrames.length-1){medDone=true;stopMed();}
+  },160);
 };
+$('medReset').onclick=()=>{stopMed();medFrames=buildFrames();medIdx=0;medDone=false;renderMed();$('medCap').innerHTML='中位数必须先<b>排序</b>！点「开始排序」看冒泡排序';$('medFormula').innerHTML='';};
 
-/* ============ 统计计算 ============ */
-function statsOf(vals){
-  const n = vals.length;
-  const sorted = [...vals].sort((a,b)=>a-b);
-  const sum = vals.reduce((a,b)=>a+b, 0);
-  const mean = n ? sum/n : 0;
-  let median = 0, midIdx = [];
-  if (n % 2){ median = sorted[(n-1)/2]; midIdx = [(n-1)/2]; }
-  else if (n){ median = (sorted[n/2-1] + sorted[n/2])/2; midIdx = [n/2-1, n/2]; }
-  const freq = {};
-  vals.forEach(v => freq[v] = (freq[v]||0)+1);
-  let maxc = 0; Object.values(freq).forEach(c => maxc = Math.max(maxc, c));
-  const modes = []; if (maxc >= 2) Object.entries(freq).forEach(([v,c]) => { if (+c === maxc) modes.push(+v); });
-  return { n, sorted, sum, mean, median, midIdx, freq, maxc, modes,
-           max: n ? Math.max(...vals) : 0, min: n ? Math.min(...vals) : 0 };
-}
-function weightedMean(){
-  let sw = 0, swx = 0;
-  S.rows.forEach(r => { sw += r.w; swx += r.v * r.w; });
-  return { wm: sw ? swx/sw : 0, sw, swx };
-}
-
-/* ============ 数据初始化 ============ */
-function initData(){
-  const vals = [185, 198, 200, 185, 210, 198, 175, 205, 198, 220];
-  const ws   = [1, 2, 1, 1, 3, 2, 1, 1, 2, 1];
-  S.rows = vals.map((v,i) => ({v, w: ws[i]}));
-  S.snap = S.rows.map(r => ({...r}));
-  S.sorted = null;
-}
-function randomize(){
-  if (S.animating) return;
-  S.rows = [];
-  const wpool = [1,1,1,2,2,3];
-  for (let i = 0; i < 10; i++)
-    S.rows.push({ v: 170 + 5*randInt(0,14), w: wpool[randInt(0,5)] });
-  S.snap = S.rows.map(r => ({...r}));
-  S.sorted = null; S.frame = null;
-  renderAll(true);
-  $("sortMsg").textContent = "已随机生成新数据，试试排序后找中位数！";
-}
-
-/* ============ 数据表 ============ */
-function renderTable(){
-  const st = statsOf(S.rows.map(r=>r.v));
-  const midRows = (S.sorted && S.show.median) ? st.midIdx : [];
-  $("thW").style.display = S.weighted ? "" : "none";
-  $("tbody").innerHTML = S.rows.map((r,i) => `
-    <tr class="${midRows.includes(i) ? "midrow" : ""}">
-      <td>${i+1}</td>
-      <td><input type="number" step="any" data-i="${i}" data-k="v" value="${r.v}"></td>
-      <td ${S.weighted ? "" : 'style="display:none"'}><input class="winp" type="number" step="any" min="0" data-i="${i}" data-k="w" value="${r.w}"></td>
-    </tr>`).join("");
-  $("tbody").querySelectorAll("input").forEach(inp => inp.addEventListener("input", e => {
-    if (S.animating) return;
-    const i = +e.target.dataset.i, k = e.target.dataset.k;
-    const v = parseFloat(e.target.value);
-    if (isNaN(v) || (k === "w" && v < 0)){ e.target.classList.add("bad"); return; }
-    e.target.classList.remove("bad");
-    S.rows[i][k] = v;
-    renderViz(); renderMetrics();
-  }));
-}
-function toggleWeight(){
-  S.weighted = !S.weighted;
-  $("tgWeight").textContent = "权重列：" + (S.weighted ? "开" : "关");
-  $("tgWeight").classList.toggle("on", S.weighted);
-  renderTable(); renderViz(); renderMetrics();
-}
-
-/* ============ 冒泡排序动画 ============ */
-let playTimer = null;
-function startBubble(dir){
-  if (S.animating) return;
-  S.animating = true; S.sorted = null; S.frame = null;
-  $("sortMsg").textContent = "⏳ 冒泡排序中……（找中位数，必须先排序！）";
-  const a = S.rows.map(r => r.v);
-  const frames = [];
-  for (let i = 0; i < a.length - 1; i++){
-    let sw = false;
-    for (let j = 0; j < a.length - 1 - i; j++){
-      const need = dir === "asc" ? a[j] > a[j+1] : a[j] < a[j+1];
-      if (need){ [a[j], a[j+1]] = [a[j+1], a[j]]; frames.push({arr: a.slice(), hi: [j, j+1], swap: true}); sw = true; }
-      else frames.push({arr: a.slice(), hi: [j, j+1], swap: false});
-    }
-    if (!sw) break;
-  }
-  let k = 0;
-  playTimer = setInterval(() => {
-    if (k >= frames.length){ finishSort(); return; }
-    S.frame = frames[k]; renderViz(); k++;
-  }, 110);
-  function finishSort(){
-    clearInterval(playTimer); playTimer = null;
-    S.rows.sort((x,y) => dir === "asc" ? x.v - y.v : y.v - x.v);
-    S.sorted = dir; S.animating = false; S.frame = null;
-    renderAll(true);
-    $("sortMsg").textContent = `✅ 排序完成！中间位置（金色）→ 中位数 = ${fmt2(statsOf(S.rows.map(r=>r.v)).median)}。注意：不排序就找"中间的数"是错的！`;
-  }
-}
-function restoreOrder(){
-  if (S.animating) return;
-  S.rows = S.snap.map(r => ({...r}));
-  S.sorted = null; S.frame = null;
-  renderAll(true);
-  $("sortMsg").textContent = "已还原为原始（无序）顺序。此时中间的数≠中位数！";
-}
-
-/* ============ 可视化 ============ */
-function renderViz(){
-  const wrap = $("vizWrap");
-  wrap.style.display = S.show.chart ? "" : "none";
-  if (!S.show.chart) return;
-  const anim = !!S.frame;
-  const vals = anim ? S.frame.arr : S.rows.map(r => r.v);
-  const n = vals.length, W = 660, freqH = S.show.freq ? 130 : 0;
-  const H = 330 + freqH, base = 290, top = 34;
-  const bw = Math.min(46, (W - 60)/n - 8);
-  const gap = (W - 40 - bw*n) / (n + 1);
-  const maxV = Math.max(...vals, 1) * 1.08;
-  const st = statsOf(vals);
-  let s = "";
-  const showMedianHi = !anim && S.sorted && S.show.median;
-  vals.forEach((v, i) => {
-    const x = 20 + gap + i*(bw+gap);
-    const h = (v/maxV)*(base - top);
-    let fill = "#93c5fd", stroke = "#3b82f6";
-    if (anim){
-      if (S.frame.hi.includes(i)){ fill = S.frame.swap ? "#fca5a5" : "#fdba74"; stroke = "#dc2626"; }
-    } else if (showMedianHi && st.midIdx.includes(i)){ fill = "#fde047"; stroke = "#ca8a04"; }
-    s += `<rect x="${x.toFixed(1)}" y="${(base-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
-    s += `<text x="${(x+bw/2).toFixed(1)}" y="${(base-h-6).toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#334155" class="mono">${fmt2(v)}</text>`;
-    s += `<text x="${(x+bw/2).toFixed(1)}" y="${base+16}" text-anchor="middle" font-size="10" fill="#94a3b8">${i+1}</text>`;
+/* ---- 众数 ---- */
+function renderMode(){
+  const svg=$('svgMode');svg.innerHTML='';
+  const c={};DATA.forEach(v=>c[v]=(c[v]||0)+1);
+  const keys=Object.keys(c).map(Number).sort((a,b)=>a-b);
+  const mx=Math.max(...Object.values(c));
+  const modes=mode(DATA);
+  const x0=70,x1=850,y0=250,bw=(x1-x0)/keys.length;
+  el('line',{x1:x0,y1:y0,x2:x1,y2:y0,stroke:'#cbd5e1','stroke-width':2},svg);
+  keys.forEach((k,i)=>{
+    const cx=x0+i*bw+bw/2,h=c[k]/mx*180;
+    const isM=modes.includes(k);
+    el('rect',{x:cx-24,y:y0-h,width:48,height:h,rx:5,fill:isM?'#f59e0b':'#bfdbfe',stroke:isM?'#d97706':'#93c5fd','stroke-width':2},svg);
+    T(svg,cx,y0-h-10,c[k]+'次',isM?'#b45309':'#64748b',14);
+    T(svg,cx,y0+20,String(k),'#334155',14);
+    if(isM)T(svg,cx,y0-h-30,'众数','#b45309',13);
   });
-  s += `<line x1="14" y1="${base}" x2="${W-10}" y2="${base}" stroke="#64748b" stroke-width="2"/>`;
-  /* 平均值线 */
-  if (S.show.mean && !anim){
-    const y = base - (st.mean/maxV)*(base-top);
-    s += `<line x1="14" y1="${y.toFixed(1)}" x2="${W-10}" y2="${y.toFixed(1)}" stroke="#dc2626" stroke-width="2" stroke-dasharray="8 5"/>`;
-    s += `<text x="${W-12}" y="${(y-6).toFixed(1)}" text-anchor="end" font-size="13" font-weight="800" fill="#dc2626" class="mono">平均数 = ${fmt2(st.mean)}</text>`;
-  }
-  /* 中位数标记 */
-  if (showMedianHi){
-    const xs = st.midIdx.map(i => 20 + gap + i*(bw+gap));
-    const x1 = Math.min(...xs)-4, x2 = Math.max(...xs)+bw+4;
-    s += `<rect x="${x1.toFixed(1)}" y="8" width="${(x2-x1).toFixed(1)}" height="22" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="2" class="pulse"/>`;
-    s += txt(x1+(x2-x1)/2, 24, "中位数位置（第" + st.midIdx.map(i=>i+1).join("、第") + "个）", 12.5, "#854d0e", 800);
-  }
-  if (anim){
-    s += txt(W/2, 20, S.frame.swap ? "交换！" : "比较相邻两个……", 14, S.frame.swap ? "#dc2626" : "#94a3b8", 800);
-  }
-  /* 众数频次条 */
-  if (S.show.freq && !anim){
-    const entries = Object.entries(st.freq).sort((a,b)=>(+a[0])-(+b[0]));
-    const fy = base + 44, fh = 66, fw = Math.min(40, (W-60)/entries.length - 8);
-    const fgap = (W - 40 - fw*entries.length)/(entries.length+1);
-    const fmax = st.maxc;
-    s += txt(24, fy - 8, "频次（众数 = 出现次数最多的数据）：", 13, "#475569", 700, "start");
-    entries.forEach(([v,c], i) => {
-      const x = 20 + fgap + i*(fw+fgap);
-      const h = (c/fmax)*fh;
-      const isMode = st.modes.includes(+v);
-      s += `<rect x="${x.toFixed(1)}" y="${(fy+fh-h).toFixed(1)}" width="${fw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${isMode?"#fca5a5":"#cbd5e1"}" stroke="${isMode?"#dc2626":"#94a3b8"}"/>`;
-      s += `<text x="${(x+fw/2).toFixed(1)}" y="${(fy+fh-h-4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="800" fill="${isMode?"#b91c1c":"#475569"}">${c}</text>`;
-      s += `<text x="${(x+fw/2).toFixed(1)}" y="${fy+fh+14}" text-anchor="middle" font-size="10.5" fill="#475569" class="mono">${v}</text>`;
-    });
-    const modeTxt = st.modes.length ? "众数：" + st.modes.map(m=>m+"（×"+st.maxc+"）").join("、") : "无众数（每个数据都只出现一次）";
-    s += txt(24, fy + fh + 30, modeTxt, 13, st.modes.length ? "#b91c1c" : "#64748b", 800, "start");
-  }
-  $("viz").setAttribute("viewBox", `0 0 ${W} ${H}`);
-  $("viz").innerHTML = s;
-}
-function txt(x,y,str,size,fill,w,anchor,cls){
-  return `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" font-weight="${w||600}" text-anchor="${anchor||"middle"}" class="${cls||""}">${str}</text>`;
+  $('modeFormula').innerHTML=modes.length?('众数 = <b>'+modes.join(' 和 ')+'</b>（出现 '+mx+' 次，最多）'):'每个数都只出现 1 次 → <b>没有众数</b>';
 }
 
-/* ============ 指标面板 ============ */
-function renderMetrics(){
-  const vals = S.rows.map(r => r.v);
-  const st = statsOf(vals);
-  const wm = weightedMean();
-  const sortedChips = (hiMid) => st.sorted.map((v,i) =>
-    `<span class="dchip ${hiMid && st.midIdx.includes(i) ? "gold" : ""}">${fmt2(v)}</span>`).join("");
-  /* 算术平均 / 加权平均 */
-  let m = `<h3><span class="tag" style="background:#2563eb">平均数</span>算术平均 & 加权平均</h3>
-    <div class="formula">平均数 = 总和 ÷ 个数 = ${fmt2(st.sum)} ÷ ${st.n} = <span class="result">${fmt2(st.mean)}</span></div>`;
-  if (S.weighted){
-    m += `<div class="formula" style="margin-top:6px">加权平均 = Σ(x·w) ÷ Σw = ${fmt2(wm.swx)} ÷ ${fmt2(wm.sw)} = <span class="result">${fmt2(wm.wm)}</span></div>`;
-  }
-  $("cardMean").innerHTML = m;
-  /* 中位数 */
-  const parity = st.n % 2
-    ? `n = ${st.n} 为<b>奇数</b> → 取正中间第 ${(st.n+1)/2} 个`
-    : `n = ${st.n} 为<b>偶数</b> → 取中间两数（第 ${st.n/2}、${st.n/2+1} 个）的平均`;
-  let med;
-  if (st.n % 2) med = `中位数 = 第 ${(st.n+1)/2} 个数 = <span class="result">${fmt2(st.median)}</span>`;
-  else med = `中位数 = (${fmt2(st.sorted[st.n/2-1])} + ${fmt2(st.sorted[st.n/2])}) ÷ 2 = <span class="result">${fmt2(st.median)}</span>`;
-  $("cardMedian").innerHTML = `<h3><span class="tag" style="background:#ca8a04">中位数</span>必先排序，再取中间</h3>
-    <div class="chiprow">${sortedChips(true)}</div>
-    <div class="formula">${parity}；${med}</div>
-    <div class="warnbox">⚠ 易错：求中位数<b>必须先从小到大排序</b>！未排序时"最中间的数"一般不是中位数。</div>`;
-  /* 众数 */
-  const freqChips = Object.entries(st.freq).sort((a,b)=>(+a[0])-(+b[0]))
-    .map(([v,c]) => `<span class="dchip ${st.modes.includes(+v) ? "mode" : ""}">${v} × ${c}</span>`).join("");
-  const modeTxt = st.modes.length
-    ? `众数 = <span class="result">${st.modes.map(fmt2).join("、")}</span>（出现 ${st.maxc} 次${st.modes.length>1 ? "，可有多个众数" : ""}）`
-    : `每个数据都只出现一次 → <b>这组数据没有众数</b>（众数可多可无）`;
-  $("cardMode").innerHTML = `<h3><span class="tag" style="background:#dc2626">众数</span>出现次数最多的数据</h3>
-    <div class="chiprow">${freqChips}</div>
-    <div class="formula">${modeTxt}</div>`;
-  /* 加权对比 */
-  const allOne = S.rows.every(r => r.w === S.rows[0].w);
-  $("cardWeight").innerHTML = `<h3><span class="tag" style="background:#059669">加权对比</span>"权"的意义</h3>
-    <div class="vsbox">
-      <div class="a">算术平均（各占 1 份）<div class="big">${fmt2(st.mean)}</div></div>
-      <div class="b">加权平均（按 w 份数）<div class="big">${fmt2(wm.wm)}</div></div>
-    </div>
-    <div style="font-size:12.5px;color:#475569;margin-top:8px;line-height:1.8">${
-      allOne ? "当前所有权重相同 → 加权平均 = 算术平均。开启权重列并修改 w，观察结果如何被「权」拉动。"
-             : "权重越大的数据对平均数的影响越大 —— 这就是「权」的意义：刻画不同数据的相对重要程度。"}</div>`;
+/* ---- 该用谁 ---- */
+function renderWhich(){
+  const v=+$('extSlider').value;$('extVal').textContent=v;
+  const a=DATA.slice();a[9]=v;
+  const mv=r1(mean(a)),md=r1(median(a)),mo=mode(a);
+  $('wMean').textContent=mv;$('wMed').textContent=md;$('wMode').textContent=mo.length?mo.join(','):'无';
+  $('wCap').innerHTML=v<=230?'现在没有极端值，三者都正常。':(v>=400?'极端值 '+v+' 把<b style="color:#2563eb">平均数</b>拉到 '+mv+'，而<b style="color:#16a34a">中位数</b>仍是 '+md+'、<b style="color:#b45309">众数</b>仍是 '+(mo.join(',')||'无')+' —— 中位数和众数更"抗干扰"。':'平均数开始被带动（'+mv+'），中位数 '+md+' 几乎不动。');
 }
+$('extSlider').oninput=renderWhich;
 
-/* ============ 综合实践：体质调查 ============ */
-const IND = {
-  h: {name:"身高", unit:"cm"},
-  w: {name:"体重", unit:"kg"},
-  f: {name:"肺活量", unit:"ml"},
-  r: {name:"50米跑", unit:"s"}
-};
-function genSurvey(){
-  const h=[], w=[], f=[], r=[];
-  for (let i = 0; i < 20; i++){
-    h.push(randInt(150, 178));
-    w.push(randInt(38, 72));
-    f.push(randInt(18, 36) * 100);
-    r.push(+(6.8 + Math.random()*2.8).toFixed(1));
-  }
-  S.survey = {h, w, f, r};
-  S.ind = "f";
-  $("report").innerHTML = "已重新抽样。选择指标后点击「📋 一键生成分析报告」。";
-  renderSurvey();
+/* ---- 拓展调查 ---- */
+function survey(){
+  const a=[];for(let i=0;i<20;i++)a.push(150+Math.floor(Math.random()*29));
+  const mv=r1(mean(a)),md=r1(median(a)),mo=mode(a),rg=Math.max(...a)-Math.min(...a);
+  $('surveyStat').innerHTML=
+    '<div class="s blue"><div class="t">平均身高</div><div class="v">'+mv+'</div></div>'+
+    '<div class="s green"><div class="t">中位数</div><div class="v">'+md+'</div></div>'+
+    '<div class="s orange"><div class="t">众数</div><div class="v">'+(mo.length?mo.join(','):'无')+'</div></div>'+
+    '<div class="s blue"><div class="t">极差</div><div class="v">'+rg+'</div></div>';
+  const ratio=rg/mv;
+  $('surveyNote').textContent='样本极差÷平均数 = '+r1(ratio)+'，'+(ratio>0.25?'个体差异较大':ratio>0.12?'个体差异中等':'个体差异较小')+'。可用样本平均身高估计全班平均水平；评分比赛常"去掉一个最高分、一个最低分再取平均"，就是为了减少极端值影响。';
 }
-function surveyVals(){ return S.survey[S.ind]; }
-function renderSurvey(){
-  document.querySelectorAll("#indBtns .sbtn").forEach(b => b.classList.toggle("on", b.dataset.ind === S.ind));
-  const vals = surveyVals();
-  const st = statsOf(vals);
-  const sorted = st.sorted;
-  const n = sorted.length, W = 660, base = 300, top = 36;
-  const bw = Math.min(24, (W-50)/n - 5), gap = (W-36-bw*n)/(n+1);
-  const maxV = Math.max(...sorted)*1.06;
-  let s = txt(330, 24, `${IND[S.ind].name}分布（20 人，已按从小到大排序）`, 15.5, "#0f172a", 800);
-  sorted.forEach((v,i) => {
-    const x = 18 + gap + i*(bw+gap);
-    const h = (v/maxV)*(base-top);
-    const isMid = st.midIdx.includes(i);
-    s += `<rect x="${x.toFixed(1)}" y="${(base-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${isMid?"#fde047":"#93c5fd"}" stroke="${isMid?"#ca8a04":"#3b82f6"}" stroke-width="1.2"/>`;
-    s += `<text x="${(x+bw/2).toFixed(1)}" y="${(base-h-4).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="#475569" class="mono">${fmt2(v)}</text>`;
-  });
-  s += `<line x1="12" y1="${base}" x2="${W-8}" y2="${base}" stroke="#64748b" stroke-width="2"/>`;
-  const my = base - (st.mean/maxV)*(base-top);
-  s += `<line x1="12" y1="${my.toFixed(1)}" x2="${W-8}" y2="${my.toFixed(1)}" stroke="#dc2626" stroke-width="2" stroke-dasharray="8 5"/>`;
-  s += txt(W-10, my-6, `平均数 ${fmt2(st.mean)}${IND[S.ind].unit}`, 12.5, "#dc2626", 800, "end", "mono");
-  $("viz2").innerHTML = s;
-  /* 三大指标 */
-  const modeTxt = st.modes.length ? st.modes.map(fmt2).join("、") + "（各 " + st.maxc + " 次）" : "无众数";
-  $("suMetrics").innerHTML = `<h3><span class="tag" style="background:#2563eb">实时计算</span>${IND[S.ind].name}（${IND[S.ind].unit}）的三大集中趋势指标</h3>
-    <div class="vsbox" style="margin-bottom:8px">
-      <div class="a">平均数<div class="big">${fmt2(st.mean)}</div>总和 ${fmt2(st.sum)} ÷ 20</div>
-      <div class="b">中位数<div class="big">${fmt2(st.median)}</div>排序后取中间</div>
-      <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:8px 10px;text-align:center">众数<div class="big" style="font-size:17px;color:#b91c1c">${modeTxt}</div></div>
-    </div>
-    <div style="font-size:12.5px;color:#475569">极差（最大−最小）= ${fmt2(st.max)} − ${fmt2(st.min)} = ${fmt2(st.max-st.min)} ${IND[S.ind].unit}，反映个体差异大小。</div>`;
-}
-function genReport(){
-  const vals = surveyVals(), st = statsOf(vals);
-  const {name, unit} = IND[S.ind];
-  const diff = st.max - st.min;
-  const diffTxt = diff / (st.mean||1) > 0.25 ? "较大" : diff / (st.mean||1) > 0.12 ? "中等" : "较小";
-  const modeTxt = st.modes.length
-    ? `众数为 ${st.modes.map(fmt2).join("、")}（出现 ${st.maxc} 次）`
-    : "各数据出现次数都很少，没有明显的众数";
-  const advice = {
-    h: "身高受遗传因素影响较大，个体差异属正常现象；应关注营养均衡与充足睡眠，而不是单纯比较数字。",
-    w: "体重应结合身高综合看待（BMI = 体重÷身高²），建议体重偏离平均较多的同学注意均衡饮食、坚持锻炼。",
-    f: "肺活量反映心肺功能水平。个体差异较大说明部分同学心肺耐力有待提高，建议加强跑步、游泳等有氧运动。",
-    r: "50米跑成绩越小表示速度越快。整体数据说明班级速度素质存在差异，可在体育课中增加短跑与爆发力练习。"
-  }[S.ind];
-  const txt2 = [
-    `【${name}调查分析】本次共调查 20 名学生。`,
-    `① 平均数 ${fmt2(st.mean)} ${unit}（由总和 ${fmt2(st.sum)} ÷ 20 得到），反映班级整体水平；`,
-    `② 中位数 ${fmt2(st.median)} ${unit}（先排序，n=20 为偶数，取第 10、11 个的平均），不受极端值影响；`,
-    `③ ${modeTxt}，反映 most 常见的水平；`.replace("most", "出现"),
-    `④ 极差 ${fmt2(diff)} ${unit}，个体差异${diffTxt}。`,
-    ``,
-    `📊 结论：${advice}`,
-    `统计启示：平均数、中位数、众数从不同角度刻画集中趋势，综合运用才能得出全面、客观的结论。`
-  ].join("\n");
-  $("report").innerHTML = `<div class="fadein">${txt2.replace(/\n/g,"<br>")}</div>`;
-}
+$('resample').onclick=survey;
+$('extHead').onclick=()=>{const b=$('extBody');const hid=b.classList.toggle('hide');$('extArrow').textContent=hid?'展开 ▼':'收起 ▲';if(!hid&&!$('surveyStat').innerHTML)survey();};
 
-/* ============ 事件 ============ */
-document.querySelectorAll(".tabbtn").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll(".tabbtn").forEach(x => x.classList.remove("active"));
-  document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
-  b.classList.add("active");
-  $("tab" + b.dataset.t).classList.add("active");
-}));
-$("btnRand").addEventListener("click", randomize);
-$("btnAsc").addEventListener("click", () => startBubble("asc"));
-$("btnDesc").addEventListener("click", () => startBubble("desc"));
-$("btnRestore").addEventListener("click", restoreOrder);
-$("tgWeight").addEventListener("click", toggleWeight);
-[["tgMean","mean"],["tgMedian","median"],["tgFreq","freq"],["tgChart","chart"]].forEach(([id,key]) => {
-  $(id).addEventListener("click", () => {
-    S.show[key] = !S.show[key];
-    $(id).classList.toggle("on", S.show[key]);
-    renderViz(); renderTable();
-  });
-});
-document.querySelectorAll("#indBtns .sbtn").forEach(b => b.addEventListener("click", () => {
-  S.ind = b.dataset.ind; renderSurvey();
-}));
-$("btnResample").addEventListener("click", genSurvey);
-$("btnReport").addEventListener("click", genReport);
-
-initData();
-renderAll(true);
-function renderAll(rebuildTable){
-  if (rebuildTable) renderTable();
-  renderViz();
-  renderMetrics();
+/* ---- 页签 ---- */
+function setTab(t){
+  stopMed();
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  ['mean','median','mode','which'].forEach(k=>$('sec'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('hide',k!==t));
+  if(t==='median'){medFrames=buildFrames();medIdx=0;medDone=false;renderMed();}
+  if(t==='mode')renderMode();
+  if(t==='which')renderWhich();
 }
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+
+buildMeanInputs();renderMean();renderMode();renderWhich();
+medFrames=buildFrames();renderMed();
 </script>
 </body>
 </html>

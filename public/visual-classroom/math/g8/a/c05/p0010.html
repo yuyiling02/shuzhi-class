@@ -3,478 +3,794 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>17.1 提公因式法 · 分步高亮演示（可输入每一项）</title>
+<title>17.1 提公因式法 · 闯关课堂</title>
 <style>
   :root{
-    --ink:#1e293b; --sub:#64748b; --line:#e2e8f0; --paper:#f8fafc;
-    --c1:#dc2626; --c1bg:#fef2f2;            /* 系数：红 */
-    --c2:#2563eb; --c2bg:#eff6ff;            /* 字母：蓝 */
-    --c3:#7c3aed; --c3bg:#f5f3ff;            /* 公因式：紫 */
-    --c4:#16a34a; --c4bg:#f0fdf4;            /* 结果：绿 */
+    --bg0:#070b18;--bg1:#0d1230;--panel:rgba(17,24,54,.85);--panel2:rgba(23,32,70,.72);
+    --line:rgba(122,144,255,.22);--ink:#e8ecff;--sub:#9aa6d8;
+    --cyan:#22d3ee;--pink:#f472b6;--lime:#a3e635;--amber:#fbbf24;--violet:#a78bfa;--red:#fb7185;
+    --glowc:0 0 18px rgba(34,211,238,.35);--glowp:0 0 18px rgba(244,114,182,.35);
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; background:var(--paper); color:var(--ink); padding:22px 16px 44px;}
-  .wrap{max-width:1080px; margin:0 auto;}
-  header{text-align:center; margin-bottom:16px;}
-  header h1{font-size:25px; font-weight:800;}
-  header p{color:var(--sub); margin-top:6px; font-size:14px;}
-  .card{background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px 20px; box-shadow:0 1px 3px rgba(15,23,42,.05); margin-bottom:14px;}
-  .card h3{font-size:15px; margin-bottom:10px;}
-  /* 知识点 */
-  .kp{display:flex; gap:12px; flex-wrap:wrap; align-items:stretch;}
-  .kp>div{flex:1 1 280px;}
-  .formula-box{background:#fffbeb; border:1.5px solid #fde68a; border-radius:12px; padding:12px 16px; font-size:16px; font-weight:800; color:#92400e; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.5;}
-  .koujue{background:#f0fdf4; border-left:4px solid var(--c4); border-radius:0 10px 10px 0; padding:9px 14px; font-size:13.5px; line-height:1.85;}
-  .warn{background:#fef2f2; border-left:4px solid var(--c1); border-radius:0 10px 10px 0; padding:9px 14px; font-size:13px; line-height:1.85; color:#7f1d1d;}
-  /* 输入区 */
-  .inputs{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .tin{display:flex; align-items:center; gap:6px; background:var(--paper); border:1.5px solid var(--line); border-radius:10px; padding:5px 8px; transition:.2s;}
-  .tin:focus-within{border-color:#93c5fd; background:#fff; box-shadow:0 0 0 3px #dbeafe;}
-  .tin.bad{border-color:#fca5a5; background:#fef2f2;}
-  .tin .idx{font-size:12px; color:var(--sub); font-weight:700;}
-  .tin input{width:104px; border:none; background:transparent; outline:none; font-size:17px; font-family:"Cambria Math",Cambria,Georgia,serif; font-weight:700; color:var(--ink); text-align:center;}
-  .tin .rm{border:none; background:transparent; color:#cbd5e1; font-size:16px; cursor:pointer; line-height:1; padding:0 2px;}
-  .tin .rm:hover{color:var(--c1);}
-  .mini{padding:7px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:13px; font-weight:700; cursor:pointer; color:var(--ink);}
-  .mini:hover{background:var(--paper);}
-  .mini.primary{background:#2563eb; border-color:#2563eb; color:#fff;}
-  .fmt{font-size:12px; color:#94a3b8; margin-top:8px;}
-  .err{font-size:13px; color:var(--c1); font-weight:700; margin-top:6px; display:none;}
-  /* 主舞台 */
-  .stage{display:flex; gap:18px; flex-wrap:wrap;}
-  .main{flex:1 1 580px; min-width:420px;}
-  .side{flex:1 1 270px; min-width:250px;}
-  .expr-wrap{background:#fff; border:1px solid var(--line); border-radius:14px; padding:32px 18px 20px; text-align:center; position:relative; overflow:hidden; transition:padding .4s;}
-  .expr{font-family:"Cambria Math",Cambria,Georgia,"Times New Roman",serif; font-size:clamp(26px,4vw,40px); white-space:nowrap; line-height:1.7; transition:opacity .5s ease, filter .5s ease;}
-  .term{display:inline-block; margin:0 1px;}
-  .op{margin:0 9px; color:#475569;}
-  .p{display:inline-block; padding:2px 6px; border-radius:10px; border:2px solid transparent;
-     transition:background-color .4s ease, border-color .4s ease, color .35s ease, transform .4s ease, opacity .4s ease;}
-  .p.letter{font-style:italic;}
-  .p sup{font-size:.55em; font-style:normal;}
-  /* 各步骤高亮 */
-  .s1 .p.coef{background:var(--c1bg); border-color:var(--c1); color:var(--c1); transform:translateY(-4px) scale(1.08);}
-  .s1 .p.letter{opacity:.4;}
-  .s2 .p.letter{background:var(--c2bg); border-color:var(--c2); color:var(--c2); transform:translateY(-4px) scale(1.08);}
-  .s2 .p.coef{opacity:.4;}
-  .s3 .p{background:var(--c3bg); border-color:var(--c3); color:var(--c3); transform:translateY(-4px) scale(1.06);}
-  .s4{opacity:.25; filter:grayscale(.85);}
-  /* 下移提取区 */
-  .pull{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; font-size:13px; font-weight:700; color:var(--c3);
-        opacity:0; max-height:0; transform:translateY(-6px); overflow:hidden;
-        transition:opacity .45s ease .1s, max-height .45s ease, transform .45s ease;}
-  .pull .ar{font-size:20px; line-height:1; animation:bounce 1.4s ease-in-out infinite;}
-  @keyframes bounce{0%,100%{transform:translateY(0); opacity:.9}50%{transform:translateY(6px); opacity:.45}}
-  .result-row{display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:2px;
-    font-family:"Cambria Math",Cambria,Georgia,serif; font-size:clamp(24px,3.6vw,36px);
-    opacity:0; max-height:0; overflow:hidden; transform:translateY(16px);
-    transition:opacity .5s ease, max-height .5s ease, transform .5s ease;}
-  .gf{background:var(--c3bg); border:2.5px solid var(--c3); color:var(--c3); border-radius:12px; padding:1px 12px; margin:0 2px;
-      display:inline-block; opacity:0; transform:scale(.85); transition:opacity .4s ease .15s, transform .4s ease .15s, box-shadow .4s ease;}
-  .eq,.brk,.in{opacity:0; transform:translateY(8px); transition:opacity .5s ease .15s, transform .5s ease .15s;}
-  .in{display:inline-flex; align-items:center; flex-wrap:wrap;}
-  .qvar{font-style:italic;}
-  .qvar sup{font-size:.55em;}
-  .op2{margin:0 7px; color:#475569;}
-  #stage.st3 .pull{opacity:1; max-height:40px; transform:translateY(0);}
-  #stage.st3 .result-row{opacity:1; max-height:220px; transform:translateY(0); margin-top:8px;}
-  #stage.st3 .gf{opacity:1; transform:scale(1);}
-  #stage.st4 .eq,#stage.st4 .brk,#stage.st4 .in{opacity:1; transform:translateY(0);}
-  #stage.st4 .gf{box-shadow:0 0 0 7px rgba(124,58,237,.10);}
-  /* 除法小标签 */
-  .div-chips{display:flex; justify-content:center; gap:9px; flex-wrap:wrap; margin-top:14px;
-    opacity:0; max-height:0; overflow:hidden; transform:translateY(10px);
-    transition:opacity .5s ease .3s, max-height .5s ease .3s, transform .5s ease .3s;}
-  #stage.st4 .div-chips{opacity:1; max-height:120px; transform:none;}
-  .chip{font-size:13px; padding:5px 11px; border-radius:999px; font-weight:700; background:#fff; border:1.5px solid;}
-  /* 结论 */
-  .final{opacity:0; max-height:0; overflow:hidden; transform:translateY(12px);
-    transition:opacity .55s ease .55s, max-height .55s ease .55s, transform .55s ease .55s;}
-  #stage.st4 .final{opacity:1; max-height:240px; transform:none; margin-top:12px;}
-  .final .ans{display:inline-block; background:var(--c4bg); color:var(--c4); border:1.5px solid #bbf7d0; border-radius:12px; padding:9px 18px; font-size:16px; font-weight:800; line-height:1.75;}
-  .final .tip{margin-top:7px; font-size:12.5px; color:#7f1d1d; line-height:1.7;}
-  .notice{display:none; margin-top:12px; font-size:14px; font-weight:700; color:#92400e; background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:9px 12px;}
-  #stage.nocf .notice{display:block;}
-  #stage.nocf .pull,#stage.nocf .result-row,#stage.nocf .div-chips,#stage.nocf .final{display:none!important;}
-  /* 说明卡 */
-  .step-callout{border-radius:12px; padding:13px 16px; min-height:104px; border:1.5px solid var(--line); transition:background .4s, border-color .4s;}
-  .step-callout .st{font-size:14.5px; font-weight:800; margin-bottom:5px;}
-  .step-callout .sd{font-size:13.5px; line-height:1.75;}
-  .step-callout .sf{margin-top:7px; font-family:"Cambria Math",Cambria,Georgia,serif; font-size:18px; font-weight:800; word-break:break-all;}
-  .step-callout.k0{background:#fff;}
-  .step-callout.k1{background:var(--c1bg); border-color:var(--c1);} .step-callout.k1 .st,.step-callout.k1 .sf{color:var(--c1);}
-  .step-callout.k2{background:var(--c2bg); border-color:var(--c2);} .step-callout.k2 .st,.step-callout.k2 .sf{color:var(--c2);}
-  .step-callout.k3{background:var(--c3bg); border-color:var(--c3);} .step-callout.k3 .st,.step-callout.k3 .sf{color:var(--c3);}
-  .step-callout.k4{background:var(--c4bg); border-color:var(--c4);} .step-callout.k4 .st,.step-callout.k4 .sf{color:var(--c4);}
-  /* 步骤清单 */
-  .steps{list-style:none;}
-  .steps li{display:flex; align-items:flex-start; gap:9px; padding:8px 11px; border-radius:10px; font-size:13.5px; color:var(--sub); margin-bottom:5px; border:1px solid transparent; transition:.3s;}
-  .steps .dot{flex:0 0 12px; height:12px; border-radius:50%; margin-top:4px; background:#cbd5e1; transition:.3s;}
-  .steps li.cur{background:#fff; border-color:var(--line); color:var(--ink); font-weight:700; box-shadow:0 1px 3px rgba(15,23,42,.06);}
-  .steps li.cur .dot{background:var(--c); box-shadow:0 0 0 4px rgba(148,163,184,.18);}
-  .steps li.done{color:var(--c);} .steps li.done .dot{background:var(--c);}
-  .steps li.done::after{content:"✓"; margin-left:auto; font-weight:800;}
-  .ctrl{display:flex; gap:10px; justify-content:center; margin-top:14px;}
-  .ctrl button{padding:10px 24px; border-radius:12px; border:1.5px solid var(--line); background:#fff; font-size:15px; font-weight:700; cursor:pointer; transition:.15s; color:var(--ink);}
-  .ctrl button.primary{background:#2563eb; border-color:#2563eb; color:#fff;}
-  .ctrl button:hover:not(:disabled){filter:brightness(.96);}
-  .ctrl button:disabled{opacity:.45; cursor:not-allowed;}
-  .dots{display:flex; gap:8px; justify-content:center; margin-top:11px;}
-  .dots i{width:10px; height:10px; border-radius:50%; background:#cbd5e1; transition:.3s;}
-  .dots i.on{background:#2563eb; transform:scale(1.25);}
-  footer{text-align:center; color:#94a3b8; font-size:12px; margin-top:22px;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{max-width:100%;overflow-x:hidden;}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);
+    background:radial-gradient(1100px 600px at 15% -10%,rgba(80,60,200,.35),transparent 60%),
+               radial-gradient(900px 520px at 90% 0%,rgba(20,160,190,.22),transparent 55%),
+               linear-gradient(165deg,var(--bg0),var(--bg1) 60%,#0a0f24);
+    min-height:100vh;padding:14px 12px 34px;
+  }
+  .wrap{max-width:980px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  header h1{font-size:21px;font-weight:800;letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  header .sp{flex:1;}
+  .mbtn{min-height:44px;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--panel);font-size:14px;font-weight:700;color:var(--sub);cursor:pointer;}
+  .mbtn.on{border-color:var(--cyan);color:#04121a;background:var(--cyan);box-shadow:var(--glowc);}
+  nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  nav button{min-height:44px;padding:9px 18px;border-radius:14px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--sub);font-size:15px;font-weight:800;cursor:pointer;}
+  nav button.on{border-color:var(--violet);color:var(--ink);background:linear-gradient(120deg,rgba(167,139,250,.28),rgba(34,211,238,.18));box-shadow:0 0 16px rgba(167,139,250,.3);}
+  .screen{display:none;}
+  .screen.on{display:block;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;
+    box-shadow:0 6px 24px rgba(0,0,0,.35);margin-bottom:14px;}
+  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+  .lvcard{position:relative;background:var(--panel2);border:1.5px solid var(--line);border-radius:18px;
+    padding:18px 16px;cursor:pointer;transition:.2s;overflow:hidden;}
+  .lvcard:hover{border-color:var(--cyan);box-shadow:var(--glowc);transform:translateY(-2px);}
+  .lvcard .no{font-size:13px;font-weight:800;color:var(--cyan);letter-spacing:2px;}
+  .lvcard h3{font-size:19px;margin:6px 0 8px;}
+  .lvcard p{font-size:13px;color:var(--sub);line-height:1.7;}
+  .lvcard .go{display:inline-block;margin-top:10px;font-size:13px;font-weight:800;color:var(--amber);}
+  .lvcard .big{position:absolute;right:10px;top:6px;font-size:44px;opacity:.28;}
+  .mantra{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;}
+  .mantra span{padding:7px 13px;border-radius:999px;font-size:13px;font-weight:800;
+    border:1px dashed rgba(163,230,53,.5);color:var(--lime);background:rgba(163,230,53,.07);}
+  .sec-title{font-size:16px;font-weight:800;color:var(--violet);margin-bottom:10px;}
+  .labtitle{font-size:19px;font-weight:800;margin-bottom:6px;}
+  .labsub{font-size:13.5px;color:var(--sub);line-height:1.7;margin-bottom:10px;}
+  .guessrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+  .guessrow .gl{font-size:14px;font-weight:800;color:var(--amber);}
+  .chip{min-height:44px;padding:9px 16px;border-radius:12px;border:1.5px solid var(--line);
+    background:var(--panel2);font-weight:800;font-size:15px;cursor:pointer;color:var(--ink);}
+  .chip.on{border-color:var(--pink);color:var(--pink);box-shadow:var(--glowp);background:rgba(244,114,182,.1);}
+  .chip.right{border-color:var(--lime);color:var(--lime);box-shadow:0 0 14px rgba(163,230,53,.4);}
+  .chip.wrong{border-color:var(--red);color:var(--red);animation:shake .3s;}
+  .chip:disabled{opacity:.85;cursor:default;}
+  .stage{position:relative;min-height:280px;border:1px solid var(--line);border-radius:16px;
+    background:radial-gradient(500px 240px at 50% 0%,rgba(90,80,220,.16),transparent),rgba(8,12,30,.55);
+    padding:16px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:hidden;}
+  .termline{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:center;min-height:110px;}
+  .cardv{position:relative;display:flex;align-items:center;gap:4px;padding:14px 16px;border-radius:14px;
+    border:1.5px solid var(--line);background:linear-gradient(150deg,rgba(40,52,110,.9),rgba(22,28,64,.9));
+    box-shadow:0 4px 14px rgba(0,0,0,.35);transition:.45s;}
+  .cardv .tk{font-size:30px;font-weight:800;padding:2px 5px;border-radius:8px;transition:.35s;line-height:1.2;}
+  .cardv .tk sup{font-size:.55em;}
+  .tk.co{color:var(--amber);} .tk.lt{color:var(--cyan);} .tk.sg{color:var(--pink);}
+  .tk.hl{background:rgba(251,191,36,.16);outline:2px solid var(--amber);box-shadow:0 0 14px rgba(251,191,36,.5);}
+  .tk.hlc{background:rgba(34,211,238,.14);outline:2px solid var(--cyan);box-shadow:0 0 14px rgba(34,211,238,.5);}
+  .tk.hlp{background:rgba(244,114,182,.14);outline:2px solid var(--pink);box-shadow:0 0 14px rgba(244,114,182,.5);}
+  .tk.dim{opacity:.35;}
+  .plus{font-size:30px;font-weight:800;color:var(--sub);}
+  .badge{padding:9px 18px;border-radius:999px;font-size:19px;font-weight:800;border:1.5px solid var(--lime);
+    color:var(--lime);background:rgba(163,230,53,.09);box-shadow:0 0 16px rgba(163,230,53,.3);
+    opacity:0;transform:scale(.6);transition:.4s;}
+  .badge.show{opacity:1;transform:scale(1);}
+  .badge.cy{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.09);box-shadow:var(--glowc);}
+  .badge.pk{border-color:var(--pink);color:var(--pink);background:rgba(244,114,182,.09);box-shadow:var(--glowp);}
+  .badge.am{border-color:var(--amber);color:var(--amber);background:rgba(251,191,36,.09);box-shadow:0 0 16px rgba(251,191,36,.3);}
+  .note{font-size:13.5px;color:var(--sub);text-align:center;line-height:1.7;min-height:20px;}
+  .note b{color:var(--amber);}
+  .fly{position:absolute;z-index:5;padding:8px 14px;border-radius:12px;font-size:24px;font-weight:800;
+    color:#0a1020;background:linear-gradient(120deg,var(--amber),#fde68a);box-shadow:0 0 22px rgba(251,191,36,.65);
+    transition:left .8s cubic-bezier(.5,1.3,.5,1),top .8s cubic-bezier(.5,1.3,.5,1),transform .8s;white-space:nowrap;}
+  .fly.pk{background:linear-gradient(120deg,var(--pink),#fbcfe8);box-shadow:0 0 22px rgba(244,114,182,.65);}
+  .resultline{font-size:24px;font-weight:800;text-align:center;line-height:1.6;opacity:0;transform:translateY(8px);transition:.45s;}
+  .resultline.show{opacity:1;transform:none;}
+  .resultline sup{font-size:.55em;}
+  .resultline .hl{color:var(--amber);} .resultline .hlc{color:var(--cyan);} .resultline .hlp{color:var(--pink);}
+  .ctrl{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0 4px;}
+  .ctrl .lb{font-size:14px;font-weight:800;color:var(--sub);}
+  .stepper{display:flex;align-items:center;gap:6px;}
+  .stepper button{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);
+    background:var(--panel2);color:var(--cyan);font-size:22px;font-weight:800;cursor:pointer;}
+  .stepper button:disabled{opacity:.35;cursor:default;}
+  .stepper .val{min-width:40px;text-align:center;font-size:19px;font-weight:800;color:var(--amber);}
+  .btn{min-height:46px;padding:11px 26px;border:none;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;
+    background:linear-gradient(120deg,var(--cyan),#67e8f9);color:#04121a;box-shadow:var(--glowc);}
+  .btn:active{transform:translateY(2px);}
+  .btn.violet{background:linear-gradient(120deg,var(--violet),#c4b5fd);color:#140a2e;box-shadow:0 0 18px rgba(167,139,250,.4);}
+  .btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--sub);box-shadow:none;}
+  .btn.pink{background:linear-gradient(120deg,var(--pink),#f9a8d4);color:#2a0716;box-shadow:var(--glowp);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+  .steps{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+  .step{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;
+    border:1px solid var(--line);background:var(--panel2);opacity:.35;transition:.4s;}
+  .step.show{opacity:1;border-color:rgba(34,211,238,.5);}
+  .step .n{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;background:var(--cyan);color:#04121a;}
+  .step .tx{font-size:14.5px;line-height:1.7;}
+  .step .tx b{color:var(--amber);} .step .tx i{font-style:normal;color:var(--cyan);}
+  .step sup{font-size:.6em;}
+  .warn{margin-top:12px;border:1px dashed rgba(251,113,133,.55);border-radius:12px;padding:10px 12px;
+    font-size:13.5px;line-height:1.8;color:#fda4af;background:rgba(251,113,133,.06);}
+  .warn b{color:var(--red);}
+  .warn sup{font-size:.6em;}
+  .labnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .labnav button{min-height:44px;padding:8px 14px;border-radius:12px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--sub);font-size:13.5px;font-weight:800;cursor:pointer;}
+  .labnav button.on{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.08);}
+  /* quiz */
+  .qsetup .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:12px;}
+  .qsetup .row .lb{font-size:14px;font-weight:800;color:var(--sub);}
+  .tswitch{min-height:44px;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--panel2);color:var(--sub);font-weight:800;font-size:14px;cursor:pointer;}
+  .tswitch.on{border-color:var(--amber);color:var(--amber);background:rgba(251,191,36,.1);}
+  .timerbar{height:10px;border-radius:999px;background:rgba(122,144,255,.15);overflow:hidden;margin-bottom:10px;}
+  .timerbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--lime),var(--amber),var(--red));transition:width .2s linear;}
+  .qtop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .qtop .who{font-size:14px;font-weight:800;}
+  .qtop .who.red{color:var(--red);} .qtop .who.blue{color:var(--cyan);}
+  .qtop .prog{font-size:13px;color:var(--sub);font-weight:700;}
+  .scoreline{display:flex;gap:14px;justify-content:center;font-size:14px;font-weight:800;margin-bottom:8px;}
+  .scoreline .r{color:var(--red);} .scoreline .b{color:var(--cyan);}
+  .qtext{font-size:21px;font-weight:800;text-align:center;margin:10px 0 16px;line-height:1.7;}
+  .qtext sup{font-size:.6em;}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .opt{min-height:52px;padding:13px 14px;border-radius:14px;border:1.5px solid var(--line);
+    background:var(--panel2);font-size:17px;font-weight:800;cursor:pointer;transition:.15s;color:var(--ink);text-align:center;line-height:1.5;}
+  .opt sup{font-size:.6em;}
+  .opt:hover:not(:disabled){border-color:var(--cyan);}
+  .opt.right{border-color:var(--lime);background:rgba(163,230,53,.12);color:var(--lime);}
+  .opt.wrong{border-color:var(--red);background:rgba(251,113,133,.12);color:var(--red);animation:shake .3s;}
+  .opt:disabled{cursor:default;}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .fb{text-align:center;font-size:14.5px;font-weight:700;margin-top:12px;min-height:24px;line-height:1.7;}
+  .fb.ok{color:var(--lime);} .fb.no{color:var(--red);}
+  .starsbig{font-size:42px;color:var(--amber);text-align:center;letter-spacing:6px;margin:8px 0;text-shadow:0 0 18px rgba(251,191,36,.55);}
+  .wintitle{font-size:24px;font-weight:800;text-align:center;margin-bottom:6px;}
+  .wrongbook{margin-top:12px;}
+  .wb-item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--panel2);}
+  .wb-item .q{font-size:14.5px;font-weight:800;line-height:1.6;}
+  .wb-item .q sup{font-size:.6em;}
+  .wb-item .a{font-size:13px;color:var(--lime);margin-top:4px;line-height:1.6;}
+  .wb-item .w{font-size:13px;color:var(--sub);margin-top:2px;line-height:1.6;}
+  footer{text-align:center;color:#5b6699;font-size:12px;margin-top:18px;line-height:1.8;}
+  #confetti{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:99;}
+  @media(max-width:640px){
+    header h1{font-size:17px;}
+    .qtext{font-size:17px;} .opt{font-size:15px;}
+    .cardv .tk{font-size:24px;} .resultline{font-size:19px;} .fly{font-size:19px;}
+    .stage{min-height:250px;}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>17.1 提公因式法 · 分步提取演示</h1>
-    <p id="sub">公因式 ＝ 系数GCD × 相同字母的最低次幂 ｜ 口诀「一提」</p>
+    <h1>17.1 提公因式法 · 闯关课堂</h1>
+    <div class="sp"></div>
+    <button class="mbtn on" id="mSound">🔊 声音:开</button>
   </header>
+  <nav id="nav">
+    <button data-go="home" class="on">🗺️ 地图</button>
+    <button data-go="lab">🧪 实验室</button>
+    <button data-go="quiz">⚔️ 闯关答题</button>
+  </nav>
 
-  <div class="card">
-    <div class="kp">
-      <div class="formula-box">公因式 ＝ 系数 GCD × 相同字母的最低次幂</div>
-      <div class="koujue">
-        <b>口诀「一提」</b>——拿到多项式，第一步先把公因式<b>提</b>到括号外：<br>
-        ① 系数取最大公约数　② 字母取各项相同的　③ 指数取最低次幂　④ 每项 ÷ 公因式放入括号，<b>提净别丢项</b>
-      </div>
-      <div class="warn">
-        <b>⚠ 易错警示：</b>某项提完只剩 1 时（如 −2ab 提出 2ab 后剩 <b>−1</b>），不能漏掉；公因式要"提尽提净"；完成后可用单项式<b>乘回去检验</b>。
-      </div>
+  <!-- SECTION:HOME -->
+  <section class="screen on" id="screen-home">
+    <div class="mantra" id="homeMantra"></div>
+    <div class="card">
+      <div class="sec-title">选择一个实验室，先猜一猜，再看动画验证！</div>
+      <div class="map" id="map"></div>
     </div>
-  </div>
-
-  <!-- 输入区 -->
-  <div class="card">
-    <h3>✍ 自己输入每一项（2～5 项），下面的演示全部自动重算</h3>
-    <div class="inputs" id="inputs"></div>
-    <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
-      <button class="mini primary" id="btnAdd">＋ 增加一项</button>
-      <button class="mini" data-preset="6a^3b|8a^2b^2|-2ab">示例：6a³b ＋ 8a²b² － 2ab</button>
-      <button class="mini" data-preset="4x^2y|-6xy^2">示例：4x²y － 6xy²</button>
-      <button class="mini" data-preset="12m^3n|-18m^2n^2|6mn">示例：12m³n － 18m²n² ＋ 6mn</button>
-      <button class="mini" data-preset="3a^2b|6ab|-9a|12ab^2">示例（4 项）：3a²b ＋ 6ab － 9a ＋ 12ab²</button>
+    <div class="card">
+      <div class="sec-title">⚔️ 闯关答题</div>
+      <p class="labsub">8 题一轮：单人冲星 或 红蓝对抗（同桌轮流作答），可开 20 秒限时。答错的题自动进错题本。</p>
+      <div class="btnrow"><button class="btn pink" id="homeToQuiz">开始闯关 →</button></div>
     </div>
-    <div class="fmt">支持写法：<b>6a^3b</b>、<b>6a³b</b>、<b>6a3b</b>、<b>8a^2b^2</b>、<b>-2ab</b>、<b>2ab</b>；字母顺序随意，可含多个字母。</div>
-    <div class="err" id="err"></div>
-  </div>
+  </section>
 
-  <!-- 主舞台 -->
-  <div class="card">
-    <div class="stage">
-      <div class="main">
-        <div class="expr-wrap" id="stage">
-          <div class="expr" id="expr"></div>
-          <div class="pull"><span class="ar">↓</span><span id="pullTxt">从每一项中提取公因式</span></div>
-          <div class="result-row" id="resultRow">
-            <span class="eq">＝</span><span class="gf" id="gfPill"></span>
-            <span class="brk">(</span><span class="in" id="inBox"></span><span class="brk">)</span>
-          </div>
-          <div class="div-chips" id="chips"></div>
-          <div class="final" id="final">
-            <div class="ans" id="ansBox"></div>
-            <div class="tip" id="tipBox"></div>
-          </div>
-          <div class="notice">公因式只有 1 —— 各项没有除 1 以外的公因式，这个多项式"提无可提"。</div>
-        </div>
-        <div class="ctrl">
-          <button id="btnPrev">⏮ 上一步</button>
-          <button id="btnNext" class="primary">下一步 ▶</button>
-          <button id="btnReset">🔁 重播</button>
-        </div>
-        <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
-      </div>
-      <div class="side">
-        <div class="step-callout k0" id="callout">
-          <div class="st">准备开始</div>
-          <div class="sd">点击「下一步」，分四步找出公因式并完成提取：<br>① 看系数 → ② 看字母 → ③ 组公因式 → ④ 提取得结果。</div>
-        </div>
-        <ul class="steps" id="steps">
-          <li style="--c:var(--c1)"><span class="dot"></span><span class="tx"></span></li>
-          <li style="--c:var(--c2)"><span class="dot"></span><span class="tx"></span></li>
-          <li style="--c:var(--c3)"><span class="dot"></span><span class="tx"></span></li>
-          <li style="--c:var(--c4)"><span class="dot"></span><span class="tx"></span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
+  <!-- SECTION:LAB -->
+  <section class="screen" id="screen-lab">
+    <div class="labnav" id="labnav"></div>
+    <div id="labHost"></div>
+  </section>
 
-  <footer>教学演示用 · 17.1 提公因式法 · 每一项可自定义 · 适合投影</footer>
+  <!-- SECTION:QUIZ -->
+  <section class="screen" id="screen-quiz">
+    <div id="quizHost"></div>
+  </section>
+
+  <footer>人教版八年级上册 · 第十七章 整式的乘法与因式分解 · 17.1 提公因式法<br>先猜 → 动画 → 分步公式 → 判断对错 · 玩中学</footer>
 </div>
+<canvas id="confetti"></canvas>
 
 <script>
 "use strict";
-/* ============ 工具 ============ */
-const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
-const sup=n=>String(n).split('').map(d=>SUP[+d]).join('');
-const COL=['#dc2626','#2563eb','#c2410c','#0d9488','#be185d'];
-const gcd2=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t;}return a||1;};
-const gcdAll=arr=>arr.reduce((a,b)=>gcd2(a,b));
+/* ================= 基础工具 ================= */
+const $=id=>document.getElementById(id);
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a;};
+const SUP={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹'};
+const supU=n=>String(n).split('').map(c=>SUP[c]||c).join('');
+const supH=n=>'<sup>'+n+'</sup>';
+function el(tag,cls,txt){const d=document.createElement(tag);if(cls)d.className=cls;if(txt!=null)d.textContent=txt;return d;}
+function htmlSpan(cls,html){const d=el('span',cls);d.innerHTML=html;return d;}
+let T=[];
+const later=(fn,ms)=>T.push(setTimeout(fn,ms));
+const clearT=()=>{T.forEach(clearTimeout);T=[];};
 
-/* ============ 解析单项式：支持 6a^3b / 6a³b / 6a3b / -2ab ============ */
-function parseTerm(raw){
-  const s=String(raw).replace(/\s+/g,'').replace(/×/g,'*').replace(/−/g,'-');
-  if(!s)throw new Error('这一项是空的');
-  let i=0,sign=1;
-  if(s[0]==='+')i=1;
-  else if(s[0]==='-'){sign=-1;i=1;}
-  let num='';
-  while(i<s.length&&/[0-9]/.test(s[i]))num+=s[i++];
-  const coef=(num?parseInt(num,10):1)*sign;
-  const letters=[];
-  while(i<s.length){
-    const ch=s[i];
-    if(/[a-zA-Z]/.test(ch)){
-      const v=ch.toLowerCase(); i++;
-      let e=1;
-      if(s[i]==='^'){
-        i++; let d='';
-        while(i<s.length&&/[0-9]/.test(s[i]))d+=s[i++];
-        e=d?parseInt(d,10):1;
-      }else if(s[i]&&SUP.includes(s[i])){
-        let d='';
-        while(i<s.length&&s[i]&&SUP.includes(s[i]))d+=String(SUP.indexOf(s[i++]));
-        e=d?parseInt(d,10):1;
-      }else{
-        let d='';
-        while(i<s.length&&/[0-9]/.test(s[i]))d+=s[i++];
-        if(d)e=parseInt(d,10);
-      }
-      const ex=letters.find(l=>l.v===v);
-      if(ex)ex.e+=e; else letters.push({v,e});
-    }else if(ch==='*'){i++;}
-    else throw new Error('无法识别的字符「'+ch+'」');
+/* ================= 声音 ================= */
+let soundOn=true,AC=null;
+function beep(f,d,type){
+  if(!soundOn)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.value=f;
+    g.gain.setValueAtTime(.14,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);
+    o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);
+  }catch(e){}
+}
+const sOk=()=>{beep(660,.12);later(()=>beep(880,.18),110);};
+const sNo=()=>beep(180,.25,'sawtooth');
+const sPop=()=>beep(430,.07,'square');
+const sWin=()=>{[523,659,784,1047].forEach((f,i)=>later(()=>beep(f,.22),i*140));};
+
+/* ================= 彩带 ================= */
+const cvs=$('confetti'),ctx=cvs.getContext('2d');
+let pieces=[],confRun=false;
+function confetti(n){
+  cvs.width=innerWidth;cvs.height=innerHeight;
+  const colors=['#22d3ee','#f472b6','#a3e635','#fbbf24','#a78bfa','#fb7185'];
+  for(let i=0;i<(n||120);i++){
+    pieces.push({x:Math.random()*cvs.width,y:-20-Math.random()*cvs.height*.3,
+      w:6+Math.random()*7,h:8+Math.random()*8,c:colors[ri(0,colors.length-1)],
+      vy:2+Math.random()*3.2,vx:-1.5+Math.random()*3,r:Math.random()*Math.PI,vr:-.12+Math.random()*.24});
   }
-  if(coef===0)throw new Error('系数不能为 0');
-  letters.sort((a,b)=>a.v<b.v?-1:1);
-  return{coef,letters};
+  if(!confRun){confRun=true;requestAnimationFrame(confTick);}
+}
+function confTick(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pieces.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+  pieces=pieces.filter(p=>p.y<cvs.height+30);
+  if(pieces.length){requestAnimationFrame(confTick);}else{confRun=false;ctx.clearRect(0,0,cvs.width,cvs.height);}
 }
 
-/* ============ 分析：公因式与各项的商 ============ */
-function analyze(terms){
-  const g=gcdAll(terms.map(t=>t.coef));
-  const allVars=[...new Set(terms.flatMap(t=>t.letters.map(l=>l.v)))].sort();
-  const common=[];
-  for(const v of allVars){
-    const exps=terms.map(t=>{const f=t.letters.find(l=>l.v===v);return f?f.e:0;});
-    if(exps.every(e=>e>0))common.push({v,e:Math.min(...exps)});
-  }
-  const cf={coef:g,letters:common};
-  const quot=terms.map(t=>{
-    const letters=[];
-    for(const L of t.letters){
-      const c=common.find(x=>x.v===L.v);
-      const e=L.e-(c?c.e:0);
-      if(e>0)letters.push({v:L.v,e});
-    }
-    return{coef:t.coef/g,letters};
+/* ================= 屏幕切换 ================= */
+function showScreen(name){
+  clearT();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $('screen-'+name).classList.add('on');
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));
+  if(name==='quiz')renderQuizSetup();
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showScreen(b.dataset.go));
+$('mSound').onclick=()=>{soundOn=!soundOn;$('mSound').textContent=soundOn?'🔊 声音:开':'🔇 声音:关';$('mSound').classList.toggle('on',soundOn);};
+
+/* ================= 口诀 ================= */
+const MANTRA=['系数最大公因数','字母最低次','整体看作一个块','提负要变号'];
+MANTRA.forEach(t=>$('homeMantra').appendChild(el('span','',t)));
+
+/* ================= 步进器 ================= */
+function makeStepper(parent,label,value,min,max,onchange){
+  const box=el('div','stepper');
+  box.appendChild(el('span','lb',label));
+  const minus=el('button','', '−'),val=el('span','val',String(value)),plus=el('button','','+');
+  minus.type='button';plus.type='button';
+  const sync=()=>{val.textContent=String(value);minus.disabled=value<=min;plus.disabled=value>=max;};
+  minus.onclick=()=>{if(value>min){value--;sync();onchange(value);}};
+  plus.onclick=()=>{if(value<max){value++;sync();onchange(value);}};
+  box.append(minus,val,plus);parent.appendChild(box);sync();
+  return {get:()=>value,set:v=>{value=v;sync();}};
+}
+
+/* ================= 实验室引擎 ================= */
+const LABS=[];
+let curLab=0;
+function buildLab(cfg){
+  LABS.push(cfg);
+  const idx=LABS.length-1;
+  const card=el('div','lvcard');
+  card.appendChild(el('div','no','实验室 '+(idx+1)));
+  card.appendChild(el('h3','',cfg.title));
+  card.appendChild(el('p','',cfg.desc));
+  card.appendChild(el('span','go','进入实验室 →'));
+  card.appendChild(el('span','big',cfg.icon));
+  card.onclick=()=>openLab(idx);
+  $('map').appendChild(card);
+  const nb=el('button','',cfg.icon+' '+cfg.short);
+  nb.onclick=()=>openLab(idx);
+  $('labnav').appendChild(nb);
+}
+function openLab(idx){
+  curLab=idx;
+  showScreen('lab');
+  document.querySelectorAll('#labnav button').forEach((b,i)=>b.classList.toggle('on',i===idx));
+  renderLab();
+}
+function renderLab(){resetLab(LABS[curLab]);}
+function resetLab(cfg){
+  clearT();
+  const host=$('labHost');host.innerHTML='';
+  const card=el('div','card');
+  card.appendChild(el('div','labtitle',cfg.icon+' '+cfg.title));
+  card.appendChild(el('div','labsub',cfg.motto));
+  /* 猜一猜 */
+  const guessWrap=el('div','guessrow');
+  guessWrap.appendChild(el('span','gl','🤔 先猜一猜：'));
+  card.appendChild(guessWrap);
+  /* 舞台 */
+  const stage=el('div','stage');card.appendChild(stage);
+  /* 控制区 */
+  const ctrl=el('div','ctrl');card.appendChild(ctrl);
+  /* 公式三步 */
+  const stepsBox=el('div','steps');
+  const stepEls=cfg.steps().map((s,i)=>{
+    const d=el('div','step');
+    d.appendChild(el('span','n',String(i+1)));
+    const tx=el('span','tx');tx.innerHTML=s;d.appendChild(tx);
+    stepsBox.appendChild(d);return d;
   });
-  return{cf,quot,g};
-}
+  card.appendChild(stepsBox);
+  /* 易错提醒 */
+  const warn=el('div','warn');warn.innerHTML='⚠️ <b>易错提醒：</b>'+cfg.warn;card.appendChild(warn);
+  /* 按钮 */
+  const btnrow=el('div','btnrow');
+  const playBtn=el('button','btn','▶ 播放动画');
+  const resetBtn=el('button','btn ghost','↺ 重置');
+  btnrow.append(playBtn,resetBtn);card.appendChild(btnrow);
+  host.appendChild(card);
 
-/* ============ 文本 / HTML 渲染 ============ */
-function monoText(p){
-  const abs=Math.abs(p.coef);
-  let s=(p.coef<0?'−':'')+((abs===1&&p.letters.length)?'':abs);
-  for(const L of p.letters)s+=L.v+(L.e>1?sup(L.e):'');
-  return s;
-}
-function monoHigh(p){ // 表达式内：带 .p 高亮粒子的片段
-  const abs=Math.abs(p.coef);
-  const numTxt=(abs===1&&p.letters.length)?'':String(abs);
-  let h=numTxt?`<span class="p coef">${numTxt}</span>`:'';
-  for(const L of p.letters)h+=`<span class="p letter">${L.v}${L.e>1?`<sup>${L.e}</sup>`:''}</span>`;
-  return h;
-}
-function monoPlain(p){ // 结果行内：无高亮粒子
-  const abs=Math.abs(p.coef);
-  let h=(abs===1&&p.letters.length)?'':String(abs);
-  for(const L of p.letters)h+=`<span class="qvar">${L.v}${L.e>1?`<sup>${L.e}</sup>`:''}</span>`;
-  return h;
-}
-function polyText(terms){
-  return terms.map((t,i)=>{
-    const s=t.coef<0?'−':'＋';
-    return (i===0?(t.coef<0?'−':''):s)+monoText({coef:Math.abs(t.coef),letters:t.letters});
-  }).join(' ');
-}
-function polyHTML(terms){
-  return terms.map((t,i)=>{
-    const neg=t.coef<0;
-    let h='<span class="term">';
-    if(i>0)h+=`<span class="op">${neg?'－':'＋'}</span>`;
-    else if(neg)h+='<span class="op">−</span>';
-    h+=monoHigh({coef:Math.abs(t.coef),letters:t.letters});
-    return h+'</span>';
-  }).join('');
-}
-function quotText(q,i){ // 括号内的项（文字版）
-  const s=q.coef<0?'−':'＋';
-  return (i===0?(q.coef<0?'−':''):s)+monoText({coef:Math.abs(q.coef),letters:q.letters});
-}
-
-/* ============ DOM 与状态 ============ */
-const stage=document.getElementById('stage'),exprEl=document.getElementById('expr');
-const callout=document.getElementById('callout'),items=document.querySelectorAll('#steps li');
-const dots=document.querySelectorAll('#dots i'),btnPrev=document.getElementById('btnPrev'),btnNext=document.getElementById('btnNext');
-const inputsBox=document.getElementById('inputs'),errBox=document.getElementById('err');
-let termsRaw=['6a^3b','8a^2b^2','-2ab'];
-let terms=[],cf={coef:1,letters:[]},quot=[],G=1;
-let cur=0,timer=null;
-
-const STEPS=[
-  {k:'k1',t:'第 1 步｜看系数（取 GCD）',d:'',f:''},
-  {k:'k2',t:'第 2 步｜看字母（相同字母取最低次幂）',d:'',f:''},
-  {k:'k3',t:'第 3 步｜组合公因式，提取到下一行',d:'',f:''},
-  {k:'k4',t:'第 4 步｜「一提」——括号内填剩余项',d:'',f:''},
-];
-const STEPCLS=['s1','s2','s3','s4'];
-
-/* ---------- 输入框 ---------- */
-function buildInputs(){
-  inputsBox.innerHTML='';
-  termsRaw.forEach((v,i)=>{
-    const d=document.createElement('div');
-    d.className='tin';
-    d.innerHTML=`<span class="idx">${'①②③④⑤'[i]||i+1}</span><input spellcheck="false" value="${v.replace(/"/g,'&quot;')}"><button class="rm" title="删除这一项">×</button>`;
-    d.querySelector('input').addEventListener('input',e=>{
-      termsRaw[i]=e.target.value; d.classList.remove('bad'); schedule();
-    });
-    d.querySelector('.rm').onclick=()=>{
-      if(termsRaw.length<=2)return;
-      termsRaw.splice(i,1); buildInputs(); buildScene();
+  const state={guessed:false,played:false};
+  const api={
+    stage,ctrl,guessWrap,state,
+    badge(txt,cls){const b=el('div','badge'+(cls?' '+cls:''),txt);stage.appendChild(b);requestAnimationFrame(()=>requestAnimationFrame(()=>b.classList.add('show')));return b;},
+    result(html){const r=el('div','resultline');r.innerHTML=html;stage.appendChild(r);requestAnimationFrame(()=>requestAnimationFrame(()=>r.classList.add('show')));return r;},
+    note(txt){const n=el('div','note');n.innerHTML=txt;stage.appendChild(n);return n;},
+    fly(txt,fromRect,toRect,pink){
+      const f=el('div','fly'+(pink?' pk':''),txt);
+      const sr=stage.getBoundingClientRect();
+      f.style.left=(fromRect.left-sr.left)+'px';f.style.top=(fromRect.top-sr.top)+'px';
+      stage.appendChild(f);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        f.style.left=(toRect.left-sr.left)+'px';f.style.top=(toRect.top-sr.top)+'px';f.style.transform='scale(.92)';
+      }));
+      return f;
+    },
+    revealSteps(){revealSteps(stepEls);},
+    setPlayEnabled(v){playBtn.disabled=!v;}
+  };
+  cfg.render(api);
+  /* 猜一猜 chips */
+  const g=cfg.guess();
+  shuffle(g.opts.slice()).forEach(o=>{
+    const c=el('button','chip',o);c.type='button';
+    c.onclick=()=>{
+      if(state.guessed)return;
+      state.guessed=true;state.guessPick=o;
+      guessWrap.querySelectorAll('.chip').forEach(x=>{x.disabled=true;});
+      if(o===g.ans){c.classList.add('right');sOk();}
+      else{c.classList.add('wrong');sNo();
+        guessWrap.querySelectorAll('.chip').forEach(x=>{if(x.textContent===g.ans)x.classList.add('right');});}
+      api.setPlayEnabled(true);
+      const tip=el('span','gl',o===g.ans?'猜对啦！点▶看动画验证':'没关系，点▶看动画揭晓');
+      guessWrap.appendChild(tip);
     };
-    inputsBox.appendChild(d);
+    guessWrap.appendChild(c);
   });
-  document.getElementById('btnAdd').disabled=termsRaw.length>=5;
+  api.setPlayEnabled(false);
+  playBtn.onclick=()=>{
+    if(state.played)return;
+    if(!state.guessed){
+      guessWrap.querySelector('.gl').textContent='🤔 先点一个猜想，再播放动画！';
+      sNo();return;
+    }
+    state.played=true;playBtn.disabled=true;sPop();
+    cfg.play(api,state);
+  };
+  resetBtn.onclick=()=>resetLab(cfg);
 }
-function schedule(){clearTimeout(timer);timer=setTimeout(buildScene,200);}
+function revealSteps(stepEls){
+  stepEls.forEach((d,i)=>later(()=>{d.classList.add('show');sPop();},400+i*650));
+}
+function guessFeedback(api,state){
+  later(()=>{
+    const g=LABS[curLab].guess();
+    const ok=state.guessPick===g.ans;
+    api.note(ok?'✅ 你猜对了！动画和你想的一样。':'❌ 刚才猜错了，正确答案是 <b>'+g.ans+'</b>，看看动画里发生了什么。');
+    if(ok)sOk();else sNo();
+  },200);
+}
 
-/* ---------- 主构建 ---------- */
-function buildScene(){
-  errBox.style.display='none';
-  document.querySelectorAll('.tin').forEach(t=>t.classList.remove('bad'));
-
-  // 解析（含错误定位）
-  const parsed=[]; let bad=-1,badMsg='';
-  termsRaw.forEach((r,i)=>{
-    if(bad>=0)return;
-    try{parsed.push(parseTerm(r));}
-    catch(e){bad=i;badMsg=e.message;}
+/* ================= 项卡片辅助 ================= */
+function termCard(tokens){
+  const c=el('div','cardv');
+  tokens.forEach(t=>{
+    const s=el('span','tk '+t.cls);
+    if(t.html)s.innerHTML=t.html;else s.textContent=t.txt;
+    c.appendChild(s);
   });
-  if(bad>=0){
-    const box=inputsBox.children[bad];
-    if(box)box.classList.add('bad');
-    errBox.textContent=`⚠ 第 ${bad+1} 项「${termsRaw[bad]}」无法识别：${badMsg}`;
-    errBox.style.display='block';
-    return;
-  }
-  terms=parsed;
-  const A=analyze(terms); cf=A.cf; quot=A.quot; G=A.g;
-  const cfOne=(cf.coef===1&&cf.letters.length===0);
-
-  // 表达式
-  exprEl.innerHTML=polyHTML(terms);
-  document.getElementById('gfPill').textContent=monoText(cf);
-
-  // 括号内剩余项（按各项颜色着色）
-  document.getElementById('inBox').innerHTML=quot.map((q,i)=>
-    (i===0?'':`<span class="op2">${q.coef<0?'－':'＋'}</span>`)
-    +(i===0&&q.coef<0?'<span class="op2">−</span>':'')
-    +`<span style="color:${COL[i%5]};font-weight:700">${monoPlain(q)}</span>`
-  ).join('');
-
-  // 除法标签
-  document.getElementById('chips').innerHTML=terms.map((t,i)=>{
-    const q=quot[i];
-    return `<span class="chip" style="color:${COL[i%5]};border-color:${COL[i%5]}59;background:${COL[i%5]}0d">${monoText(t)} ÷ ${monoText(cf)} ＝ ${monoText(q)}</span>`;
-  }).join('');
-
-  // 最终答案 + 检验
-  const inner=quot.map((q,i)=>quotText(q,i)).join(' ');
-  document.getElementById('ansBox').innerHTML=`✔ 最终答案：${polyText(terms)} ＝ ${monoText(cf)}(${inner})`;
-  document.getElementById('tipBox').innerHTML='检验：'+terms.map((t,i)=>{
-    const q=quot[i];
-    const s=q.coef<0?'－':'＋';
-    const piece=`${monoText(cf)}·${q.coef<0?'('+monoText(q)+')':monoText(q)}`;
-    return (i===0?(q.coef<0?'−':''):s)+piece;
-  }).join(' ')+` ＝ ${polyText(terms)} ✓ 与原式相等`;
-
-  stage.classList.toggle('nocf',cfOne);
-  document.getElementById('sub').textContent=`当前题目：${polyText(terms)} ｜ 公因式 ＝ 系数GCD × 相同字母最低次幂 ｜ 口诀「一提」`;
-
-  // 动态文案
-  const absList=terms.map(t=>Math.abs(t.coef));
-  const coefList=terms.map(t=>t.coef);
-  STEPS[0].d=`各项系数分别为 ${coefList.join('、')}。公因式的系数取它们绝对值的最大公约数：GCD(${absList.join(', ')}) ＝ ${G}。`;
-  STEPS[0].f=`GCD(${absList.join(', ')}) ＝ ${G}`;
-  if(cf.letters.length){
-    STEPS[1].d='各项都含有字母 '+cf.letters.map(l=>l.v).join('、')+'。分别取它们的最低次数：'+
-      cf.letters.map(l=>{
-        const exps=terms.map(t=>{const f=t.letters.find(x=>x.v===l.v);return f?f.e:0;});
-        return `${l.v} 的次数 ${exps.join('、')} → 取 ${l.e}`;
-      }).join('；')+'。';
-    STEPS[1].f=`相同字母的最低次幂 ＝ ${cf.letters.map(l=>l.v+(l.e>1?sup(l.e):'')).join('')}`;
-  }else{
-    STEPS[1].d='各项没有公共的字母（或某项缺少某个字母），所以公因式里不含字母。';
-    STEPS[1].f='相同字母的最低次幂 ＝ 无';
-  }
-  STEPS[2].d=`系数 ${G} 与字母部分 ${cf.letters.length?cf.letters.map(l=>l.v+(l.e>1?sup(l.e):'')).join(''):'（无）'} 相乘，得到公因式 ${monoText(cf)}；把它从每一项中提出来，写到下一行的括号外。`;
-  STEPS[2].f=`公因式 ＝ ${monoText(cf)}`;
-  STEPS[3].d='每一项都除以公因式 '+monoText(cf)+'，把商依次写进括号：'+
-    terms.map((t,i)=>`${monoText(t)}÷${monoText(cf)}＝${monoText(quot[i])}`).join('，')+'。';
-  STEPS[3].f=`${polyText(terms)} ＝ ${monoText(cf)}(${inner})`;
-
-  items.forEach((li,i)=>{li.querySelector('.tx').textContent=STEPTXT[i]();});
-  document.getElementById('pullTxt').textContent=`从每一项中提取公因式 ${monoText(cf)}，写到下一行`;
-
-  cur=0; applyStep();
+  return c;
 }
-const STEPTXT=[
-  ()=>`看系数：GCD(${terms.map(t=>Math.abs(t.coef)).join(', ')}) ＝ ${G}`,
-  ()=>`看字母：${cf.letters.length?'相同字母取最低次幂 → '+monoText({coef:1,letters:cf.letters}):'没有相同字母'}`,
-  ()=>`组公因式：${monoText(cf)}（提取到下一行）`,
-  ()=>`提取得：${monoText(cf)}(${quot.map((q,i)=>quotText(q,i)).join(' ')})`,
-];
+function line(...nodes){const l=el('div','termline');nodes.forEach(n=>l.appendChild(n));return l;}
 
-/* ---------- 步骤渲染 ---------- */
-function applyStep(){
-  exprEl.classList.remove('s1','s2','s3','s4');
-  if(cur>0)exprEl.classList.add(STEPCLS[cur-1]);
-  stage.classList.remove('st3','st4');
-  if(cur>=3)stage.classList.add('st3');
-  if(cur>=4)stage.classList.add('st4');
-
-  const st=cur===0
-    ?{k:'k0',t:'准备开始',d:'点击「下一步」，分四步找出公因式并完成提取：<br>① 看系数 → ② 看字母 → ③ 组公因式 → ④ 提取得结果。',f:''}
-    :STEPS[cur-1];
-  callout.className='step-callout '+st.k;
-  callout.innerHTML=`<div class="st">${st.t}</div><div class="sd">${st.d}</div>${st.f?`<div class="sf">${st.f}</div>`:''}`;
-
-  items.forEach((li,i)=>{li.classList.toggle('done',i<cur);li.classList.toggle('cur',i===cur-1);});
-  dots.forEach((d,i)=>d.classList.toggle('on',i<cur));
-  btnPrev.disabled=cur===0; btnNext.disabled=cur===4;
-}
-
-/* ---------- 事件 ---------- */
-btnNext.onclick=()=>{if(cur<4){cur++;applyStep();}};
-btnPrev.onclick=()=>{if(cur>0){cur--;applyStep();}};
-document.getElementById('btnReset').onclick=()=>{cur=0;applyStep();};
-document.getElementById('btnAdd').onclick=()=>{
-  if(termsRaw.length>=5)return;
-  termsRaw.push('a^2b'); buildInputs(); buildScene();
-  const last=inputsBox.lastElementChild.querySelector('input');
-  last.focus(); last.select();
-};
-document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{
-  termsRaw=b.dataset.preset.split('|');
-  buildInputs(); buildScene();
+/* ================= 实验室 1：找公因式 ================= */
+buildLab({
+  title:'找公因式',short:'找公因式',icon:'🔍',
+  desc:'两项 6x² 与 9x：系数取最大公因数，字母取最低次幂，公因式就是 3x。',
+  motto:'系数最大公因数，字母最低次。调一调系数，先猜公因式，再看高亮圈出。',
+  p:{m:6,n:9},
+  guess(){
+    const g=gcd(this.p.m,this.p.n),ans=g===1?'x':g+'x';
+    const opts=[ans];
+    const cands=[this.p.m+'x',this.p.n+'x',(g===1?'2':String(g*2))+'x',g===1?'1':String(g),g+'x'+supU(2)];
+    for(const c of cands){if(opts.length>=4)break;if(!opts.includes(c))opts.push(c);}
+    return {ans,opts};
+  },
+  steps(){
+    const m=this.p.m,n=this.p.n,g=gcd(m,n);
+    return [
+      '系数 '+m+' 和 '+n+' 的最大公因数是 <b>'+g+'</b>'+(g===1?'（互质，系数部分取 1）':''),
+      '字母部分：x'+supH(2)+' 与 x 都含有 x，取<b>最低次幂 x</b>',
+      '公因式 = <i>'+(g===1?'x':g+'x')+'</i>'
+    ];
+  },
+  warn:'公因式要<b>提尽</b>：系数取最大公因数、字母取最低次幂。若两系数互质（如 2 与 9），公因式只剩字母部分 x。',
+  render(api){
+    const st=api.stage;st.innerHTML='';
+    const m=this.p.m,n=this.p.n;
+    const c1=termCard([{cls:'co',txt:String(m)},{cls:'lt',html:'x'+supH(2)}]);
+    const c2=termCard([{cls:'co',txt:String(n)},{cls:'lt',txt:'x'}]);
+    st.appendChild(line(c1,el('span','plus','与'),c2));
+    api.note('两项分别是 <b>'+m+'x'+supU(2)+'</b> 和 <b>'+n+'x</b>，它们的公因式是什么？');
+    this._c1=c1;this._c2=c2;
+    const ctrl=api.ctrl;ctrl.innerHTML='';
+    makeStepper(ctrl,'系数 m',m,2,9,v=>{this.p.m=v;resetLab(this);});
+    makeStepper(ctrl,'系数 n',n,2,9,v=>{this.p.n=v;resetLab(this);});
+  },
+  play(api,state){
+    const m=this.p.m,n=this.p.n,g=gcd(m,n);
+    const t1=this._c1.querySelectorAll('.tk'),t2=this._c2.querySelectorAll('.tk');
+    later(()=>{t1[0].classList.add('hl');t2[0].classList.add('hl');sPop();
+      api.note('第一步：圈出系数 '+m+' 和 '+n+' → 最大公因数 <b>'+g+'</b>');},300);
+    later(()=>{t1[1].classList.add('hlc');t2[1].classList.add('hlc');sPop();
+      api.note('第二步：圈出公共字母 → 都含 x，取最低次幂 <b>x</b>');},1200);
+    later(()=>{
+      api.badge('公因式 = '+(g===1?'x':g+'x'),'am');
+      if(g===1)api.note('系数互质，公因式只有字母部分 x');
+      api.revealSteps();guessFeedback(api,state);
+    },2100);
+  }
 });
 
-/* ---------- 启动 ---------- */
-buildInputs();
-buildScene();
+/* ================= 实验室 2：提取演示 ================= */
+buildLab({
+  title:'提取公因式演示',short:'提取演示',icon:'📦',
+  desc:'mx²+nx = gx·((m/g)x+(n/g))，公共因子块被"抽"到括号外，剩余项进括号。',
+  motto:'把公共因子从每一项里抽出来，放到括号外面乘。调 m、n 试试。',
+  p:{m:6,n:9},
+  guess(){
+    const m=this.p.m,n=this.p.n,g=gcd(m,n),a=m/g,b=n/g;
+    const inside=(a===1?'x':a+'x')+'+'+(b===1?'1':b);
+    const ans=(g===1?'':g)+'('+inside+')';
+    const opts=[ans];
+    const cands=[
+      (g===1?'':g)+'('+m+'x+'+n+')',
+      g+'x('+a+'x+'+b+')',
+      (g===1?'':g)+'('+(a===1?'x':a+'x')+'+'+b+'x)',
+      (g===1?'':g)+'('+inside+')·x'
+    ];
+    for(const c of cands){if(opts.length>=4)break;if(!opts.includes(c))opts.push(c);}
+    return {ans,opts};
+  },
+  steps(){
+    const m=this.p.m,n=this.p.n,g=gcd(m,n),a=m/g,b=n/g;
+    return [
+      '找公因式：gcd('+m+','+n+')='+g+'，字母取 x → 公因式 <b>'+(g===1?'x':g+'x')+'</b>',
+      '每一项除以公因式：'+m+'x'+supH(2)+'÷'+(g===1?'x':g+'x')+'='+(a===1?'x':a+'x')+'，'+n+'x÷'+(g===1?'x':g+'x')+'=<b>'+(b===1?'1':b)+'</b>'+(b===1?'（剩 1 不能漏！）':''),
+      m+'x'+supH(2)+'+'+n+'x = <i>'+(g===1?'':g)+'x·('+(a===1?'x':a+'x')+'+'+(b===1?'1':b)+')</i>'
+    ];
+  },
+  warn:'提公因式后<b>某项剩 1 不能漏</b>！如 3x'+supH(2)+'+3x = 3x(x+1)，不是 3x·x。检验：把结果乘回去应等于原式。',
+  render(api){
+    const st=api.stage;st.innerHTML='';
+    const m=this.p.m,n=this.p.n;
+    const c1=termCard([{cls:'co',txt:String(m)},{cls:'lt',html:'x'+supH(2)}]);
+    const c2=termCard([{cls:'co',txt:String(n)},{cls:'lt',txt:'x'}]);
+    const row=line(c1,el('span','plus','+'),c2);
+    st.appendChild(row);
+    this._row=row;this._c1=c1;this._c2=c2;
+    api.note('原式：<b>'+m+'x'+supU(2)+' + '+n+'x</b>，把公因式抽到括号外');
+    const ctrl=api.ctrl;ctrl.innerHTML='';
+    makeStepper(ctrl,'m',m,2,9,v=>{this.p.m=v;resetLab(this);});
+    makeStepper(ctrl,'n',n,2,9,v=>{this.p.n=v;resetLab(this);});
+  },
+  play(api,state){
+    const m=this.p.m,n=this.p.n,g=gcd(m,n),a=m/g,b=n/g;
+    const gTxt=(g===1?'x':g+'x');
+    const t1=this._c1.querySelectorAll('.tk'),t2=this._c2.querySelectorAll('.tk');
+    later(()=>{t1[0].classList.add('hl');t1[1].classList.add('hlc');t2[0].classList.add('hl');t2[1].classList.add('hlc');sPop();},250);
+    later(()=>{
+      const from=this._c1.getBoundingClientRect();
+      const ghost=el('div','badge am','⬇ 抽出 '+gTxt);
+      ghost.style.opacity='0';api.stage.appendChild(ghost);
+      const to=ghost.getBoundingClientRect();
+      const f=api.fly(gTxt,from,to);
+      later(()=>{ghost.classList.add('show');ghost.textContent='公因式 '+gTxt;f.style.opacity='0';},850);
+      this._ghost=ghost;
+    },900);
+    later(()=>{
+      t1[0].textContent=String(a);t2[0].textContent=String(b);
+      if(a===1){t1[0].classList.remove('co');t1[0].classList.add('lt');}
+      if(b===1){t2[0].textContent='1';t2[0].classList.add('hl');}
+      t1[1].innerHTML='x';t1[1].classList.remove('hlc');
+      t2[1].classList.remove('hlc');
+      this._c1.style.borderColor='rgba(163,230,53,.6)';this._c2.style.borderColor='rgba(163,230,53,.6)';
+      api.note('剩余项进括号：'+(a===1?'x':a+'x')+' 和 '+(b===1?'<b>1</b>（不能漏！）':b));
+      sPop();
+    },1900);
+    later(()=>{
+      const inside=(a===1?'x':a+'x')+'+'+(b===1?'1':b);
+      api.result(m+'x'+supH(2)+'+'+n+'x = <span class="hl">'+gTxt+'</span>·(<span class="hlc">'+inside+'</span>)');
+      api.revealSteps();guessFeedback(api,state);
+    },2700);
+  }
+});
+
+/* ================= 实验室 3：整体公因式 / 提负号 ================= */
+buildLab({
+  title:'整体公因式 · 提负号',short:'整体/提负',icon:'🧩',
+  desc:'把 (x−y)、(a−b) 当作一个整体块抽出；首项为负时先提负号，括号内每项变号。',
+  motto:'整体看作一个块，提负要变号。点下面的例子切换。',
+  p:{k:0},
+  cases:[
+    {left:'a(x−y)+b(x−y)',ans:'(x−y)(a+b)',block:'(x−y)',neg:false,
+     terms:[[{cls:'lt',txt:'a'},{cls:'sg',txt:'(x−y)'}],[{cls:'lt',txt:'b'},{cls:'sg',txt:'(x−y)'}]],
+     rest:'(a+b)',note:'两个 (x−y) 完全相同，把它看成一个整体块'},
+    {left:'−2x²+4x',ans:'−2x(x−2)',block:'−2x',neg:true,
+     terms:[[{cls:'sg',txt:'−'},{cls:'co',txt:'2'},{cls:'lt',html:'x'+supH(2)}],[{cls:'co',txt:'4'},{cls:'lt',txt:'x'}]],
+     rest:'(x−2)',note:'首项是负的 → 提 −2x，括号内每一项都要变号'},
+    {left:'3a(a−b)+6(a−b)',ans:'3(a−b)(a+2)',block:'3(a−b)',neg:false,
+     terms:[[{cls:'co',txt:'3'},{cls:'lt',txt:'a'},{cls:'sg',txt:'(a−b)'}],[{cls:'co',txt:'6'},{cls:'sg',txt:'(a−b)'}]],
+     rest:'(a+2)',note:'系数公因数 3，整体块 (a−b)，一起提出来'}
+  ],
+  guess(){
+    const c=this.cases[this.p.k];
+    const opts=[c.ans];
+    const pool=this.cases.map(x=>x.ans).concat(['(x−y)(a−b)','−2x(x+2)','3(a−b)(a+6)','2x(x−2)']);
+    for(const o of pool){if(opts.length>=4)break;if(!opts.includes(o))opts.push(o);}
+    return {ans:c.ans,opts};
+  },
+  steps(){
+    const c=this.cases[this.p.k];
+    if(this.p.k===0)return [
+      '两项都含有相同的整体 <b>(x−y)</b>，把它看成一个块',
+      '抽出整体块：a·块 + b·块 = 块·(a+b)',
+      'a(x−y)+b(x−y) = <i>(x−y)(a+b)</i>'
+    ];
+    if(this.p.k===1)return [
+      '首项 −2x'+supH(2)+' 为负 → 先提负号，公因式取 <b>−2x</b>',
+      '括号内变号：−2x'+supH(2)+'÷(−2x)=x，+4x÷(−2x)=<b>−2</b>',
+      '−2x'+supH(2)+'+4x = <i>−2x(x−2)</i>'
+    ];
+    return [
+      '系数 3 与 6 的最大公因数是 3，整体块是 <b>(a−b)</b>',
+      '公因式 = 3(a−b)；剩余：3a(a−b)÷3(a−b)=a，6(a−b)÷3(a−b)=2',
+      '3a(a−b)+6(a−b) = <i>3(a−b)(a+2)</i>'
+    ];
+  },
+  warn:'提负号后<b>括号内每一项都要变号</b>：−2x'+supH(2)+'+4x 提 −2x 后是 (x−2)，不是 (x+2)。整体块 (x−y) 与 (y−x) 互为相反数，不能直接当同一个块。',
+  render(api){
+    const st=api.stage;st.innerHTML='';
+    const c=this.cases[this.p.k];
+    const cards=c.terms.map(ts=>termCard(ts));
+    const row=line(cards[0],el('span','plus','+'),cards[1]);
+    st.appendChild(row);
+    this._cards=cards;this._row=row;
+    api.note('原式：<b>'+c.left+'</b>　'+c.note);
+    const ctrl=api.ctrl;ctrl.innerHTML='';
+    ['① a(x−y)+b(x−y)','② −2x²+4x','③ 3a(a−b)+6(a−b)'].forEach((t,i)=>{
+      const b=el('button','chip'+(this.p.k===i?' on':''),t);b.type='button';
+      b.onclick=()=>{this.p.k=i;resetLab(this);};
+      ctrl.appendChild(b);
+    });
+  },
+  play(api,state){
+    const c=this.cases[this.p.k];
+    const blocks=[];
+    this._cards.forEach(card=>{
+      card.querySelectorAll('.tk').forEach(t=>{
+        if(t.textContent.includes('(x−y)')||t.textContent.includes('(a−b)')||t.textContent==='−'){t.classList.add('hlp');blocks.push(t);}
+        else if(this.p.k===2&&/^[36]$/.test(t.textContent)){t.classList.add('hl');}
+        else if(this.p.k===1&&/^[24]$/.test(t.textContent)){t.classList.add('hl');}
+      });
+    });
+    later(()=>{sPop();api.note('高亮的部分就是可以抽出的<b>整体块 / 负号</b>');},400);
+    later(()=>{
+      const from=this._cards[0].getBoundingClientRect();
+      const ghost=el('div','badge pk','⬇ 抽出 '+c.block);
+      ghost.style.opacity='0';api.stage.appendChild(ghost);
+      const to=ghost.getBoundingClientRect();
+      const f=api.fly(c.block,from,to,true);
+      later(()=>{ghost.classList.add('show');ghost.textContent='整体提出 '+c.block;f.style.opacity='0';},850);
+    },1100);
+    later(()=>{
+      if(c.neg){
+        const tks=this._cards[1].querySelectorAll('.tk');
+        tks[0].classList.add('hlp');
+        api.note('提负号 → +4x 变号成 <b>−2</b>（括号内是 x−2）');
+      }else{
+        api.note('剩余部分合起来：<b>'+c.rest+'</b>');
+      }
+      sPop();
+    },2100);
+    later(()=>{
+      api.result(c.left+' = <span class="hlp">'+c.block+'</span><span class="hlc">'+c.rest+'</span>');
+      api.revealSteps();guessFeedback(api,state);
+    },2900);
+  }
+});
+
+/* ================= 题库 BANK ================= */
+const BANK=[
+ {q:'6x² 与 9x 的公因式是？',opts:['3x','3x²','6x','9x'],ans:0,why:'系数 gcd(6,9)=3，字母取最低次幂 x，所以公因式是 3x。'},
+ {q:'8a³b 与 12a²b² 的公因式是？',opts:['4a²b','4a³b²','2ab','12a²b'],ans:0,why:'系数 gcd(8,12)=4；a 取最低次 a²，b 取最低次 b，得 4a²b。'},
+ {q:'5x²y 与 15xy³ 的公因式是 5xy。',opts:['正确','错误'],ans:0,why:'gcd(5,15)=5，x 取 x、y 取 y，公因式 5xy，正确。'},
+ {q:'3x²+3x 提公因式后等于？',opts:['3x(x+1)','3x·x','3(x²+x)','3x(x+0)'],ans:0,why:'3x²+3x=3x(x+1)。第二项提完剩 1，不能漏写。'},
+ {q:'4a²+4a = 4a·a。',opts:['正确','错误'],ans:1,why:'错。4a²+4a=4a(a+1)，括号里漏掉了剩 1 的那一项。'},
+ {q:'−2x²+4x 提 −2x 后，括号内是？',opts:['x−2','x+2','−x+2','−x−2'],ans:0,why:'−2x²÷(−2x)=x，+4x÷(−2x)=−2，所以是 (x−2)。提负要变号。'},
+ {q:'−3a²−6a = −3a(a+2)。',opts:['正确','错误'],ans:0,why:'−3a²÷(−3a)=a，−6a÷(−3a)=+2，提负后两项都变号，正确。'},
+ {q:'a(x−y)+b(x−y) 分解为？',opts:['(x−y)(a+b)','(x−y)(a−b)','ab(x−y)','(x+y)(a+b)'],ans:0,why:'把 (x−y) 看成整体块，a·块+b·块=(a+b)·块。'},
+ {q:'3a(a−b)+6(a−b) 分解为？',opts:['3(a−b)(a+2)','3(a−b)(a+6)','(a−b)(3a+6)','3a(a−b)'],ans:0,why:'公因式 3(a−b)，剩 a 与 2。C 选项没提尽系数 3，分解不彻底。'},
+ {q:'2x(x−y) 与 4y(y−x) 含有相同的整体因式 (x−y)。',opts:['正确','错误'],ans:1,why:'(y−x)=−(x−y)，两者互为相反数，不是同一个整体块，需先变号统一。'},
+ {q:'−x²+x 提 −x 后等于？',opts:['−x(x−1)','−x(x+1)','x(x−1)','−x(1−x)'],ans:0,why:'−x²÷(−x)=x，+x÷(−x)=−1，得 −x(x−1)。'},
+ {q:'10x³y² 与 15x²y 的公因式是？',opts:['5x²y','5x³y²','10x²y','15xy'],ans:0,why:'gcd(10,15)=5，x 取 x²、y 取 y，得 5x²y。'},
+ {q:'7m²n 与 3mn² 的公因式是 mn。',opts:['正确','错误'],ans:0,why:'7 与 3 互质，系数部分取 1；字母取最低次 m、n，公因式 mn，正确。'},
+ {q:'6x²+9x 分解为？',opts:['3x(2x+3)','3(2x²+3x)','x(6x+9)','3x(2x+3x)'],ans:0,why:'公因式 3x，6x²÷3x=2x，9x÷3x=3。B、C 没提尽，D 括号写错。'},
+ {q:'−4x²+8x 分解为？',opts:['−4x(x−2)','−4x(x+2)','4x(x−2)','−4x(x−8)'],ans:0,why:'提 −4x：−4x²÷(−4x)=x，8x÷(−4x)=−2，得 −4x(x−2)。'},
+ {q:'提公因式后，若某项恰好被提尽，括号里可以不写任何东西。',opts:['正确','错误'],ans:1,why:'错。被提尽的项剩 1，必须写 1，如 3x²+3x=3x(x+1)。'}
+];
+const ROUND=8;
+
+/* ================= 答题引擎 ================= */
+let Q=null;
+function renderQuizSetup(){
+  clearT();
+  const host=$('quizHost');host.innerHTML='';
+  const card=el('div','card qsetup');
+  card.appendChild(el('div','labtitle','⚔️ 闯关答题 · 每轮 '+ROUND+' 题'));
+  card.appendChild(el('div','labsub','题库 '+BANK.length+' 题随机抽 '+ROUND+' 题。红蓝对抗：两人轮流作答，比得分。'));
+  const r1=el('div','row');r1.appendChild(el('span','lb','模式：'));
+  let mode='solo';
+  const bSolo=el('button','tswitch on','🌟 单人冲星'),bVs=el('button','tswitch','🔴🔵 红蓝对抗');
+  bSolo.onclick=()=>{mode='solo';bSolo.classList.add('on');bVs.classList.remove('on');};
+  bVs.onclick=()=>{mode='vs';bVs.classList.add('on');bSolo.classList.remove('on');};
+  r1.append(bSolo,bVs);card.appendChild(r1);
+  const r2=el('div','row');r2.appendChild(el('span','lb','限时：'));
+  let timed=false;
+  const bTime=el('button','tswitch','⏱ 20秒限时:关');
+  bTime.onclick=()=>{timed=!timed;bTime.classList.toggle('on',timed);bTime.textContent=timed?'⏱ 20秒限时:开':'⏱ 20秒限时:关';};
+  r2.appendChild(bTime);card.appendChild(r2);
+  const go=el('button','btn pink','开始闯关 →');
+  go.onclick=()=>startQuiz(mode,timed);
+  const row=el('div','btnrow');row.appendChild(go);card.appendChild(row);
+  host.appendChild(card);
+}
+function startQuiz(mode,timed){
+  clearT();
+  Q={mode,timed,qs:shuffle(BANK.slice()).slice(0,ROUND),i:0,ok:0,score:{red:0,blue:0},wrong:[],timer:null,left:20};
+  renderQuestion();
+}
+function stopTimer(){if(Q&&Q.timer){clearInterval(Q.timer);Q.timer=null;}}
+function renderQuestion(){
+  stopTimer();
+  const host=$('quizHost');host.innerHTML='';
+  const q=Q.qs[Q.i];
+  const card=el('div','card');
+  const top=el('div','qtop');
+  const turn=Q.mode==='vs'?(Q.i%2===0?'red':'blue'):null;
+  const who=el('span','who'+(turn?' '+turn:''),Q.mode==='vs'?(turn==='red'?'🔴 红方作答':'🔵 蓝方作答'):'🌟 单人冲星');
+  const prog=el('span','prog','第 '+(Q.i+1)+' / '+ROUND+' 题');
+  top.append(who,prog);card.appendChild(top);
+  if(Q.mode==='vs'){
+    const sc=el('div','scoreline');
+    sc.appendChild(el('span','r','红方 '+Q.score.red));
+    sc.appendChild(el('span','b','蓝方 '+Q.score.blue));
+    card.appendChild(sc);
+  }
+  let barFill=null;
+  if(Q.timed){
+    const bar=el('div','timerbar');barFill=el('i');bar.appendChild(barFill);card.appendChild(bar);
+  }
+  const qt=el('div','qtext');qt.innerHTML=q.q;card.appendChild(qt);
+  const opts=el('div','opts');
+  const fb=el('div','fb');
+  const next=el('button','btn hide','下一题 →');
+  next.style.display='none';
+  let answered=false;
+  function answer(idx){
+    if(answered)return;answered=true;stopTimer();
+    const btns=opts.querySelectorAll('.opt');btns.forEach(b=>b.disabled=true);
+    const right=idx===q.ans;
+    if(idx>=0)btns[idx].classList.add(right?'right':'wrong');
+    btns[q.ans].classList.add('right');
+    if(right){
+      Q.ok++;if(turn)Q.score[turn]++;
+      fb.className='fb ok';fb.textContent='✅ 答对了！'+q.why;sOk();
+    }else{
+      fb.className='fb no';fb.textContent=(idx<0?'⏰ 超时！':'❌ 答错了。')+' '+q.why;sNo();
+      Q.wrong.push({q,my:idx<0?'（超时未答）':q.opts[idx]});
+    }
+    next.style.display='';
+    next.textContent=Q.i+1>=ROUND?'查看战绩 →':'下一题 →';
+  }
+  shuffle(q.opts.map((t,i)=>({t,i}))).forEach(o=>{
+    const b=el('button','opt');b.innerHTML=o.t;b.type='button';
+    b.onclick=()=>answer(o.i);
+    opts.appendChild(b);
+  });
+  card.append(opts,fb);
+  const row=el('div','btnrow');row.appendChild(next);card.appendChild(row);
+  next.onclick=()=>{Q.i++;if(Q.i>=ROUND)renderResult();else renderQuestion();};
+  host.appendChild(card);
+  if(Q.timed){
+    Q.left=20;
+    Q.timer=setInterval(()=>{
+      Q.left-=.2;
+      if(barFill)barFill.style.width=Math.max(0,Q.left/20*100)+'%';
+      if(Q.left<=0){answer(-1);}
+    },200);
+  }
+}
+function renderResult(){
+  stopTimer();
+  const host=$('quizHost');host.innerHTML='';
+  const card=el('div','card');
+  let title,stars;
+  if(Q.mode==='vs'){
+    const r=Q.score.red,b=Q.score.blue;
+    title=r===b?'🤝 平局！红 '+r+' : 蓝 '+b:(r>b?'🔴 红方获胜！':'🔵 蓝方获胜！')+'　'+r+' : '+b;
+    stars=Math.max(r,b);
+  }else{
+    title='本轮答对 '+Q.ok+' / '+ROUND+' 题';
+    stars=Q.ok>=8?3:Q.ok>=6?2:Q.ok>=4?1:0;
+  }
+  card.appendChild(el('div','wintitle',title));
+  card.appendChild(el('div','starsbig','★'.repeat(stars)+'☆'.repeat(3-stars)));
+  if(Q.wrong.length){
+    const wb=el('div','wrongbook');
+    wb.appendChild(el('div','sec-title','📕 错题本（'+Q.wrong.length+' 题）'));
+    Q.wrong.forEach(w=>{
+      const it=el('div','wb-item');
+      const qd=el('div','q');qd.innerHTML=w.q.q;it.appendChild(qd);
+      it.appendChild(el('div','a','✔ 正确答案：'+w.q.opts[w.q.ans]));
+      it.appendChild(el('div','w','你的答案：'+w.my+'　'+w.q.why));
+      wb.appendChild(it);
+    });
+    card.appendChild(wb);
+  }else{
+    card.appendChild(el('div','labsub','🎉 全部答对，没有错题！'));
+  }
+  const row=el('div','btnrow');
+  const again=el('button','btn pink','再来一轮');again.onclick=()=>startQuiz(Q.mode,Q.timed);
+  const setup=el('button','btn ghost','更换模式');setup.onclick=renderQuizSetup;
+  const home=el('button','btn ghost','回到地图');home.onclick=()=>showScreen('home');
+  row.append(again,setup,home);card.appendChild(row);
+  host.appendChild(card);
+  if((Q.mode==='solo'&&Q.ok>=6)||(Q.mode==='vs')){confetti(140);sWin();}
+  else sOk();
+}
+$('homeToQuiz').onclick=()=>showScreen('quiz');
 </script>
 </body>
 </html>

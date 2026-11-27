@@ -3,390 +3,611 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>16.1 幂的运算 · 交互实验</title>
+<title>16.1 幂的运算 · 闯关实验室</title>
 <style>
-  :root{
-    --blue:#2f6fe4; --blue-d:#1d4fb0; --orange:#f08c1e; --green:#18a86a;
-    --red:#e04848; --ink:#243447; --sub:#64788e; --card:#ffffff; --line:#dbe7f3;
+  :root{--blue:#2563eb;--orange:#f59e0b;--green:#16a34a;--red:#ef4444;--purple:#7c3aed;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:linear-gradient(160deg,#eef2ff,#f0fdfa 55%,#fff7ed);color:var(--ink);min-height:100vh;padding:14px 12px 30px;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  header h1{font-size:20px;font-weight:800;}
+  header .sp{flex:1;}
+  .mbtn{padding:8px 16px;border-radius:999px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;color:var(--sub);cursor:pointer;}
+  .mbtn.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .chip{padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:14px;cursor:pointer;color:var(--sub);}
+  .chip.on{border-color:var(--blue);color:var(--blue);background:#eff6ff;}
+  .chip .st{color:var(--orange);letter-spacing:1px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 2px 10px rgba(15,23,42,.06);margin-bottom:12px;}
+  .hintline{font-size:16px;font-weight:700;color:var(--sub);text-align:center;margin-bottom:10px;}
+  .ctrl{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:700;}
+  .ctrl input[type=range]{width:120px;accent-color:var(--blue);}
+  .ctrl .val{color:var(--blue);font-size:16px;min-width:18px;text-align:center;}
+  .bchip{padding:5px 12px;border-radius:999px;border:2px solid var(--line);background:#fff;font-weight:700;cursor:pointer;font-size:13px;color:var(--sub);}
+  .bchip.on{border-color:var(--purple);color:var(--purple);background:#f5f3ff;}
+  .sbtn{padding:8px 18px;border-radius:999px;border:none;background:var(--purple);color:#fff;font-weight:800;font-size:14px;cursor:pointer;}
+  #stageWrap{position:relative;width:100%;aspect-ratio:900/430;touch-action:none;overflow:hidden;}
+  #stage{position:absolute;left:0;top:0;width:900px;height:430px;transform-origin:0 0;}
+  .cube{position:absolute;width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;transition:left .55s cubic-bezier(.5,1.4,.5,1),top .55s cubic-bezier(.5,1.4,.5,1),transform .3s,opacity .3s;box-shadow:inset 0 -6px 0 rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.15);user-select:none;}
+  .cube.blue{background:var(--blue);} .cube.orange{background:var(--orange);} .cube.green{background:var(--green);} .cube.red{background:var(--red);}
+  .cube.pop{transform:scale(0);opacity:0;}
+  .tray{position:absolute;border-radius:16px;border:2px dashed;transition:width .5s,opacity .3s,left .1s,top .1s;}
+  .tray.blue{border-color:#93c5fd;background:#eff6ff;}
+  .tray.orange{border-color:#fcd34d;background:#fffbeb;cursor:grab;}
+  .pkg{position:absolute;border-radius:14px;border:2px solid #c4b5fd;background:#f5f3ff;transition:opacity .4s;cursor:pointer;}
+  .pkg.done{opacity:.25;cursor:default;}
+  .pairbg{position:absolute;border-radius:14px;border:2px dashed #cbd5e1;transition:opacity .4s;}
+  .token{position:absolute;width:44px;height:44px;border-radius:50%;background:#fee2e2;border:2px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;transition:transform .3s,opacity .3s;}
+  .token.pop{transform:scale(0);opacity:0;}
+  .slabel{position:absolute;font-size:20px;font-weight:800;transition:opacity .4s;text-align:center;}
+  .slabel sup{font-size:.6em;}
+  .rule{margin-top:10px;text-align:center;font-size:22px;font-weight:800;background:#f0fdf4;border:2px solid #bbf7d0;border-radius:14px;padding:12px;opacity:0;transform:translateY(8px);transition:.4s;}
+  .rule.show{opacity:1;transform:none;}
+  .rule sup{font-size:.6em;}
+  .rule .mn{display:inline-block;margin-left:10px;font-size:14px;background:var(--green);color:#fff;border-radius:999px;padding:3px 12px;vertical-align:middle;}
+  .bigbtn{display:block;margin:12px auto 0;padding:12px 34px;border:none;border-radius:999px;background:var(--blue);color:#fff;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 4px 0 #1e40af;}
+  .bigbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #1e40af;}
+  .bigbtn.green{background:var(--green);box-shadow:0 4px 0 #15803d;}
+  .bigbtn.ghost{background:#fff;color:var(--sub);border:2px solid var(--line);box-shadow:none;}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .qtext{font-size:30px;font-weight:800;text-align:center;margin:10px 0 16px;line-height:1.5;}
+  .qtext sup{font-size:.6em;}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .opts.two{grid-template-columns:1fr 1fr;}
+  .opt{padding:16px;border-radius:14px;border:2px solid var(--line);background:#fff;font-size:22px;font-weight:800;cursor:pointer;transition:.15s;color:var(--ink);}
+  .opt sup{font-size:.6em;}
+  .opt:hover:not(:disabled){border-color:var(--blue);}
+  .opt.right{border-color:var(--green);background:#f0fdf4;color:var(--green);}
+  .opt.wrong{border-color:var(--red);background:#fef2f2;color:var(--red);animation:shake .3s;}
+  .opt:disabled{cursor:default;}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .fb{text-align:center;font-size:16px;font-weight:700;margin-top:12px;min-height:24px;}
+  .fb.ok{color:var(--green);} .fb.no{color:var(--red);}
+  .dots{display:flex;gap:6px;justify-content:center;margin-bottom:6px;}
+  .dots i{width:10px;height:10px;border-radius:50%;background:var(--line);}
+  .dots i.on{background:var(--orange);}
+  .starsbig{font-size:44px;color:var(--orange);text-align:center;letter-spacing:6px;margin:8px 0;}
+  .wintitle{font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;}
+  .tally{display:flex;gap:16px;justify-content:center;font-size:15px;font-weight:800;margin-bottom:8px;}
+  .tally .g{color:var(--green);} .tally .r{color:var(--red);} .tally .s{color:var(--sub);}
+  .ringwrap{display:flex;justify-content:center;margin-bottom:4px;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;}
+  .hide{display:none;}
+  @media(max-width:640px){
+    .qtext{font-size:22px;} .opt{font-size:17px;padding:12px;} header h1{font-size:17px;}
+    .rule{font-size:17px;} .hintline{font-size:14px;}
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
-  body{
-    font-family:"Microsoft YaHei","PingFang SC",sans-serif; color:var(--ink);
-    background:linear-gradient(135deg,#dceefd 0%,#eaf5ff 45%,#f6fbff 100%);
-    display:flex; flex-direction:column;
-    min-width:900px; min-height:560px;   /* 太小的窗口允许滚动，绝不重叠 */
-    overflow:auto;
-  }
-  sup{font-size:.6em;}
-
-  /* ===== 头部 ===== */
-  header{
-    flex:none; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
-    padding:10px 20px 6px;
-  }
-  header h1{font-size:clamp(18px,2.2vw,26px); letter-spacing:1px; white-space:nowrap;}
-  header h1 .badge{
-    display:inline-block; background:var(--blue); color:#fff; border-radius:8px;
-    font-size:.68em; padding:2px 10px; margin-right:10px; vertical-align:3px;
-  }
-  header .memo{font-size:clamp(12px,1.2vw,14px); color:var(--sub);}
-
-  /* ===== 主体两栏 ===== */
-  main{
-    flex:1; min-height:0;
-    display:grid; grid-template-columns:1.25fr 1fr; gap:12px;
-    padding:4px 16px;
-  }
-  .panel{background:var(--card); border:1px solid var(--line); border-radius:12px;
-         box-shadow:0 2px 8px rgba(47,111,228,.07);}
-
-  /* ---- 左栏 ---- */
-  #left{display:flex; flex-direction:column; gap:8px; min-height:0; min-width:0;}
-  #modeRow{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:8px; flex:none;}
-  .modeBtn{
-    font-family:inherit; font-size:clamp(11px,1.15vw,14px); padding:7px 2px; border-radius:9px; cursor:pointer;
-    border:1.5px solid var(--line); background:#f4f9ff; color:var(--ink); transition:.15s; white-space:nowrap;
-  }
-  .modeBtn:hover{border-color:var(--blue); color:var(--blue);}
-  .modeBtn.on{background:var(--blue); border-color:var(--blue); color:#fff; font-weight:700;}
-
-  #sliders{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:8px 14px; flex:none;}
-  .sl .lab{display:flex; justify-content:space-between; font-size:12.5px; color:var(--sub); margin-bottom:2px;}
-  .sl .val{font-size:16px; font-weight:800; color:var(--blue-d);}
-  input[type=range]{width:100%; appearance:none; height:7px; border-radius:6px; cursor:pointer;
-    background:linear-gradient(90deg,var(--blue) var(--p,50%), #e2ecf8 var(--p,50%)); outline:none;}
-  input[type=range]::-webkit-slider-thumb{
-    appearance:none; width:20px; height:20px; border-radius:50%; background:#fff;
-    border:3px solid var(--blue); box-shadow:0 2px 5px rgba(0,0,0,.18); cursor:grab;}
-  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);}
-
-  /* 推导链：占据剩余空间，内部滚动，永不外溢 */
-  #deriveWrap{flex:1 1 auto; min-height:120px; overflow:hidden; display:flex; flex-direction:column;}
-  #derive{flex:1; overflow-y:auto; padding:10px 16px; display:flex; flex-direction:column; gap:6px;}
-  .step{
-    flex:none; font-size:clamp(14px,1.75vw,21px); line-height:1.45; font-weight:600;
-    padding:4px 10px; border-left:4px solid var(--blue); background:#f5faff; border-radius:0 8px 8px 0;
-    opacity:0; transform:translateX(-8px); animation:in .3s forwards; overflow-wrap:anywhere;
-  }
-  @keyframes in{to{opacity:1; transform:none;}}
-  .step .hl{color:var(--orange); font-weight:800;}
-  .step .rs{color:var(--green); font-weight:800;}
-  .step .rs big{font-size:1em; overflow-wrap:anywhere;}
-  .step .op{color:var(--blue); font-weight:800;}
-
-  #warn{flex:none; display:none; margin:0 14px 8px; border:2px solid var(--red); background:#fff1f1;
-        border-radius:9px; padding:6px 12px; font-size:clamp(12px,1.25vw,15px); color:var(--red); font-weight:700;
-        line-height:1.5;}
-  #warn .ok{color:var(--green);}
-
-  /* 直观模型：固定紧凑高度 */
-  #model{flex:none; padding:8px 14px 10px;}
-  #modelTitle{font-size:12.5px; color:var(--sub); margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  #viz{display:flex; flex-direction:column; gap:6px; min-height:56px; justify-content:center;}
-  #grid{display:grid; gap:3px;}
-  .cell{border-radius:3px; height:13px;}
-  .cellA{background:linear-gradient(180deg,#7fb0f2,#4b86e8);}
-  .cellB{background:linear-gradient(180deg,#ffd28a,#f5a94e);}
-  #bar{display:flex; gap:3px; align-items:center;}
-  #bar .seg{height:30px; border-radius:5px; display:flex; align-items:center; justify-content:center;
-            color:#fff; font-size:12px; font-weight:700; white-space:nowrap; padding:0 4px; overflow:hidden;}
-
-  /* ---- 右栏公式墙 ---- */
-  #right{min-height:0; min-width:0; display:flex; flex-direction:column;}
-  #wall{flex:1; min-height:0; overflow-y:auto; padding:10px 14px; display:flex; flex-direction:column; gap:7px;}
-  #wall h2{font-size:clamp(14px,1.4vw,17px); color:var(--blue-d); flex:none;
-           border-bottom:2px solid var(--line); padding-bottom:5px; margin-bottom:2px;}
-  #wall h2 small{font-weight:400; color:var(--sub); font-size:11.5px;}
-  .rule{
-    flex:none; display:grid; grid-template-columns:32px 1fr auto; align-items:center; gap:10px;
-    padding:8px 10px; border-radius:10px; border:1.5px solid var(--line); background:#f8fbff;
-    cursor:pointer; transition:.15s;
-  }
-  .rule:hover{border-color:var(--blue); background:#eef5ff; transform:translateX(3px);}
-  .rule.on{border-color:var(--blue); background:#e7f0ff; box-shadow:0 0 0 2px rgba(47,111,228,.15);}
-  .rule svg{width:30px; height:30px; stroke:var(--blue); stroke-width:1.7; fill:none;
-            stroke-linecap:round; stroke-linejoin:round;}
-  .rule .f{font-size:clamp(14px,1.5vw,19px); font-weight:700; white-space:nowrap;}
-  .rule .try{font-size:clamp(11px,1.05vw,13px); color:var(--sub); margin-top:1px; white-space:nowrap;}
-  .rule .try b{color:var(--orange);}
-  .rule .tag{font-size:11px; background:var(--blue); color:#fff; border-radius:11px; padding:2px 8px; white-space:nowrap;}
-
-  /* ===== 底部口诀 ===== */
-  footer{
-    flex:none; margin:8px 16px 12px; background:linear-gradient(90deg,var(--blue),#5a8ff0);
-    color:#fff; border-radius:12px; display:flex; align-items:center; justify-content:center; gap:22px;
-    font-size:clamp(14px,1.6vw,20px); font-weight:700; letter-spacing:2px; padding:9px 0;
-    box-shadow:0 3px 8px rgba(47,111,228,.3);
-  }
-  footer .dot{opacity:.5;}
 </style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <h1>16.1 幂的运算 · 闯关实验室</h1>
+    <div class="sp"></div>
+    <button class="mbtn on" id="mGame">闯关</button>
+    <button class="mbtn" id="mRush">全班抢答</button>
+    <button class="mbtn" id="mSound">声音:开</button>
+  </header>
 
-<header>
-  <h1><span class="badge">16.1</span>幂的运算 <small style="font-size:.55em;color:var(--sub);font-weight:400;">交互实验 · 指数滑块实时计算</small></h1>
-  <div class="memo">拖动滑块或点击右侧公式墙示例，所有结果实时联动</div>
-</header>
+  <div class="chips" id="chips"></div>
 
-<main>
-  <!-- 左栏 -->
-  <div id="left">
-    <div class="panel" id="modeRow">
-      <button class="modeBtn on" data-m="0">① 同底数幂乘</button>
-      <button class="modeBtn" data-m="1">② 幂的乘方</button>
-      <button class="modeBtn" data-m="2">③ 积的乘方</button>
-      <button class="modeBtn" data-m="3">④ 同底数幂除</button>
+  <!-- 闯关模式 -->
+  <div id="gameSec">
+    <div class="card" id="expCard">
+      <div class="hintline" id="expHint"></div>
+      <div class="ctrl" id="expCtrl"></div>
+      <div id="stageWrap"><div id="stage"></div></div>
+      <div class="rule" id="expRule"></div>
+      <button class="bigbtn green hide" id="toQuiz">去答题 →</button>
     </div>
 
-    <div class="panel" id="sliders">
-      <div class="sl">
-        <div class="lab"><span>底数 a</span><span class="val" id="vA">2</span></div>
-        <input type="range" id="sA" min="1" max="5" value="2">
-      </div>
-      <div class="sl">
-        <div class="lab"><span>指数 m</span><span class="val" id="vM">3</span></div>
-        <input type="range" id="sM" min="0" max="6" value="3">
-      </div>
-      <div class="sl">
-        <div class="lab"><span>指数 n</span><span class="val" id="vN">4</span></div>
-        <input type="range" id="sN" min="0" max="6" value="4">
+    <div class="card hide" id="quizCard">
+      <div class="dots" id="qDots"></div>
+      <div class="qtext" id="qText"></div>
+      <div class="opts" id="qOpts"></div>
+      <div class="fb" id="qFb"></div>
+      <button class="bigbtn hide" id="qNext">下一题 →</button>
+    </div>
+
+    <div class="card hide" id="clearCard">
+      <div class="wintitle" id="clearTitle"></div>
+      <div class="starsbig" id="clearStars"></div>
+      <div class="btnrow">
+        <button class="bigbtn ghost" id="replayLv">重玩本关</button>
+        <button class="bigbtn" id="nextLv">下一关 →</button>
       </div>
     </div>
 
-    <div class="panel" id="deriveWrap">
-      <div id="derive"></div>
+    <div class="card hide" id="winCard">
+      <div class="wintitle" id="winTitle"></div>
+      <div class="starsbig" id="winStars"></div>
+      <div class="hintline" id="winSub"></div>
+      <button class="bigbtn" id="restart">再闯一次</button>
     </div>
-    <div id="warn"></div>
+  </div>
 
-    <div class="panel" id="model">
-      <div id="modelTitle"></div>
-      <div id="viz">
-        <div id="grid"></div>
-        <div id="bar"></div>
+  <!-- 抢答模式 -->
+  <div id="rushSec" class="hide">
+    <div class="card">
+      <div class="tally"><span class="g" id="tOk">答对 0</span><span class="r" id="tNo">答错 0</span><span class="s" id="tMiss">超时 0</span></div>
+      <div class="ringwrap">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" stroke-width="6"/>
+          <circle id="ring" cx="32" cy="32" r="26" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="0" transform="rotate(-90 32 32)"/>
+          <text id="ringTxt" x="32" y="38" text-anchor="middle" font-size="18" font-weight="800" fill="#1e293b">10</text>
+        </svg>
       </div>
+      <div class="qtext" id="rText"></div>
+      <div class="opts" id="rOpts"></div>
+      <div class="fb" id="rFb"></div>
+      <button class="bigbtn" id="rNext">换一题</button>
     </div>
   </div>
 
-  <!-- 右栏公式墙 -->
-  <div id="right">
-    <div class="panel" id="wall">
-      <h2>四法则公式墙 <small>（点击任意卡片自动套用示例）</small></h2>
-
-      <div class="rule" data-m="0" data-a="2" data-x="3" data-y="4">
-        <svg viewBox="0 0 24 24"><path d="M4 7h10M4 12h10M4 17h10"/><path d="M17 5l5 7-5 7"/></svg>
-        <div><div class="f">a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup></div>
-        <div class="try">试一试：<b>2³·2⁴ = 2⁷ = 128</b></div></div>
-        <span class="tag">幂乘</span>
-      </div>
-
-      <div class="rule" data-m="1" data-a="3" data-x="2" data-y="3">
-        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="12" rx="2"/><path d="M8 20h12V8"/></svg>
-        <div><div class="f">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></div>
-        <div class="try">试一试：<b>(3²)³ = 3⁶ = 729</b></div></div>
-        <span class="tag">乘方</span>
-      </div>
-
-      <div class="rule" data-m="2" data-a="2" data-x="3" data-y="0">
-        <svg viewBox="0 0 24 24"><circle cx="7" cy="12" r="3.4"/><circle cx="16" cy="12" r="3.4"/><path d="M20.5 6.5v3M22 8h-3"/></svg>
-        <div><div class="f">(ab)<sup>n</sup> = a<sup>n</sup>·b<sup>n</sup></div>
-        <div class="try">试一试：<b>(2·3)³ = 2³·3³ = 216</b></div></div>
-        <span class="tag">积方</span>
-      </div>
-
-      <div class="rule" data-m="3" data-a="5" data-x="6" data-y="4">
-        <svg viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M16 8l4 4-4 4" opacity=".55"/><path d="M8 16l-4-4 4-4"/></svg>
-        <div><div class="f">a<sup>m</sup> ÷ a<sup>n</sup> = a<sup>m-n</sup></div>
-        <div class="try">试一试：<b>5⁶÷5⁴ = 5² = 25</b></div></div>
-        <span class="tag">幂除</span>
-      </div>
-    </div>
-  </div>
-</main>
-
-<footer>
-  <span>乘法加指数</span><span class="dot">◆</span>
-  <span>乘方乘指数</span><span class="dot">◆</span>
-  <span>积方各乘方</span><span class="dot">◆</span>
-  <span>同底才乘除</span>
-</footer>
+  <footer>人教版八年级上册 · 16.1 幂的运算 · 一关一法则 · 玩中学</footer>
+</div>
 
 <script>
-/* ================= 状态 ================= */
-let mode = 0;              // 0乘 1乘方 2积 3除
-let a = 2, m = 3, n = 4;
+"use strict";
+const $=id=>document.getElementById(id);
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pow=(b,e)=>b+'<sup>'+e+'</sup>';
+const LVNAME=['① 同底数幂乘法','② 幂的乘方','③ 积的乘方','④ 同底数幂除法'];
+const RULE=[
+  pow('a','m')+' · '+pow('a','n')+' = '+pow('a','m+n')+'<span class="mn">指数相加</span>',
+  '('+pow('a','m')+')<sup>n</sup> = '+pow('a','m·n')+'<span class="mn">指数相乘</span>',
+  '(ab)<sup>n</sup> = '+pow('a','n')+' · '+pow('b','n')+'<span class="mn">每个因式都乘方</span>',
+  pow('a','m')+' ÷ '+pow('a','n')+' = '+pow('a','m−n')+'<span class="mn">指数相减</span>'
+];
+const HINT=[
+  '把橙色块拖到蓝色块上（或点「合并」）',
+  '点开每个包裹，数数一共有多少块',
+  '点「分发」，看看每个因式去了哪里',
+  '消消乐：点掉方块，和下面的红券抵消'
+];
+let level=0, stars=[0,0,0,0], mode='game', soundOn=true;
+let T=[], scale=1;
+const later=(fn,ms)=>T.push(setTimeout(fn,ms));
+const clearT=()=>{T.forEach(clearTimeout);T=[];};
 
-const $ = id => document.getElementById(id);
-
-/* ================= 核心：推导链 ================= */
-function powSeq(base, e){
-  if(e === 0) return "1";
-  return Array(e).fill(base).join("·");
+/* ---------- 声音 ---------- */
+let AC=null;
+function beep(f,d,type){
+  if(!soundOn)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.value=f;
+    g.gain.setValueAtTime(.15,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);
+    o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);
+  }catch(e){}
 }
-function bigCalc(b, e){ return Math.pow(b, e); }
+const sOk=()=>{beep(660,.12);later(()=>beep(880,.18),110);};
+const sNo=()=>beep(180,.25,'sawtooth');
+const sPop=()=>beep(420,.07,'square');
 
-function buildSteps(){
-  const S = [];
-  if(mode === 0){
-    const p = m + n;
-    S.push(`法则：a<sup>m</sup> · a<sup>n</sup> = a<sup><span class="hl">m+n</span></sup>（底数不变，指数<span class="op">相加</span>）`);
-    S.push(`代入：${a}<sup>${m}</sup> · ${a}<sup>${n}</sup> = ${a}<sup><span class="hl">${m}+${n}</span></sup> = ${a}<sup>${p}</sup>`);
-    S.push(`展开：${powSeq(a,m)} · ${powSeq(a,n)} —— 共 <span class="hl">${p}</span> 个 ${a} 相乘`);
-    S.push(`结果：${a}<sup>${p}</sup> = <span class="rs">${bigCalc(a,p).toLocaleString()}</span>`);
-  }else if(mode === 1){
-    const p = m * n;
-    S.push(`法则：(a<sup>m</sup>)<sup>n</sup> = a<sup><span class="hl">mn</span></sup>（底数不变，指数<span class="op">相乘</span>）`);
-    S.push(`代入：(${a}<sup>${m}</sup>)<sup>${n}</sup> = ${a}<sup><span class="hl">${m}×${n}</span></sup> = ${a}<sup>${p}</sup>`);
-    S.push(`展开：${n} 组「${powSeq(a,m)}」，每组 ${m} 个 ${a}，共 <span class="hl">${p}</span> 个 ${a}`);
-    S.push(`结果：${a}<sup>${p}</sup> = <span class="rs">${bigCalc(a,p).toLocaleString()}</span>`);
-  }else if(mode === 2){
-    const b = a;
-    const v = Math.pow(a*b, n);
-    S.push(`法则：(ab)<sup>n</sup> = a<sup>n</sup> · b<sup>n</sup>（积的乘方＝各因式<span class="op">分别乘方</span>）`);
-    S.push(`代入：(${a}·${b})<sup>${n}</sup> = ${a}<sup>${n}</sup> · ${b}<sup>${n}</sup>`);
-    S.push(`计算：${a}<sup>${n}</sup>·${b}<sup>${n}</sup> = <span class="hl">${bigCalc(a,n)}</span> · <span class="hl">${bigCalc(b,n)}</span>`);
-    S.push(`结果：(${a}·${b})<sup>${n}</sup> = ${a}<sup>${2*n}</sup> = <span class="rs">${v.toLocaleString()}</span>`);
-  }else{
-    const p = m - n;
-    S.push(`法则：a<sup>m</sup> ÷ a<sup>n</sup> = a<sup><span class="hl">m-n</span></sup>（底数不变，指数<span class="op">相减</span>）`);
-    if(p >= 0){
-      S.push(`代入：${a}<sup>${m}</sup> ÷ ${a}<sup>${n}</sup> = ${a}<sup><span class="hl">${m}−${n}</span></sup> = ${a}<sup>${p}</sup>`);
-      S.push(p === 0 ? `意义：约分后不剩任何 ${a} → ${a}<sup>0</sup> = <span class="hl">1</span>（a⁰=1，a≠0）`
-                     : `展开：约去 ${n} 个 ${a}，剩 <span class="hl">${p}</span> 个`);
-      S.push(`结果：${a}<sup>${p}</sup> = <span class="rs">${bigCalc(a,p).toLocaleString()}</span>`);
-    }else{
-      S.push(`代入：${a}<sup>${m}</sup> ÷ ${a}<sup>${n}</sup> = ${a}<sup><span class="hl">${m}−(${n})</span></sup> = ${a}<sup>${p}</sup>`);
-      S.push(`负指数：${a}<sup>−${-p}</sup> = <span class="hl">1 / ${a}<sup>${-p}</sup></span>（负指数 → 取倒数）`);
-      S.push(`结果：= <span class="rs">1/${bigCalc(a,-p).toLocaleString()} ≈ ${(1/bigCalc(a,-p)).toFixed(4)}</span>`);
-    }
+/* ---------- 舞台 ---------- */
+function fit(){const w=$('stageWrap').clientWidth||900;scale=w/900;$('stage').style.transform='scale('+scale+')';}
+window.addEventListener('resize',fit);
+function pt(e){const r=$('stageWrap').getBoundingClientRect();return{x:(e.clientX-r.left)/scale,y:(e.clientY-r.top)/scale};}
+function mkCube(x,y,cls,label,size){
+  const d=document.createElement('div');d.className='cube '+cls;
+  d.style.left=x+'px';d.style.top=y+'px';d.textContent=label;
+  if(size){d.style.width=size+'px';d.style.height=size+'px';d.style.fontSize=Math.round(size*.42)+'px';}
+  $('stage').appendChild(d);return d;
+}
+function mkDiv(cls,x,y,w,h){const d=document.createElement('div');d.className=cls;d.style.left=x+'px';d.style.top=y+'px';if(w)d.style.width=w+'px';if(h)d.style.height=h+'px';$('stage').appendChild(d);return d;}
+function mkLabel(x,y,html,color){const d=document.createElement('div');d.className='slabel';d.style.left=x+'px';d.style.top=y+'px';d.style.width='200px';d.style.marginLeft='-100px';d.innerHTML=html;if(color)d.style.color=color;$('stage').appendChild(d);return d;}
+function showRule(){$('expRule').innerHTML=RULE[level];$('expRule').classList.add('show');$('toQuiz').classList.remove('hide');}
+
+/* ---------- 关1 合并 ---------- */
+const E1={a:'2',m:3,n:4,merged:false};
+function renderL1(){
+  const st=$('stage');st.innerHTML='';E1.merged=false;
+  const step=60,m=E1.m,n=E1.n,a=E1.a;
+  const bw=m*step+24,ow=n*step+24;
+  const bt=mkDiv('tray blue',40,110,bw,76);
+  const ot=mkDiv('tray orange',40,260,ow,76);
+  const bc=[],oc=[];
+  for(let i=0;i<m;i++)bc.push(mkCube(52+i*step,124,'blue',a));
+  for(let i=0;i<n;i++)oc.push(mkCube(52+i*step,274,'orange',a));
+  const bl=mkLabel(40+bw/2,82,pow(a,m),'#2563eb');
+  const ol=mkLabel(40+ow/2,232,pow(a,n),'#d97706');
+  const res=mkLabel(450,380,'',' #16a34a');res.style.color='#16a34a';
+  function merge(){
+    if(E1.merged)return;E1.merged=true;sPop();
+    oc.forEach((c,i)=>{c.style.left=(52+(m+i)*step)+'px';c.style.top='124px';});
+    ot.style.opacity=0;ol.style.opacity=0;bl.style.opacity=0;
+    bt.style.width=((m+n)*step+24)+'px';
+    later(()=>{
+      mkLabel(40+(m+n)*step/2+12,82,pow(a,m+n),'#2563eb');
+      if(a!=='a')res.innerHTML=pow(a,m+n)+' = '+Math.pow(+a,m+n);
+      showRule();
+    },600);
   }
-  return S;
+  let drag=null;
+  ot.addEventListener('pointerdown',e=>{
+    if(E1.merged)return;
+    const p=pt(e);drag={dx:p.x-40,dy:p.y-260};
+    ot.setPointerCapture(e.pointerId);
+  });
+  ot.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const p=pt(e),nx=p.x-drag.dx,ny=p.y-drag.dy;
+    ot.style.left=nx+'px';ot.style.top=ny+'px';
+    oc.forEach((c,i)=>{c.style.left=(nx+12+i*step)+'px';c.style.top=(ny+14)+'px';});
+    ol.style.left=(nx+ow/2)+'px';ol.style.top=(ny-28)+'px';
+  });
+  ot.addEventListener('pointerup',e=>{
+    if(!drag)return;drag=null;
+    const nx=parseFloat(ot.style.left),ny=parseFloat(ot.style.top);
+    if(nx+ow/2>20&&nx+ow/2<40+bw+60&&ny<200&&ny>40){merge();}
+    else{
+      ot.style.left='40px';ot.style.top='260px';
+      oc.forEach((c,i)=>{c.style.left=(52+i*step)+'px';c.style.top='274px';});
+      ol.style.left=(40+ow/2)+'px';ol.style.top='232px';
+    }
+  });
+  const ctrl=$('expCtrl');ctrl.innerHTML='';
+  ctrl.innerHTML='<span>底数</span>';
+  ['2','3','a'].forEach(v=>{
+    const b=document.createElement('button');b.className='bchip'+(E1.a===v?' on':'');b.textContent=v;
+    b.onclick=()=>{E1.a=v;renderExplore();};ctrl.appendChild(b);
+  });
+  ctrl.insertAdjacentHTML('beforeend','<span>m</span><input type="range" id="s1m" min="1" max="6" value="'+m+'"><span class="val">'+m+'</span><span>n</span><input type="range" id="s1n" min="1" max="6" value="'+n+'"><span class="val">'+n+'</span>');
+  const mb=document.createElement('button');mb.className='sbtn';mb.textContent='合并';mb.onclick=merge;ctrl.appendChild(mb);
+  $('s1m').oninput=e=>{E1.m=+e.target.value;renderExplore();};
+  $('s1n').oninput=e=>{E1.n=+e.target.value;renderExplore();};
 }
 
-/* ================= 易错点判断 ================= */
-function warnCheck(){
-  const w = $("warn");
-  let msg = "";
-  if(mode === 0 && m === n){
-    msg = `✗ 易错：${a}<sup>${m}</sup>·${a}<sup>${m}</sup> ≠ ${a}<sup>${m*m}</sup>（如 x³·x³ ≠ x⁹）　<span class="ok">✔ 应为 ${a}<sup>${m+m}</sup> = ${bigCalc(a,2*m).toLocaleString()}（指数相加，不是相乘）</span>`;
-  }else if(mode === 1 && m === n){
-    msg = `✗ 易错：(${a}<sup>${m}</sup>)<sup>${m}</sup> ≠ ${a}<sup>${m+m}</sup>　<span class="ok">✔ 应为 ${a}<sup>${m*m}</sup> = ${bigCalc(a,m*m).toLocaleString()}（指数相乘：${m}×${m}=${m*m}）</span>`;
-  }else if(mode === 2 && n >= 2){
-    msg = `✗ 易错：(ab)<sup>n</sup> ≠ a·b<sup>n</sup>（指数只给了一个因式）　<span class="ok">✔ n 要同时作用到 a 和 b：(ab)<sup>${n}</sup> = ${a}<sup>${n}</sup>·b<sup>${n}</sup></span>`;
-  }else if(mode === 3 && m === n && m > 0){
-    msg = `✗ 易错：${a}<sup>${m}</sup>÷${a}<sup>${m}</sup> ≠ 0　<span class="ok">✔ ${a}<sup>0</sup> = 1（任何非零数的 0 次幂都等于 1）</span>`;
-  }else if(mode === 3 && m < n){
-    msg = `⚠ 注意：m−n = <span style="color:var(--red)">${m-n} &lt; 0</span>　<span class="ok">✔ 负指数 ${a}<sup>${m-n}</sup> = 1/${a}<sup>${n-m}</sup>，结果是分数不是负数</span>`;
-  }
-  if(msg){ w.innerHTML = "🚨 " + msg; w.style.display = "block"; }
-  else w.style.display = "none";
-}
-
-/* ================= 直观模型 ================= */
-function renderModel(){
-  const grid = $("grid"), bar = $("bar");
-  grid.innerHTML = ""; bar.innerHTML = "";
-  const MAX = 40;   // 最多画 40 格，防止溢出
-
-  if(mode === 0 || mode === 3){
-    /* 指数条模型 */
-    const seg = (cnt, cls, label) => {
-      const s = document.createElement("div");
-      s.className = "seg";
-      s.style.flex = cnt + " 1 0";
-      s.style.minWidth = "30px";
-      s.style.background = cls==="A" ? "linear-gradient(90deg,#4b86e8,#7fb0f2)"
-                                     : "linear-gradient(90deg,#f5a94e,#ffd28a)";
-      s.textContent = label;
-      bar.appendChild(s);
-    };
-    if(mode === 0){
-      $("modelTitle").textContent = `📐 指数相加：${m} 个 ${a} ＋ ${n} 个 ${a} = ${m+n} 个 ${a}`;
-      if(m>0) seg(m,"A",`a^m：${m}个`);
-      if(n>0) seg(n,"B",`a^n：${n}个`);
-    }else{
-      $("modelTitle").textContent = `📐 指数相减：${m} 个 ${a}，约去 ${n} 个，剩 ${Math.max(m-n,0)} 个`;
-      if(m-n > 0) seg(m-n,"A",`剩 ${m-n} 个`);
-      else bar.innerHTML = `<span style="color:var(--sub);font-size:12.5px;">全部约去 → ${a}<sup>0</sup>=1（或负指数取倒数）</span>`;
+/* ---------- 关2 拆包 ---------- */
+const E2={a:'2',m:3,n:3,opened:0};
+function renderL2(){
+  const st=$('stage');st.innerHTML='';E2.opened=0;
+  const m=E2.m,n=E2.n,a=E2.a;
+  const pw=150,gap=30,sx=(900-(n*pw+(n-1)*gap))/2;
+  const total=m*n,step=44,ts=(900-total*step)/2;
+  const dots=[];
+  for(let i=0;i<n;i++){
+    const px=sx+i*(pw+gap);
+    const bg=mkDiv('pkg',px,90,pw,110);
+    mkLabel(px+pw/2,64,pow(a,m),'#7c3aed');
+    const mine=[];
+    for(let j=0;j<m;j++){
+      const cx=px+18+(j%3)*44,cy=108+Math.floor(j/3)*44;
+      mine.push(mkCube(cx,cy,'blue',a,36));
     }
-  }else{
-    /* 方格阵列模型 */
-    let rows, cols, title;
-    if(mode === 1){
-      rows = m || 1; cols = n || 1;
-      title = `📐 阵列：${rows} 行 × ${cols} 列 = ${rows*cols} 个 ${a} → a^${rows*cols}`;
-    }else{
-      rows = n || 1; cols = 2*a;
-      title = `📐 积的乘方：${rows} 组，每组 ${a} 个 a ＋ ${a} 个 b → a^${rows}·b^${rows}`;
-    }
-    $("modelTitle").textContent = title;
-    if(rows*cols <= MAX){
-      grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      for(let r=0;r<rows;r++)
-        for(let c=0;c<cols;c++){
-          const d = document.createElement("div");
-          d.className = "cell " + (mode===1 || c < a ? "cellA" : "cellB");
-          grid.appendChild(d);
+    dots.push(mine);
+    bg.addEventListener('click',()=>{
+      if(bg.classList.contains('done'))return;
+      bg.classList.add('done');sPop();
+      mine.forEach((c,j)=>later(()=>{
+        c.style.left=(ts+(i*m+j)*step+4)+'px';c.style.top='300px';
+      },j*70));
+      later(()=>{
+        E2.opened++;
+        cnt.innerHTML='已数：'+(E2.opened*m);
+        if(E2.opened===n){
+          if(a!=='a')res.innerHTML=pow(a,m*n)+' = '+Math.pow(+a,m*n);
+          showRule();
         }
-    }else{
-      $("modelTitle").textContent += "（格数过多，仅作示意）";
-      grid.style.gridTemplateColumns = `repeat(10, 1fr)`;
-      for(let i=0;i<20;i++){
-        const d = document.createElement("div");
-        d.className = "cell cellA"; grid.appendChild(d);
-      }
-    }
+      },m*70+500);
+    });
   }
+  const cnt=mkLabel(450,250,'已数：0','#7c3aed');
+  const res=mkLabel(450,380,'','#16a34a');
+  const ctrl=$('expCtrl');ctrl.innerHTML='<span>底数</span>';
+  ['2','a'].forEach(v=>{
+    const b=document.createElement('button');b.className='bchip'+(E2.a===v?' on':'');b.textContent=v;
+    b.onclick=()=>{E2.a=v;renderExplore();};ctrl.appendChild(b);
+  });
+  ctrl.insertAdjacentHTML('beforeend','<span>每包 m</span><input type="range" id="s2m" min="2" max="4" value="'+m+'"><span class="val">'+m+'</span><span>包数 n</span><input type="range" id="s2n" min="2" max="4" value="'+n+'"><span class="val">'+n+'</span>');
+  $('s2m').oninput=e=>{E2.m=+e.target.value;renderExplore();};
+  $('s2n').oninput=e=>{E2.n=+e.target.value;renderExplore();};
 }
 
-/* ================= 渲染总入口 ================= */
-function render(){
-  [["sA",a,"vA"],["sM",m,"vM"],["sN",n,"vN"]].forEach(([id,v,vid])=>{
-    $(id).value = v;
-    $(id).style.setProperty("--p", ((v-$(id).min)/($(id).max-$(id).min)*100)+"%");
-    $(vid).textContent = v;
+/* ---------- 关3 分发 ---------- */
+const E3={num:false,n:3,split:false};
+function renderL3(){
+  const st=$('stage');st.innerHTML='';E3.split=false;
+  const n=E3.n,la=E3.num?'2':'a',lb=E3.num?'3':'b';
+  const gw=110,gap=24,sx=(900-(n*gw+(n-1)*gap))/2;
+  const ac=[],bc=[],bgs=[];
+  for(let i=0;i<n;i++){
+    const gx=sx+i*(gw+gap);
+    bgs.push(mkDiv('pairbg',gx,110,gw,72));
+    ac.push(mkCube(gx+8,120,'red',la,44));
+    bc.push(mkCube(gx+58,120,'green',lb,44));
+  }
+  mkLabel(450,80,'('+la+'·'+lb+')<sup>'+n+'</sup>','#64748b');
+  const res=mkLabel(450,380,'','#16a34a');
+  function split(){
+    if(E3.split)return;E3.split=true;sPop();
+    bgs.forEach(b=>b.style.opacity=0);
+    ac.forEach((c,i)=>{c.style.left=(60+i*56)+'px';c.style.top='290px';});
+    bc.forEach((c,i)=>{c.style.left=(520+i*56)+'px';c.style.top='290px';});
+    later(()=>{
+      mkLabel(60+n*28,262,pow(la,n),'#ef4444');
+      mkLabel(520+n*28,262,pow(lb,n),'#16a34a');
+      if(E3.num)res.innerHTML='(2×3)<sup>'+n+'</sup> = '+Math.pow(2,n)+'×'+Math.pow(3,n)+' = '+Math.pow(6,n);
+      showRule();
+    },600);
+  }
+  const ctrl=$('expCtrl');ctrl.innerHTML='<span>因式</span>';
+  [['a·b',false],['2×3',true]].forEach(([t,v])=>{
+    const b=document.createElement('button');b.className='bchip'+(E3.num===v?' on':'');b.textContent=t;
+    b.onclick=()=>{E3.num=v;renderExplore();};ctrl.appendChild(b);
   });
-  const dv = $("derive");
-  dv.innerHTML = "";
-  buildSteps().forEach((s,i)=>{
-    const d = document.createElement("div");
-    d.className = "step"; d.style.animationDelay = (i*0.06)+"s";
-    d.innerHTML = s;
-    dv.appendChild(d);
-  });
-  dv.scrollTop = 0;
-  warnCheck();
-  renderModel();
-  document.querySelectorAll(".rule").forEach(r=>
-    r.classList.toggle("on", +r.dataset.m === mode));
-  document.querySelectorAll(".modeBtn").forEach(b=>
-    b.classList.toggle("on", +b.dataset.m === mode));
+  ctrl.insertAdjacentHTML('beforeend','<span>n</span><input type="range" id="s3n" min="2" max="4" value="'+n+'"><span class="val">'+n+'</span>');
+  const sb=document.createElement('button');sb.className='sbtn';sb.textContent='分发!';sb.onclick=split;ctrl.appendChild(sb);
+  $('s3n').oninput=e=>{E3.n=+e.target.value;renderExplore();};
 }
 
-/* ================= 事件 ================= */
-$("sA").oninput = e => { a = +e.target.value; render(); };
-$("sM").oninput = e => { m = +e.target.value; render(); };
-$("sN").oninput = e => { n = +e.target.value; render(); };
-document.querySelectorAll(".modeBtn").forEach(b =>
-  b.onclick = () => { mode = +b.dataset.m; render(); });
-document.querySelectorAll(".rule").forEach(r =>
-  r.onclick = () => {
-    mode = +r.dataset.m;
-    a = +r.dataset.a; m = +r.dataset.x; n = +r.dataset.y;
-    render();
+/* ---------- 关4 消消乐 ---------- */
+const E4={a:'2',m:6,n:3,left:3,done:false};
+function renderL4(){
+  const st=$('stage');st.innerHTML='';E4.left=E4.n;E4.done=false;
+  const m=E4.m,n=E4.n,a=E4.a;
+  const cubes=[],tokens=[];
+  for(let i=0;i<m;i++)cubes.push(mkCube(60+i*64,120,'blue',a));
+  for(let i=0;i<n;i++)tokens.push(mkDiv('token',66+i*64,280,44,44));
+  tokens.forEach(t=>t.textContent='✕');
+  const cnt=mkLabel(450,80,'还需抵消 '+n+' 次','#ef4444');
+  const res=mkLabel(450,380,'','#16a34a');
+  cubes.forEach(c=>c.addEventListener('click',()=>{
+    if(E4.done||E4.left<=0||c.classList.contains('pop'))return;
+    c.classList.add('pop');tokens[n-E4.left].classList.add('pop');
+    E4.left--;sPop();
+    cnt.innerHTML=E4.left>0?('还需抵消 '+E4.left+' 次'):'抵消完成!';
+    if(E4.left===0){
+      E4.done=true;
+      later(()=>{
+        const alive=cubes.filter(x=>!x.classList.contains('pop'));
+        const sx2=(900-alive.length*64)/2;
+        alive.forEach((x,i)=>{x.style.left=(sx2+i*64)+'px';x.style.top='200px';});
+        mkLabel(450,160,pow(a,m-n),'#2563eb');
+        if(a!=='a')res.innerHTML=pow(a,m-n)+' = '+Math.pow(+a,m-n);
+        showRule();
+      },450);
+    }
+  }));
+  const ctrl=$('expCtrl');ctrl.innerHTML='<span>底数</span>';
+  ['2','a'].forEach(v=>{
+    const b=document.createElement('button');b.className='bchip'+(E4.a===v?' on':'');b.textContent=v;
+    b.onclick=()=>{E4.a=v;renderExplore();};ctrl.appendChild(b);
   });
-document.addEventListener("keydown", e=>{
-  if(e.key === "ArrowLeft" || e.key === "ArrowRight"){
-    const delta = e.key === "ArrowRight" ? 1 : -1;
-    if(e.shiftKey){ n = Math.min(6, Math.max(0, n+delta)); }
-    else if(e.altKey){ a = Math.min(5, Math.max(1, a+delta)); }
-    else { m = Math.min(6, Math.max(0, m+delta)); }
-    render();
-    e.preventDefault();
+  ctrl.insertAdjacentHTML('beforeend','<span>m</span><input type="range" id="s4m" min="3" max="8" value="'+m+'"><span class="val">'+m+'</span><span>n</span><input type="range" id="s4n" min="1" max="'+(m-1)+'" value="'+Math.min(n,m-1)+'"><span class="val">'+Math.min(n,m-1)+'</span>');
+  $('s4m').oninput=e=>{E4.m=+e.target.value;E4.n=Math.min(E4.n,E4.m-1);renderExplore();};
+  $('s4n').oninput=e=>{E4.n=+e.target.value;renderExplore();};
+}
+
+function renderExplore(){
+  clearT();
+  $('expHint').textContent=HINT[level];
+  $('expRule').classList.remove('show');
+  $('toQuiz').classList.add('hide');
+  $('expCard').classList.remove('hide');
+  $('quizCard').classList.add('hide');
+  $('clearCard').classList.add('hide');
+  $('winCard').classList.add('hide');
+  [renderL1,renderL2,renderL3,renderL4][level]();
+  fit();
+}
+
+/* ---------- 出题 ---------- */
+function numOpts(correct,arr){
+  const s=new Set([correct]);
+  arr.forEach(v=>{if(s.size<4&&v>0&&!s.has(v))s.add(v);});
+  let k=1;while(s.size<4){const v=correct+k;if(!s.has(v))s.add(v);k++;}
+  return shuffle([...s]);
+}
+function mc(text,correctStr,distract,why){
+  const opts=shuffle([correctStr,...distract]);
+  return{type:'mc',text,opts,correct:opts.indexOf(correctStr),why};
+}
+function genLevel(l){
+  const qs=[];
+  if(l===0){
+    const m=ri(2,6),n=ri(2,6);
+    const co=numOpts(m+n,[m*n,m+n+1,Math.abs(m-n)||2]);
+    qs.push(mc(pow('a',m)+' · '+pow('a',n)+' = '+pow('a','?'),String(m+n),co.filter(v=>v!==m+n).map(String),'乘法→指数相加：'+m+'+'+n+'='+(m+n)));
+    const t=Math.random()<.5;
+    qs.push({type:'judge',text:pow('2',m)+' · '+pow('2',n)+' = '+pow('2',t?m+n:m*n),answer:t,why:t?'对：指数相加 '+m+'+'+n+'='+(m+n):'错：乘法应指数相加，得 '+pow('2',m+n)+'，不是相乘'});
+    const p=ri(1,4),q=ri(1,4),v=Math.pow(2,p+q);
+    const o=numOpts(v,[v*2,v/2,Math.pow(2,p*q)]);
+    qs.push(mc(pow('2',p)+' · '+pow('2',q)+' = ?',String(v),o.filter(x=>x!==v).map(String),'2 的 ('+p+'+'+q+') 次方 = '+v));
+  }else if(l===1){
+    const m=ri(2,4),n=ri(2,3);
+    const co=numOpts(m*n,[m+n,m+n+1,m*m]);
+    qs.push(mc('('+pow('a',m)+')<sup>'+n+'</sup> = '+pow('a','?'),String(m*n),co.filter(v=>v!==m*n).map(String),'乘方→指数相乘：'+m+'×'+n+'='+m*n));
+    const v=Math.pow(2,m*n),o=numOpts(v,[Math.pow(2,m+n),v*2,Math.pow(2,m+n+1)]);
+    qs.push(mc('(2<sup>'+m+'</sup>)<sup>'+n+'</sup> = ?',String(v),o.filter(x=>x!==v).map(String),'2 的 '+m+'×'+n+'='+m*n+' 次方 = '+v));
+    const t=Math.random()<.5;
+    qs.push({type:'judge',text:'('+pow('a',m)+')<sup>'+n+'</sup> = '+pow('a',t?m*n:m+n),answer:t,why:t?'对：指数相乘 '+m+'×'+n+'='+m*n:'错：乘方应指数相乘，得 '+pow('a',m*n)});
+  }else if(l===2){
+    const n=ri(2,4);
+    qs.push(mc('(ab)<sup>'+n+'</sup> = ?',pow('a',n)+'·'+pow('b',n),['a·'+pow('b',n),pow('a',n)+'·b',n+'ab'],'每个因式都要乘方'));
+    const v=Math.pow(6,n),o=numOpts(v,[Math.pow(2,n)*3,2*Math.pow(3,n),6*n]);
+    qs.push(mc('(2×3)<sup>'+n+'</sup> = ?',String(v),o.filter(x=>x!==v).map(String),'= '+Math.pow(2,n)+'×'+Math.pow(3,n)+' = '+v));
+    const t=Math.random()<.5;
+    qs.push({type:'judge',text:'(2x)<sup>3</sup> = '+(t?'8x<sup>3</sup>':'2x<sup>3</sup>'),answer:t,why:t?'对：2 和 x 都立方':'错：2 也要立方，应为 8x³'});
+  }else{
+    const m=ri(4,8),n=ri(1,m-2);
+    const co=numOpts(m-n,[m+n,m*n,m-n+1]);
+    qs.push(mc(pow('a',m)+' ÷ '+pow('a',n)+' = '+pow('a','?'),String(m-n),co.filter(v=>v!==m-n).map(String),'除法→指数相减：'+m+'−'+n+'='+(m-n)));
+    const v=Math.pow(2,m-n),o=numOpts(v,[Math.pow(2,m+n),v*2,Math.max(1,v/2)]);
+    qs.push(mc(pow('2',m)+' ÷ '+pow('2',n)+' = ?',String(v),o.filter(x=>x!==v).map(String),'2 的 ('+m+'−'+n+') 次方 = '+v));
+    const t=Math.random()<.5;
+    qs.push({type:'judge',text:pow('3',4)+' ÷ '+pow('3',4)+' = '+(t?'1':'0'),answer:t,why:t?'对：指数相减 4−4=0，3⁰=1':'错：3⁰=1，不是 0'});
+  }
+  return qs;
+}
+
+/* ---------- 答题 ---------- */
+let Q=null;
+function startQuiz(){
+  clearT();
+  Q={i:0,ok:0,qs:genLevel(level),answered:false};
+  $('expCard').classList.add('hide');
+  $('clearCard').classList.add('hide');
+  $('quizCard').classList.remove('hide');
+  renderQ();
+}
+function renderQ(){
+  Q.answered=false;
+  const q=Q.qs[Q.i];
+  $('qDots').innerHTML=Q.qs.map((_,i)=>'<i class="'+(i<Q.i?'on':'')+'"></i>').join('');
+  $('qText').innerHTML=q.text;
+  $('qFb').textContent='';$('qFb').className='fb';
+  $('qNext').classList.add('hide');
+  const box=$('qOpts');box.innerHTML='';
+  box.className='opts'+(q.type==='judge'?' two':'');
+  const labels=q.type==='judge'?['✔ 对','✘ 错']:q.opts;
+  labels.forEach((t,i)=>{
+    const b=document.createElement('button');b.className='opt';b.innerHTML=t;
+    b.onclick=()=>answer(i);box.appendChild(b);
+  });
+}
+function answer(i){
+  if(Q.answered)return;Q.answered=true;
+  const q=Q.qs[Q.i],btns=[...$('qOpts').children];
+  const ci=q.type==='judge'?(q.answer?0:1):q.correct;
+  btns.forEach(b=>b.disabled=true);
+  btns[ci].classList.add('right');
+  const good=i===ci;
+  if(good){Q.ok++;sOk();$('qFb').className='fb ok';$('qFb').textContent='✔ 答对！'+q.why;}
+  else{btns[i].classList.add('wrong');sNo();$('qFb').className='fb no';$('qFb').textContent='✘ '+q.why;}
+  $('qNext').textContent=Q.i<2?'下一题 →':'完成本关 ★';
+  $('qNext').classList.remove('hide');
+}
+$('qNext').onclick=()=>{
+  if(Q.i<2){Q.i++;renderQ();}
+  else{
+    stars[level]=Q.ok;drawChips();
+    $('quizCard').classList.add('hide');
+    $('clearCard').classList.remove('hide');
+    $('clearTitle').textContent=LVNAME[level]+' 完成！';
+    $('clearStars').textContent='★'.repeat(Q.ok)+'☆'.repeat(3-Q.ok);
+    $('nextLv').textContent=level<3?'下一关 →':'查看通关成绩';
+  }
+};
+$('replayLv').onclick=()=>renderExplore();
+$('nextLv').onclick=()=>{
+  if(level<3){level++;drawChips();renderExplore();}
+  else{
+    $('clearCard').classList.add('hide');
+    $('winCard').classList.remove('hide');
+    const t=stars.reduce((a,b)=>a+b,0);
+    $('winStars').textContent='★'.repeat(t)+'☆'.repeat(12-t);
+    $('winTitle').textContent=t===12?'幂运算大师！':t>=9?'指数高手！':t>=6?'过关斩将！':'再接再厉！';
+    $('winSub').textContent='共收集 '+t+' / 12 颗星';
+  }
+};
+$('restart').onclick=()=>{stars=[0,0,0,0];level=0;drawChips();renderExplore();};
+$('toQuiz').onclick=startQuiz;
+
+/* ---------- 关卡条 ---------- */
+function drawChips(){
+  const c=$('chips');c.innerHTML='';
+  LVNAME.forEach((n,i)=>{
+    const b=document.createElement('button');
+    b.className='chip'+(i===level?' on':'');
+    b.innerHTML=n+' <span class="st">'+'★'.repeat(stars[i])+'</span>';
+    b.onclick=()=>{level=i;drawChips();renderExplore();};
+    c.appendChild(b);
+  });
+}
+
+/* ---------- 抢答 ---------- */
+let R=null,rTimer=null,rLeft=10;
+const tally={ok:0,no:0,miss:0};
+function rushNew(){
+  clearInterval(rTimer);clearT();
+  const l=ri(0,3),qs=genLevel(l);
+  R={q:qs[ri(0,2)],answered:false};
+  rLeft=10;
+  $('rFb').textContent='';$('rFb').className='fb';
+  $('rText').innerHTML=R.q.text;
+  const box=$('rOpts');box.innerHTML='';
+  box.className='opts'+(R.q.type==='judge'?' two':'');
+  const labels=R.q.type==='judge'?['✔ 对','✘ 错']:R.q.opts;
+  labels.forEach((t,i)=>{
+    const b=document.createElement('button');b.className='opt';b.innerHTML=t;
+    b.onclick=()=>rushAnswer(i);box.appendChild(b);
+  });
+  updateRing();
+  rTimer=setInterval(()=>{
+    rLeft-=0.1;
+    if(rLeft<=0){rLeft=0;updateRing();rushTimeout();}
+    else updateRing();
+  },100);
+}
+function updateRing(){
+  $('ring').style.strokeDashoffset=163.4*(1-rLeft/10);
+  $('ringTxt').textContent=Math.ceil(rLeft);
+}
+function rushLock(ci,chosen){
+  R.answered=true;clearInterval(rTimer);
+  const btns=[...$('rOpts').children];btns.forEach(b=>b.disabled=true);
+  btns[ci].classList.add('right');
+  if(chosen!==null&&chosen!==ci)btns[chosen].classList.add('wrong');
+  return btns;
+}
+function rushAnswer(i){
+  if(R.answered)return;
+  const q=R.q,ci=q.type==='judge'?(q.answer?0:1):q.correct;
+  rushLock(ci,i);
+  if(i===ci){tally.ok++;sOk();$('rFb').className='fb ok';$('rFb').textContent='✔ 答对！'+q.why;}
+  else{tally.no++;sNo();$('rFb').className='fb no';$('rFb').textContent='✘ '+q.why;}
+  drawTally();
+}
+function rushTimeout(){
+  if(R.answered)return;
+  const q=R.q,ci=q.type==='judge'?(q.answer?0:1):q.correct;
+  rushLock(ci,null);tally.miss++;sNo();
+  $('rFb').className='fb no';$('rFb').textContent='⏰ 时间到！正确答案已标绿。'+q.why;
+  drawTally();
+}
+function drawTally(){
+  $('tOk').textContent='答对 '+tally.ok;
+  $('tNo').textContent='答错 '+tally.no;
+  $('tMiss').textContent='超时 '+tally.miss;
+}
+$('rNext').onclick=rushNew;
+
+/* ---------- 模式 ---------- */
+function setMode(m){
+  mode=m;clearInterval(rTimer);clearT();
+  $('mGame').classList.toggle('on',m==='game');
+  $('mRush').classList.toggle('on',m==='rush');
+  $('gameSec').classList.toggle('hide',m!=='game');
+  $('rushSec').classList.toggle('hide',m!=='rush');
+  $('chips').classList.toggle('hide',m!=='game');
+  if(m==='rush'){drawTally();rushNew();}
+  else renderExplore();
+}
+$('mGame').onclick=()=>setMode('game');
+$('mRush').onclick=()=>setMode('rush');
+$('mSound').onclick=()=>{soundOn=!soundOn;$('mSound').textContent='声音:'+(soundOn?'开':'关');};
+
+/* ---------- 键盘 ---------- */
+document.addEventListener('keydown',e=>{
+  if(mode==='game'&&!$('quizCard').classList.contains('hide')){
+    if(!Q.answered&&['1','2','3','4'].includes(e.key)){
+      const b=$('qOpts').children[+e.key-1];if(b)b.click();
+    }else if(Q.answered&&e.key===' '){e.preventDefault();$('qNext').click();}
+  }else if(mode==='rush'){
+    if(!R.answered&&['1','2','3','4'].includes(e.key)){
+      const b=$('rOpts').children[+e.key-1];if(b)b.click();
+    }else if(R.answered&&e.key===' '){e.preventDefault();rushNew();}
   }
 });
 
-render();
+drawChips();
+renderExplore();
+fit();
 </script>
 </body>
 </html>

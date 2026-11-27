@@ -1,406 +1,1301 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>基本不等式的几何证明 · 动态可视化讲解 Demo</title>
-<script>
-window.MathJax = {
-  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$']] },
-  svg: { fontCache: 'global' }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
-<style>
-  :root{
-    --bg:#f5f7fa; --card:#fff; --ink:#1e293b; --muted:#64748b;
-    --line:#e2e8f0; --brand:#2563eb; --hl:#ef4444; --accent:#0f766e;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
-  body{background:var(--bg);color:var(--ink);padding-bottom:40px}
-  header{background:linear-gradient(120deg,#1e3a8a,#2563eb 60%,#0ea5e9);color:#fff;padding:18px 28px}
-  header h1{font-size:20px;font-weight:700}
-  header p{font-size:13px;opacity:.85;margin-top:4px}
-  main{max-width:1320px;margin:0 auto;padding:18px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-  .card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .tag{font-size:11px;background:#eff6ff;color:var(--brand);padding:2px 8px;border-radius:20px;font-weight:400}
-  .hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7}
-  .btn{background:var(--brand);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13.5px;cursor:pointer}
-  .btn:hover{background:#1d4ed8}
-  .btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
-  .btn.ghost:hover{background:#eff6ff}
-  .btn:disabled{opacity:.4;cursor:not-allowed}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070b14'/><circle cx='16' cy='16' r='11' stroke='%2338bdf8' stroke-width='2' fill='none'/><path d='M5 16 H27 M16 16 V5' stroke='%23fb7185' stroke-width='2'/><path d='M9 12 H16 V5' stroke='%23fbbf24' stroke-width='1.6' fill='none'/></svg>" />
+  <title>高一 · 基本不等式的几何证明</title>
 
-  /* 演示台：图 + 数据 */
-  .stage{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-start}
-  /* 图区占满「左边界 ~ 实时数据」之间的空间，图在其中居中 */
-  .svgwrap{flex:1 1 auto;min-width:280px;max-width:100%}
-  #fig{height:min(66vh,640px);width:auto;max-width:100%;display:block;margin:0 auto;touch-action:none;cursor:ew-resize}
-  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
-  .legend{display:flex;gap:12px;justify-content:center;font-size:12px;margin-top:2px;flex-wrap:wrap;color:var(--muted)}
-  .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  <script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$']] },
+    svg: { fontCache: 'global' }
+  };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 
-  /* 数据面板 */
-  /* 实时数据固定在最右侧 */
-  .datapanel{flex:0 0 300px;min-width:260px;margin-left:auto;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fbfdff}
-  .dp-title{font-size:13.5px;font-weight:700;color:var(--brand);margin-bottom:6px}
-  .drow{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-size:13.5px}
-  .drow b{font-size:17px;font-variant-numeric:tabular-nums}
-  .bar{height:14px;background:#eef2f7;border-radius:20px;overflow:hidden;margin:2px 0 8px}
-  .bar i{display:block;height:100%;border-radius:20px;transition:width .12s}
-  .cmp{background:#fff;border:1px dashed var(--brand);border-radius:10px;padding:9px 10px;
-       text-align:center;font-size:15px;margin:10px 0 8px;color:#1e3a8a;font-variant-numeric:tabular-nums}
-  .eqnote{font-size:13px;color:var(--muted);line-height:1.8}
-  .eqnote.eq{color:#15803d;font-weight:700}
-  .slider{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--muted)}
-  .slider input[type=range]{flex:1;min-width:120px;accent-color:var(--brand)}
+  <style>
+:root {
+  --bg: #070b14;
+  --bg-radial: radial-gradient(1200px 600px at 20% 0%, rgba(56, 189, 248, 0.12), transparent 60%),
+               radial-gradient(900px 500px at 85% 100%, rgba(167, 139, 250, 0.10), transparent 60%);
+  --surface: rgba(15, 23, 42, 0.78);
+  --surface-solid: #0f172a;
+  --surface-2: rgba(30, 41, 59, 0.65);
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(56, 189, 248, 0.42);
+  --ink: #f1f5f9;
+  --ink-2: #94a3b8;
+  --ink-3: #64748b;
+  --cyan: #38bdf8;
+  --cyan-glow: rgba(56, 189, 248, 0.35);
+  --purple: #a78bfa;
+  --pink: #f472b6;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --red: #fb7185;
+  --grid-line: rgba(148, 163, 184, 0.16);
+  --grid-axis: rgba(226, 232, 240, 0.68);
+  --canvas-bg: #050912;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
 
-  /* 推导过程：单一大框 */
-  .steplist{margin-top:8px}
-  .sb{font-size:14.5px;line-height:2.05;color:#1f2937}
-  .sb ul{padding-left:20px;margin:4px 0}
-  .sb li{margin-bottom:6px}
-  .sb b{color:var(--hl)}
-  .derivbox{border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:10px;
-    padding:14px 20px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-  .derivbox .sb{margin-bottom:14px}
-  .derivbox .sb:last-child{margin-bottom:0}
-  .divider{height:1px;background:var(--line);margin:18px 0 14px}
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-radial: radial-gradient(1100px 520px at 15% 0%, rgba(37, 99, 235, 0.08), transparent 60%),
+               radial-gradient(900px 500px at 90% 100%, rgba(124, 58, 237, 0.06), transparent 60%);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --surface-2: rgba(241, 245, 249, 0.9);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(37, 99, 235, 0.4);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #94a3b8;
+  --cyan: #0284c7;
+  --cyan-glow: rgba(2, 132, 199, 0.22);
+  --purple: #7c3aed;
+  --pink: #db2777;
+  --amber: #d97706;
+  --green: #059669;
+  --red: #e11d48;
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --grid-axis: rgba(15, 23, 42, 0.28);
+  --canvas-bg: #ffffff;
+  --shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
 
-  /* SVG 高亮 */
-  #fig .dm{transition:opacity .4s}
-  #fig.focused .dm{opacity:.22}
-  #fig .lit{opacity:1 !important;filter:drop-shadow(0 0 4px rgba(239,68,68,.55))}
-  #e-raD.lit{stroke:#ef4444;stroke-width:2.6}
-  .ann{opacity:0;transition:opacity .6s}
-  .ann.on{opacity:1}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image: var(--bg-radial);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.app { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
-  /* 知识点总结 */
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:middle}
-  th{color:var(--muted);font-weight:600;font-size:12.5px}
-  td b{color:var(--brand)}
-  .keybox{background:linear-gradient(120deg,#eff6ff,#f0f9ff);border:1px solid #bfdbfe;border-radius:12px;
-    padding:14px 18px;text-align:center;font-size:18px;margin-bottom:18px;color:#1e3a8a}
-  .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}
-  @media (max-width:900px){ .kp{grid-template-columns:1fr} }
-  .kp .box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#f8fafc}
-  .kp h4{font-size:13px;margin-bottom:6px;color:var(--brand)}
-  .kp ul{margin:0;padding-left:18px;font-size:13px;line-height:2;color:#334155}
-  .highlight-card{outline:3px solid #f59e0b;outline-offset:3px}
-</style>
+/* Header */
+.topbar {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--border);
+  background: var(--surface); backdrop-filter: blur(14px); z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.back-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink-2); text-decoration: none;
+  font-size: 15px; transition: .16s;
+}
+.back-link:hover { border-color: var(--border-strong); color: var(--cyan); }
+.grade-pill {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px;
+  border-radius: 999px; background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3); color: var(--cyan); white-space: nowrap;
+}
+.title-group h1 {
+  font-size: 16px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.seg-tabs {
+  display: inline-flex; padding: 3px; border-radius: 11px;
+  background: var(--surface-2); border: 1px solid var(--border); gap: 2px;
+}
+.seg-btn {
+  border: none; background: transparent; color: var(--ink-2); font-family: inherit;
+  font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px;
+  cursor: pointer; transition: .16s; white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active {
+  background: var(--cyan); color: #061220; font-weight: 700;
+  box-shadow: 0 2px 10px var(--cyan-glow);
+}
+[data-theme="light"] .seg-btn.active { color: #fff; }
+.icon-btn {
+  display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--ink-2); font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: .16s; white-space: nowrap;
+}
+.icon-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+.icon-btn.on { border-color: var(--cyan); background: rgba(56, 189, 248, 0.15); color: var(--cyan); }
+
+/* Workspace */
+.workspace { flex: 1; min-height: 0; display: flex; position: relative; padding: 12px; gap: 12px; }
+.stage-shell {
+  flex: 1; min-width: 0; min-height: 0; position: relative; border-radius: 18px;
+  border: 1px solid var(--border); background: var(--canvas-bg);
+  box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+}
+
+/* 几何图（SVG）—— 颜色全部跟随主题变量 */
+#fig {
+  width: 100%; height: 100%; flex: 1; min-height: 0; display: block;
+  touch-action: none; cursor: ew-resize;
+}
+#fig .s-base { fill: none; stroke: var(--grid-axis); stroke-width: 2.5; }
+#fig .s-de { stroke: var(--pink); stroke-width: 1.8; }
+#fig .s-tri { stroke: var(--cyan); stroke-width: 2.5; }
+#fig .s-cd { stroke: var(--red); stroke-width: 4; }
+#fig .s-r { stroke: var(--green); stroke-width: 2.4; stroke-dasharray: 7 5; }
+#fig .s-oc { stroke: var(--green); stroke-width: 2; stroke-dasharray: 6 5; }
+#fig .s-ra { stroke: var(--ink-3); stroke-width: 2; fill: none; }
+#fig .s-dot { fill: var(--ink-2); }
+#fig .s-c { fill: var(--red); }
+#fig .s-de-dot { fill: var(--pink); }
+#fig .s-o { fill: var(--green); }
+#fig .s-label { fill: var(--ink-2); font-style: italic; }
+#fig .s-gm { fill: var(--red); }
+#fig .s-am { fill: var(--green); }
+#fig .s-chip { stroke: var(--canvas-bg); stroke-width: 3; paint-order: stroke; font-weight: 600; letter-spacing: .2px; }
+mjx-container, .formula-pill mjx-container, .stat-label mjx-container, .quiz-formula mjx-container, .quiz-opt mjx-container {
+  color: inherit; font-family: inherit;
+}
+/* 数学式统一字号，避免过大过粗 */
+mjx-container { font-size: 1em !important; }
+mjx-container[display="true"] { margin: .35em 0 !important; }
+#fig .s-dm { transition: opacity .35s; }
+#fig.focused .s-dm { opacity: .2; }
+#fig .lit { opacity: 1 !important; filter: drop-shadow(0 0 5px var(--cyan-glow)); }
+#fig .ann { opacity: 0; transition: opacity .5s; }
+#fig .ann.on { opacity: 1; }
+#fig .t1 { fill: var(--cyan); fill-opacity: .16; }
+#fig .t2 { fill: var(--amber); fill-opacity: .16; }
+#fig .ma { stroke: var(--cyan); stroke-width: 2.6; fill: none; }
+#fig .mb { stroke: var(--amber); stroke-width: 2.6; fill: none; }
+#fig .pin-tick { stroke: var(--purple); stroke-width: 1.5; stroke-dasharray: 3 3; }
+#fig .pin-label { fill: var(--purple); font-size: 11px; }
+
+/* Floating HUD */
+.hud-top-left {
+  position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column;
+  gap: 8px; pointer-events: none; z-index: 5; max-width: min(560px, calc(100% - 28px));
+}
+.hud-top-left > * { pointer-events: auto; }
+.formula-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: 14px; background: var(--surface); border: 1px solid var(--border);
+  backdrop-filter: blur(12px); font-family: "Cambria Math", "Times New Roman", "PingFang SC", serif;
+  font-size: clamp(16px, 2vw, 24px); font-weight: 700; letter-spacing: .02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22); width: fit-content;
+}
+.formula-pill .hl-a { color: var(--red); }
+.formula-pill .hl-b { color: var(--green); }
+.probe-pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+  border-radius: 10px; background: var(--surface); border: 1px solid var(--border);
+  backdrop-filter: blur(10px); font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  font-variant-numeric: tabular-nums; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); width: fit-content;
+}
+.probe-pill b { color: var(--cyan); font-weight: 800; }
+.hud-bottom-left {
+  position: absolute; bottom: 14px; left: 14px; display: flex; align-items: center;
+  gap: 8px; z-index: 5; flex-wrap: wrap; max-width: calc(100% - 28px);
+}
+.hud-bottom-left .btn { flex: none; white-space: nowrap; }
+.hud-bottom-right {
+  position: absolute; bottom: 14px; right: 14px; z-index: 5; font-size: 12px;
+  color: var(--ink-3); background: var(--surface); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 999px; backdrop-filter: blur(8px);
+}
+.hud-top-right {
+  position: absolute; top: 14px; right: 14px; z-index: 10; display: flex;
+  flex-direction: column; align-items: flex-end; gap: 9px;
+  max-width: min(424px, calc(100% - 28px)); pointer-events: none;
+}
+.hud-top-right > * { pointer-events: auto; }
+.kp-hint {
+  display: none; align-items: center; gap: 8px; max-width: 394px; padding: 8px 12px;
+  border-radius: 12px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border);
+  color: var(--ink); font-size: 12.6px; font-weight: 600; line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32); animation: kpPop .24s ease;
+  transition: opacity .45s ease, transform .45s ease;
+}
+.kp-hint.show { display: flex; }
+.kp-hint .ico { flex: none; font-size: 11px; line-height: 1; }
+.kp-hint.fade { opacity: 0; transform: translateY(-4px); }
+.hud-top-right:hover .kp-hint.fade { opacity: 1; transform: none; }
+.kp-hint:hover { opacity: 1; transform: none; }
+.kp-hint .num {
+  flex: none; width: 16px; height: 16px; display: grid; place-items: center;
+  border-radius: 50%; border: 1.4px solid currentColor; font-size: 9.5px; font-weight: 800; color: var(--cyan);
+}
+.kp-hint b { color: var(--cyan); }
+.kp-hint .nw { white-space: nowrap; }
+.kp-hint.down .num, .kp-hint.down b { color: var(--pink); }
+.kp-hint .kp-a {
+  flex: none; margin-left: 2px; padding: 1px 8px; border-radius: 999px;
+  background: rgba(56, 189, 248, 0.16); color: var(--cyan); font-size: 11.5px;
+  font-weight: 800; font-variant-numeric: tabular-nums;
+}
+[data-theme="light"] .kp-hint { background: rgba(255, 255, 255, 0.97); box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1); }
+@media (max-width: 1180px) { .kp-hint { max-width: 296px; font-size: 12px; padding: 7px 10px; } }
+@keyframes kpPop { from { opacity: 0; transform: translateY(-5px); } }
+
+.alert-banner {
+  max-width: 336px; padding: 10px 14px; border-radius: 12px;
+  background: rgba(225, 29, 72, 0.16); border: 1px solid rgba(251, 113, 133, 0.55);
+  color: #fecdd3; font-size: 13px; font-weight: 600; line-height: 1.5;
+  backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(225, 29, 72, 0.22);
+  display: none; animation: shakeIn .32s ease;
+}
+[data-theme="light"] .alert-banner { background: rgba(255, 241, 242, 0.95); color: #be123c; }
+.alert-banner.show { display: block; }
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); } 40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
+}
+
+/* Side drawer */
+.side-drawer {
+  width: 368px; min-width: 0; flex: none; display: flex; flex-direction: column;
+  gap: 10px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent; transition: width .22s ease, opacity .2s ease;
+}
+.side-drawer::-webkit-scrollbar { width: 6px; }
+.side-drawer::-webkit-scrollbar-track { background: transparent; }
+.side-drawer::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+.app.presentation .side-drawer { display: none; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 15px; backdrop-filter: blur(12px);
+}
+.card-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 13px; font-weight: 700; color: var(--ink-2); text-transform: uppercase;
+  letter-spacing: .05em; margin-bottom: 10px;
+}
+.badge {
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--cyan); border: 1px solid var(--border);
+  text-transform: none; letter-spacing: 0;
+}
+
+/* Sliders */
+.slider-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+.slider-row:last-child { margin-bottom: 0; }
+.slider-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.slider-head .name { color: var(--ink-2); font-weight: 600; }
+.slider-head .val { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 15px; color: var(--cyan); }
+input[type="range"].lab-range {
+  width: 100%; appearance: none; height: 6px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--border); outline: none; cursor: pointer;
+}
+input[type="range"].lab-range::-webkit-slider-thumb {
+  appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--cyan);
+  border: 2px solid #fff; box-shadow: 0 0 12px var(--cyan-glow); cursor: grab; transition: transform .12s;
+}
+input[type="range"].lab-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Buttons */
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink);
+  font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 12px;
+  border-radius: 10px; cursor: pointer; transition: .15s; white-space: nowrap; backdrop-filter: blur(10px);
+}
+.btn:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.btn.primary {
+  background: var(--cyan); border-color: var(--cyan); color: #061220; font-weight: 700;
+  box-shadow: 0 4px 16px var(--cyan-glow);
+}
+[data-theme="light"] .btn.primary { color: #fff; }
+.btn.amber { background: rgba(251, 191, 36, 0.16); border-color: rgba(251, 191, 36, 0.45); color: var(--amber); }
+.btn.green { background: rgba(52, 211, 153, 0.16); border-color: rgba(52, 211, 153, 0.45); color: var(--green); }
+.btn.active { border-color: var(--cyan); background: rgba(56, 189, 248, 0.18); color: var(--cyan); }
+
+/* 读数 */
+.probe-tip { font-size: 12px; color: var(--ink-3); line-height: 1.5; margin: -2px 0 10px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-box {
+  padding: 9px 11px; border-radius: 11px; background: var(--surface-2);
+  border: 1px solid var(--border); min-width: 0;
+}
+.stat-box .k { font-size: 11.5px; color: var(--ink-3); }
+.stat-box .v {
+  font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.prop-list { margin-top: 10px; padding-top: 6px; border-top: 1px dashed var(--border); }
+.prop-row { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12.4px; line-height: 1.5; }
+.prop-row:last-child { border-bottom: none; }
+.prop-row .pk { flex: none; width: 66px; color: var(--ink-3); font-weight: 600; }
+.prop-row .pv { flex: 1; color: var(--ink-2); font-weight: 600; }
+
+/* 实时数据面板——沿用原文件版式，配色跟随主题 */
+.drow { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; font-size: 13.5px; color: var(--ink-2); }
+.drow .stat-label { display: inline-flex; align-items: baseline; gap: 3px; }
+.drow b { font-size: 18px; font-variant-numeric: tabular-nums; font-weight: 800; }
+.bar { height: 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin: 2px 0 8px; }
+.bar i { display: block; height: 100%; border-radius: 20px; transition: width .12s; }
+.cmp {
+  background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: 10px;
+  padding: 9px 10px; text-align: center; font-size: 15px; margin: 10px 0 8px; color: var(--ink);
+  font-variant-numeric: tabular-nums; display: flex; align-items: center; justify-content: center;
+  gap: 6px; flex-wrap: wrap;
+}
+.cmp b { font-variant-numeric: tabular-nums; }
+.eqnote { font-size: 12.5px; color: var(--ink-3); line-height: 1.7; }
+.eqnote.eq { color: var(--green); font-weight: 700; }
+
+/* 推导过程（沿用原文件的五步内容，配色改为主题变量） */
+.derivbox { border: 1px solid var(--border); border-left: 3px solid var(--cyan); border-radius: 12px; padding: 12px 14px; background: var(--surface-2); }
+.sb { font-size: 13px; line-height: 1.85; color: var(--ink-2); margin-bottom: 12px; }
+.sb:last-child { margin-bottom: 0; }
+.sb ul { padding-left: 18px; margin: 4px 0; }
+.sb li { margin-bottom: 4px; }
+.sb b { color: var(--red); }
+mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; color: var(--ink); }
+
+/* Predict-Observe-Explain */
+.predict-q { font-size: 14px; font-weight: 700; line-height: 1.55; margin-bottom: 10px; }
+.predict-opts { display: flex; flex-direction: column; gap: 7px; margin-bottom: 11px; }
+.predict-opt {
+  text-align: left; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink); font-family: inherit; font-size: 13px;
+  line-height: 1.5; cursor: pointer; transition: .15s;
+}
+.predict-opt:hover { border-color: var(--border-strong); }
+.predict-opt.picked { border-color: var(--cyan); background: rgba(56, 189, 248, 0.16); font-weight: 700; }
+.predict-opt.correct { border-color: var(--green); background: rgba(52, 211, 153, 0.18); color: var(--green); }
+.predict-opt.wrong { border-color: var(--red); background: rgba(251, 113, 133, 0.15); color: var(--red); }
+.predict-feedback {
+  font-size: 13px; line-height: 1.65; color: var(--ink-2); padding: 10px 12px;
+  border-radius: 10px; background: var(--surface-2); border-left: 3px solid var(--cyan);
+  margin-top: 10px; display: none;
+}
+.predict-feedback.show { display: block; }
+
+.toast {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-16px);
+  z-index: 30; padding: 10px 20px; border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #06b6d4); color: #fff; font-size: 14px; font-weight: 700;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35); opacity: 0; pointer-events: none;
+  transition: .28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 连续演示（把 C 从靠近 A 平滑移到圆心 O） */
+.morph-hud {
+  position: absolute; left: 14px; right: 14px; bottom: 62px; z-index: 6; display: none;
+  flex-direction: column; align-items: center; gap: 9px; pointer-events: none;
+}
+.morph-hud.show { display: flex; }
+.morph-hint {
+  font-size: 12.5px; line-height: 1.7; text-align: center; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 8px 15px; backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  max-width: min(760px, 100%);
+}
+.morph-hint b { color: var(--cyan); font-weight: 800; }
+
+@media (max-width: 960px) { .workspace { flex-direction: column; } .side-drawer { width: 100%; max-height: 44%; } .hud-bottom-right { display: none; } }
+@media (max-width: 1180px) {
+  .topbar { padding: 9px 12px; gap: 8px; }
+  .topbar-actions { gap: 6px; flex-wrap: nowrap; }
+  .topbar-actions .icon-btn { padding: 0 8px; font-size: 11.5px; }
+  .seg-btn { padding: 5px 8px; font-size: 11.5px; }
+  .brand { gap: 6px; } .title-group h1 { font-size: 14px; }
+  .grade-pill { font-size: 11px; padding: 2px 7px; } .hud-bottom-right { display: none; }
+}
+  </style>
+
+  <style>
+    .quiz-backdrop {
+      position: fixed; inset: 0; z-index: 60; background: rgba(3, 7, 18, 0.72);
+      backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .quiz-backdrop.open { display: flex; }
+    .quiz-modal {
+      width: min(560px, 100%); background: var(--surface-solid); border: 1px solid var(--border-strong);
+      border-radius: 22px; padding: 24px 26px; box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+      animation: popIn .22s cubic-bezier(0.22, 1, 0.36, 1); position: relative;
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .quiz-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .quiz-close {
+      width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--ink-2); font-size: 16px; cursor: pointer;
+    }
+    .quiz-close:hover { color: var(--ink); border-color: var(--border-strong); }
+    .quiz-stem { font-size: 16px; font-weight: 700; line-height: 1.65; margin-bottom: 14px; }
+    .quiz-formula {
+      display: inline-block; margin: 8px 0 4px; padding: 8px 16px; border-radius: 12px;
+      background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan); font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 22px; font-weight: 800;
+    }
+    .quiz-formula sup { font-size: .62em; vertical-align: .6em; }
+    .radical { display: inline-block; white-space: nowrap; margin-left: 1px; }
+    .radical .rad-sign { display: inline-block; transform: scaleY(1.18); transform-origin: 0 78%; margin-right: -1px; }
+    .radical .rad-body { display: inline-block; border-top: 1.6px solid currentColor; padding: 1px 3px 0 3px; margin-left: 1px; vertical-align: baseline; }
+    .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (max-width: 520px) { .quiz-opts { grid-template-columns: 1fr; } }
+    .quiz-opt {
+      text-align: left; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--ink); font-family: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer; transition: .15s;
+    }
+    .quiz-opt:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+    .quiz-opt.correct {
+      border-color: var(--green); background: rgba(52, 211, 153, 0.18); color: var(--green);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); animation: optWin .52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes optWin {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(52, 211, 153, 0); }
+      32% { transform: scale(1.045); box-shadow: 0 0 26px rgba(52, 211, 153, 0.55); }
+      62% { transform: scale(.994); } 100% { transform: scale(1); box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); }
+    }
+    .quiz-opt.wrong { border-color: var(--red); background: rgba(251, 113, 133, 0.16); color: var(--red); animation: optShake .34s ease; }
+    @keyframes optShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .quiz-explain {
+      display: none; padding: 11px 14px; border-radius: 12px; background: var(--surface-2);
+      border-left: 3px solid var(--cyan); font-size: 13.5px; line-height: 1.65; color: var(--ink-2); margin-bottom: 14px;
+    }
+    .quiz-explain.show { display: block; }
+    .quiz-foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    .quiz-stamp {
+      position: absolute; left: 50%; top: 0; z-index: 4; display: flex; align-items: center; gap: 9px;
+      padding: 12px 22px; border-radius: 18px; background: linear-gradient(135deg, #34d399, #10b981);
+      color: #fff; font-size: 19px; font-weight: 800; white-space: nowrap;
+      box-shadow: 0 18px 46px rgba(16, 185, 129, 0.42), 0 0 0 6px rgba(52, 211, 153, 0.16);
+      opacity: 0; pointer-events: none; transform: translate(-50%, -55%) scale(.6);
+    }
+    .quiz-stamp .s-ico { font-size: 24px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); }
+    .quiz-stamp .s-sub { display: block; font-size: 13px; font-weight: 700; opacity: .9; margin-top: 1px; }
+    .quiz-stamp.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 18px 46px rgba(245,158,11,.45), 0 0 0 6px rgba(251,191,36,.18); }
+    .quiz-stamp.show { animation: stampPop 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes stampPop {
+      0% { opacity: 0; transform: translate(-50%, -42%) scale(.5) rotate(-7deg); }
+      16% { opacity: 1; transform: translate(-50%, -58%) scale(1.12) rotate(2deg); }
+      26% { transform: translate(-50%, -55%) scale(.98) rotate(0deg); }
+      34% { transform: translate(-50%, -55%) scale(1); }
+      74% { opacity: 1; transform: translate(-50%, -62%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -95%) scale(1.04); }
+    }
+    .opt-tick {
+      display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+      margin-left: 7px; border-radius: 50%; background: var(--green); color: #04120c;
+      font-size: 12px; font-weight: 900; line-height: 1; vertical-align: -2px;
+      animation: tickIn .42s .1s backwards cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes tickIn { 0% { opacity: 0; transform: scale(.2) rotate(-40deg); } 70% { opacity: 1; transform: scale(1.18) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+    .badge.bump { animation: scoreBump .62s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes scoreBump { 0% { transform: scale(1); } 30% { transform: scale(1.22); } 60% { transform: scale(.97); } 100% { transform: scale(1); } }
+    .badge.gain { color: #34d399; border-color: rgba(52, 211, 153, 0.55); background: rgba(52, 211, 153, 0.16); }
+    .fx-canvas { position: fixed; inset: 0; z-index: 70; display: none; pointer-events: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .quiz-stamp.show { animation: stampFade 1s ease forwards; }
+      @keyframes stampFade { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+      .quiz-opt.correct, .opt-tick, .badge.bump { animation: none; }
+    }
+  </style>
+
+  <style>
+    /* ===== 知识点总结弹窗 ===== */
+    .kp-backdrop {
+      position: fixed; inset: 0; z-index: 70; display: none; align-items: center; justify-content: center;
+      padding: 24px; background: rgba(3, 7, 18, 0.7); backdrop-filter: blur(10px);
+    }
+    .kp-backdrop.open { display: flex; animation: kpFade .2s ease; }
+    @keyframes kpFade { from { opacity: 0; } }
+    @keyframes kpIn { from { opacity: 0; transform: translateY(16px) scale(.985); } }
+    .kp-modal {
+      width: min(1040px, 96vw); height: min(86vh, 880px); display: flex; flex-direction: column;
+      background: var(--surface-solid); border: 1px solid var(--border); border-radius: 18px;
+      box-shadow: var(--shadow); overflow: hidden; animation: kpIn .26s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .kp-mhead {
+      flex: none; display: flex; align-items: center; gap: 12px; padding: 15px 18px 13px 20px;
+      border-bottom: 1px solid var(--border); background: var(--surface-2);
+    }
+    .kp-mhead h2 { font-size: 17px; font-weight: 800; }
+    .kp-msub { margin-top: 3px; font-size: 12px; color: var(--ink-3); }
+    .kp-msub b { color: var(--cyan); font-variant-numeric: tabular-nums; }
+    .kp-mactions { margin-left: auto; display: flex; gap: 8px; flex: none; }
+    .kp-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink-2);
+      font-family: inherit; font-size: 12.5px; font-weight: 700; padding: 8px 14px;
+      border-radius: 10px; cursor: pointer; transition: .16s; white-space: nowrap;
+    }
+    .kp-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+    .kp-x { width: 36px; padding: 8px 0; text-align: center; }
+    .kp-body { flex: 1; overflow-y: auto; padding: 20px 22px 30px; }
+    .kp-body::-webkit-scrollbar { width: 8px; }
+    .kp-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+    .kp-sec { margin-bottom: 22px; }
+    .kp-sec:last-child { margin-bottom: 0; }
+    .kp-sec h3 { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; font-size: 14.5px; font-weight: 800; color: var(--ink); }
+    .kp-sec h3 .idx {
+      width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 7px;
+      font-size: 12px; font-weight: 800; background: rgba(56, 189, 248, 0.16); color: var(--cyan);
+    }
+    .kp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kp-item { border: 1px solid var(--border); background: var(--surface-2); border-radius: 12px; padding: 11px 14px; }
+    .kp-item .f { display: block; font-family: "Cambria Math", "Times New Roman", serif; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.6; }
+    .kp-item .n { margin-top: 5px; font-size: 12px; color: var(--ink-3); line-height: 1.55; }
+    .kp-item.hit { border-color: rgba(56, 189, 248, 0.55); background: rgba(56, 189, 248, 0.1); }
+    .kp-item.hit .f { color: var(--cyan); }
+    .kp-tag { display: inline-block; float: right; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; font-style: normal; background: var(--cyan); color: #04121f; }
+    .kp-body ul { margin: 2px 0 0; padding-left: 20px; }
+    .kp-body li { font-size: 13.2px; line-height: 1.72; color: var(--ink-2); margin-bottom: 4px; }
+    .kp-body p { font-size: 13.2px; line-height: 1.72; color: var(--ink-2); }
+    .kp-body b { color: var(--ink); }
+    .kp-body code { font-family: "Cambria Math", "Times New Roman", serif; font-size: 1.08em; font-weight: 600; color: var(--cyan); }
+    .kp-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .kp-tbl th, .kp-tbl td { border: 1px solid var(--border); padding: 8px 11px; text-align: left; vertical-align: top; line-height: 1.6; }
+    .kp-tbl th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
+    .kp-tbl td { color: var(--ink-2); }
+    .kp-tbl td.k { width: 120px; color: var(--ink-3); white-space: nowrap; }
+    .kp-tbl tr.hit td { background: rgba(56, 189, 248, 0.1); color: var(--cyan); }
+    .kp-note { margin-top: 14px; padding: 11px 14px; border-radius: 12px; border: 1px dashed var(--border); font-size: 12.4px; line-height: 1.65; color: var(--ink-3); }
+    .kp-note b { color: var(--amber); }
+    @media (max-width: 760px) { .kp-grid { grid-template-columns: 1fr; } .kp-modal { height: 92vh; } .kp-backdrop { padding: 12px; } }
+    @media print {
+      body * { visibility: hidden !important; }
+      .kp-modal, .kp-modal * { visibility: visible !important; }
+      .kp-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; border: none; box-shadow: none; background: #fff; color: #000; }
+      .kp-body { overflow: visible; padding: 0; } .kp-mactions { display: none; }
+      .kp-item, .kp-tbl th, .kp-tbl td { border-color: #ccc; }
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>基本不等式的几何证明 · 动态可视化讲解</h1>
-  <p>拖动点 D 感受数据 → 相似判定 → 对应边成比例求 CD → 与半径比较 → 得出结论 → 知识点总结</p>
-</header>
-
-<main>
-  <!-- 题目 -->
-  <div class="card" style="margin-bottom:18px">
-    <h3>📐 题目与已知 <span class="tag">教材图 2.2-1</span></h3>
-    <div style="font-size:14px;line-height:1.85">
-      如图，$AB$ 是 $\odot O$ 的<b>直径</b>，点 $C$ 是 $AB$ 上一点，记 $AC=a$，$BC=b$（$a,b>0$）；<br>
-      过点 $C$ 作 $AB$ 的垂线，交圆于 $D$、$E$ 两点，即 <b>$DC\perp AB$</b>，连接 $AD$、$BD$。<br>
-      <span style="color:var(--muted)">目标：由图形中「半弦 $CD$」与「半径 $OD$」的大小关系，得出基本不等式。</span>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <a class="back-link" href="#" onclick="history.back();return false;" title="返回总览">←</a>
+      <span class="grade-pill">高一 · 基本不等式</span>
+      <div class="title-group"><h1>基本不等式的几何证明</h1></div>
     </div>
-  </div>
+    <div class="topbar-actions">
+      <div class="seg-tabs" id="modeTabs">
+        <button class="seg-btn active" data-mode="explore">🔬 自由探究</button>
+        <button class="seg-btn" data-mode="predict">🤔 先猜后验</button>
+        <button class="seg-btn" data-mode="challenge">🎮 闯关挑战</button>
+      </div>
+      <button class="icon-btn" id="btnKp" title="知识点总结（页内弹窗）">📖 知识点总结</button>
+      <button class="icon-btn" id="btnPresentation" title="快捷键 F">🖥 大屏模式</button>
+      <button class="icon-btn" id="btnTheme" title="快捷键 T">☀ 投影浅色</button>
+    </div>
+  </header>
 
-  <!-- 演示台 -->
-  <div class="card">
-    <h3>🖥 图形与数据 <span class="tag">拖动圆上的点 D 改变 a、b</span></h3>
-    <div class="stage">
-      <div class="svgwrap">
-        <svg id="fig" viewBox="60 18 480 470">
-          <!-- 基础图形（一次呈现） -->
-          <circle cx="300" cy="250" r="200" fill="none" stroke="#334155" stroke-width="2.5"/>
-          <line x1="100" y1="250" x2="500" y2="250" stroke="#334155" stroke-width="2.5"/>
-          <line id="e-de" x1="240" y1="59.2" x2="240" y2="440.8" stroke="#c0267e" stroke-width="1.8"/>
-          <line id="e-ad" class="dm" x1="100" y1="250" x2="240" y2="59.2" stroke="#2563eb" stroke-width="2.5"/>
-          <line id="e-bd" class="dm" x1="240" y1="59.2" x2="500" y2="250" stroke="#2563eb" stroke-width="2.5"/>
-          <line id="e-cd" class="dm" x1="240" y1="250" x2="240" y2="59.2" stroke="#ef4444" stroke-width="4"/>
-          <line id="e-oc" class="dm" x1="240" y1="250" x2="300" y2="250" stroke="#0f766e" stroke-width="2" stroke-dasharray="6 5"/>
-          <line id="e-od" class="dm" x1="300" y1="250" x2="240" y2="59.2" stroke="#0f766e" stroke-width="2.4" stroke-dasharray="7 5"/>
-          <!-- 直角符号 -->
-          <polyline id="e-raC1" class="dm" points="240,236 226,236 226,250" fill="none" stroke="#64748b" stroke-width="2"/>
-          <polyline id="e-raC2" class="dm" points="240,236 254,236 254,250" fill="none" stroke="#64748b" stroke-width="2"/>
-          <polyline id="e-raD"  class="dm" points="226.98,76.94 244.72,89.96 257.74,72.22" fill="none" stroke="#64748b" stroke-width="2"/>
-          <!-- 相似三角形着色（推导标注） -->
-          <polygon id="e-t1" class="ann" points="100,250 240,250 240,59.2" fill="#2563eb" fill-opacity="0.18"/>
-          <polygon id="e-t2" class="ann" points="240,59.2 240,250 500,250" fill="#f59e0b" fill-opacity="0.20"/>
-          <!-- 等角标记（推导标注） -->
-          <path id="e-a1" class="ann dm" d="M 123.67 217.74 A 40 40 0 0 1 140 250" fill="none" stroke="#2563eb" stroke-width="2.6"/>
-          <path id="e-a2" class="ann dm" d="M 277.09 86.41 A 46 46 0 0 1 240 105.2" fill="none" stroke="#2563eb" stroke-width="2.6"/>
-          <path id="e-a3" class="ann dm" d="M 219.88 86.62 A 34 34 0 0 0 240 93.2" fill="none" stroke="#f59e0b" stroke-width="2.6"/>
-          <path id="e-a4" class="ann dm" d="M 467.75 226.34 A 40 40 0 0 0 460 250" fill="none" stroke="#f59e0b" stroke-width="2.6"/>
-          <!-- 点与字母 -->
-          <circle cx="100" cy="250" r="4.5" fill="#334155"/><circle cx="500" cy="250" r="4.5" fill="#334155"/>
-          <circle id="p-C" cx="240" cy="250" r="5" fill="#ef4444"/>
-          <circle id="p-D" cx="240" cy="59.2" r="7" fill="#c0267e" stroke="#fff" stroke-width="1.5"/>
-          <circle id="p-E" cx="240" cy="440.8" r="4.5" fill="#c0267e"/>
-          <circle cx="300" cy="250" r="4" fill="#0f766e"/>
-          <text x="74" y="274" font-size="21" font-style="italic" fill="#334155">A</text>
-          <text x="512" y="274" font-size="21" font-style="italic" fill="#334155">B</text>
-          <text id="l-C" x="222" y="280" font-size="20" font-style="italic" fill="#ef4444">C</text>
-          <text id="l-D" x="230" y="42"  font-size="21" font-style="italic" fill="#c0267e">D</text>
-          <text id="l-E" x="232" y="472" font-size="21" font-style="italic" fill="#c0267e">E</text>
-          <text x="308" y="240" font-size="20" font-style="italic" fill="#0f766e">O</text>
-          <!-- 线段长度标注 -->
-          <text id="l-a" x="170" y="280" font-size="20" font-style="italic" fill="#334155" text-anchor="middle">a</text>
-          <text id="l-b" x="370" y="280" font-size="20" font-style="italic" fill="#334155" text-anchor="middle">b</text>
-          <!-- 实时长度数值 -->
-          <text id="v-cdchip" x="196" y="158" font-size="15" fill="#ef4444" text-anchor="end"
-                paint-order="stroke" stroke="#fff" stroke-width="4" font-weight="700">9.54</text>
-          <text id="v-odchip" x="272" y="152" font-size="15" fill="#0f766e" text-anchor="start"
-                paint-order="stroke" stroke="#fff" stroke-width="4" font-weight="700">10.00</text>
-        </svg>
-        <div class="legend">
-          <span><i style="background:#2563eb"></i>△ACD</span>
-          <span><i style="background:#f59e0b"></i>△DCB</span>
-          <span><i style="background:#ef4444"></i>半弦 CD</span>
-          <span><i style="background:#0f766e"></i>半径 OD</span>
+  <main class="workspace">
+    <section class="stage-shell">
+      <svg id="fig" viewBox="60 18 480 470" aria-label="基本不等式几何证明图">
+        <!-- 基础图形 -->
+        <circle class="s-base" cx="300" cy="250" r="200"/>
+        <line class="s-base" x1="100" y1="250" x2="500" y2="250"/>
+        <line id="e-de" class="s-de" x1="240" y1="59.2" x2="240" y2="440.8"/>
+        <line id="e-ad" class="s-tri s-dm" x1="100" y1="250" x2="240" y2="59.2"/>
+        <line id="e-bd" class="s-tri s-dm" x1="240" y1="59.2" x2="500" y2="250"/>
+        <line id="e-cd" class="s-cd s-dm" x1="240" y1="250" x2="240" y2="59.2"/>
+        <line id="e-oc" class="s-oc s-dm" x1="240" y1="250" x2="300" y2="250"/>
+        <line id="e-od" class="s-r s-dm" x1="300" y1="250" x2="240" y2="59.2"/>
+        <!-- 直角符号 -->
+        <polyline id="e-raC1" class="s-ra s-dm" points="240,236 226,236 226,250"/>
+        <polyline id="e-raC2" class="s-ra s-dm" points="240,236 254,236 254,250"/>
+        <polyline id="e-raD"  class="s-ra s-dm" points="226.98,76.94 244.72,89.96 257.74,72.22"/>
+        <!-- 相似三角形着色 / 等角标记 -->
+        <polygon id="e-t1" class="ann t1" points="100,250 240,250 240,59.2"/>
+        <polygon id="e-t2" class="ann t2" points="240,59.2 240,250 500,250"/>
+        <path id="e-a1" class="ann s-dm ma" d="M 123.67 217.74 A 40 40 0 0 1 140 250"/>
+        <path id="e-a2" class="ann s-dm ma" d="M 277.09 86.41 A 46 46 0 0 1 240 105.2"/>
+        <path id="e-a3" class="ann s-dm mb" d="M 219.88 86.62 A 34 34 0 0 0 240 93.2"/>
+        <path id="e-a4" class="ann s-dm mb" d="M 467.75 226.34 A 40 40 0 0 0 460 250"/>
+        <!-- 钉住的历史位置 -->
+        <g id="pins"></g>
+        <!-- 点与字母 -->
+        <circle class="s-dot" cx="100" cy="250" r="4.5"/><circle class="s-dot" cx="500" cy="250" r="4.5"/>
+        <circle id="p-C" class="s-c" cx="240" cy="250" r="5"/>
+        <circle id="p-D" class="s-de-dot" cx="240" cy="59.2" r="7" stroke="var(--canvas-bg)" stroke-width="1.5"/>
+        <circle id="p-E" class="s-de-dot" cx="240" cy="440.8" r="4.5"/>
+        <circle class="s-o" cx="300" cy="250" r="4"/>
+        <text class="s-label" x="74" y="274" font-size="21">A</text>
+        <text class="s-label" x="512" y="274" font-size="21">B</text>
+        <text id="l-C" class="s-label" x="222" y="280" font-size="20">C</text>
+        <text id="l-D" class="s-label" x="230" y="42" font-size="21">D</text>
+        <text id="l-E" class="s-label" x="232" y="472" font-size="21">E</text>
+        <text class="s-label" x="308" y="240" font-size="20">O</text>
+        <text id="l-a" class="s-label" x="170" y="280" font-size="20" text-anchor="middle">a</text>
+        <text id="l-b" class="s-label" x="370" y="280" font-size="20" text-anchor="middle">b</text>
+        <text id="v-cdchip" class="s-chip s-gm" x="196" y="158" font-size="13.5" text-anchor="end">9.54</text>
+        <text id="v-odchip" class="s-chip s-am" x="272" y="152" font-size="13.5" text-anchor="start">10.00</text>
+      </svg>
+
+      <div class="hud-top-left">
+        <div class="formula-pill"><span class="hl-a">\(\sqrt{ab}\)</span> <span style="color:var(--ink-3)">\(\le\)</span> <span class="hl-b">\(\dfrac{a+b}{2}\)</span></div>
+        <div class="probe-pill" id="probePill">a = <b>7.0</b> · b = <b>13.0</b></div>
+      </div>
+
+      <div class="hud-top-right">
+        <div class="kp-hint" id="kpHint"></div>
+        <div class="alert-banner" id="alertBanner"></div>
+      </div>
+      <div class="toast" id="toast"></div>
+
+      <div class="morph-hud" id="morphHud"><div class="morph-hint" id="morphHint"></div></div>
+
+      <div class="hud-bottom-left" id="hudBottomLeft">
+        <button class="btn" id="btnEq">⚖ 跳到 a = b</button>
+        <button class="btn" id="btnMorph">▶ 连续演示</button>
+        <button class="btn" id="btnReset">↺ 复位</button>
+      </div>
+      <div class="hud-bottom-left" id="morphControls" style="display:none;">
+        <button class="btn primary" id="btnMorphPlay">⏸ 暂停演示</button>
+        <button class="btn" id="btnMorphReplay">↺ 回到 a = 1</button>
+        <button class="btn" id="btnMorphExit">✕ 退出演示</button>
+      </div>
+      <div class="hud-bottom-right" id="hintBar">拖动点 D / C · 滑块调 a · ←→ 微调 · F 大屏 · T 主题</div>
+    </section>
+
+    <aside class="side-drawer">
+      <!-- 参数控制台 -->
+      <div class="card">
+        <div class="card-title">参数控制台 <span class="badge">实时联动</span></div>
+        <div class="slider-row">
+          <div class="slider-head"><span class="name">线段 AC = a</span><span class="val" id="valA">7.0</span></div>
+          <input class="lab-range" id="sA" type="range" min="1" max="19" step="0.1" value="7" />
         </div>
-        <p class="hint" style="margin-top:4px">✋ 在图形上<b>按住并左右拖动</b>（或拖点 D / 点 C），右侧数据实时变化。</p>
       </div>
 
-      <!-- 实时数据面板 -->
-      <div class="datapanel">
-        <div class="dp-title">📊 实时数据（单位长度）</div>
-        <div class="drow"><span>半弦 $CD=\sqrt{ab}$</span><b id="v-cd" style="color:#ef4444">9.54</b></div>
-        <div class="bar"><i id="bar-cd" style="background:#ef4444;width:95%"></i></div>
-        <div class="drow"><span>半径 $OD=\dfrac{a+b}{2}$</span><b id="v-od" style="color:#0f766e">10.00</b></div>
-        <div class="bar"><i id="bar-od" style="background:#0f766e;width:100%"></i></div>
-        <div class="cmp">$\sqrt{ab}$ = <b id="v-gm" style="color:#ef4444">9.54</b>
-          &nbsp;≤&nbsp; $\dfrac{a+b}{2}$ = <b id="v-am" style="color:#0f766e">10.00</b></div>
-        <div class="eqnote" id="v-eq">拖动点 D：无论怎么移动，半弦 CD 都不会超过半径 OD。</div>
-        <div class="slider">
-          <span>滑块调 a</span>
-          <input type="range" id="rng" min="1" max="19" step="0.1" value="7" oninput="setByA(+this.value)">
-          <b id="v-rng" style="color:var(--brand)">7.0</b>
+      <!-- 实时数据（原文件版式） -->
+      <div class="card">
+        <div class="card-title">📊 实时数据（单位长度） <span class="badge" id="phaseTag">a = 7.0</span></div>
+        <div class="drow"><span class="stat-label">半弦 \(CD=\sqrt{ab}\)</span><b id="statGM" style="color:var(--red)">9.54</b></div>
+        <div class="bar"><i id="bar-cd" style="background:var(--red);width:95%"></i></div>
+        <div class="drow"><span class="stat-label">半径 \(OD=\dfrac{a+b}{2}\)</span><b id="statAM" style="color:var(--green)">10.00</b></div>
+        <div class="bar"><i id="bar-od" style="background:var(--green);width:100%"></i></div>
+        <div class="cmp">\(\sqrt{ab}\) = <b id="v-gm" style="color:var(--red)">9.54</b> &nbsp;≤&nbsp; \(\dfrac{a+b}{2}\) = <b id="v-am" style="color:var(--green)">10.00</b></div>
+        <div class="eqnote" id="eqNote">拖动点 D：无论怎么移动，半弦 CD 都不会超过半径 OD。</div>
+        <button class="btn primary" id="btnDeriv" style="width:100%;margin-top:12px;">📝 查看推导过程</button>
+      </div>
+
+      <!-- 先猜后验 -->
+      <div class="card" id="predictCard" style="display:none;">
+        <div class="card-title">课堂悬念 <span class="badge">先猜后验</span></div>
+        <div class="predict-q">把 a 从 <b>1</b> 慢慢调到 <b>10</b>（点 C 移向圆心 O），半弦 CD 与半径 OD 的大小会怎样？</div>
+        <div class="predict-opts" id="predictOpts">
+          <button class="predict-opt" data-idx="0">A. CD 始终不超过 OD，当 a = b = 10 时相等</button>
+          <button class="predict-opt" data-idx="1">B. CD 会先超过 OD，再落回来</button>
+          <button class="predict-opt" data-idx="2">C. CD 与 OD 始终相等</button>
+        </div>
+        <button class="btn amber" id="btnReveal" style="width:100%;" disabled>✨ 请先选择一个猜想</button>
+        <div class="predict-feedback" id="predictFeedback">
+          <b>验证结论：</b>直径 AB 固定为 20，所以半径 <b>OD = 10</b> 永远不变；而 CD 是 Rt△OCD 的一条<b>直角边</b>，OD 是<b>斜边</b>，直角边不可能超过斜边。只有当 C 与 O 重合（<b>a = b = 10</b>）时，△OCD 退化，CD 才与 OD 相等——这正是基本不等式取等号的几何真相。
         </div>
       </div>
+
+      <!-- 闯关任务 -->
+      <div class="card" id="challengeCard" style="display:none;">
+        <div class="card-title">随堂闯关 <span class="badge" id="chalScore">0 / 4</span></div>
+        <p id="quizBankInfo" style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:10px;">
+          题库共 <b>16</b> 道，每轮随机抽 <b>4</b> 道（选项顺序也会打乱）。
+        </p>
+        <button class="btn primary" id="btnOpenQuiz" style="width:100%;">🎯 打开闯关题目窗口</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- 推导过程弹窗 -->
+<div class="kp-backdrop" id="derivModal">
+  <div class="kp-modal" role="dialog" aria-modal="true" aria-label="推导过程" style="width:min(840px,94vw);height:auto;max-height:88vh;">
+    <div class="kp-mhead">
+      <div>
+        <h2>📝 基本不等式的几何证明 · 推导过程</h2>
+        <div class="kp-msub">高一数学 · 从直径到半弦，五步得到不等式</div>
+      </div>
+      <div class="kp-mactions"><button class="kp-btn kp-x" id="derivClose" title="关闭（Esc）">✕</button></div>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- 推导过程 -->
-    <h3 style="margin-bottom:10px">📝 推导过程</h3>
-    <div class="steplist" id="steps"></div>
+    <div class="kp-body" id="steps"></div>
   </div>
+</div>
 
-  <!-- 知识点总结 -->
-  <div class="card" id="sumCard" style="margin-top:18px">
-    <h3>📚 知识点总结 <span class="tag">一表梳理，考前速记</span></h3>
-    <div class="keybox">
-      基本不等式：$\sqrt{ab}\le\dfrac{a+b}{2}\quad(a>0,\ b>0)$，当且仅当 $a=b$ 时取等号。
+<!-- 知识点总结弹窗 -->
+<div class="kp-backdrop" id="kpModal">
+  <div class="kp-modal" role="dialog" aria-modal="true" aria-label="知识点总结">
+    <div class="kp-mhead">
+      <div>
+        <h2>基本不等式的几何证明 · 知识点总结</h2>
+        <div class="kp-msub">高一数学 · 当前 <b id="kpModalAB">a = 7.0, b = 13.0</b></div>
+      </div>
+      <div class="kp-mactions"><button class="kp-btn kp-x" id="kpClose" title="关闭（Esc）">✕</button></div>
     </div>
-
-    <h3 style="margin-bottom:8px">✅ 使用条件</h3>
-    <div class="kp">
-      <div class="box">
-        <h4>一正</h4>
-        <ul>
-          <li>各项必须为<b>正数</b>（$a>0,\ b>0$）</li>
-          <li>出现负数先<b>变号 / 提负号</b>再使用</li>
-          <li>$\sqrt{ab}$ 要求 $ab\ge 0$，否则无意义</li>
-        </ul>
-      </div>
-      <div class="box">
-        <h4>二定</h4>
-        <ul>
-          <li>求和的最小值 → 需 <b>$ab$ 为定值</b></li>
-          <li>求积的最大值 → 需 <b>$a+b$ 为定值</b></li>
-          <li>不是定值要先<b>配凑</b>出定值（拆项、凑系数）</li>
-        </ul>
-      </div>
-      <div class="box">
-        <h4>三相等</h4>
-        <ul>
-          <li>等号成立条件 <b>$a=b$</b> 必须能取到</li>
-          <li>要检验 $a=b$ 是否在<b>定义域</b>内</li>
-          <li>多次使用时，各次等号条件须<b>一致</b></li>
-        </ul>
-      </div>
-    </div>
-
-    <h3 style="margin:18px 0 8px">🔁 常用变形</h3>
-    <table>
-      <tr><th style="width:34%">变形形式</th><th>说明 / 用途</th></tr>
-      <tr><td>$a+b\ \ge\ 2\sqrt{ab}$</td><td>积为<b>定值</b>时，和有<b>最小值</b> $2\sqrt{ab}$（"积定和最小"）</td></tr>
-      <tr><td>$ab\ \le\ \left(\dfrac{a+b}{2}\right)^{2}$</td><td>和为<b>定值</b>时，积有<b>最大值</b> $\left(\frac{a+b}{2}\right)^{2}$（"和定积最大"）</td></tr>
-      <tr><td>$a^{2}+b^{2}\ \ge\ 2ab\ (a,b\in\mathbb R)$</td><td>不要求正数；配方、比较大小、求最值的基础</td></tr>
-      <tr><td>$\dfrac{2}{\frac1a+\frac1b}\ \le\ \sqrt{ab}\ \le\ \dfrac{a+b}{2}\ \le\ \sqrt{\dfrac{a^{2}+b^{2}}{2}}$</td>
-          <td>均值链：调和平均 ≤ 几何平均 ≤ 算术平均 ≤ 平方平均</td></tr>
-    </table>
-    <p class="hint">⚠️ 常见失分点：忘记验证"正数"前提；凑不出定值就下结论；等号取不到却写出最值。</p>
+    <div class="kp-body" id="kpBody"></div>
   </div>
-</main>
+</div>
+
+<!-- 闯关题目弹窗 -->
+<div class="quiz-backdrop" id="quizModal">
+  <div class="quiz-modal">
+    <div class="quiz-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="grade-pill" id="quizProgress">第 1 / 4 题</span>
+        <span class="badge" id="quizScoreBadge">得分 0 / 4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn on" id="btnBgm" title="背景音乐开关">🔊 音乐开</button>
+        <button class="quiz-close" id="btnCloseQuiz" title="关闭">✕</button>
+      </div>
+    </div>
+    <div class="quiz-stamp" id="quizStamp" aria-live="polite"></div>
+    <div class="quiz-stem" id="quizStem"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnQuizDemo" style="display:none;">🔬 在图中验证</button>
+      <button class="btn primary" id="btnQuizNext" style="display:none;">下一题 →</button>
+    </div>
+  </div>
+</div>
+<canvas class="fx-canvas" id="fxCanvas"></canvas>
 
 <script>
-/* ================= 几何参数与可动点 ================= */
-const R = 200, OX = 300, OY = 250, AX = 100, BX = 500, AY = 250, BY = 250;
-const UNIT = 20;          // 1 单位 = 20px，故 AB = 20，半径 = 10
-let cx = 240;             // 点 C 的横坐标（a = 7, b = 13）
-const $ = id => document.getElementById(id);
+(() => {
+  'use strict';
+  function getCssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
-function unit(vx, vy, wx, wy){ const dx=wx-vx, dy=wy-vy, l=Math.hypot(dx,dy)||1; return [dx/l, dy/l]; }
-
-// 以 V 为顶点、从 VP1 转到 VP2 的小圆弧
-function arcPath(V, P1, P2, r){
-  const u1 = unit(V.x,V.y,P1.x,P1.y), u2 = unit(V.x,V.y,P2.x,P2.y);
-  const s = {x:V.x+r*u1[0], y:V.y+r*u1[1]};
-  const e = {x:V.x+r*u2[0], y:V.y+r*u2[1]};
-  let a1 = Math.atan2(u1[1],u1[0]), a2 = Math.atan2(u2[1],u2[0]);
-  let d = a2 - a1;
-  while(d <= -Math.PI) d += 2*Math.PI;
-  while(d >  Math.PI) d -= 2*Math.PI;
-  return `M ${s.x.toFixed(2)} ${s.y.toFixed(2)} A ${r} ${r} 0 0 ${d>0?1:0} ${e.x.toFixed(2)} ${e.y.toFixed(2)}`;
-}
-function setA(el, attrs){ for(const k in attrs) el.setAttribute(k, attrs[k]); }
-
-function setC(x){
-  cx = Math.max(AX + 0.8*UNIT, Math.min(BX - 0.8*UNIT, x));
-  const dx = cx - OX;
-  const h  = Math.sqrt(Math.max(R*R - dx*dx, 0));
-  const Dy = OY - h, Ey = OY + h;
-  const C = {x:cx, y:AY}, D = {x:cx, y:Dy}, E = {x:cx, y:Ey},
-        A = {x:AX, y:AY}, B = {x:BX, y:BY}, O = {x:OX, y:OY};
-
-  setA($('e-de'), {x1:cx, y1:Dy, x2:cx, y2:Ey});
-  setA($('e-cd'), {x1:cx, y1:AY, x2:cx, y2:Dy});
-  setA($('e-ad'), {x1:AX, y1:AY, x2:cx, y2:Dy});
-  setA($('e-bd'), {x1:cx, y1:Dy, x2:BX, y2:BY});
-  setA($('e-oc'), {x1:cx, y1:AY, x2:OX, y2:OY});
-  setA($('e-od'), {x1:OX, y1:OY, x2:cx, y2:Dy});
-
-  // 直角符号
-  setA($('e-raC1'), {points:`${cx},${AY-14} ${cx-14},${AY-14} ${cx-14},${AY}`});
-  setA($('e-raC2'), {points:`${cx},${AY-14} ${cx+14},${AY-14} ${cx+14},${AY}`});
-  const u = unit(D.x,D.y,A.x,A.y), v = unit(D.x,D.y,B.x,B.y), s = 22;
-  const p1 = {x:D.x+s*u[0], y:D.y+s*u[1]};
-  const p3 = {x:D.x+s*v[0], y:D.y+s*v[1]};
-  const p2 = {x:p1.x+s*v[0], y:p1.y+s*v[1]};
-  setA($('e-raD'), {points:`${p1.x.toFixed(2)},${p1.y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)} ${p3.x.toFixed(2)},${p3.y.toFixed(2)}`});
-
-  // 三角形着色与等角标记
-  setA($('e-t1'), {points:`${AX},${AY} ${cx},${AY} ${cx},${Dy.toFixed(2)}`});
-  setA($('e-t2'), {points:`${cx},${Dy.toFixed(2)} ${cx},${AY} ${BX},${BY}`});
-  setA($('e-a1'), {d:arcPath(A, D, C, 40)});
-  setA($('e-a2'), {d:arcPath(D, B, C, 46)});
-  setA($('e-a3'), {d:arcPath(D, A, C, 34)});
-  setA($('e-a4'), {d:arcPath(B, D, C, 40)});
-
-  // 点、字母、数值
-  setA($('p-C'), {cx, cy:AY});
-  setA($('p-D'), {cx, cy:Dy.toFixed(2)});
-  setA($('p-E'), {cx, cy:Ey.toFixed(2)});
-  setA($('l-C'), {x:cx-18, y:AY+30});
-  setA($('l-D'), {x:cx-8,  y:(Dy-14).toFixed(2)});
-  setA($('l-E'), {x:cx-8,  y:(Ey+30).toFixed(2)});
-  setA($('l-a'), {x:(AX+cx)/2, y:AY+30});
-  setA($('l-b'), {x:(cx+BX)/2, y:AY+30});
-  setA($('v-cdchip'), {x:cx-10, y:((AY+Dy)/2).toFixed(2)});
-  setA($('v-odchip'), {x:((OX+cx)/2+12).toFixed(2), y:((OY+Dy)/2-4).toFixed(2)});
-
-  updateData(h);
-}
-
-function updateData(h){
-  const a = (cx - AX)/UNIT, b = (BX - cx)/UNIT;
-  const cd = h/UNIT, od = R/UNIT;                 // 半弦、半径
-  const gm = Math.sqrt(a*b), am = (a+b)/2;        // 几何平均、算术平均
-  const f = n => n.toFixed(2);
-  $('v-cd').textContent = f(cd);
-  $('v-od').textContent = f(od);
-  $('v-cdchip').textContent = f(cd);
-  $('v-odchip').textContent = f(od);
-  $('bar-cd').style.width = (cd/od*100).toFixed(1) + '%';
-  $('bar-od').style.width = '100%';
-  $('v-gm').textContent = f(gm);
-  $('v-am').textContent = f(am);
-  const eq = Math.abs(a-b) < 0.06;
-  $('v-eq').className = 'eqnote' + (eq ? ' eq' : '');
-  $('v-eq').textContent = eq
-    ? '此时 a = b，点 C 与圆心 O 重合：CD = OD = 10.00，等号成立！'
-    : `拖动点 D：无论怎么移动，半弦 CD 都不会超过半径 OD（相差 ${(od-cd).toFixed(2)}）。`;
-  $('v-rng').textContent = a.toFixed(1);
-  if(document.activeElement !== $('rng')) $('rng').value = a.toFixed(1);
-}
-
-function setByA(a){ setC(AX + a*UNIT); }
-
-/* ================= 拖动交互 ================= */
-const fig = document.getElementById('fig');
-function svgX(evt){
-  const r = fig.getBoundingClientRect();
-  const vb = fig.viewBox.baseVal;                 // 自动适配 viewBox
-  return vb.x + (evt.clientX - r.left) / r.width * vb.width;
-}
-let dragging = false;
-fig.addEventListener('pointerdown', e=>{
-  dragging = true;
-  try{ fig.setPointerCapture(e.pointerId); }catch(_){}
-  setC(svgX(e));
-});
-fig.addEventListener('pointermove', e=>{ if(dragging) setC(svgX(e)); });
-fig.addEventListener('pointerup',   e=>{ dragging = false; try{ fig.releasePointerCapture(e.pointerId);}catch(_){} });
-fig.addEventListener('pointercancel', ()=>{ dragging = false; });
-
-/* ================= 推导步骤 ================= */
-const STEPS = [
-  {
-    body:`$\\because\\ AB$ 是 $\\odot O$ 的直径，$D$ 在圆上，$\\therefore\\ \\angle ADB=90^{\\circ}$（直径所对的圆周角是直角）。`,
-    lit:['e-ad','e-bd','e-raD'], show:[]
-  },
-  {
-    body:`<ul>
-      <li>$\\because\\ DC\\perp AB$，$\\therefore\\ \\angle ACD=\\angle DCB=90^{\\circ}$；</li>
-      <li>$\\angle A+\\angle B=90^{\\circ}$，$\\angle A+\\angle ADC=90^{\\circ}$，
-          $\\therefore\\ \\angle ADC=\\angle DBC$；同理 $\\angle CAD=\\angle CDB$。</li>
-      </ul>
-      两角分别相等 $\\Rightarrow\\ \\triangle ACD\\sim\\triangle DCB$。`,
-    lit:['e-t1','e-t2','e-a1','e-a2','e-a3','e-a4','e-raC1','e-raC2'],
-    show:['e-t1','e-t2','e-a1','e-a2','e-a3','e-a4']
-  },
-  {
-    body:`由 $\\triangle ACD\\sim\\triangle DCB$，对应边成比例：
-          $$\\frac{AC}{DC}=\\frac{DC}{CB}\\ \\Rightarrow\\ DC^{2}=AC\\cdot CB=ab$$
-          $$\\therefore\\ DC=\\sqrt{ab}$$`,
-    lit:['e-cd'], show:[]
-  },
-  {
-    body:`连 $OD$，则 $OD=\\dfrac{a+b}{2}$（半径）。
-          在 Rt$\\triangle OCD$ 中，$CD$ 是直角边，$OD$ 是斜边，
-          $$\\therefore\\ CD\\le OD$$
-          当且仅当 $C$ 与圆心 $O$ 重合时取等号。`,
-    lit:['e-od','e-oc','e-cd'], show:[]
-  },
-  {
-    body:`由 $CD=\\sqrt{ab}$，$CD\\le OD$，$OD=\\dfrac{a+b}{2}$，得
-          $$\\sqrt{ab}\\ \\le\\ \\frac{a+b}{2}\\qquad(a>0,\\ b>0)$$
-          当且仅当 $a=b$ 时等号成立。`,
-    lit:['e-cd','e-od'], show:[]
+  function initShell({ onCommand } = {}) {
+    const app = document.querySelector('.app');
+    const themeBtn = document.getElementById('btnTheme');
+    const presBtn = document.getElementById('btnPresentation');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (themeBtn) themeBtn.textContent = theme === 'light' ? '🌙 深色实验室' : '☀ 投影浅色';
+      localStorage.setItem('math_lab_theme', theme);
+    }
+    setTheme(localStorage.getItem('math_lab_theme') || 'dark');
+    if (themeBtn) themeBtn.addEventListener('click', () => {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    });
+    function togglePresentation(force) {
+      const next = typeof force === 'boolean' ? force : !app.classList.contains('presentation');
+      app.classList.toggle('presentation', next);
+      if (presBtn) presBtn.classList.toggle('on', next);
+    }
+    if (presBtn) presBtn.addEventListener('click', () => togglePresentation());
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') togglePresentation();
+      if (e.key === 't' || e.key === 'T') setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    });
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || data.type !== 'math-lab:command') return;
+      if (data.action === 'theme' && data.payload) setTheme(data.payload);
+      if (data.action === 'presentation') togglePresentation(Boolean(data.payload));
+      if (onCommand) onCommand(data.action, data.payload);
+    });
+    return { setTheme, togglePresentation };
   }
-];
 
-const stepsEl = document.getElementById('steps');
-function typeset(el){ if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(()=>{}); }
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(el._timer); el._timer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
 
-// 推导过程一次性完整显示（单一大框）
-function renderSteps(){
-  stepsEl.innerHTML = '<div class="derivbox">' +
-    STEPS.map(s=>`<div class="sb">${s.body}</div>`).join('') + '</div>';
-  typeset(stepsEl);
-  // 图形标注全部显示，不聚焦任何一步
-  fig.classList.remove('focused');
-  document.querySelectorAll('#fig .ann').forEach(e=>e.classList.add('on'));
-  document.querySelectorAll('#fig .lit').forEach(e=>e.classList.remove('lit'));
-}
+  let alertHoldUntil = 0, alertTimer = null;
+  const alertNow = () => (window.performance && performance.now) ? performance.now() : Date.now();
+  function hideAlertSoon(delay) {
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+      alertTimer = null;
+      const el = document.getElementById('alertBanner'); if (!el) return;
+      const now = alertNow();
+      if (now >= alertHoldUntil) { alertHoldUntil = 0; el.classList.remove('show'); }
+      else hideAlertSoon(alertHoldUntil - now);
+    }, Math.max(0, delay));
+  }
+  function setAlert(msg, holdMs) {
+    const el = document.getElementById('alertBanner'); if (!el) return;
+    const now = alertNow();
+    if (!msg) {
+      if (now < alertHoldUntil) { hideAlertSoon(alertHoldUntil - now); return; }
+      el.classList.remove('show'); return;
+    }
+    alertHoldUntil = now + (holdMs || 0);
+    if (el.textContent !== msg) {
+      el.textContent = msg; el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    } else if (!el.classList.contains('show')) el.classList.add('show');
+    if (holdMs && !alertTimer) hideAlertSoon(holdMs);
+  }
 
-setC(240);
-renderSteps();
+  const sound = (() => {
+    let ctx = null, bgmTimer = null, bgmStep = 0, muted = false;
+    function ensureCtx() {
+      if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+    function tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+      if (muted) return; const ac = ensureCtx(); if (!ac) return;
+      const t0 = ac.currentTime + delay, osc = ac.createOscillator(), gain = ac.createGain();
+      osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.start(t0); osc.stop(t0 + duration + 0.02);
+    }
+    function playClick() { tone(660, 0.06, 'triangle', 0.08, 0); }
+    function playCorrect() { tone(523.25,.14,'triangle',.16,0); tone(659.25,.14,'triangle',.16,.08); tone(783.99,.16,'triangle',.16,.16); tone(1046.5,.32,'sine',.18,.24); }
+    function playWrong() { tone(220,.16,'sawtooth',.09,0); tone(164.81,.28,'sawtooth',.10,.13); }
+    function playVictory() { const notes=[523.25,659.25,783.99,1046.5,783.99,1046.5], times=[0,.1,.2,.3,.44,.56]; notes.forEach((f,i)=>tone(f,i===5?.45:.14,'triangle',.16,times[i])); }
+    const MELODY=[523.25,659.25,783.99,659.25,880,783.99,659.25,587.33,523.25,659.25,783.99,1046.5,880,783.99,659.25,587.33];
+    const BASS=[130.81,0,196,0,174.61,0,196,0,130.81,0,196,0,146.83,0,196,0];
+    function startBgm() { if (bgmTimer || muted) return; ensureCtx(); bgmTimer = setInterval(() => { if (muted) return; const m=MELODY[bgmStep%MELODY.length], b=BASS[bgmStep%BASS.length]; if(m)tone(m,.18,'sine',.045,0); if(b)tone(b,.22,'triangle',.04,0); bgmStep++; }, 240); }
+    function stopBgm() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+    function toggleBgm() { if (bgmTimer) { stopBgm(); return false; } muted = false; startBgm(); return true; }
+    function setMuted(v) { muted = Boolean(v); if (muted) stopBgm(); }
+    return { playClick, playCorrect, playWrong, playVictory, startBgm, stopBgm, toggleBgm, setMuted, isPlaying: () => Boolean(bgmTimer) && !muted };
+  })();
+
+  window.MathLab = { getCssVar, initShell, showToast, setAlert, sound };
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const { initShell, showToast, setAlert, sound } = window.MathLab;
+  const $ = id => document.getElementById(id);
+  const fig = $('fig');
+
+  /* ============ 几何参数 ============ */
+  const R = 200, OX = 300, OY = 250, AX = 100, BX = 500, AY = 250, BY = 250, UNIT = 20;
+  const MIN_A = 1, MAX_A = 19;
+  const state = {
+    a: 7, cx: 240,
+    mode: 'explore',
+    pinned: [],
+    pickedOpt: null, revealed: false,
+    quizIndex: 0, quizScore: 0, quizAnswered: false, quizStreak: 0,
+  };
+  let cx = AX + 7 * UNIT;   // 点 C 的横坐标（与 setC 中的赋值配套，严格模式下必须先声明）
+
+  function unit(vx, vy, wx, wy) { const dx=wx-vx, dy=wy-vy, l=Math.hypot(dx,dy)||1; return [dx/l, dy/l]; }
+  function arcPath(V, P1, P2, r) {
+    const u1 = unit(V.x,V.y,P1.x,P1.y), u2 = unit(V.x,V.y,P2.x,P2.y);
+    const s = {x:V.x+r*u1[0], y:V.y+r*u1[1]}, e = {x:V.x+r*u2[0], y:V.y+r*u2[1]};
+    let a1 = Math.atan2(u1[1],u1[0]), a2 = Math.atan2(u2[1],u2[0]), d = a2 - a1;
+    while (d <= -Math.PI) d += 2*Math.PI;
+    while (d >  Math.PI) d -= 2*Math.PI;
+    return `M ${s.x.toFixed(2)} ${s.y.toFixed(2)} A ${r} ${r} 0 0 ${d>0?1:0} ${e.x.toFixed(2)} ${e.y.toFixed(2)}`;
+  }
+  function setA(el, attrs) { for (const k in attrs) el.setAttribute(k, attrs[k]); }
+  const f2 = n => n.toFixed(2);
+  const f1 = n => n.toFixed(1);
+
+  /* ============ 核心：设置点 C ============ */
+  function setC(x) {
+    cx = Math.max(AX + MIN_A*UNIT, Math.min(BX - MIN_A*UNIT, x));
+    state.cx = cx;
+    const dx = cx - OX;
+    const h  = Math.sqrt(Math.max(R*R - dx*dx, 0));
+    const Dy = OY - h, Ey = OY + h;
+    const C = {x:cx, y:AY}, D = {x:cx, y:Dy}, E = {x:cx, y:Ey},
+          A = {x:AX, y:AY}, B = {x:BX, y:BY}, O = {x:OX, y:OY};
+
+    setA($('e-de'), {x1:cx, y1:Dy, x2:cx, y2:Ey});
+    setA($('e-cd'), {x1:cx, y1:AY, x2:cx, y2:Dy});
+    setA($('e-ad'), {x1:AX, y1:AY, x2:cx, y2:Dy});
+    setA($('e-bd'), {x1:cx, y1:Dy, x2:BX, y2:BY});
+    setA($('e-oc'), {x1:cx, y1:AY, x2:OX, y2:OY});
+    setA($('e-od'), {x1:OX, y1:OY, x2:cx, y2:Dy});
+    setA($('e-raC1'), {points:`${cx},${AY-14} ${cx-14},${AY-14} ${cx-14},${AY}`});
+    setA($('e-raC2'), {points:`${cx},${AY-14} ${cx+14},${AY-14} ${cx+14},${AY}`});
+    const u = unit(D.x,D.y,A.x,A.y), v = unit(D.x,D.y,B.x,B.y), s = 22;
+    const p1 = {x:D.x+s*u[0], y:D.y+s*u[1]}, p3 = {x:D.x+s*v[0], y:D.y+s*v[1]};
+    const p2 = {x:p1.x+s*v[0], y:p1.y+s*v[1]};
+    setA($('e-raD'), {points:`${p1.x.toFixed(2)},${p1.y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)} ${p3.x.toFixed(2)},${p3.y.toFixed(2)}`});
+    setA($('e-t1'), {points:`${AX},${AY} ${cx},${AY} ${cx},${Dy.toFixed(2)}`});
+    setA($('e-t2'), {points:`${cx},${Dy.toFixed(2)} ${cx},${AY} ${BX},${BY}`});
+    setA($('e-a1'), {d:arcPath(A, D, C, 40)});
+    setA($('e-a2'), {d:arcPath(D, B, C, 46)});
+    setA($('e-a3'), {d:arcPath(D, A, C, 34)});
+    setA($('e-a4'), {d:arcPath(B, D, C, 40)});
+    setA($('p-C'), {cx, cy:AY});
+    setA($('p-D'), {cx, cy:Dy.toFixed(2)});
+    setA($('p-E'), {cx, cy:Ey.toFixed(2)});
+    setA($('l-C'), {x:cx-18, y:AY+30});
+    setA($('l-D'), {x:cx-8,  y:(Dy-14).toFixed(2)});
+    setA($('l-E'), {x:cx-8,  y:(Ey+30).toFixed(2)});
+    setA($('l-a'), {x:(AX+cx)/2, y:AY+30});
+    setA($('l-b'), {x:(cx+BX)/2, y:AY+30});
+    setA($('v-cdchip'), {x:cx-10, y:((AY+Dy)/2).toFixed(2)});
+    setA($('v-odchip'), {x:((OX+cx)/2+12).toFixed(2), y:((OY+Dy)/2-4).toFixed(2)});
+    updateData(h);
+  }
+
+  function updateData(h) {
+    const a = (cx - AX)/UNIT, b = (BX - cx)/UNIT;
+    const cd = h/UNIT, od = R/UNIT;
+    const gm = Math.sqrt(a*b), am = (a+b)/2;
+    const eq = Math.abs(a-b) < 0.06;
+
+    $('statGM').textContent = f2(cd);
+    $('statAM').textContent = f2(od);
+    $('bar-cd').style.width = (cd/od*100).toFixed(1) + '%';
+    $('bar-od').style.width = '100%';
+    $('v-gm').textContent = f2(gm);
+    $('v-am').textContent = f2(am);
+    const note = $('eqNote');
+    note.className = 'eqnote' + (eq ? ' eq' : '');
+    note.textContent = eq
+      ? '此时 a = b，点 C 与圆心 O 重合：CD = OD = 10.00，等号成立！'
+      : `拖动点 D：无论怎么移动，半弦 CD 都不会超过半径 OD（相差 ${(od-cd).toFixed(2)}）。`;
+    $('v-cdchip').textContent = f2(cd);
+    $('v-odchip').textContent = f2(od);
+    $('probePill').innerHTML = `a = <b>${f1(a)}</b> · b = <b>${f1(b)}</b>`;
+    $('phaseTag').textContent = `a = ${f1(a)}`;
+    $('valA').textContent = f1(a);
+
+    $('sA').value = f1(a);
+
+    const eqNow = Math.abs(a-b) < 0.35;
+    applyKpTip(eqNow
+      ? '<span class="ico">⚖</span><span class="num">①</span><span>C 与 O 重合，<b>CD = OD = 10</b>，此时 <b>a = b</b>，等号成立</span><span class="kp-a">a = ' + f1(a) + '</span>'
+      : '<span class="ico">💡</span><span class="num">②</span><span><span class="nw">CD 是直角边，OD 是斜边</span> → <b>CD ≤ OD</b> 恒成立</span><span class="kp-a">a = ' + f1(a) + '</span>', a);
+    if (eq && !state._eqAnnounced) { state._eqAnnounced = true; setAlert('⚖ C 与 O 重合：a = b = 10，CD = OD，基本不等式取等号！', 2200); }
+    if (!eq) state._eqAnnounced = false;
+  }
+
+  function setByA(a) { setC(AX + Math.max(MIN_A, Math.min(MAX_A, a)) * UNIT); }
+
+  /* ============ 拖动交互 ============ */
+  function svgX(evt) { const r = fig.getBoundingClientRect(), vb = fig.viewBox.baseVal; return vb.x + (evt.clientX - r.left)/r.width*vb.width; }
+  let dragging = false;
+  fig.addEventListener('pointerdown', e => { if (morph.active) return; dragging = true; try { fig.setPointerCapture(e.pointerId); } catch(_){} setC(svgX(e)); });
+  fig.addEventListener('pointermove', e => { if (dragging && !morph.active) setC(svgX(e)); });
+  fig.addEventListener('pointerup', e => { dragging = false; try { fig.releasePointerCapture(e.pointerId); } catch(_){} });
+  fig.addEventListener('pointercancel', () => { dragging = false; });
+
+  /* ============ 推导五步（原内容保留） ============ */
+  const STEPS = [
+    { body:`$\\because\\ AB$ 是 $\\odot O$ 的直径，$D$ 在圆上，$\\therefore\\ \\angle ADB=90^{\\circ}$（直径所对的圆周角是直角）。`, lit:['e-ad','e-bd','e-raD'] },
+    { body:`<ul><li>$\\because\\ DC\\perp AB$，$\\therefore\\ \\angle ACD=\\angle DCB=90^{\\circ}$；</li><li>$\\angle A+\\angle B=90^{\\circ}$，$\\angle A+\\angle ADC=90^{\\circ}$，$\\therefore\\ \\angle ADC=\\angle DBC$；同理 $\\angle CAD=\\angle CDB$。</li></ul>两角分别相等 $\\Rightarrow\\ \\triangle ACD\\sim\\triangle DCB$。`, lit:['e-t1','e-t2','e-a1','e-a2','e-a3','e-a4','e-raC1','e-raC2'] },
+    { body:`由 $\\triangle ACD\\sim\\triangle DCB$，对应边成比例：$$\\frac{AC}{DC}=\\frac{DC}{CB}\\ \\Rightarrow\\ DC^{2}=AC\\cdot CB=ab$$ $$\\therefore\\ DC=\\sqrt{ab}$$`, lit:['e-cd'] },
+    { body:`连 $OD$，则 $OD=\\dfrac{a+b}{2}$（半径）。在 Rt$\\triangle OCD$ 中，$CD$ 是直角边，$OD$ 是斜边，$$\\therefore\\ CD\\le OD$$ 当且仅当 $C$ 与圆心 $O$ 重合时取等号。`, lit:['e-od','e-oc','e-cd'] },
+    { body:`由 $CD=\\sqrt{ab}$，$CD\\le OD$，$OD=\\dfrac{a+b}{2}$，得 $$\\sqrt{ab}\\ \\le\\ \\frac{a+b}{2}\\qquad(a>0,\\ b>0)$$ 当且仅当 $a=b$ 时等号成立。`, lit:['e-cd','e-od'] }
+  ];
+  function typeset(el) {
+    if (!el) return;
+    if (window.MathJax && MathJax.typesetPromise) { MathJax.typesetPromise([el]).catch(()=>{}); return; }
+    // MathJax 异步加载：未就绪时轮询等待，确保根号/分式最终都被渲染
+    let tries = 0;
+    const timer = setInterval(() => {
+      if (window.MathJax && MathJax.typesetPromise) { clearInterval(timer); MathJax.typesetPromise([el]).catch(()=>{}); }
+      else if (++tries > 100) clearInterval(timer);
+    }, 100);
+  }
+
+  /* 步骤在弹窗打开时才渲染（不再一进页面就平铺出来） */
+  const derivModal = $('derivModal');
+  let stepsRendered = false;
+  function renderSteps() {
+    if (stepsRendered) return;
+    $('steps').innerHTML = '<div style="font-size:14px;line-height:1.95;color:var(--ink-2)">' + STEPS.map((s, i) => `<div class="sb" data-step="${i}"><b style="color:var(--cyan)">${i+1}.</b> ${s.body}</div>`).join('') + '</div>';
+    typeset($('steps'));
+    document.querySelectorAll('#steps .sb').forEach(el => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.step;
+        fig.classList.add('focused');
+        fig.querySelectorAll('.s-dm').forEach(e => e.classList.remove('lit'));
+        STEPS[idx].lit.forEach(id => { const n = $(id); if (n) n.classList.add('lit'); });
+        document.querySelectorAll('#steps .sb').forEach(s => s.style.background = 'transparent');
+        el.style.background = 'rgba(56,189,248,.10)';
+        setTimeout(() => { el.style.background = 'transparent'; }, 1400);
+      });
+    });
+    stepsRendered = true;
+  }
+  function openDerivModal() { renderSteps(); derivModal.classList.add('open'); }
+  function closeDerivModal() { derivModal.classList.remove('open'); }
+  $('btnDeriv').addEventListener('click', openDerivModal);
+  $('derivClose').addEventListener('click', closeDerivModal);
+  derivModal.addEventListener('click', e => { if (e.target === derivModal) closeDerivModal(); });
+  document.querySelectorAll('#fig .ann').forEach(e => e.classList.add('on'));
+
+  /* ============ 知识点小提示 ============ */
+  const kpHint = $('kpHint'); let kpSig = '\u0000', kpTimer = null;
+  function applyKpTip(html, a) {
+    const cls = 'kp-hint' + (html ? ' show' : '') + (html && a > 10 ? ' down' : '');
+    const sig = cls + '|' + html;
+    if (sig === kpSig) return;
+    kpSig = sig; clearTimeout(kpTimer);
+    kpHint.className = cls; kpHint.innerHTML = html;
+    if (html) kpTimer = setTimeout(() => kpHint.classList.add('fade'), 3800);
+  }
+
+  /* ============ 连续演示 ============ */
+  const morph = { active:false, playing:false, t:0, A:10, dur:3.2, sig:'' };
+  const morphHud = $('morphHud'), morphHint = $('morphHint');
+  const hudBottomLeft = $('hudBottomLeft'), morphControls = $('morphControls'), hintBar = $('hintBar');
+  const smooth = f => f*f*(3-2*f), clamp01 = v => Math.min(1, Math.max(0,v));
+  function morphA() { return 1 + (morph.A - 1) * smooth(clamp01(morph.t / morph.dur)); }
+  function syncMorphUI() {
+    const done = morph.t >= morph.dur - 1e-6;
+    $('btnMorphPlay').textContent = morph.playing ? '⏸ 暂停演示' : '▶ 继续演示';
+    const sig = (done?'d':'r') + '|' + (morph.playing?'p':'s');
+    if (sig === morph.sig) return;
+    morph.sig = sig;
+    morphHint.innerHTML = done
+      ? `<b>演示完成</b>：C 已到圆心 O，a = b = 10，CD = OD = 10 —— 等号在此刻成立`
+      : `<b>a 从 1 连续增到 10</b>：半弦 CD 不断变长，但始终是 Rt△OCD 的<b>直角边</b>，永远追不上斜边 OD = 10`;
+  }
+  function startMorph() {
+    if (morph.active) { morph.t = 0; morph.playing = true; morph.sig = ''; syncMorphUI(); return; }
+    morph.active = true; morph.playing = true; morph.t = 0; morph.sig = '';
+    hudBottomLeft.style.display = 'none'; morphControls.style.display = 'flex';
+    morphHud.classList.add('show'); hintBar.style.display = 'none'; syncMorphUI();
+  }
+  function exitMorph() {
+    const a = morphA();
+    morph.active = false; morph.playing = false; morph.t = 0; morph.sig = '';
+    morphHud.classList.remove('show'); hudBottomLeft.style.display = 'flex';
+    morphControls.style.display = 'none'; hintBar.style.display = '';
+    setByA(a);
+  }
+
+  /* ============ 题库（基本不等式 16 道） ============ */
+  const QUIZ_BANK = [
+    { id:1, stem:'基本不等式成立的前提是？', formula:'\\(\\sqrt{ab}\\le\\dfrac{a+b}{2}\\)', opts:['\\(a,b\\in R\\)','\\(a>0\\) 且 \\(b>0\\)','\\(ab>0\\)','\\(a+b>0\\)'], ans:1, explain:'基本不等式要求两项都是正数：a > 0 且 b > 0。若仅 ab > 0，可能两数同为负数，教材标准表述是“正数”。', demo:{a:7} },
+    { id:2, stem:'基本不等式取等号的条件是？', formula:'\\(\\sqrt{ab}=\\dfrac{a+b}{2}\\)', opts:['\\(a=b\\)','\\(a+b=0\\)','\\(ab=1\\)','\\(a\\ne b\\)'], ans:0, explain:'当且仅当 a = b 时取等号。几何上就是点 C 与圆心 O 重合，半弦 CD 与半径 OD 相等。', demo:{a:10} },
+    { id:3, stem:'图中半弦 CD 的长度等于？', formula:'\\(CD=?\\)', opts:['\\(a+b\\)','\\(\\sqrt{ab}\\)','\\(\\dfrac{a+b}{2}\\)','\\(ab\\)'], ans:1, explain:'由 △ACD ∽ △DCB 得 AC/DC = DC/CB，即 DC² = AC·CB = ab，所以 \(CD=\sqrt{ab}\)。', demo:{a:7} },
+    { id:4, stem:'图中半径 OD 的长度等于？', formula:'\\(OD=?\\)', opts:['\\(\\sqrt{ab}\\)','\\(\\dfrac{a+b}{2}\\)','\\(ab\\)','\\(a-b\\)'], ans:1, explain:'AB = a + b 是直径，所以半径 \(OD=\\dfrac{a+b}{2}\)。本题中 AB = 20，故 OD 恒为 10。', demo:{a:7} },
+    { id:5, stem:'证明 CD ≤ OD 用到的几何事实是？', formula:'CD ≤ OD', opts:['直角边不超过斜边','勾股定理逆定理','相似三角形对应边成比例','直径所对圆周角为直角'], ans:0, explain:'在 Rt△OCD 中，CD 是直角边、OD 是斜边，直角边不可能超过斜边。C 与 O 重合时三角形退化，两者相等。', demo:{a:7} },
+    { id:6, stem:'△ACD ∽ △DCB 的依据是？', formula:'△ACD ∽ △DCB', opts:['两角分别相等','三边对应成比例','两边及其夹角相等','都是直角三角形'], ans:0, explain:'DC⊥AB 给出两个直角，再由同角的余角相等得 ∠ADC = ∠DBC、∠CAD = ∠CDB，两角对应相等故相似。', demo:{a:7} },
+    { id:7, stem:'“一正二定三相等”中的“二定”指？', formula:'一正 · 二定 · 三相等', opts:['和与积中至少一个为定值','a、b 都是定值','等式有两个','两项都为正数'], ans:0, explain:'求最小值要有积 ab 为定值，求最大值要有和 a+b 为定值；不是定值就要先配凑出定值。', demo:{a:5} },
+    { id:8, stem:'当 x > 0 时，y = x + 1/x 的最小值是？', formula:'\\(y=x+\\dfrac1x\\)', opts:['1','2','4','不存在'], ans:1, explain:'\\(x+\\dfrac1x\\ge2\\sqrt{x\\cdot\\frac1x}=2\\)，当 x = 1/x 即 x = 1 时取等号，最小值为 2。', demo:{a:10} },
+    { id:9, stem:'当 0 < x < 4 时，y = x(4−x) 的最大值是？', formula:'y = x(4 − x)', opts:['2','4','8','16'], ans:1, explain:'x(4−x) ≤ ((x+4−x)/2)² = 4，当 x = 4−x 即 x = 2 时取等号，最大值为 4。', demo:{a:10} },
+    { id:10, stem:'a² + b² ≥ 2ab 对任意实数成立，等号当且仅当？', formula:'a² + b² ≥ 2ab', opts:['a = b','a = −b','ab = 0','永不成立'], ans:0, explain:'a² + b² − 2ab = (a−b)² ≥ 0，等号当且仅当 a = b。这个变形不要求 a、b 为正。', demo:{a:10} },
+    { id:11, stem:'下列变形正确的是？', formula:'\\(a+b\\ge2\\sqrt{ab}\\)', opts:['\\(a+b\\ge2\\sqrt{ab}\\)','\\(a+b\\le2\\sqrt{ab}\\)','\\(ab\\ge\\left(\\dfrac{a+b}{2}\\right)^2\\)','\\(\\sqrt{ab}\\ge\\dfrac{a+b}{2}\\)'], ans:0, explain:'由 \\(\\sqrt{ab}\\le\\dfrac{a+b}{2}\\) 两边乘 2 得 \\(a+b\\ge2\\sqrt{ab}\\)；同时 \\(ab\\le\\left(\\dfrac{a+b}{2}\\right)^2\\)。其余方向反了。', demo:{a:7} },
+    { id:12, stem:'均值链的正确顺序是？', formula:'调和 ≤ 几何 ≤ 算术 ≤ 平方', opts:['调和 ≤ 几何 ≤ 算术 ≤ 平方','几何 ≤ 调和 ≤ 算术 ≤ 平方','算术 ≤ 几何 ≤ 调和 ≤ 平方','平方 ≤ 算术 ≤ 几何 ≤ 调和'], ans:0, explain:'对正数 a、b：\\(\\dfrac{2}{\\frac1a+\\frac1b}\\le\\sqrt{ab}\\le\\dfrac{a+b}{2}\\le\\sqrt{\\dfrac{a^2+b^2}{2}}\\)，等号均在 a = b 时取得。', demo:{a:10} },
+    { id:13, stem:'求最值时忘记检验等号能否取到，会导致？', formula:'一正 · 二定 · 三相等', opts:['最值可能实际上取不到','结果一定错误','完全没有影响','只在含负数时出错'], ans:0, explain:'“三相等”要求 a = b 在定义域内能取到。取不到时只能得到下确界/上确界，不能写成最值。', demo:{a:3} },
+    { id:14, stem:'若 a > 0, b > 0 且 ab = 9，则 a + b 的最小值是？', formula:'\\(ab=9\\)', opts:['3','6','9','18'], ans:1, explain:'\\(a+b\\ge2\\sqrt{ab}=2\\times3=6\\)，当 a = b = 3 时取等号，最小值为 6。', demo:{a:10} },
+    { id:15, stem:'若 a > 0, b > 0 且 a + b = 6，则 ab 的最大值是？', formula:'\\(a+b=6\\)', opts:['3','6','9','12'], ans:2, explain:'\\(ab\\le\\left(\\dfrac{a+b}{2}\\right)^2=9\\)，当 a = b = 3 时取等号，最大值为 9。', demo:{a:10} },
+    { id:16, stem:'图中当 a = b 时，点 C 与哪个点重合？', formula:'a = b', opts:['A','B','O','D'], ans:2, explain:'a = b 意味着 AC = CB，C 是 AB 中点，即圆心 O。此时 CD 与 OD 都等于半径 10。', demo:{a:10} },
+  ];
+
+  /* ============ 答对特效 ============ */
+  const fxCanvas = $('fxCanvas'), quizStamp = $('quizStamp');
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const fx = (() => {
+    const ctx = fxCanvas.getContext('2d');
+    const COLORS = ['#34d399','#22d3ee','#fbbf24','#a78bfa','#f472b6','#38bdf8','#fff'];
+    let parts = [], raf = 0, last = 0;
+    function fit() { const dpr = Math.min(2, window.devicePixelRatio||1), w=innerWidth, h=innerHeight; fxCanvas.width=Math.round(w*dpr); fxCanvas.height=Math.round(h*dpr); fxCanvas.style.width=w+'px'; fxCanvas.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); }
+    fit(); addEventListener('resize', () => { if (parts.length) fit(); });
+    function paper(x,y,ang,spd,power) { parts.push({kind:'paper',x,y,vx:Math.cos(ang)*spd*power,vy:Math.sin(ang)*spd*power,w:6+Math.random()*7,h:5+Math.random()*5,rot:Math.random()*6.28,vr:(Math.random()-.5)*15,color:COLORS[(Math.random()*COLORS.length)|0],life:1,decay:.5+Math.random()*.26,swing:Math.random()*6.28}); }
+    function confetti(x,y,count,power) { for (let i=0;i<count;i++) paper(x+(Math.random()-.5)*36,y+(Math.random()-.5)*10,-Math.PI/2+(Math.random()-.5)*Math.PI*.95,170+Math.random()*320,power||1); }
+    function sparks(x,y,count) { for (let i=0;i<count;i++) { const ang=Math.random()*6.28, spd=90+Math.random()*250; parts.push({kind:'spark',x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,r:1.6+Math.random()*2.6,color:COLORS[(Math.random()*COLORS.length)|0],life:1,decay:1.1+Math.random()*.9}); } }
+    function cannons(count) { const w=innerWidth,h=innerHeight; for (let i=0;i<count;i++) { const left=i%2===0; parts.push({kind:'paper',x:left?-8:w+8,y:h-16,vx:(left?1:-1)*(360+Math.random()*240),vy:-(620+Math.random()*320),w:7+Math.random()*7,h:5+Math.random()*5,rot:Math.random()*6.28,vr:(Math.random()-.5)*16,color:COLORS[(Math.random()*COLORS.length)|0],life:1,decay:.34+Math.random()*.2,swing:Math.random()*6.28}); } }
+    function tick(t) {
+      const dt = last ? Math.min(.05,(t-last)/1000) : .016; last = t;
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+      for (let i=parts.length-1;i>=0;i--) { const p=parts[i]; p.life-=p.decay*dt; if (p.life<=0) { parts.splice(i,1); continue; }
+        if (p.kind==='paper') { p.vy+=1150*dt; p.vx*=1-1.1*dt; p.vy*=1-.5*dt; p.swing+=dt*9; p.x+=(p.vx+Math.sin(p.swing)*34)*dt; p.y+=p.vy*dt; p.rot+=p.vr*dt; ctx.save(); ctx.globalAlpha=Math.min(1,p.life*1.7); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,Math.max(1,p.h*Math.abs(Math.cos(p.swing*.7)))); ctx.restore(); }
+        else { p.vy+=420*dt; p.vx*=1-2.2*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; ctx.save(); ctx.globalAlpha=Math.max(0,p.life); ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(.4,p.r*p.life),0,6.28); ctx.fill(); ctx.restore(); }
+        if (p.y>innerHeight+80) parts.splice(i,1);
+      }
+      if (!parts.length) { cancel(); return; }
+      raf = requestAnimationFrame(tick);
+    }
+    function start() { if (raf) return; fit(); fxCanvas.style.display='block'; last=0; raf=requestAnimationFrame(tick); }
+    function cancel() { if (raf) cancelAnimationFrame(raf); raf=0; last=0; parts=[]; ctx.clearRect(0,0,innerWidth,innerHeight); fxCanvas.style.display='none'; }
+    return { clear:cancel, burstAt(el,big) { if (reduceMotion||!el) return; const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+8; confetti(cx,cy,big?84:42,big?1.25:1); sparks(cx,cy,big?22:12); start(); }, finale() { if (reduceMotion) return; cannons(64); start(); [0,1,2].forEach(i=>setTimeout(()=>{ confetti(innerWidth*(.3+i*.2),innerHeight*.66,30,1.12); start(); },240*(i+1))); } };
+  })();
+  function showQuizStamp(icon, main, sub, gold) { if (!quizStamp) return; quizStamp.className='quiz-stamp'+(gold?' gold':''); quizStamp.innerHTML=`<span class="s-ico">${icon}</span><span>${main}${sub?`<span class="s-sub">${sub}</span>`:''}</span>`; void quizStamp.offsetWidth; quizStamp.classList.add('show'); }
+  function bumpBadge(el) { if (!el) return; el.classList.remove('bump','gain'); void el.offsetWidth; el.classList.add('bump','gain'); clearTimeout(el._bumpT); el._bumpT=setTimeout(()=>el.classList.remove('bump','gain'),1500); }
+  function flashModal() { const m=$('quizModal').querySelector('.quiz-modal'); if (!m) return; m.classList.remove('okFlash'); void m.offsetWidth; m.classList.add('okFlash'); }
+
+  /* ============ 知识点总结弹窗 ============ */
+  const kpModal = $('kpModal'), kpBody = $('kpBody'), kpModalAB = $('kpModalAB');
+  function kpCard(f, n, hit) { return '<div class="kp-item'+(hit?' hit':'')+'">'+(hit?'<i class="kp-tag">当前适用</i>':'')+'<div class="f">'+f+'</div>'+(n?'<div class="n">'+n+'</div>':'')+'</div>'; }
+  function kpBodyHTML(a, b) {
+    const eq = Math.abs(a-b) < .06, d = f2(Math.sqrt(Math.max(a*b,0))), s = f1(a+b);
+    const sec1 = '<div class="kp-sec"><h3><span class="idx">一</span>结论与几何背景</h3><ul>'
+      + '<li><b>基本不等式：</b>\\(\\sqrt{ab}\\le\\dfrac{a+b}{2}\\)（\\(a>0,b>0\\)），当且仅当 \\(a=b\\) 时等号成立。</li>'
+      + '<li><b>几何原型：</b>AB 是圆的直径，AC = a、CB = b，过 C 作垂线交圆于 D。则 \\(CD=\\sqrt{ab}\\)（半弦），\\(OD=\\dfrac{a+b}{2}\\)（半径）。</li>'
+      + '<li><b>证明主线：</b>直径所对圆周角为直角 → △ACD ∽ △DCB → \\(CD^2=ab\\) → \\(CD\\le OD\\)（直角边 ≤ 斜边）→ 不等式得证。</li>'
+      + '</ul><div class="kp-note">当前 <b>a = '+f1(a)+', b = '+f1(b)+'</b>：CD = <b>'+d+'</b>，OD = <b>'+f2((a+b)/2)+'</b>，'+(eq?'两者相等，<b>取等号</b>。':'CD &lt; OD，尚未取等号。')+'</div></div>';
+    const sec2 = '<div class="kp-sec"><h3><span class="idx">二</span>使用条件：一正 · 二定 · 三相等</h3><div class="kp-grid">'
+      + kpCard('<b>一正</b>：各项必须为正数', 'a &gt; 0, b &gt; 0；出现负数先变号 / 提负号', true)
+      + kpCard('<b>二定</b>：和或积为定值', '求和的最小值要积 ab 定值；求积的最大值要 a+b 定值', true)
+      + kpCard('<b>三相等</b>：等号能取到', 'a = b 必须在定义域内；多次使用时各次等号条件要一致', true)
+      + '</div><div class="kp-note">⚠️ 常见失分点：忘记验证正数前提；凑不出定值就下结论；<b>等号取不到却写出最值</b>。</div></div>';
+    const rows = [
+      ['\\(a+b\\ge2\\sqrt{ab}\\)','积 ab 为定值 → 和有最小值 \\(2\\sqrt{ab}\\)（积定和最小）'],
+      ['\\(ab\\le\\left(\\dfrac{a+b}{2}\\right)^2\\)','和 a+b 为定值 → 积有最大值 \\(\\left(\\dfrac{a+b}{2}\\right)^2\\)（和定积最大）'],
+      ['\\(a^2+b^2\\ge2ab\\)','a, b ∈ R 即可，不要求正数；配方、比较大小的基础'],
+      ['\\(\\dfrac{2}{\\frac1a+\\frac1b}\\le\\sqrt{ab}\\)','调和平均 ≤ 几何平均'],
+      ['\\(\\sqrt{ab}\\le\\dfrac{a+b}{2}\\)','几何平均 ≤ 算术平均'],
+      ['\\(\\dfrac{a+b}{2}\\le\\sqrt{\\dfrac{a^2+b^2}{2}}\\)','算术平均 ≤ 平方平均'],
+    ];
+    let tbl = '<table class="kp-tbl"><tr><th>变形形式</th><th>说明 / 用途</th></tr>';
+    rows.forEach(r => { tbl += '<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>'; });
+    tbl += '</table>';
+    const sec3 = '<div class="kp-sec"><h3><span class="idx">三</span>常用变形与均值链</h3>'+tbl
+      + '<div class="kp-note">均值链：<b>调和 ≤ 几何 ≤ 算术 ≤ 平方</b>，四者都在 <b>a = b</b> 时取等号。</div></div>';
+    const sec4 = '<div class="kp-sec"><h3><span class="idx">四</span>几何证明的思路复盘</h3><ul>'
+      + '<li><b>① 找直角：</b>AB 为直径 → ∠ADB = 90°（直径所对圆周角）。</li>'
+      + '<li><b>② 证相似：</b>DC⊥AB → 两个直角 + 余角相等 → <code>△ACD ∽ △DCB</code>。</li>'
+      + '<li><b>③ 求半弦：</b>对应边成比例 → \\(DC^2=AC\\cdot CB=ab\\) → \\(DC=\\sqrt{ab}\\)。</li>'
+      + '<li><b>④ 比大小：</b>连 OD，在 Rt△OCD 中 \\(CD\\le OD\\)，得 \\(\\sqrt{ab}\\le\\dfrac{a+b}{2}\\)。</li>'
+      + '<li><b>⑤ 定等号：</b>C 与 O 重合（即 a = b）时，CD = OD = 半径。</li>'
+      + '</ul></div>';
+    return sec1+sec2+sec3+sec4;
+  }
+  function openKpModal() { kpBody.innerHTML = kpBodyHTML((state.cx-AX)/UNIT, (BX-state.cx)/UNIT); kpModalAB.textContent = `a = ${f1((state.cx-AX)/UNIT)}, b = ${f1((BX-state.cx)/UNIT)}`; kpModal.classList.add('open'); kpBody.scrollTop = 0; typeset(kpBody); }
+  function closeKpModal() { kpModal.classList.remove('open'); }
+  $('btnKp').addEventListener('click', openKpModal);
+  $('kpClose').addEventListener('click', closeKpModal);
+  kpModal.addEventListener('click', e => { if (e.target === kpModal) closeKpModal(); });
+
+  /* ============ 闯关 ============ */
+  const quizModal = $('quizModal'), btnQuizDemo = $('btnQuizDemo'), btnQuizNext = $('btnQuizNext'), btnBgm = $('btnBgm');
+  let bgmEnabled = true, quizSet = [], lastIds = [];
+  const QUIZ_SIZE = 4;
+  (function syncQuizInfo() { $('quizBankInfo').innerHTML = `题库共 <b>${QUIZ_BANK.length}</b> 道，每轮随机抽 <b>${QUIZ_SIZE}</b> 道（选项顺序也会打乱）。<br>重点检验一正二定三相等、几何意义、常用变形与易错点。`; $('quizScoreBadge').textContent=`得分 0 / ${QUIZ_SIZE}`; $('chalScore').textContent=`0 / ${QUIZ_SIZE}`; })();
+  function shuffleArr(arr) { const a=arr.slice(); for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function newQuizSet() {
+    const fresh = QUIZ_BANK.filter(q => lastIds.indexOf(q.id) === -1);
+    const pool = fresh.length >= QUIZ_SIZE ? fresh : QUIZ_BANK;
+    const picked = shuffleArr(pool).slice(0, QUIZ_SIZE);
+    lastIds = picked.map(q => q.id);
+    quizSet = picked.map(q => { const texts = shuffleArr(q.opts); return { ...q, opts: texts, ans: texts.indexOf(q.opts[q.ans]) }; });
+    state.quizIndex=0; state.quizScore=0; state.quizAnswered=false; state.quizStreak=0;
+  }
+  function syncBgmBtn() { const p=sound.isPlaying(); btnBgm.textContent=p?'🔊 音乐开':'🔇 音乐关'; btnBgm.classList.toggle('on',p); }
+  btnBgm.addEventListener('click', () => { bgmEnabled=!bgmEnabled; if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); } else sound.stopBgm(); syncBgmBtn(); });
+  function openQuizModal() { newQuizSet(); quizModal.classList.add('open'); if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); } syncBgmBtn(); renderQuizQuestion(); }
+  function closeQuizModal() { quizModal.classList.remove('open'); fx.clear(); sound.stopBgm(); syncBgmBtn(); }
+  function renderQuizQuestion() {
+    const q = quizSet[state.quizIndex]; state.quizAnswered = false; fx.clear(); quizStamp.classList.remove('show');
+    $('quizProgress').textContent = `第 ${state.quizIndex+1} / ${quizSet.length} 题`;
+    $('quizScoreBadge').textContent = `得分 ${state.quizScore} / ${quizSet.length}`;
+    $('chalScore').textContent = `${state.quizScore} / ${quizSet.length}`;
+    $('quizStem').innerHTML = `${q.stem}<br><span class="quiz-formula">${q.formula}</span>`;
+    const explainEl = $('quizExplain'); explainEl.classList.remove('show'); explainEl.innerHTML='';
+    btnQuizDemo.style.display='none'; btnQuizNext.style.display='none';
+    const optsEl = $('quizOpts'); optsEl.innerHTML='';
+    q.opts.forEach((label,idx) => { const b=document.createElement('button'); b.className='quiz-opt'; b.innerHTML='ABCD'[idx]+'. '+label; b.addEventListener('click',()=>handleQuizPick(idx)); optsEl.appendChild(b); });
+    typeset($('quizStem')); typeset(optsEl);
+  }
+  function handleQuizPick(pickedIdx) {
+    if (state.quizAnswered) return; state.quizAnswered = true;
+    const q = quizSet[state.quizIndex];
+    document.querySelectorAll('#quizOpts .quiz-opt').forEach((b,i) => {
+      b.disabled = true;
+      if (i === q.ans) { b.classList.add('correct'); const t=document.createElement('span'); t.className='opt-tick'; t.textContent='✓'; b.appendChild(t); }
+      else if (i === pickedIdx) b.classList.add('wrong');
+    });
+    if (pickedIdx === q.ans) {
+      state.quizScore++; state.quizStreak++;
+      const isLast = state.quizIndex === quizSet.length-1;
+      const badge = $('quizScoreBadge'); badge.textContent=`得分 ${state.quizScore} / ${quizSet.length}`;
+      $('chalScore').textContent=`${state.quizScore} / ${quizSet.length}`;
+      fx.burstAt(document.querySelectorAll('#quizOpts .quiz-opt')[q.ans], isLast); flashModal(); bumpBadge(badge); bumpBadge($('chalScore'));
+      if (isLast) { fx.finale(); const full=state.quizScore===quizSet.length; showQuizStamp(full?'🏆':'🎉',full?'满分通关！':'闯关完成',`总得分 ${state.quizScore} / ${quizSet.length}`,true); sound.playVictory(); showToast(full?`🏆 全对通关！${state.quizScore} / ${quizSet.length}`:`🏆 闯关完成！${state.quizScore} / ${quizSet.length}`); }
+      else { const st=state.quizStreak; showQuizStamp('✓','答对了 +1',st>=2?`🔥 连对 ${st} 题`:'保持这个节奏',false); sound.playCorrect(); showToast(st>=2?`🔥 连对 ${st} 题了！`:'🎉 回答正确！+1 分'); }
+    } else { state.quizStreak=0; sound.playWrong(); showToast('❌ 答错了，看解析后再到图中验证一下'); }
+    const explainEl = $('quizExplain'); explainEl.innerHTML = `<b>解析：</b>${q.explain}`; explainEl.classList.add('show'); typeset(explainEl);
+    btnQuizDemo.style.display='inline-flex'; btnQuizNext.style.display='inline-flex';
+    btnQuizNext.textContent = state.quizIndex < quizSet.length-1 ? '下一题 →' : '🔄 换一批新题';
+  }
+  $('btnOpenQuiz').addEventListener('click', openQuizModal);
+  $('btnCloseQuiz').addEventListener('click', closeQuizModal);
+  quizModal.addEventListener('click', e => { if (e.target === quizModal) closeQuizModal(); });
+  btnQuizDemo.addEventListener('click', () => {
+    const q = quizSet[state.quizIndex]; if (morph.active) exitMorph();
+    setByA(q.demo.a); closeQuizModal(); showToast(`🔬 已把图形调到 a = ${f1(q.demo.a)}（b = ${f1(20-q.demo.a)}）`);
+  });
+  btnQuizNext.addEventListener('click', () => { sound.playClick(); if (state.quizIndex < quizSet.length-1) state.quizIndex++; else newQuizSet(); renderQuizQuestion(); });
+
+  /* ============ 模式切换 / 先猜后验 / 快捷键 ============ */
+  document.querySelectorAll('#modeTabs .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeTabs .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); state.mode = btn.dataset.mode;
+      $('predictCard').style.display = state.mode === 'predict' ? 'block' : 'none';
+      $('challengeCard').style.display = state.mode === 'challenge' ? 'block' : 'none';
+      if (state.mode === 'challenge') openQuizModal();
+    });
+  });
+  const btnReveal = $('btnReveal');
+  document.querySelectorAll('#predictOpts .predict-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (state.revealed) return;
+      document.querySelectorAll('#predictOpts .predict-opt').forEach(o => o.classList.remove('picked'));
+      opt.classList.add('picked'); state.pickedOpt = Number(opt.dataset.idx);
+      btnReveal.disabled = false; btnReveal.textContent = '✨ 揭晓并连续验证';
+    });
+  });
+  btnReveal.addEventListener('click', () => {
+    state.revealed = true; if (morph.active) exitMorph();
+    setByA(1); startMorph();
+    document.querySelectorAll('#predictOpts .predict-opt').forEach(o => {
+      const idx = Number(o.dataset.idx);
+      if (idx === 0) o.classList.add('correct');
+      else if (idx === state.pickedOpt) o.classList.add('wrong');
+    });
+    $('predictFeedback').classList.add('show');
+    showToast(state.pickedOpt === 0 ? '👏 猜想正确：CD 永不超过 OD' : '看看慢放：CD 始终是直角边');
+  });
+
+  /* ============ 其他按钮 ============ */
+  $('sA').addEventListener('input', () => { if (morph.active) exitMorph(); setByA(parseFloat($('sA').value)); });
+  $('btnEq').addEventListener('click', () => { if (morph.active) exitMorph(); setByA(10); sound.playClick(); showToast('⚖ 已跳到 a = b = 10：C 与圆心 O 重合，等号成立'); });
+  $('btnReset').addEventListener('click', () => { if (morph.active) exitMorph(); state.revealed=false; state.pickedOpt=null; document.querySelectorAll('#predictOpts .predict-opt').forEach(o => o.classList.remove('picked','correct','wrong')); $('predictFeedback').classList.remove('show'); btnReveal.disabled=true; btnReveal.textContent='✨ 请先选择一个猜想'; setByA(7); showToast('↺ 已复位到 a = 7 的标准视角'); });
+  $('btnMorph').addEventListener('click', () => { if (!morph.active) startMorph(); else exitMorph(); });
+  $('btnMorphPlay').addEventListener('click', () => { morph.playing = !morph.playing; morph.sig=''; syncMorphUI(); });
+  $('btnMorphReplay').addEventListener('click', () => { morph.t=0; morph.playing=false; morph.sig=''; syncMorphUI(); setByA(1); });
+  $('btnMorphExit').addEventListener('click', exitMorph);
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (derivModal.classList.contains('open')) { closeDerivModal(); e.stopImmediatePropagation(); }
+      else if (kpModal.classList.contains('open')) { closeKpModal(); e.stopImmediatePropagation(); }
+      else if (quizModal.classList.contains('open')) closeQuizModal();
+      else if (morph.active) exitMorph();
+      return;
+    }
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault(); if (morph.active) exitMorph();
+      setByA((state.cx-AX)/UNIT + (e.key === 'ArrowRight' ? .5 : -.5));
+    }
+    if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); if (morph.active) $('btnMorphPlay').click(); }
+  });
+
+  initShell({ onCommand: (action, payload) => {
+    if (action === 'setParam' && payload && typeof payload.a === 'number') setByA(payload.a);
+    if (action === 'probe' && payload && typeof payload.x === 'number') setByA(payload.x);
+  }});
+
+  /* ============ 启动 ============ */
+  let lastTick = performance.now();
+  function loop(now) {
+    const dt = Math.min(.05, (now-lastTick)/1000); lastTick = now;
+    if (morph.active && morph.playing) {
+      morph.t += dt;
+      if (morph.t >= morph.dur) { morph.t = morph.dur; morph.playing = false; morph.sig=''; }
+      setByA(morphA()); syncMorphUI();
+    }
+    requestAnimationFrame(loop);
+  }
+  setByA(7); requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>

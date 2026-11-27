@@ -1,595 +1,2044 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>余弦定理验证模型</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>解三角形探究工坊 · 余弦定理</title>
 <style>
-  :root{
-    --bg:#eef1f7;
-    --card:#ffffff;
-    --ink:#1b2432;
-    --ink2:#5c6879;
-    --ink3:#8d99aa;
-    --line:#e3e8f0;
-    --blue:#2563eb;
-    --blue-d:#1a49b8;
-    --blue-soft:#eef4ff;
-    --green:#0e9f6e;
-    --green-soft:#e8faf3;
-    --amber:#c98a1e;
-    --serif:"Times New Roman","Songti SC","SimSun",Times,serif;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    padding:24px 20px 40px;
-    background:
-      radial-gradient(1100px 520px at 18% -12%, #ffffff 0%, rgba(255,255,255,0) 62%),
-      radial-gradient(900px 480px at 92% -4%, #e9f1ff 0%, rgba(233,241,255,0) 58%),
-      var(--bg);
-    color:var(--ink);
-    font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:1250px;margin:0 auto;}
+:root {
+  --bg: #0b1e3d;
+  --bg-radial: radial-gradient(1200px 600px at 20% 0%, rgba(76,195,255,0.14), transparent 60%),
+               radial-gradient(900px 500px at 85% 100%, rgba(59,110,220,0.14), transparent 60%);
+  --surface: rgba(16,44,84,0.82);
+  --surface-solid: #122e56;
+  --surface-2: rgba(26,60,110,0.68);
+  --border: rgba(110,165,235,0.20);
+  --border-strong: rgba(76,195,255,0.46);
+  --ink: #eaf3ff;
+  --ink-2: #9db9d9;
+  --ink-3: #6e93bd;
+  --cyan: #4cc3ff;
+  --cyan-glow: rgba(76,195,255,0.35);
+  --purple: #a5b4fc;
+  --amber: #fbbf24;
+  --green: #7fc9a8;
+  --red: #e79aa4;
+  --ok: #7fc9a8;
+  --ok-bg: rgba(127,201,168,0.13);
+  --ok-bd: rgba(127,201,168,0.32);
+  --bad: #e79aa4;
+  --bad-bg: rgba(231,154,164,0.12);
+  --bad-bd: rgba(231,154,164,0.30);
+  --grid-line: rgba(120,170,235,0.16);
+  --grid-axis: rgba(190,220,250,0.55);
+  --canvas-bg: #0a1c38;
+  --shadow: 0 18px 44px rgba(2,10,26,0.50);
+  --shadow-soft: 0 10px 26px rgba(2,10,26,0.36);
+}
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-radial: radial-gradient(1100px 520px at 15% 0%, rgba(37,99,235,0.08), transparent 60%),
+               radial-gradient(900px 500px at 90% 100%, rgba(124,58,237,0.06), transparent 60%);
+  --surface: rgba(255,255,255,0.94);
+  --surface-solid: #ffffff;
+  --surface-2: rgba(241,245,249,0.95);
+  --border: rgba(15,23,42,0.09);
+  --border-strong: rgba(37,99,235,0.36);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #94a3b8;
+  --cyan: #0284c7;
+  --cyan-glow: rgba(2,132,199,0.18);
+  --purple: #7c3aed;
+  --amber: #c2760a;
+  --green: #2f8f6b;
+  --red: #bf6572;
+  --ok: #2f8f6b;
+  --ok-bg: rgba(47,143,107,0.09);
+  --ok-bd: rgba(47,143,107,0.26);
+  --bad: #bf6572;
+  --bad-bg: rgba(191,101,114,0.09);
+  --bad-bd: rgba(191,101,114,0.26);
+  --grid-line: rgba(15,23,42,0.06);
+  --grid-axis: rgba(15,23,42,0.26);
+  --canvas-bg: #ffffff;
+  --shadow: 0 16px 40px rgba(15,23,42,0.07);
+  --shadow-soft: 0 1px 3px rgba(15,23,42,0.035), 0 10px 24px -18px rgba(15,23,42,0.22);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: "PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  background-color: var(--bg); background-image: var(--bg-radial);
+  color: var(--ink); -webkit-font-smoothing: antialiased;
+}
+.app { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
-  /* ---------- 页头 ---------- */
-  .head{margin-bottom:16px;}
-  .badge{display:inline-block;font-size:11.5px;letter-spacing:.16em;color:var(--blue);
-    background:var(--blue-soft);border:1px solid #d6e3ff;padding:5px 11px;border-radius:999px;font-weight:700;}
-  h1{font-family:var(--serif);font-size:31px;margin:11px 0 7px;font-weight:700;letter-spacing:.01em;}
-  .sub{margin:0;color:var(--ink2);font-size:14px;line-height:1.7;max-width:840px;}
-  .sub b{color:var(--ink);font-weight:600;}
+/* ---------- 顶栏 ---------- */
+.topbar {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--border);
+  background: var(--surface); backdrop-filter: blur(14px); z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.grade-pill {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 3px 9px;
+  border-radius: 999px; background: rgba(56,189,248,.14);
+  border: 1px solid rgba(56,189,248,.3); color: var(--cyan); white-space: nowrap;
+}
+.title-group h1 { font-size: 16px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; }
+.title-group p { font-size: 11px; font-weight: 400; color: var(--ink-3); opacity: .72; margin-top: 2px; white-space: nowrap; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.seg-tabs {
+  display: inline-flex; padding: 3px; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--border); gap: 2px;
+}
+.seg-btn {
+  border: none; background: transparent; color: var(--ink-2); font-family: inherit;
+  font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 9px;
+  cursor: pointer; transition: .18s cubic-bezier(.22,1,.36,1); white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink); background: rgba(148,163,184,.10); }
+.seg-btn.active { background: var(--cyan); color: #061220; font-weight: 700; box-shadow: 0 2px 10px var(--cyan-glow); }
+[data-theme="light"] .seg-btn.active { color: #fff; }
+.icon-btn {
+  display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--ink-2); font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: .18s; white-space: nowrap;
+}
+.icon-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+.icon-btn.on { border-color: rgba(56,189,248,.45); background: rgba(56,189,248,.13); color: var(--cyan); }
 
-  /* ---------- 布局 ---------- */
-  .layout{display:grid;grid-template-columns:minmax(0,1fr) 468px;gap:18px;align-items:stretch;}
-  @media (max-width:1090px){.layout{grid-template-columns:1fr;}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
-    box-shadow:0 1px 2px rgba(20,30,50,.04),0 16px 34px -22px rgba(20,30,50,.35);}
-  .bottom-cmp{margin-top:18px;}
-  .in-panel{margin-top:4px;}
-  .cmp-col{display:flex;flex-direction:column;}
-  .cmp-col .cmp-row + .cmp-row{border-top:1px solid var(--line);}
-  .bottom-data{margin-top:18px;padding:16px 18px 18px;}
-  .bottom-data .grid2{margin-top:0;}
-  .bottom-data .note{margin-bottom:0;}
+/* ---------- 工作区 ---------- */
+.workspace { flex: 1; min-height: 0; display: flex; position: relative; padding: 12px; gap: 12px; }
+.stage-shell {
+  flex: 1; min-width: 0; min-height: 0; position: relative; border-radius: 18px;
+  border: 1px solid var(--border); background: var(--canvas-bg);
+  box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+}
+canvas.lab-canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
 
-  /* ---------- 画布 ---------- */
-  .stage-card{padding:14px 14px 6px;}
-  .stage-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:2px 4px 10px;flex-wrap:wrap;}
-  .tag{font-size:12px;font-weight:700;color:var(--ink2);background:#f4f6fa;border:1px solid var(--line);border-radius:8px;padding:4px 9px;}
-  .hint{font-size:12.5px;color:var(--ink3);}
-  .stage{
-    position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;
-    background:
-      radial-gradient(circle at 1px 1px, #dde5f0 1px, transparent 0) 0 0/23px 23px,
-      linear-gradient(180deg,#fdfeff,#f6f9fd);
-  }
-  svg#board{display:block;width:100%;height:auto;touch-action:none;user-select:none;}
+.hud-top-left {
+  position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column;
+  gap: 8px; pointer-events: none; z-index: 5; max-width: min(620px, calc(100% - 170px));
+}
+.hud-top-left > * { pointer-events: auto; }
+.formula-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(12px);
+  font-family: "Cambria Math","Times New Roman","PingFang SC",serif;
+  font-size: clamp(15px, 1.7vw, 21px); font-weight: 700; letter-spacing: .01em;
+  box-shadow: var(--shadow-soft); flex-wrap: wrap;
+}
+.formula-pill .eq { color: var(--ink-3); font-weight: 500; }
+.formula-pill .hl-a { color: var(--cyan); }
+.formula-pill .hl-b { color: var(--purple); }
+.formula-pill .hl-c { color: var(--amber); }
+.formula-pill .val { font-variant-numeric: tabular-nums; }
+.formula-pill .chip {
+  font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+  background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-bd);
+  font-family: inherit;
+}
+.shape-badge {
+  position: absolute; top: 14px; right: 14px; z-index: 6;
+  padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 800;
+  background: var(--surface); border: 1px solid var(--border); color: var(--cyan);
+  backdrop-filter: blur(10px); box-shadow: var(--shadow-soft);
+  transition: .2s;
+}
+.hud-bottom-left {
+  position: absolute; bottom: 14px; left: 14px; display: flex; align-items: center;
+  gap: 8px; z-index: 5; flex-wrap: wrap;
+}
+.hud-bottom-right {
+  position: absolute; bottom: 14px; right: 14px; z-index: 5; font-size: 12px;
+  color: var(--ink-3); background: var(--surface); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 999px; backdrop-filter: blur(8px);
+}
+.hud-top-left, .shape-badge, .hud-bottom-left, .hud-bottom-right { transition: opacity .28s ease; }
+.stage-shell.demo-on .hud-top-left,
+.stage-shell.demo-on .shape-badge,
+.stage-shell.demo-on .hud-bottom-left,
+.stage-shell.demo-on .hud-bottom-right { opacity: 0; pointer-events: none; }
 
-  /* ---------- 控制条 ---------- */
-  .controls{display:flex;align-items:center;gap:12px;padding:14px 6px 12px;flex-wrap:wrap;}
-  .btn{font:inherit;font-size:13.5px;font-weight:700;color:var(--blue-d);background:var(--blue-soft);
-    border:1px solid #d6e3ff;border-radius:10px;padding:9px 16px;cursor:pointer;transition:.15s;white-space:nowrap;}
-  .btn:hover{background:#e2ecff;}
-  .btn.ghost{color:var(--ink2);background:#f6f8fb;border-color:var(--line);}
-  .btn.ghost:hover{background:#eef1f6;}
-  .btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-  .btn.active:hover{background:#1d4ed8;}
-  .btn .ico{font-family:var(--serif);font-size:15px;margin-right:5px;vertical-align:1px;}
-  .ctl-note{font-size:12.5px;color:var(--ink3);margin-left:2px;}
+.btn {
+  flex: 0 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink);
+  font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 14px;
+  border-radius: 11px; cursor: pointer; transition: .18s cubic-bezier(.22,1,.36,1); white-space: nowrap;
+}
+.btn:hover { border-color: var(--border-strong); transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+.btn:active { transform: translateY(0); }
+.btn.primary { background: var(--cyan); border-color: var(--cyan); color: #061220; font-weight: 700; box-shadow: 0 4px 16px var(--cyan-glow); }
+[data-theme="light"] .btn.primary { color: #fff; }
+.btn.amber { background: rgba(251,191,36,.14); border-color: rgba(251,191,36,.4); color: var(--amber); }
+.btn.green { background: var(--ok-bg); border-color: var(--ok-bd); color: var(--ok); }
+.btn.active { border-color: var(--cyan); background: rgba(56,189,248,.16); color: var(--cyan); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-row .btn { flex: 1 1 auto; }
 
-  /* ---------- 右侧面板 ---------- */
-  .panel{padding:18px 18px 20px;display:flex;flex-direction:column;height:100%;}
-  .panel-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;flex:none;}
-  .panel-head h2{font-family:var(--serif);font-size:21px;margin:0;font-weight:700;}
-  .panel-head .en{font-family:var(--serif);font-size:12.5px;color:var(--ink3);letter-spacing:.06em;}
+/* ---------- 右侧面板 ---------- */
+.side-drawer {
+  width: 372px; flex: none; display: flex; flex-direction: column; gap: 14px;
+  overflow-y: auto; padding: 2px 4px 6px 0; transition: width .22s ease, opacity .2s ease;
+}
+.app.presentation .side-drawer { display: none; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+  padding: 18px 20px 19px; backdrop-filter: blur(12px); box-shadow: var(--shadow-soft);
+  transition: box-shadow .24s ease, border-color .24s ease, transform .24s cubic-bezier(.22,1,.36,1);
+}
+.card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 6px rgba(15,23,42,.04), 0 16px 30px -20px rgba(15,23,42,.28);
+}
+.card-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 12.5px; font-weight: 700; color: var(--ink-2);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 13px;
+}
+.badge {
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--cyan); border: 1px solid var(--border);
+  text-transform: none; letter-spacing: 0;
+}
 
-  .formula{padding:16px 14px;margin:12px 0 16px;text-align:center;flex:none;
-    background:linear-gradient(180deg,#f9fbff,#f1f6ff);border:1px solid #deeaff;border-radius:12px;}
-  .formula .def{font-size:14px;color:var(--ink2);line-height:1.8;margin:0 0 8px;}
-  .formula .def b{color:var(--ink);font-weight:700;}
-  .formula .eqline{font-family:var(--serif);font-size:24px;color:#12386f;}
-  .formula i{font-style:italic;}
-  .formula sup{font-size:.62em;}
-  .formula .hlA{color:var(--amber);font-weight:700;}
-  .formula .hlL{color:var(--blue-d);font-weight:700;}
+/* 定义卡 */
+.def-text { font-size: 13px; line-height: 1.75; color: var(--ink-2); }
+.def-text b { color: var(--ink); }
+.def-eq {
+  margin-top: 0; padding: 16px 12px; border-radius: 14px; text-align: center;
+  background: rgba(56,189,248,.09); border: 1px solid rgba(56,189,248,.24);
+  font-family: "Cambria Math","Times New Roman",serif; font-size: 23px; font-weight: 800; color: var(--ink);
+}
+.def-eq .hl-a { color: var(--cyan); }
+.def-eq .hl-b { color: var(--purple); }
+.def-eq .hl-c { color: var(--amber); }
+.def-fold { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 10px; }
+.def-fold summary {
+  list-style: none; display: flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 11.5px; font-weight: 600; color: var(--ink-3); user-select: none;
+  transition: color .18s;
+}
+.def-fold summary::-webkit-details-marker { display: none; }
+.def-fold summary::before {
+  content: "▸"; font-size: 10px; transition: transform .22s ease;
+}
+.def-fold[open] summary::before { transform: rotate(90deg); }
+.def-fold summary:hover { color: var(--ink-2); }
+.def-fold p {
+  margin-top: 8px; font-size: 12.5px; line-height: 1.8; color: var(--ink-3);
+  animation: lineIn .28s ease both;
+}
 
-  .cmp{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
-  .in-panel{flex:1;display:flex;flex-direction:column;}
-  .in-panel .cmp-col{flex:1;display:flex;flex-direction:column;}
-  .in-panel .cmp-row.match{flex:1;display:flex;flex-direction:column;justify-content:center;padding:14px 18px;}
-  .in-panel .row-top{min-height:0;}
-  .cmp-col{display:flex;flex-direction:column;}
-  .cmp-col .cmp-row + .cmp-row{border-top:1px solid var(--line);}
-  .concl{flex:none;margin-top:14px;border-radius:12px;padding:14px 16px;
-    background:var(--green-soft);border:1px solid #bfeeda;}
-  .concl-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:4px 0;}
-  .concl-row .lab{color:#0b7a55;font-weight:600;}
-  .concl-row .val{font-family:var(--serif);font-variant-numeric:tabular-nums;font-weight:700;color:#0b7a55;font-size:16px;}
-  .concl-main{margin-top:8px;padding-top:10px;border-top:1px dashed #a9dfc8;
-    text-align:center;font-size:14.5px;font-weight:700;color:#0b7a55;}
-  .concl-main b{font-size:16px;}
-  .under-stage{margin:2px 6px 14px;}
-  .cmp-cols{display:grid;grid-template-columns:1fr 1fr;}
-  .cmp-cols .cmp-row + .cmp-row{border-top:0;border-left:1px solid var(--line);}
-  @media (max-width:1090px){.cmp-cols{grid-template-columns:1fr;}.cmp-cols .cmp-row + .cmp-row{border-left:0;border-top:1px solid var(--line);}}
-  .row-top{min-height:56px;}
-  .cmp-row{padding:12px 18px 13px;border-top:1px solid var(--line);}
-  .cmp-row:first-child{border-top:0;}
-  .cmp-row:not(.head):hover{background:#fafcff;}
-  .cmp-row.head{background:#f7f9fc;padding:8px 18px;display:flex;justify-content:space-between;}
-  .cmp-row.head span{font-size:11.5px;letter-spacing:.1em;color:var(--ink3);font-weight:700;}
-  .row-top{display:flex;justify-content:space-between;align-items:center;gap:14px;}
-  .cell.expr{font-family:var(--serif);font-size:21px;color:#12386f;white-space:nowrap;}
-  .cell.expr i{font-style:italic;}
-  .cell.expr sup{font-size:.65em;}
-  .cell.res{font-family:var(--serif);font-size:23px;font-weight:800;
-    color:var(--blue-d);font-variant-numeric:tabular-nums;white-space:nowrap;
-    background:var(--blue-soft);border:1px solid #d6e3ff;border-radius:10px;padding:6px 16px;}
-  .cell.num{margin-top:7px;
-    display:flex;flex-direction:column;gap:3px;}
-  .cell.num .ln{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:baseline;}
-  .cell.num .eqc{font-family:var(--serif);font-size:16px;color:var(--ink2);}
-  .cell.num .ln1{font-family:var(--serif);font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
-  .cell.num .ln1 b{color:var(--amber);font-weight:700;}
-  .cell.num .ln2{font-family:var(--serif);font-size:16px;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap;}
-  .cell.num .ln2 b{color:var(--blue-d);font-weight:700;}
-  .cmp-row.match{background:#fbfdff;}
+/* 验算表 */
+.cmp { border: 1px solid var(--border); border-radius: 13px; overflow: hidden; }
+.cmp-head {
+  display: flex; justify-content: space-between; padding: 9px 15px;
+  background: var(--surface-2); font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; color: var(--ink-3); text-transform: uppercase;
+}
+.cmp-row { padding: 13px 15px; border-top: 1px solid var(--border); transition: background .2s; }
+.cmp-row:first-of-type { border-top: 0; }
+.row-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cmp-expr { font-family: "Cambria Math","Times New Roman",serif; font-size: 19px; font-weight: 700; color: var(--ink); }
+.cmp-expr i { font-style: italic; }
+.cmp-expr sup { font-size: .62em; }
+.cmp-res {
+  font-family: "Cambria Math","Times New Roman",serif; font-size: 20px; font-weight: 800;
+  color: var(--cyan); font-variant-numeric: tabular-nums;
+  background: rgba(56,189,248,.11); border: 1px solid rgba(56,189,248,.26);
+  padding: 4px 13px; border-radius: 10px; white-space: nowrap;
+}
+.cmp-num { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+.cmp-num .ln { display: grid; grid-template-columns: 16px minmax(0,1fr); align-items: baseline; }
+.cmp-num .eqc { color: var(--ink-3); font-size: 13px; }
+.cmp-num .tx {
+  font-family: "Cambria Math","Times New Roman",serif; font-size: 13.5px;
+  color: var(--ink-2); font-variant-numeric: tabular-nums; line-height: 1.6;
+}
+.cmp-num .tx b { color: var(--amber); }
+.cmp-num .tx .fin { color: var(--cyan); font-weight: 700; }
+.cmp-row.focus-row { background: rgba(56,189,248,.045); }
 
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:14px;}
-  .item{display:flex;justify-content:space-between;align-items:center;font-size:14px;
-    padding:7px 11px;background:#f7f9fc;border:1px solid #eef2f8;border-radius:8px;}
-  .item .k{font-family:var(--serif);font-style:italic;font-size:16px;color:#12386f;}
-  .item .v{font-family:var(--serif);font-variant-numeric:tabular-nums;color:var(--ink);}
-  .item.hl{background:#fff7e8;border-color:#f3e2bb;}
-  .item.hl .k{color:var(--amber);}
-  .note{margin:14px 0 0;font-size:12.5px;color:var(--ink3);line-height:1.7;}
+/* 读数网格 */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.stat-box {
+  padding: 11px 12px; border-radius: 12px; background: var(--surface-2);
+  border: 1px solid var(--border); transition: .2s;
+}
+.stat-box .k { font-size: 11px; color: var(--ink-3); font-family: "Cambria Math",serif; font-style: italic; }
+.stat-box .v { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.stat-box.hl { border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.10); }
+.stat-box.hl .v { color: var(--amber); }
 
-  .mode{display:flex;gap:8px;margin-top:14px;}
-  .mode .btn{flex:1;justify-content:center;text-align:center;}
+/* 先猜后验 */
+.predict-q { font-size: 13.5px; font-weight: 700; line-height: 1.6; margin-bottom: 10px; }
+.predict-opts { display: flex; flex-direction: column; gap: 7px; margin-bottom: 11px; }
+.predict-opt {
+  text-align: left; padding: 9px 12px; border-radius: 11px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink); font-family: inherit; font-size: 13px;
+  cursor: pointer; transition: .18s cubic-bezier(.22,1,.36,1);
+}
+.predict-opt:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+.predict-opt.picked { border-color: var(--cyan); background: rgba(56,189,248,.13); font-weight: 700; }
+.predict-opt.correct { border-color: var(--ok-bd); background: var(--ok-bg); color: var(--ok); font-weight: 700; }
+.predict-opt.wrong { border-color: var(--bad-bd); background: var(--bad-bg); color: var(--bad); font-weight: 700; }
+.predict-feedback {
+  font-size: 12.5px; line-height: 1.75; color: var(--ink-2); padding: 10px 12px;
+  border-radius: 11px; background: var(--surface-2); border-left: 3px solid var(--cyan);
+  margin-top: 10px; display: none; animation: fadeUp .3s ease both;
+}
+.predict-feedback.show { display: block; }
+.predict-feedback b { color: var(--ink); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  /* ---------- SVG 内部 ---------- */
-  .sub{transition:opacity .3s ease;}
-  .sub.is-hidden{opacity:0;}
-  .sub.is-hidden *{pointer-events:none;}
-  .handle{pointer-events:all;cursor:grab;}
-  .handle circle{transition:r .12s ease;}
+/* 闯关卡 */
+.chal-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); padding: 3px 0; }
+.chal-line b { color: var(--cyan); font-variant-numeric: tabular-nums; }
+.boss-line {
+  margin: 10px 0; padding: 8px 11px; border-radius: 11px; font-size: 12px;
+  background: rgba(251,191,36,.10); border: 1px solid rgba(251,191,36,.28); color: var(--amber);
+}
+
+/* 画布暗化 + 弹窗 */
+.stage-shell.dimmed::after {
+  content: ""; position: absolute; inset: 0; z-index: 8;
+  background: rgba(3,7,18,.58); backdrop-filter: blur(2px);
+}
+.quiz-backdrop {
+  position: fixed; inset: 0; z-index: 60; background: rgba(3,7,18,.5);
+  backdrop-filter: blur(7px); display: none; align-items: center; justify-content: center; padding: 20px;
+  animation: bgIn .22s ease both;
+}
+@keyframes bgIn { from { opacity: 0; } to { opacity: 1; } }
+.quiz-backdrop.open { display: flex; }
+.quiz-modal {
+  width: min(620px, 100%); max-height: calc(100vh - 40px); overflow-y: auto;
+  background: var(--surface-solid); border: 1px solid var(--border-strong);
+  border-radius: 22px; padding: 22px 24px; box-shadow: 0 30px 74px rgba(0,0,0,.42);
+  animation: popIn .26s cubic-bezier(.22,1,.36,1);
+}
+@keyframes popIn { from { opacity: 0; transform: scale(.95) translateY(10px); } to { opacity: 1; transform: none; } }
+.quiz-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 13px; }
+.quiz-head .left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.quiz-head .right { display: flex; align-items: center; gap: 8px; }
+.quiz-close {
+  width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink-2); font-size: 15px; cursor: pointer; transition: .18s;
+}
+.quiz-close:hover { color: var(--ink); border-color: var(--border-strong); }
+.quiz-stem { font-size: 15.5px; font-weight: 700; line-height: 1.7; margin-bottom: 13px; }
+.quiz-stem .tag-boss {
+  display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px;
+  font-size: 11px; background: rgba(251,191,36,.14); color: var(--amber);
+  border: 1px solid rgba(251,191,36,.34); vertical-align: 2px;
+}
+.quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 13px; }
+@media (max-width: 520px) { .quiz-opts { grid-template-columns: 1fr; } }
+.quiz-opt {
+  text-align: left; padding: 11px 13px; border-radius: 13px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink); font-family: inherit; font-size: 13.5px;
+  font-weight: 600; cursor: pointer; transition: .18s cubic-bezier(.22,1,.36,1);
+}
+.quiz-opt:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+.quiz-opt.correct { border-color: var(--ok-bd); background: var(--ok-bg); color: var(--ok); box-shadow: 0 0 0 1px var(--ok-bd) inset; }
+.quiz-opt.wrong { border-color: var(--bad-bd); background: var(--bad-bg); color: var(--bad); animation: optShake .34s ease; }
+@keyframes optShake {
+  0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); }
+}
+.quiz-explain {
+  display: none; padding: 12px 14px; border-radius: 13px; background: var(--surface-2);
+  border-left: 3px solid var(--cyan); font-size: 13px; line-height: 1.78;
+  color: var(--ink-2); margin-bottom: 13px; animation: fadeUp .28s ease both;
+}
+.quiz-explain.show { display: block; }
+.quiz-explain b { color: var(--ink); }
+.quiz-explain .verdict { display: block; font-weight: 800; margin-bottom: 5px; }
+.quiz-foot { display: flex; gap: 9px; justify-content: flex-end; flex-wrap: wrap; }
+.quiz-foot .btn { flex: 0 0 auto; padding: 9px 15px; }
+
+/* 通关 */
+.pass-modal { text-align: center; }
+.pass-emoji { font-size: 54px; line-height: 1; margin: 6px 0 10px; }
+.pass-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.pass-sub { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; margin-bottom: 14px; }
+.medal {
+  display: inline-block; padding: 10px 22px; border-radius: 999px; font-weight: 800; font-size: 16px;
+  background: linear-gradient(135deg, rgba(251,191,36,.20), rgba(167,139,250,.16));
+  border: 1px solid rgba(251,191,36,.44); color: var(--amber); margin-bottom: 16px;
+}
+.toast {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-16px);
+  z-index: 30; padding: 10px 20px; border-radius: 999px;
+  background: linear-gradient(135deg, #38bdb0, #2f96c9); color: #fff;
+  font-size: 13.5px; font-weight: 700; box-shadow: 0 12px 30px rgba(16,150,160,.30);
+  opacity: 0; pointer-events: none; transition: .3s cubic-bezier(.22,1,.36,1);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- 分步推演层 ---------- */
+.demo-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; opacity: 0; transition: opacity .26s; }
+.demo-layer:not(.on) { visibility: hidden; transition: opacity .26s, visibility 0s .26s; }
+.demo-layer.on { opacity: 1; }
+.demo-layer > * { pointer-events: auto; }
+.demo-card {
+  position: absolute; top: 14px; left: 14px; width: min(392px, 58%);
+  background: var(--surface); backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: 18px; padding: 14px 16px 12px;
+  box-shadow: var(--shadow); transform: translateY(-8px); transition: transform .3s cubic-bezier(.22,1,.36,1);
+}
+.demo-layer.on .demo-card { transform: none; }
+.demo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.demo-step {
+  font-size: 11px; font-weight: 800; letter-spacing: .06em; color: var(--cyan);
+  background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.26);
+  padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+}
+.demo-title { font-size: 14px; font-weight: 800; }
+.demo-x {
+  margin-left: auto; width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink-3); font-size: 12px; cursor: pointer; transition: .18s;
+}
+.demo-x:hover { color: var(--ink); border-color: var(--border-strong); }
+.demo-lines { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+.demo-lines .ln { animation: lineIn .34s cubic-bezier(.22,1,.36,1) both; }
+.demo-lines .ln:nth-child(2) { animation-delay: .08s; }
+.demo-lines .ln:nth-child(3) { animation-delay: .16s; }
+@keyframes lineIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.demo-lines .eq {
+  font-family: "Cambria Math","Times New Roman",serif; font-size: 16.5px;
+  color: var(--ink); font-weight: 700; letter-spacing: .01em;
+}
+.demo-lines .hl { color: var(--amber); font-weight: 800; }
+.demo-lines .fin { color: var(--cyan); font-weight: 800; }
+.demo-lines .warn { color: var(--amber); font-size: 12.5px; }
+.demo-progress { height: 3px; border-radius: 999px; background: var(--surface-2); margin-top: 11px; overflow: hidden; }
+.demo-progress i { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--cyan); }
+.demo-ctrl {
+  position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center;
+  gap: 8px; flex-wrap: wrap; max-width: calc(100% - 28px);
+}
+.demo-hint { font-size: 11.5px; color: var(--ink-3); padding-left: 2px; }
+/* 演示结束态：控制条居中，让出左下角 HUD 按钮位置 */
+.demo-ctrl.live { left: 50%; transform: translateX(-50%); }
+.app.presentation .demo-ctrl.live { left: 50%; transform: translateX(-50%); bottom: 24px; }
+
+/* 大屏 */
+.app.presentation .topbar { padding: 12px 22px; }
+.app.presentation .title-group h1 { font-size: 20px; }
+.app.presentation .seg-btn { font-size: 15px; padding: 8px 16px; }
+.app.presentation .icon-btn { height: 40px; font-size: 14px; padding: 0 16px; }
+.app.presentation .hud-bottom-left .btn { font-size: 18px; padding: 14px 24px; border-radius: 14px; }
+.app.presentation .formula-pill { font-size: clamp(22px, 2.4vw, 34px); padding: 14px 24px; }
+.app.presentation .shape-badge { font-size: 20px; padding: 10px 22px; }
+.app.presentation .hud-bottom-right { display: none; }
+.app.presentation .hud-bottom-left { bottom: 26px; left: 26px; }
+.app.presentation .hud-top-left { top: 22px; left: 22px; }
+.app.presentation .shape-badge { top: 22px; right: 22px; }
+.app.presentation .demo-card { width: min(600px, 62%); padding: 18px 22px 16px; border-radius: 20px; top: 22px; left: 22px; }
+.app.presentation .demo-title { font-size: 19px; }
+.app.presentation .demo-step { font-size: 13px; padding: 4px 12px; }
+.app.presentation .demo-lines { font-size: 16px; }
+.app.presentation .demo-lines .eq { font-size: 20px; }
+.app.presentation .demo-ctrl { left: 22px; bottom: 24px; }
+.app.presentation .demo-ctrl .btn { font-size: 17px; padding: 12px 20px; border-radius: 13px; }
+.app.presentation .demo-hint { font-size: 13px; }
+
+@media (max-width: 960px) {
+  .workspace { flex-direction: column; }
+  .side-drawer { width: 100%; max-height: 46%; }
+  .title-group p { display: none; }
+  .demo-card { width: calc(100% - 28px); }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <header class="head">
-    <span class="badge">平面几何 · 数学模型</span>
-    <h1>余弦定理验证模型</h1>
-    <p class="sub">
-      三角形 <em style="font-family:'Times New Roman',serif;font-style:italic;">ABC</em> 的三个顶点都可以<b>任意拖动</b>，
-      三边与三角随之实时变化。<b>∠A 与边 a 以橙色高亮</b>，右侧实时验证
-      <b>a² = b² + c² − 2bc·cos A</b>：把 a² 与 b² + c² − 2bc·cos A 的数值列在同一行，随时可读出它们相等。
-      还可切换验证对象（∠A / ∠B / ∠C），或用「已知两边及夹角」模式直接输入 b、c、A 观察第三边的确定。
-    </p>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="grade-pill">高一 · 解三角形</span>
+      <div class="title-group">
+        <h1>解三角形探究工坊 · 余弦定理</h1>
+        <p>拖动顶点改变三角形，实时验证 a² = b² + c² − 2bc·cosA</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="seg-tabs" id="modeTabs">
+        <button class="seg-btn active" data-mode="explore">🔬 自由探究</button>
+        <button class="seg-btn" data-mode="predict">🤔 先猜后验</button>
+        <button class="seg-btn" data-mode="challenge">🎮 闯关挑战</button>
+        <button class="seg-btn" data-mode="presentation">🖥 大屏模式</button>
+      </div>
+      <button class="icon-btn" id="btnTheme" title="切换深色 / 浅色">🌙 深色</button>
+    </div>
   </header>
 
-  <main class="layout">
+  <main class="workspace">
+    <section class="stage-shell" id="stageShell">
+      <canvas id="canvas" class="lab-canvas"></canvas>
 
-    <!-- ===== 左：几何画布 ===== -->
-    <section class="card stage-card">
-      <div class="stage-head">
-        <span class="tag">几何图形</span>
-        <span class="hint">提示：拖动顶点改变三角形，公式关系始终成立</span>
+      <div class="hud-top-left">
+        <div class="formula-pill" id="formulaPill">
+          <span id="pillFormula">
+            <span class="hl-a"><i>a</i>²</span><span class="eq">=</span>
+            <span class="hl-b"><i>b</i>²</span><span class="eq">+</span>
+            <span class="hl-c"><i>c</i>²</span><span class="eq">−</span>
+            <span>2<i>bc</i>·cos<span style="color:var(--amber)">A</span></span>
+          </span>
+          <span class="eq">→</span>
+          <span class="val hl-a" id="pillLeft">—</span>
+          <span class="eq">/</span>
+          <span class="val hl-c" id="pillRight">—</span>
+          <span class="chip" id="pillChip">✓ 相等</span>
+        </div>
       </div>
-      <div class="stage">
-        <svg id="board" viewBox="0 0 680 560" xmlns="http://www.w3.org/2000/svg"></svg>
+
+      <div class="shape-badge" id="shapeBadge">锐角三角形</div>
+      <div class="toast" id="toast"></div>
+
+      <div class="hud-bottom-left">
+        <button class="btn primary" id="btnVerify">🔍 验证 ∠A</button>
+        <button class="btn" id="btnReset">↺ 重置</button>
       </div>
-      <div class="controls">
-        <button class="btn active" id="swapBtn">验证 ∠A</button>
-        <button class="btn ghost" id="resetBtn">重置</button>
-        <span class="ctl-note" id="ctlNote">拖动任意顶点，等式 a² = b² + c² − 2bc·cosA 始终成立</span>
+      <div class="hud-bottom-right">拖动 A / B / C · Space 播放暂停 · F 大屏</div>
+
+      <!-- 分步推演 -->
+      <div class="demo-layer" id="demoLayer">
+        <div class="demo-card">
+          <div class="demo-head">
+            <span class="demo-step" id="demoStepNo">步骤 1 / 5</span>
+            <span class="demo-title" id="demoTitle">已知条件</span>
+            <button class="demo-x" id="demoEnd" title="结束演示">✕</button>
+          </div>
+          <div class="demo-lines" id="demoLines"></div>
+          <div class="demo-progress"><i id="demoBar"></i></div>
+        </div>
+        <div class="demo-ctrl" id="demoCtrl">
+          <button class="btn" id="demoPrev">← 上一步</button>
+          <button class="btn primary" id="demoPlay">⏸ 暂停</button>
+          <button class="btn" id="demoNext">下一步 →</button>
+          <button class="btn" id="demoReplay" style="display:none">↺ 重播</button>
+          <button class="btn amber" id="demoBackQuiz" style="display:none">↩ 返回答题</button>
+          <span class="demo-hint" id="demoHint">Space 播放 / 暂停</span>
+        </div>
       </div>
     </section>
 
-    <!-- ===== 右：数值面板 ===== -->
-    <aside class="card panel">
-      <div class="panel-head">
-        <h2>余弦定理</h2>
-        <span class="en">Law of Cosines</span>
-      </div>
-
-      <div class="formula">
-        <p class="def"><b>课本定义：</b>三角形中任何一边的平方，等于其他两边的平方的和减去这两边与它们的夹角的余弦的积的两倍。</p>
-        <div class="eqline"><i class="hlL">a</i><sup class="hlL">2</sup> = <i class="hlL">b</i><sup class="hlL">2</sup> + <i class="hlL">c</i><sup class="hlL">2</sup> − 2<i class="hlL">bc</i>·cos&thinsp;<span class="hlA"><i>A</i></span></div>
-      </div>
-
-      <!-- 关系式验证（右侧面板内） -->
-      <div class="cmp in-panel">
-        <div class="cmp-row head">
-          <span>关系式</span><span>结果</span>
+    <aside class="side-drawer" id="sideDrawer">
+      <!-- 自由探究 -->
+      <div class="card">
+        <div class="card-title">余弦定理</div>
+        <div class="def-eq" id="defEq">
+          <span class="hl-a"><i>a</i>²</span> = <span class="hl-b"><i>b</i>²</span> + <span class="hl-c"><i>c</i>²</span> − 2<i>bc</i>·cos<span style="color:var(--amber);font-weight:700">A</span>
         </div>
+        <details class="def-fold">
+          <summary>课本定义</summary>
+          <p>三角形中任何一边的平方，等于其他两边的平方的和减去这两边与它们的夹角的余弦的积的两倍。</p>
+        </details>
+      </div>
 
-        <div class="cmp-col" >
-          <div class="cmp-row match" id="rowL">
+      <div class="card" id="cmpCard">
+        <div class="card-title">关系式验算 <span class="badge" id="cmpBadge">∠A</span></div>
+        <div class="cmp">
+          <div class="cmp-head"><span>关系式</span><span>结果</span></div>
+          <div class="cmp-row focus-row">
             <div class="row-top">
-              <span class="cell expr"><i id="xL">a</i><sup>2</sup></span>
-              <span class="cell res" id="resL">—</span>
+              <span class="cmp-expr" id="exprL"><i>a</i><sup>2</sup></span>
+              <span class="cmp-res" id="resL">—</span>
             </div>
-            <span class="cell num" id="numL">—</span>
+            <div class="cmp-num" id="numL"></div>
           </div>
-
-          <div class="cmp-row match" id="rowR">
+          <div class="cmp-row">
             <div class="row-top">
-              <span class="cell expr"><i id="xR1">b</i><sup>2</sup> + <i id="xR2">c</i><sup>2</sup> − 2<i id="xR3">bc</i>·cos<span id="xAng" style="color:var(--amber);font-weight:700;">A</span></span>
-              <span class="cell res" id="resR">—</span>
+              <span class="cmp-expr" id="exprR"><i>b</i><sup>2</sup> + <i>c</i><sup>2</sup> − 2<i>bc</i>·cos<span style="color:var(--amber)">A</span></span>
+              <span class="cmp-res" id="resR">—</span>
             </div>
-            <span class="cell num" id="numR">—</span>
+            <div class="cmp-num" id="numR"></div>
           </div>
         </div>
       </div>
 
-      <!-- 结论卡片（弹性填充剩余空间） -->
-      <div class="concl">
-        <div class="concl-row"><span class="lab">cos&nbsp;<i id="cAng">A</i></span><span class="val" id="cosVal">—</span></div>
-        <div class="concl-row"><span class="lab">形状判断</span><span class="val" id="shapeTxt">—</span></div>
-        <div class="concl-main">两边恒相等 <b>✓</b>&nbsp;&nbsp;余弦定理始终成立</div>
+      <div class="card">
+        <div class="card-title">实时读数 <span class="badge">单位：1 格 = 1</span></div>
+        <div class="stat-grid">
+          <div class="stat-box" id="sA0"><div class="k">∠A</div><div class="v" id="vA0">—</div></div>
+          <div class="stat-box" id="sA1"><div class="k">a</div><div class="v" id="vA1">—</div></div>
+          <div class="stat-box" id="sA2"><div class="k">a²</div><div class="v" id="vA2">—</div></div>
+          <div class="stat-box" id="sB0"><div class="k">∠B</div><div class="v" id="vB0">—</div></div>
+          <div class="stat-box" id="sB1"><div class="k">b</div><div class="v" id="vB1">—</div></div>
+          <div class="stat-box" id="sB2"><div class="k">b²</div><div class="v" id="vB2">—</div></div>
+          <div class="stat-box" id="sC0"><div class="k">∠C</div><div class="v" id="vC0">—</div></div>
+          <div class="stat-box" id="sC1"><div class="k">c</div><div class="v" id="vC1">—</div></div>
+          <div class="stat-box" id="sC2"><div class="k">c²</div><div class="v" id="vC2">—</div></div>
+        </div>
+      </div>
+
+      <!-- 先猜后验 -->
+      <div class="card" id="predictCard" style="display:none">
+        <div class="card-title">课堂悬念 <span class="badge">先猜后验</span></div>
+        <div class="predict-q">
+          已知 △ABC 中，<b>b、c 边长固定</b>，只改变角 A 的大小：角 A 越大，a² 会怎样变化？
+        </div>
+        <div class="predict-opts" id="predictOpts">
+          <button class="predict-opt" data-idx="0">A. a² 越大</button>
+          <button class="predict-opt" data-idx="1">B. a² 越小</button>
+          <button class="predict-opt" data-idx="2">C. a² 不变</button>
+          <button class="predict-opt" data-idx="3">D. 先变大后变小</button>
+        </div>
+        <button class="btn amber" id="btnReveal" style="width:100%" disabled>✨ 请先选择一个猜想</button>
+        <div class="predict-feedback" id="predictFeedback">
+          <b>验证结论：</b>由 <b>a² = b² + c² − 2bc·cosA</b>，A ∈ (0, π)，cosA 随 A 增大而减小，
+          所以 −2bc·cosA 随之增大，<b>a² 随 ∠A 增大持续变大</b>。
+          画布已锁定 b = 3、c = 4，拖着 B 或 C 绕点 A 转动即可改变夹角。
+        </div>
+      </div>
+
+      <!-- 闯关挑战 -->
+      <div class="card" id="challengeCard" style="display:none">
+        <div class="card-title">闯关挑战 <span class="badge" id="chalScore">0 / 5</span></div>
+        <p class="def-text" style="margin-bottom:10px">
+          五道余弦定理关卡，含一道形状判断 BOSS 题。答题后都会给出解析与分步动画，可随时把题目搬进画布验证。
+        </p>
+        <div class="chal-line"><span>当前进度</span><b id="chalProgress">第 1 / 5 题</b></div>
+        <div class="chal-line"><span>实时得分</span><b id="chalScore2">0 分</b></div>
+        <div class="boss-line">👑 BOSS：三边定形状，别被边长骗了</div>
+        <button class="btn primary" id="btnOpenQuiz" style="width:100%;margin-top:10px">🎯 进入答题弹窗</button>
       </div>
     </aside>
-
   </main>
+</div>
 
-  <!-- 三边三角数据（页面底部，全宽卡片） -->
-  <div class="card bottom-data">
-    <div class="grid2">
-      <div class="item" id="itA0"><span class="k">∠<i>A</i></span><span class="v" id="angA">—</span></div>
-      <div class="item" id="itA1"><span class="k"><i>a</i></span><span class="v" id="sideA">—</span></div>
-      <div class="item" id="itB0"><span class="k">∠<i>B</i></span><span class="v" id="angB">—</span></div>
-      <div class="item" id="itB1"><span class="k"><i>b</i></span><span class="v" id="sideB">—</span></div>
-      <div class="item" id="itC0"><span class="k">∠<i>C</i></span><span class="v" id="angC">—</span></div>
-      <div class="item" id="itC1"><span class="k"><i>c</i></span><span class="v" id="sideC">—</span></div>
+<!-- 闯关弹窗 -->
+<div class="quiz-backdrop" id="quizModal">
+  <div class="quiz-modal">
+    <div class="quiz-head">
+      <div class="left">
+        <span class="grade-pill" id="quizProgress">第 1 / 5 题</span>
+        <span class="badge" id="quizScoreBadge">得分 0</span>
+      </div>
+      <div class="right">
+        <button class="icon-btn on" id="btnBgm" title="背景音乐开关">🔊 音乐开</button>
+        <button class="quiz-close" id="btnCloseQuiz" title="关闭">✕</button>
+      </div>
     </div>
+    <div class="quiz-stem" id="quizStem"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnCallTool" style="display:none">🧰 呼叫教具</button>
+      <button class="btn amber" id="btnQuizDemo" style="display:none">🔎 可视化验证</button>
+      <button class="btn primary" id="btnQuizNext" style="display:none">下一题 →</button>
+    </div>
+  </div>
+</div>
 
-    <p class="note">
-      长度单位统一（图中 1 单位 = 100 个绘图坐标）。
-      当 ∠A = 90° 时 cos A = 0，公式退化为勾股定理 <i>a</i>² = <i>b</i>² + <i>c</i>²；
-      ∠A 为锐角时 cos A &gt; 0，a² 小于 b²+c²；∠A 为钝角时 cos A &lt; 0，a² 大于 b²+c²。
-    </p>
+<!-- 通关弹窗 -->
+<div class="quiz-backdrop" id="passModal">
+  <div class="quiz-modal pass-modal">
+    <div class="pass-emoji">🏅</div>
+    <div class="pass-title">全部关卡通关！</div>
+    <div class="medal">解锁称号：三角侦探</div>
+    <p class="pass-sub" id="passSub">你已掌握余弦定理的正用、逆用与形状判断。</p>
+    <div class="quiz-foot" style="justify-content:center">
+      <button class="btn" id="btnPassClose">留在画布继续探究</button>
+      <button class="btn primary" id="btnRestart">↺ 重新挑战</button>
+    </div>
   </div>
 </div>
 
 <script>
-(function(){
+(() => {
   'use strict';
 
-  var NS = 'http://www.w3.org/2000/svg';
-  var board = document.getElementById('board');
-  var SERIF = "Times New Roman, Times, serif";
+  /* ===================== 基础 ===================== */
+  const root = document.documentElement;
+  const app = document.getElementById('app');
+  const el = id => document.getElementById(id);
+  const D2R = Math.PI / 180, R2D = 180 / Math.PI;
 
-  function E(tag, attrs, parent){
-    var n = document.createElementNS(NS, tag);
-    if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
-    if (parent) parent.appendChild(n);
-    return n;
+  const state = {
+    verts: [],
+    focus: 0,
+    lockBC: false,
+    hover: -1,
+    anim: null,
+  };
+
+  /* ===================== 主题 ===================== */
+  let dark = false;
+  const theme = {};
+  function getVar(n) { return getComputedStyle(root).getPropertyValue(n).trim(); }
+  function readTheme() {
+    theme.grid = getVar('--grid-line');
+    theme.axis = getVar('--grid-axis');
+    theme.canvasBg = getVar('--canvas-bg') || '#ffffff';
+    theme.ink = getVar('--ink');
+    theme.ink2 = getVar('--ink-2');
+    theme.ink3 = getVar('--ink-3');
+    theme.cyan = getVar('--cyan');
+    theme.amber = getVar('--amber');
+    theme.purple = getVar('--purple');
+    theme.ok = getVar('--ok');
+    theme.bad = getVar('--bad');
+    theme.green = getVar('--ok');
+    theme.red = getVar('--bad');
+    theme.surface = getVar('--surface-solid');
   }
-  function S(node, attrs){ for (var k in attrs) node.setAttribute(k, attrs[k]); return node; }
-  function T(id, txt){ var el = document.getElementById(id); if (txt.indexOf('<') === 0) el.innerHTML = txt; else el.textContent = txt; }
-
-  /* ================= 常量与状态 ================= */
-  var W = 680, H = 560;
-  var PX_PER_UNIT = 100;
-  var MARGIN = 10;
-  var MIN_ANG = 6 * Math.PI / 180;
-  var MIN_SIDE = 60;   // 最短边（绘图坐标），避免过小三角形数值抖动
-
-  var START = [
-    {x: 250, y: 120},    // A
-    {x: 150, y: 430},    // B
-    {x: 520, y: 400}     // C
-  ];
-  var verts = START.map(function(p){ return {x: p.x, y: p.y}; });
-
-  var dragIdx = -1;
-  var triDrag = null;
-  var focus = 0;           // 验证对象：0->A/a, 1->B/b, 2->C/c
-
-  var AMBER = '#c98a1e', BLUE = '#1d4ed8', GRAY = '#9aa6b8';
-
-  /* ================= 构建 SVG ================= */
-  var defs = E('defs', null, board);
-  var gFill = E('linearGradient', {id:'triFill', x1:'0', y1:'0', x2:'0', y2:'1'}, defs);
-  E('stop', {offset:'0%',   'stop-color':'#3b82f6', 'stop-opacity':'0.20'}, gFill);
-  E('stop', {offset:'100%', 'stop-color':'#2563eb', 'stop-opacity':'0.07'}, gFill);
-  var shadow = E('filter', {id:'knobShadow', x:'-120%', y:'-120%', width:'340%', height:'340%'}, defs);
-  E('feDropShadow', {dx:'0', dy:'1.5', stdDeviation:'2', 'flood-color':'#0f2547', 'flood-opacity':'0.3'}, shadow);
-
-  var figure = E('g', {id:'figure'}, board);
-
-  /* ---- 三角形 ---- */
-  var triG = E('g', null, figure);
-  var tri = E('polygon', {points:'', fill:'url(#triFill)', stroke:BLUE,
-    'stroke-width':2.1, 'stroke-linejoin':'round'}, triG);
-  var arcG = E('g', {fill:'none', 'stroke-width':2.2, 'stroke-linecap':'round'}, triG);
-  var arcs = [0,1,2].map(function(i){
-    return E('path', {d:'', stroke: i===0 ? AMBER : '#c98a1e'}, arcG);
+  el('btnTheme').addEventListener('click', () => {
+    dark = !dark;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    el('btnTheme').textContent = dark ? '☀ 浅色' : '🌙 深色';
+    readTheme();
   });
-  var sideLines = [0,1,2].map(function(i){
-    return E('line', {stroke: i===0 ? AMBER : BLUE, 'stroke-width': i===0 ? 4 : 0,
-      'stroke-linecap':'round', opacity:.9}, triG);
-  });
-  var sideLabels = [0,1,2].map(function(i){
-    return E('text', {'font-family':SERIF, 'font-style':'italic', 'font-size':20,
-      'font-weight':700, fill: i===0 ? AMBER : BLUE,
-      'text-anchor':'middle', 'dominant-baseline':'middle'}, triG);
-  });
-  sideLabels.forEach(function(t, i){ t.textContent = ['a','b','c'][i]; });
-  var angLabels = [0,1,2].map(function(){
-    return E('text', {'font-family':SERIF, 'font-size':13, fill:'#8a5f10',
-      'text-anchor':'middle', 'dominant-baseline':'middle'}, triG);
-  });
+  readTheme();
 
-  /* ---- 命中区 ---- */
-  var hitG = E('g', null, figure);
-  var triHit = E('polygon', {points:'', fill:'none',
-    'pointer-events':'all', style:'cursor:move'}, hitG);
-
-  /* ---- 顶点把手 ---- */
-  var handleG = E('g', null, figure);
-  var vLabels = [], knobs = [], handles = [];
-  ['A','B','C'].forEach(function(ch, i){
-    var g = E('g', {class:'handle'}, handleG);
-    var k = E('circle', {cx:0, cy:0, r:8.5, fill:'#ffffff',
-      stroke: i===0 ? AMBER : BLUE, 'stroke-width':2.5, filter:'url(#knobShadow)'}, g);
-    var t = E('text', {'font-family':SERIF, 'font-style':'italic', 'font-size':24, 'font-weight':600,
-      fill: i===0 ? '#8a5f10' : '#12386f', 'text-anchor':'middle', 'dominant-baseline':'middle'}, g);
-    t.textContent = ch;
-    knobs.push(k); vLabels.push(t); handles.push(g);
-  });
-
-  /* ================= 数学工具 ================= */
-  function dist(p, q){ return Math.hypot(p.x - q.x, p.y - q.y); }
-  function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
-  function angleOf(adj1, adj2, opp){
-    return Math.acos(clamp((adj1*adj1 + adj2*adj2 - opp*opp) / (2*adj1*adj2), -1, 1));
-  }
-
-  function measure(P){
-    var a = dist(P[1], P[2]);
-    var b = dist(P[2], P[0]);
-    var c = dist(P[0], P[1]);
-    var A = angleOf(b, c, a), B = angleOf(c, a, b), C = angleOf(a, b, c);
-    return {P:P, a:a, b:b, c:c, A:A, B:B, C:C, minAng:Math.min(A,B,C), minSide:Math.min(a,b,c)};
-  }
-  function isValid(m){
-    return m.minAng >= MIN_ANG && m.minSide >= MIN_SIDE;
-  }
-  function withV(i, p){
-    var P = [{x:verts[0].x, y:verts[0].y}, {x:verts[1].x, y:verts[1].y}, {x:verts[2].x, y:verts[2].y}];
-    P[i] = {x:p.x, y:p.y};
-    return P;
-  }
-
-  function arcPath(v, q, r, rad){
-    var a1 = Math.atan2(q.y - v.y, q.x - v.x);
-    var a2 = Math.atan2(r.y - v.y, r.x - v.x);
-    var d = a2 - a1;
-    while (d <= -Math.PI) d += 2*Math.PI;
-    while (d > Math.PI) d -= 2*Math.PI;
-    var x1 = v.x + rad * Math.cos(a1), y1 = v.y + rad * Math.sin(a1);
-    var x2 = v.x + rad * Math.cos(a1 + d), y2 = v.y + rad * Math.sin(a1 + d);
-    return 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
-           ' A ' + rad.toFixed(2) + ' ' + rad.toFixed(2) + ' 0 0 ' + (d > 0 ? 1 : 0) +
-           ' ' + x2.toFixed(2) + ' ' + y2.toFixed(2);
-  }
-
-  /* 垂足：从点 p 向线段 qs 所在直线作垂线（备用） */
-
-  /* ================= 渲染 ================= */
-  function render(){
-    var m = measure(verts);
-    var P = m.P;
-    var pts = P.map(function(q){ return q.x.toFixed(2) + ',' + q.y.toFixed(2); }).join(' ');
-    tri.setAttribute('points', pts);
-    triHit.setAttribute('points', pts);
-
-    var ANGS = [m.A, m.B, m.C];
-    var SIDES = [m.a, m.b, m.c];
-
-    /* 角弧：验证对象加粗橙色，其余浅色 */
-    var K = [Math.min(m.b, m.c), Math.min(m.c, m.a), Math.min(m.a, m.b)];
-    for (var j = 0; j < 3; j++){
-      var v = P[j], q = P[(j+1) % 3], r = P[(j+2) % 3];
-      var rad = Math.max(16, Math.min(44, 0.30 * K[j]));
-      arcs[j].setAttribute('d', arcPath(v, q, r, rad));
-      arcs[j].setAttribute('stroke', j === focus ? AMBER : '#d9c193');
-      arcs[j].setAttribute('stroke-width', j === focus ? 2.6 : 1.5);
-      // 角度数值放在角弧内侧
-      var mid = Math.atan2(r.y - v.y, r.x - v.x);
-      var a1 = Math.atan2(q.y - v.y, q.x - v.x);
-      var d = mid - a1;
-      while (d <= -Math.PI) d += 2*Math.PI;
-      while (d > Math.PI) d -= 2*Math.PI;
-      var bis = a1 + d/2;
-      var rl = rad + 16;
-      angLabels[j].setAttribute('x', v.x + rl * Math.cos(bis));
-      angLabels[j].setAttribute('y', v.y + rl * Math.sin(bis));
-      angLabels[j].textContent = (ANGS[j] * 180 / Math.PI).toFixed(0) + '°';
-      angLabels[j].setAttribute('fill', j === focus ? '#8a5f10' : GRAY);
+  function rgba(color, a) {
+    if (!color) return 'rgba(0,0,0,0)';
+    color = color.trim();
+    if (color[0] === '#') {
+      let h = color.slice(1);
+      if (h.length === 3) h = h.split('').map(x => x + x).join('');
+      const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+      return `rgba(${r},${g},${b},${a})`;
     }
-
-    /* 高亮对边：粗描边叠加 */
-    for (var s = 0; s < 3; s++){
-      var q1 = P[(s+1) % 3], r1 = P[(s+2) % 3];
-      S(sideLines[s], {x1:q1.x, y1:q1.y, x2:r1.x, y2:r1.y,
-        stroke: s === focus ? AMBER : BLUE});
-      sideLines[s].setAttribute('stroke-width', s === focus ? 5 : 0);
-      sideLabels[s].setAttribute('fill', s === focus ? AMBER : BLUE);
+    if (color.indexOf('rgb') === 0) {
+      return color.replace(/rgba?\(([^)]+)\)/, (mm, p) => `rgba(${p.split(',').slice(0, 3).join(',')},${a})`);
     }
-
-    /* 边标签 */
-    for (var mm = 0; mm < 3; mm++){
-      var qq = P[(mm+1) % 3], rr = P[(mm+2) % 3];
-      var mx = (qq.x + rr.x) / 2, my = (qq.y + rr.y) / 2;
-      var ex = rr.x - qq.x, ey = rr.y - qq.y;
-      var L = Math.hypot(ex, ey) || 1;
-      var nx = -ey / L, ny = ex / L;
-      if ((P[mm].x - mx) * nx + (P[mm].y - my) * ny > 0){ nx = -nx; ny = -ny; }
-      sideLabels[mm].setAttribute('x', mx + nx * 19);
-      sideLabels[mm].setAttribute('y', my + ny * 19);
-    }
-
-    /* 顶点把手 */
-    var Gx = (P[0].x + P[1].x + P[2].x) / 3;
-    var Gy = (P[0].y + P[1].y + P[2].y) / 3;
-    for (var n = 0; n < 3; n++){
-      var v2 = P[n];
-      var dx = v2.x - Gx, dy = v2.y - Gy, L2 = Math.hypot(dx, dy) || 1;
-      knobs[n].setAttribute('cx', v2.x);
-      knobs[n].setAttribute('cy', v2.y);
-      knobs[n].setAttribute('stroke', n === focus ? AMBER : BLUE);
-      vLabels[n].setAttribute('x', v2.x + dx / L2 * 31);
-      vLabels[n].setAttribute('y', v2.y + dy / L2 * 31);
-      vLabels[n].setAttribute('fill', n === focus ? '#8a5f10' : '#12386f');
-    }
-
-    /* ---------- 数值面板 ---------- */
-    var AU = SIDES.map(function(x){ return x / PX_PER_UNIT; });
-    var angU = ANGS.map(function(x){ return x * 180 / Math.PI; });
-    var names = ['a','b','c'], anames = ['A','B','C'];
-    var oL = names[focus], oR1 = names[(focus+1)%3], oR2 = names[(focus+2)%3];
-    var sL = AU[focus], sR1 = AU[(focus+1)%3], sR2 = AU[(focus+2)%3];
-    var cosA = Math.cos(ANGS[focus]);
-
-    var f3 = function(v){ return v.toFixed(3); };
-    var f2 = function(v){ return v.toFixed(2); };
-    var f1 = function(v){ return v.toFixed(1); };
-
-    var leftSq = sL * sL;
-    var rightVal = sR1*sR1 + sR2*sR2 - 2*sR1*sR2*cosA;
-
-    T('xL', oL);
-    T('xR1', oR1); T('xR2', oR2); T('xR3', oR1 + oR2);
-    T('xAng', anames[focus]);
-    T('numL', '<span class="ln"><span class="eqc">=</span><span class="ln1">' + f2(sL) + '² = ' + f3(leftSq) + '</span></span>');
-    T('numR', '<span class="ln"><span class="eqc">=</span><span class="ln1">' + f2(sR1) + '² + ' + f2(sR2) + '² − 2×' + f2(sR1) + '×' + f2(sR2) +
-      '×<b>' + f3(cosA).replace('-','−') + '</b></span></span>' +
-      '<span class="ln"><span class="eqc">=</span><span class="ln2">' + f3(sR1*sR1 + sR2*sR2) + ' − ' + f3(Math.abs(2*sR1*sR2*cosA)) +
-      ' = <b>' + f3(rightVal) + '</b></span></span>');
-    T('resL', f3(leftSq));
-    T('resR', f3(rightVal));
-
-    T('angA', f1(angU[0]) + '°');
-    T('angB', f1(angU[1]) + '°');
-    T('angC', f1(angU[2]) + '°');
-    T('sideA', f3(AU[0])); T('sideB', f3(AU[1])); T('sideC', f3(AU[2]));
-
-    /* 下方数据栏：验证对象的 ∠ 与对边两项高亮橙色 */
-    ['A','B','C'].forEach(function(ch, i){
-      var hl = (i === focus);
-      document.getElementById('it' + ch + '0').classList.toggle('hl', hl);
-      document.getElementById('it' + ch + '1').classList.toggle('hl', hl);
-    });
-
-    T('cAng', anames[focus]);
-    T('cosVal', f3(cosA).replace('-','−'));
-    T('shapeTxt', angU[focus] < 90 ? '锐角三角形' : (angU[focus] > 90 ? '钝角三角形' : '直角三角形'));
-
-    T('ctlNote', '验证对象：∠' + anames[focus] + ' 与 ' + oL +
-      '（' + (angU[focus] < 90 ? '锐角，a² < b²+c²' : (angU[focus] > 90 ? '钝角，a² > b²+c²' : '直角，a² = b²+c²')) + '）');
+    return color;
   }
 
-  /* ================= 按钮 ================= */
-  document.getElementById('swapBtn').addEventListener('click', function(){
-    focus = (focus + 1) % 3;
-    this.textContent = '验证 ∠' + ['A','B','C'][focus];
-    this.classList.add('active');
-    render();
-  });
-  document.getElementById('resetBtn').addEventListener('click', function(){
-    verts = START.map(function(p){ return {x: p.x, y: p.y}; });
-    render();
-  });
+  /* ===================== 几何 ===================== */
+  const EDGE = [[1, 2], [2, 0], [0, 1]];
+  const SIDE_NAME = ['a', 'b', 'c'];
+  const ANG_NAME = ['A', 'B', 'C'];
 
-  /* ================= 交互 ================= */
-  function toSvg(ev){
-    var r = board.getBoundingClientRect();
-    return {x: (ev.clientX - r.left) / r.width * W,
-            y: (ev.clientY - r.top) / r.height * H};
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const fmt = (v, n) => v.toFixed(n == null ? 3 : n);
+
+  function angleAt(v, q, r) {
+    const a1 = Math.atan2(q.y - v.y, q.x - v.x);
+    const a2 = Math.atan2(r.y - v.y, r.x - v.x);
+    let d = Math.abs(a1 - a2);
+    if (d > Math.PI) d = 2 * Math.PI - d;
+    return d;
   }
-
-  handles.forEach(function(g, i){
-    g.addEventListener('pointerdown', function(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
-      dragIdx = i;
-      try { g.setPointerCapture(ev.pointerId); } catch(e){}
-      g.style.cursor = 'grabbing';
-    });
-    g.addEventListener('pointermove', function(ev){
-      if (dragIdx !== i) return;
-      ev.preventDefault();
-      var s = toSvg(ev);
-      var p0 = {x: verts[i].x, y: verts[i].y};
-      var to = {x: clamp(s.x, MARGIN, W - MARGIN), y: clamp(s.y, MARGIN, H - MARGIN)};
-      if (isValid(measure(withV(i, to)))){
-        verts[i] = to;
-      } else {
-        var dx = to.x - p0.x, dy = to.y - p0.y, lo = 0, hi = 1;
-        for (var k = 0; k < 14; k++){
-          var mid = (lo + hi) / 2;
-          var cand = {x: p0.x + dx * mid, y: p0.y + dy * mid};
-          if (isValid(measure(withV(i, cand)))) lo = mid; else hi = mid;
-        }
-        verts[i] = {x: p0.x + dx * lo, y: p0.y + dy * lo};
-      }
-      render();
-    });
-    function end(ev){
-      if (dragIdx !== i) return;
-      dragIdx = -1;
-      g.style.cursor = 'grab';
-      try { g.releasePointerCapture(ev.pointerId); } catch(e){}
-    }
-    g.addEventListener('pointerup', end);
-    g.addEventListener('pointercancel', end);
-    g.addEventListener('pointerenter', function(){ knobs[i].setAttribute('r', 10.5); });
-    g.addEventListener('pointerleave', function(){ knobs[i].setAttribute('r', 8.5); });
-  });
-
-  /* 整体拖动三角形 */
-  triHit.addEventListener('pointerdown', function(ev){
-    triDrag = {
-      sx: ev.clientX, sy: ev.clientY,
-      pts: verts.map(function(p){ return {x:p.x, y:p.y}; })
+  function measureOf(P) {
+    const a = dist(P[1], P[2]), b = dist(P[2], P[0]), c = dist(P[0], P[1]);
+    if (!(a > 1e-6 && b > 1e-6 && c > 1e-6)) return null;
+    const angs = [angleAt(P[0], P[1], P[2]), angleAt(P[1], P[2], P[0]), angleAt(P[2], P[0], P[1])];
+    return { a, b, c, A: angs[0], B: angs[1], C: angs[2], angs, sides: [a, b, c] };
+  }
+  function measure() {
+    const P = state.verts;
+    const a = dist(P[1], P[2]), b = dist(P[2], P[0]), c = dist(P[0], P[1]);
+    return {
+      a, b, c,
+      A: angleAt(P[0], P[1], P[2]),
+      B: angleAt(P[1], P[2], P[0]),
+      C: angleAt(P[2], P[0], P[1]),
+      sides: [a, b, c],
+      angs: [angleAt(P[0], P[1], P[2]), angleAt(P[1], P[2], P[0]), angleAt(P[2], P[0], P[1])]
     };
-    try { triHit.setPointerCapture(ev.pointerId); } catch(e){}
-  });
-  triHit.addEventListener('pointermove', function(ev){
-    if (!triDrag) return;
-    var ddx = ev.clientX - triDrag.sx, ddy = ev.clientY - triDrag.sy;
-    if (Math.hypot(ddx, ddy) < 2) return;
-    ev.preventDefault();
-    var r = board.getBoundingClientRect();
-    var dx = ddx * W / r.width, dy = ddy * H / r.height;
-    var minX = Math.min(triDrag.pts[0].x, triDrag.pts[1].x, triDrag.pts[2].x);
-    var maxX = Math.max(triDrag.pts[0].x, triDrag.pts[1].x, triDrag.pts[2].x);
-    var minY = Math.min(triDrag.pts[0].y, triDrag.pts[1].y, triDrag.pts[2].y);
-    var maxY = Math.max(triDrag.pts[0].y, triDrag.pts[1].y, triDrag.pts[2].y);
-    dx = clamp(dx, MARGIN - minX, (W - MARGIN) - maxX);
-    dy = clamp(dy, MARGIN - minY, (H - MARGIN) - maxY);
-    verts = triDrag.pts.map(function(p){ return {x: p.x + dx, y: p.y + dy}; });
-    triHit.style.cursor = 'grabbing';
-    render();
-  });
-  function endTriDrag(ev){
-    if (!triDrag) return;
-    triDrag = null;
-    triHit.style.cursor = 'move';
-    try { triHit.releasePointerCapture(ev.pointerId); } catch(e){}
   }
-  triHit.addEventListener('pointerup', endTriDrag);
-  triHit.addEventListener('pointercancel', endTriDrag);
 
-  /* ================= 启动 ================= */
-  render();
+  // B 在左、C 在右，A 在上
+  function setSSS(a, b, c, focus) {
+    const x = (a * a + c * c - b * b) / (2 * a);
+    const y = Math.sqrt(Math.max(1e-6, c * c - x * x));
+    state.verts = [
+      { x: -a / 2 + x, y: y },
+      { x: -a / 2, y: 0 },
+      { x: a / 2, y: 0 },
+    ];
+    if (focus != null) state.focus = focus;
+    state.lockBC = false;
+  }
+
+  // 由 b、c 与 ∠A（度）构造，再整体绕 BC 中点旋转 psi
+  function buildAt(b, c, angDeg, psi) {
+    const ang = angDeg * D2R;
+    const a = Math.sqrt(Math.max(1e-6, b * b + c * c - 2 * b * c * Math.cos(ang)));
+    const x = (a * a + c * c - b * b) / (2 * a);
+    const y = Math.sqrt(Math.max(1e-6, c * c - x * x));
+    const L = [{ x: x - a / 2, y: y }, { x: -a / 2, y: 0 }, { x: a / 2, y: 0 }];
+    const co = Math.cos(psi), si = Math.sin(psi);
+    return L.map(p => ({ x: p.x * co - p.y * si, y: p.x * si + p.y * co }));
+  }
+
+  const START = { a: Math.sqrt(9 + 16 - 2 * 3 * 4 * Math.cos(72 * D2R)), b: 3, c: 4 };
+  setSSS(START.a, 3, 4, 0);
+
+  /* ===================== 画布 ===================== */
+  const cv = el('canvas');
+  const ctx = cv.getContext('2d');
+  let VW = 900, VH = 560, DPR = 1;
+  let view = { s: 80, ox: 0, oy: 0 };
+
+  function resize() {
+    const r = cv.parentElement.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    VW = Math.max(320, Math.floor(r.width));
+    VH = Math.max(280, Math.floor(r.height));
+    cv.width = Math.floor(VW * DPR);
+    cv.height = Math.floor(VH * DPR);
+  }
+  new ResizeObserver(resize).observe(cv.parentElement);
+  resize();
+
+  function updateView() {
+    const P = state.verts;
+    const xs = P.map(p => p.x), ys = P.map(p => p.y);
+    const spanX = Math.max(0.9, Math.max(...xs) - Math.min(...xs));
+    const spanY = Math.max(0.9, Math.max(...ys) - Math.min(...ys));
+    const padX = 120, padY = 130;
+    let s = Math.min((VW - padX * 2) / spanX, (VH - padY * 1.6) / spanY);
+    s = clamp(s, 26, 148);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    view = { s, ox: VW / 2 - cx * s, oy: VH / 2 + cy * s };
+  }
+  const toScreen = p => ({ x: view.ox + p.x * view.s, y: view.oy - p.y * view.s });
+  const toWorld = q => ({ x: (q.x - view.ox) / view.s, y: (view.oy - q.y) / view.s });
+
+  function roundRect(x, y, w, h, r) {
+    r = Math.min(r, h / 2, w / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+  }
+
+  function chip(text, x, y, o) {
+    o = o || {};
+    ctx.save();
+    ctx.font = o.font || '700 12.5px "PingFang SC","Segoe UI",sans-serif';
+    const padX = o.padX == null ? 9 : o.padX;
+    const h = o.h || 23;
+    const w = ctx.measureText(text).width + padX * 2;
+    let bx = x;
+    if (o.align === 'center') bx = x - w / 2;
+    else if (o.align === 'right') bx = x - w;
+    roundRect(bx, y, w, h, h / 2);
+    ctx.fillStyle = o.bg || 'rgba(10,20,40,.72)';
+    ctx.fill();
+    if (o.bd) { ctx.strokeStyle = o.bd; ctx.lineWidth = 1; ctx.stroke(); }
+    ctx.fillStyle = o.fg || '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, bx + w / 2, y + h / 2 + 1);
+    ctx.restore();
+    return { x: bx, y: y, w: w, h: h };
+  }
+
+  function drawGrid() {
+    const unit = view.s;
+    const step = unit >= 48 ? 1 : (unit >= 24 ? 2 : 5);
+    const origin = toScreen({ x: 0, y: 0 });
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = theme.grid;
+    const gx = unit * step;
+    let startX = origin.x - Math.ceil(origin.x / gx) * gx;
+    for (let x = startX; x < VW + gx; x += gx) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, VH); ctx.stroke();
+    }
+    let startY = origin.y - Math.ceil(origin.y / gx) * gx;
+    for (let y = startY; y < VH + gx; y += gx) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(VW, y); ctx.stroke();
+    }
+    ctx.strokeStyle = theme.axis;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(0, origin.y); ctx.lineTo(VW, origin.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, VH); ctx.stroke();
+  }
+
+  /* ===================== 演示状态 ===================== */
+  const demo = {
+    active: false, live: false, playing: false, idx: 0,
+    steps: [], stepT0: 0, fromQuiz: false, qIndex: 0
+  };
+  const STEP_DUR = 3600;
+  let predictRevealed = false;
+  let mode = 'explore';
+
+  function currentAnns() {
+    let out = [];
+    for (let i = 0; i <= demo.idx && i < demo.steps.length; i++) {
+      const add = demo.steps[i].add;
+      if (add) out = out.concat(add.map(a => Object.assign({}, a, { _step: i })));
+    }
+    return out;
+  }
+
+  /* ===================== 绘制 ===================== */
+  function draw() {
+    updateView();
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, VW, VH);
+    drawGrid();
+
+    const P = state.verts.map(toScreen);
+    const m = measure();
+    const f = state.focus;
+    const demoOn = demo.active;
+    const live = demoOn && demo.live;
+    const anns = demoOn ? currentAnns() : [];
+
+    let maxV = 0;
+    if (m.angs[1] > m.angs[maxV]) maxV = 1;
+    if (m.angs[2] > m.angs[maxV]) maxV = 2;
+    const rv = v => (v === 'max' ? maxV : v);
+
+    // 标注生长动画：当前步骤新增的标注在 900ms 内逐步显现
+    const nowT = performance.now();
+    function annT(a) {
+      if (!a || a._step == null || a._step < demo.idx || demo.live || !demo.active) return 1;
+      const e = clamp((nowT - demo.stepT0) / 900, 0, 1);
+      return 1 - Math.pow(1 - e, 3);   // easeOutCubic
+    }
+
+    const sideOv = {}, arcOv = {};
+    let rightV = -1, rightT = 1, verdictA = null;
+    anns.forEach(a => {
+      if (a.k === 'side') sideOv[a.i] = a;
+      else if (a.k === 'arc') arcOv[rv(a.v)] = a;
+      else if (a.k === 'right') { rightV = rv(a.v); rightT = annT(a); }
+      else if (a.k === 'verdict') verdictA = { v: rv(a.v), text: a.text, _step: a._step };
+    });
+
+    // ---- 三角形底 ----
+    ctx.beginPath();
+    ctx.moveTo(P[0].x, P[0].y);
+    ctx.lineTo(P[1].x, P[1].y);
+    ctx.lineTo(P[2].x, P[2].y);
+    ctx.closePath();
+    ctx.globalAlpha = 0.13;
+    ctx.fillStyle = theme.cyan;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // ---- 各边样式 ----
+    const S = [0, 1, 2].map(() => ({
+      color: theme.cyan, width: 2.2, dash: null, label: null, labelColor: theme.ink3, letter: null
+    }));
+    if (!demoOn && mode === 'predict') {
+      S[1] = { color: theme.purple, width: 4.4, dash: null, label: 'b = ' + fmt(m.b, 2) + ' 🔒', labelColor: theme.purple, letter: 'b' };
+      S[2] = { color: theme.amber, width: 4.4, dash: null, label: 'c = ' + fmt(m.c, 2) + ' 🔒', labelColor: theme.amber, letter: 'c' };
+      S[0] = { color: theme.ink3, width: 2.2, dash: [9, 7], label: 'a = ' + fmt(m.a, 2), labelColor: theme.ink3, letter: 'a' };
+    } else if (!demoOn) {
+      S[f].color = theme.amber;
+      S[f].width = 4.6;
+    }
+    Object.keys(sideOv).forEach(k => {
+      const i = +k, a = sideOv[k], st = S[i];
+      if (a.color) st.color = theme[a.color] || a.color;
+      if (a.width) st.width = a.width;
+      if (a.dash !== undefined) st.dash = a.dash;
+      if (a.label) { st.label = a.label; st.labelColor = theme[a.labelColor] || a.labelColor || st.color; }
+      if (a.live === 'len') {
+        st.label = (a.letter || SIDE_NAME[i]) + ' = ' + fmt(m.sides[i], 2);
+        st.labelColor = st.color;
+      }
+      if (a.live === 'sq') {
+        st.label = (a.letter || SIDE_NAME[i]) + '² = ' + fmt(m.sides[i] * m.sides[i], 2);
+        st.labelColor = st.color;
+      }
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const s = S[i], e = EDGE[i];
+      const growT = sideOv[i] ? annT(sideOv[i]) : 1;
+      const p0 = P[e[0]], p1 = P[e[1]];
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p0.x + (p1.x - p0.x) * growT, p0.y + (p1.y - p0.y) * growT);
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = s.width;
+      ctx.setLineDash(s.dash || []);
+      ctx.lineCap = 'round';
+      ctx.globalAlpha = (s.dash ? 0.85 : 1);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.lineCap = 'butt';
+    }
+
+    // ---- 角 ----
+    const rads = [];
+    for (let i = 0; i < 3; i++) {
+      const V = P[i], q = P[(i + 1) % 3], r = P[(i + 2) % 3];
+      const rad = clamp(Math.min(dist(V, q), dist(V, r)) * 0.26, 16, 44);
+      rads[i] = rad;
+      const a1 = Math.atan2(q.y - V.y, q.x - V.x);
+      const a2 = Math.atan2(r.y - V.y, r.x - V.x);
+      let d = a2 - a1;
+      while (d <= -Math.PI) d += 2 * Math.PI;
+      while (d > Math.PI) d -= 2 * Math.PI;
+
+      const hlPredict = (!demoOn && mode === 'predict' && i === 0);
+      const hlArc = !!arcOv[i];
+      const hlFocus = (!demoOn && mode !== 'predict' && i === f);
+      const hl = hlPredict || hlArc || hlFocus;
+      const col = hl ? ((hlArc && arcOv[i].color) ? (theme[arcOv[i].color] || arcOv[i].color) : theme.amber) : theme.ink3;
+
+      const angDeg = m.angs[i] * R2D;
+      const isRightAng = Math.abs(angDeg - 90) < 3;
+      const arcT = hlArc ? annT(arcOv[i]) : 1;
+      if (!isRightAng) {          // 直角时只画直角符号，避免圆弧 + 直角符号双重标注
+        ctx.beginPath();
+        ctx.arc(V.x, V.y, rad, a1, a1 + d * arcT, d < 0);
+        ctx.strokeStyle = col;
+        ctx.globalAlpha = hl ? 1 : 0.42;
+        ctx.lineWidth = hl ? 3 : 1.3;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      const wantRight = (rightV === i) || (hl && Math.abs(angDeg - 90) < 1.2);
+      if (wantRight && isRightAng) {
+        const k = 14 * rightT;
+        const u1 = { x: Math.cos(a1), y: Math.sin(a1) };
+        const u2 = { x: Math.cos(a1 + d), y: Math.sin(a1 + d) };
+        ctx.beginPath();
+        ctx.moveTo(V.x + u1.x * k, V.y + u1.y * k);
+        ctx.lineTo(V.x + (u1.x + u2.x) * k, V.y + (u1.y + u2.y) * k);
+        ctx.lineTo(V.x + u2.x * k, V.y + u2.y * k);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      }
+
+      const showVal = !demoOn || live || hlArc;
+      if (showVal) {
+        const bis = a1 + d / 2;
+        const rl = rad + (hl ? 22 : 18);
+        ctx.font = `${hl ? '800 14px' : '600 12px'} "PingFang SC","Segoe UI",sans-serif`;
+        ctx.fillStyle = hl ? col : theme.ink3;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(angDeg.toFixed(0) + '°', V.x + Math.cos(bis) * rl, V.y + Math.sin(bis) * rl);
+      }
+    }
+
+    // ---- 边标签 ----
+    for (let i = 0; i < 3; i++) {
+      const s = S[i], e = EDGE[i];
+      const mid = { x: (P[e[0]].x + P[e[1]].x) / 2, y: (P[e[0]].y + P[e[1]].y) / 2 };
+      let nx = P[e[1]].y - P[e[0]].y, ny = -(P[e[1]].x - P[e[0]].x);
+      const L = Math.hypot(nx, ny) || 1;
+      nx /= L; ny /= L;
+      if ((P[i].x - mid.x) * nx + (P[i].y - mid.y) * ny > 0) { nx = -nx; ny = -ny; }
+
+      if (s.label) {
+        const labT = sideOv[i] ? annT(sideOv[i]) : 1;
+        ctx.save();
+        ctx.globalAlpha = labT;
+        ctx.font = '800 12.5px "PingFang SC","Segoe UI",sans-serif';
+        const w = ctx.measureText(s.label).width;
+        const cx = mid.x + nx * 28, cy = mid.y + ny * 28;
+        roundRect(cx - w / 2 - 8, cy - 11, w + 16, 22, 11);
+        ctx.fillStyle = rgba(theme.canvasBg, 0.86);
+        ctx.fill();
+        ctx.strokeStyle = rgba(s.labelColor, .45);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = s.labelColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(s.label, cx, cy + 1);
+        ctx.restore();
+      } else {
+        const isF = (!demoOn && mode !== 'predict' && i === f);
+        ctx.font = `italic 700 ${isF ? '21px' : '18px'} "Cambria Math","Times New Roman",serif`;
+        ctx.fillStyle = isF ? theme.amber : theme.cyan;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const tx = mid.x + nx * 24, ty = mid.y + ny * 24;
+        ctx.fillText(SIDE_NAME[i], tx, ty);
+        ctx.font = '600 11.5px "PingFang SC",sans-serif';
+        ctx.fillStyle = theme.ink3;
+        ctx.fillText(fmt(m.sides[i], 2), tx, ty + 16);
+      }
+    }
+
+    // ---- 结论标签 ----
+    if (verdictA) {
+      const i = verdictA.v;
+      const cosv = Math.cos(m.angs[i]);
+      let txt, col;
+      if (Math.abs(cosv) < 0.012) { txt = '直角'; col = theme.purple; }
+      else if (cosv > 0) { txt = '锐角'; col = theme.ok; }
+      else { txt = '钝角'; col = theme.amber; }
+      const V = P[i], q = P[(i + 1) % 3], r = P[(i + 2) % 3];
+      const a1 = Math.atan2(q.y - V.y, q.x - V.x);
+      const a2 = Math.atan2(r.y - V.y, r.x - V.x);
+      let d = a2 - a1;
+      while (d <= -Math.PI) d += 2 * Math.PI;
+      while (d > Math.PI) d -= 2 * Math.PI;
+      const bis = a1 + d / 2;
+      const vT = annT(verdictA);
+      const off = (rads[i] + 76) * (0.72 + 0.28 * vT);
+      ctx.save();
+      ctx.globalAlpha = vT;
+      chip(txt + '（' + ANG_NAME[i] + '）', V.x + Math.cos(bis) * off, V.y + Math.sin(bis) * off, {
+        align: 'center', h: 24, padX: 11, font: '800 12.5px "PingFang SC",sans-serif',
+        bg: rgba(col, 0.14), fg: col, bd: rgba(col, 0.45)
+      });
+      ctx.restore();
+    }
+
+    // ---- 顶点 ----
+    const centroid = { x: (P[0].x + P[1].x + P[2].x) / 3, y: (P[0].y + P[1].y + P[2].y) / 3 };
+    const draggable = !demoOn || live;
+    for (let i = 0; i < 3; i++) {
+      const p = P[i];
+      const isF = (!demoOn && (mode === 'predict' ? i === 0 : i === f));
+      const hovered = state.hover === i && draggable;
+      const R = hovered ? 11.5 : (live ? 9.5 : 8.5);
+      if (hovered) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, R + 6, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(theme.cyan, 0.14); ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, R, 0, Math.PI * 2);
+      ctx.fillStyle = theme.canvasBg;
+      ctx.fill();
+      ctx.strokeStyle = isF ? theme.amber : theme.cyan;
+      ctx.lineWidth = live ? 3 : 2.6;
+      ctx.stroke();
+
+      let dx = p.x - centroid.x, dy = p.y - centroid.y;
+      const LL = Math.hypot(dx, dy) || 1;
+      ctx.font = 'italic 700 21px "Cambria Math","Times New Roman",serif';
+      ctx.fillStyle = isF ? theme.amber : theme.ink;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(ANG_NAME[i], p.x + dx / LL * 30, p.y + dy / LL * 30);
+    }
+
+    // ---- 先猜后验：∠A 转动把手 ----
+    if (!demoOn && mode === 'predict') {
+      const A = P[0];
+      const rr = Math.max(38, rads[0] + 20);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(A.x, A.y, rr, -0.15, Math.PI * 0.72);
+      ctx.strokeStyle = rgba(theme.cyan, .55);
+      ctx.setLineDash([4, 5]);
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const ex = A.x + Math.cos(Math.PI * 0.72) * rr, ey = A.y + Math.sin(Math.PI * 0.72) * rr;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - 7, ey - 1);
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex + 1, ey - 7.5);
+      ctx.strokeStyle = rgba(theme.cyan, .8);
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+      ctx.restore();
+      ctx.font = '700 12px "PingFang SC","Segoe UI",sans-serif';
+      ctx.fillStyle = theme.cyan;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('∠A 可转动', A.x + rr + 4, A.y - rr * 0.25);
+    }
+
+    // ---- 先猜后验：角度标尺 ----
+    if (!demoOn && mode === 'predict' && predictRevealed) {
+      drawAngleRuler(m.angs[0] * R2D);
+    }
+  }
+
+  function drawAngleRuler(angDeg) {
+    const w = Math.min(280, VW - 360);
+    if (w < 180) return;
+    const x0 = (VW - w) / 2, y0 = VH - 74, h = 56;
+    ctx.save();
+    roundRect(x0, y0, w, h, 14);
+    ctx.fillStyle = rgba(theme.canvasBg, .88);
+    ctx.fill();
+    ctx.strokeStyle = theme.grid;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    const tx0 = x0 + 20, tx1 = x0 + w - 20, ty = y0 + 36;
+    // 三段底色
+    const mark = a => tx0 + (a / 180) * (tx1 - tx0);
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = rgba(theme.cyan, .22);
+    ctx.beginPath(); ctx.moveTo(tx0, ty); ctx.lineTo(mark(90), ty); ctx.stroke();
+    ctx.strokeStyle = rgba(theme.ink3, .25);
+    ctx.beginPath(); ctx.moveTo(mark(90) - 1, ty); ctx.lineTo(mark(90) + 1, ty); ctx.stroke();
+    ctx.strokeStyle = rgba(theme.amber, .22);
+    ctx.beginPath(); ctx.moveTo(mark(90), ty); ctx.lineTo(tx1, ty); ctx.stroke();
+
+    ctx.strokeStyle = rgba(theme.ink3, .5);
+    ctx.lineWidth = 1;
+    [0, 90, 180].forEach(a => {
+      const x = mark(a);
+      ctx.beginPath(); ctx.moveTo(x, ty - 9); ctx.lineTo(x, ty + 9); ctx.stroke();
+    });
+
+    ctx.fillStyle = theme.ink3;
+    ctx.font = '600 10.5px "PingFang SC",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('0°', tx0, y0 + 8);
+    ctx.fillText('90°', mark(90), y0 + 8);
+    ctx.fillText('180°', tx1, y0 + 8);
+    ctx.fillText('锐角', mark(40), y0 + 8);
+    ctx.fillText('钝角', mark(140), y0 + 8);
+
+    const x = mark(clamp(angDeg, 0, 180));
+    const col = Math.abs(angDeg - 90) < 1.5 ? theme.purple : (angDeg < 90 ? theme.cyan : theme.amber);
+    ctx.beginPath();
+    ctx.arc(x, ty, 6, 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.strokeStyle = rgba(theme.canvasBg, .95);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.font = '800 12.5px "PingFang SC","Segoe UI",sans-serif';
+    ctx.fillStyle = col;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('∠A = ' + angDeg.toFixed(0) + '°', x, y0 + 26);
+    ctx.restore();
+  }
+
+  /* ===================== 面板 ===================== */
+  function syncPanel() {
+    const m = measure();
+    const f = state.focus;
+    const oL = SIDE_NAME[f], oR1 = SIDE_NAME[(f + 1) % 3], oR2 = SIDE_NAME[(f + 2) % 3];
+    const sL = m.sides[f], sR1 = m.sides[(f + 1) % 3], sR2 = m.sides[(f + 2) % 3];
+    const cosA = Math.cos(m.angs[f]);
+    const left = sL * sL;
+    const right = sR1 * sR1 + sR2 * sR2 - 2 * sR1 * sR2 * cosA;
+    const diff = Math.abs(left - right);
+
+    const SIDE_CLS = { a: 'hl-a', b: 'hl-b', c: 'hl-c' };
+    // 公式随验证角整体变换：验证 ∠B 时 → b² = a² + c² − 2ac·cosB
+    el('pillFormula').innerHTML =
+      `<span class="${SIDE_CLS[oL]}"><i>${oL}</i>²</span><span class="eq">=</span>` +
+      `<span class="${SIDE_CLS[oR1]}"><i>${oR1}</i>²</span><span class="eq">+</span>` +
+      `<span class="${SIDE_CLS[oR2]}"><i>${oR2}</i>²</span><span class="eq">−</span>` +
+      `<span>2<i>${oR1}${oR2}</i>·cos<span style="color:var(--amber)">${ANG_NAME[f]}</span></span>`;
+    el('pillLeft').className = 'val ' + SIDE_CLS[oL];
+    el('pillLeft').textContent = fmt(left);
+    el('pillRight').textContent = fmt(right);
+    el('pillChip').textContent = diff < 5e-3 ? '✓ 相等' : '≈ 相等';
+    el('pillChip').style.color = diff < 5e-3 ? theme.ok : theme.amber;
+    el('pillChip').style.borderColor = diff < 5e-3 ? rgba(theme.ok, .35) : rgba(theme.amber, .35);
+
+    el('cmpBadge').textContent = '∠' + ANG_NAME[f];
+    el('defEq').innerHTML =
+      `<span class="${SIDE_CLS[oL]}"><i>${oL}</i>²</span> = <span class="${SIDE_CLS[oR1]}"><i>${oR1}</i>²</span> + <span class="${SIDE_CLS[oR2]}"><i>${oR2}</i>²</span> − 2<i>${oR1}${oR2}</i>·cos<span style="color:var(--amber);font-weight:700">${ANG_NAME[f]}</span>`;
+    el('exprL').innerHTML = `<i>${oL}</i><sup>2</sup>`;
+    el('exprR').innerHTML = `<i>${oR1}</i><sup>2</sup> + <i>${oR2}</i><sup>2</sup> − 2<i>${oR1}${oR2}</i>·cos<span style="color:var(--amber)">${ANG_NAME[f]}</span>`;
+    el('resL').textContent = fmt(left);
+    el('resR').textContent = fmt(right);
+    el('numL').innerHTML =
+      `<div class="ln"><span class="eqc">=</span><span class="tx">${fmt(sL, 2)}² = ${fmt(left)}</span></div>`;
+    el('numR').innerHTML =
+      `<div class="ln"><span class="eqc">=</span><span class="tx">${fmt(sR1, 2)}² + ${fmt(sR2, 2)}² − 2×${fmt(sR1, 2)}×${fmt(sR2, 2)}×<b>${fmt(cosA).replace('-', '−')}</b></span></div>` +
+      `<div class="ln"><span class="eqc">=</span><span class="tx">${fmt(sR1 * sR1 + sR2 * sR2)} − ${fmt(Math.abs(2 * sR1 * sR2 * cosA))} = <span class="fin">${fmt(right)}</span></span></div>`;
+
+    el('vA0').textContent = (m.A * R2D).toFixed(1) + '°';
+    el('vB0').textContent = (m.B * R2D).toFixed(1) + '°';
+    el('vC0').textContent = (m.C * R2D).toFixed(1) + '°';
+    el('vA1').textContent = fmt(m.a, 3); el('vB1').textContent = fmt(m.b, 3); el('vC1').textContent = fmt(m.c, 3);
+    el('vA2').textContent = fmt(m.a * m.a, 2); el('vB2').textContent = fmt(m.b * m.b, 2); el('vC2').textContent = fmt(m.c * m.c, 2);
+    ['A', 'B', 'C'].forEach((ch, i) => {
+      const hl = i === f;
+      ['0', '1', '2'].forEach(k => el('s' + ch + k).classList.toggle('hl', hl));
+    });
+
+    const maxAng = Math.max(m.A, m.B, m.C) * R2D;
+    let shape = '锐角三角形';
+    if (Math.abs(maxAng - 90) < 0.6) shape = '直角三角形';
+    else if (maxAng > 90) shape = '钝角三角形';
+    const sb = el('shapeBadge');
+    sb.textContent = shape;
+    const col = shape === '直角三角形' ? theme.purple : (shape === '钝角三角形' ? theme.amber : theme.ok);
+    sb.style.color = col;
+    sb.style.borderColor = rgba(col, .4);
+
+    el('btnVerify').textContent = '🔍 验证 ∠' + ANG_NAME[f];
+    el('btnVerify').disabled = (mode === 'predict');
+  }
+
+  /* ===================== 拖动 ===================== */
+  let drag = null;
+
+  function hitVertex(sp) {
+    let best = -1, bd = 26;
+    state.verts.map(toScreen).forEach((p, i) => {
+      const d = Math.hypot(p.x - sp.x, p.y - sp.y);
+      if (d < bd) { bd = d; best = i; }
+    });
+    return best;
+  }
+  function pointerPos(ev) {
+    const r = cv.getBoundingClientRect();
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+  }
+
+  cv.addEventListener('pointerdown', ev => {
+    if (state.anim) { state.anim = null; }
+    if (demo.active && !demo.live) { toast('演示进行中：结束后即可拖动'); return; }
+    const sp = pointerPos(ev);
+    const idx = hitVertex(sp);
+    if (idx < 0) return;
+    if (state.lockBC && idx === 0) {
+      state.lockBC = false;
+      toast('已解除 b、c 锁定：拖 A 自由变形，拖 B / C 继续转动');
+    }
+    const w = toWorld(sp);
+    drag = { idx, off: { x: w.x - state.verts[idx].x, y: w.y - state.verts[idx].y } };
+    cv.setPointerCapture(ev.pointerId);
+    cv.style.cursor = 'grabbing';
+  });
+
+  cv.addEventListener('pointermove', ev => {
+    const sp = pointerPos(ev);
+    if (!drag) {
+      const idx = (demo.active && !demo.live) ? -1 : hitVertex(sp);
+      if (idx !== state.hover) {
+        state.hover = idx;
+        cv.style.cursor = idx >= 0 ? 'grab' : 'crosshair';
+      }
+      return;
+    }
+    const w = toWorld(sp);
+    const i = drag.idx;
+    const target = { x: w.x - drag.off.x, y: w.y - drag.off.y };
+
+    if (state.lockBC && i !== 0) {
+      const A = state.verts[0];
+      const r = dist(A, state.verts[i]);
+      const ang = Math.atan2(target.y - A.y, target.x - A.x);
+      const q = { x: A.x + r * Math.cos(ang), y: A.y + r * Math.sin(ang) };
+      const test = state.verts.map(p => ({ ...p }));
+      test[i] = q;
+      const mm = measureOf(test);
+      if (mm && Math.min(...mm.angs) > 12 * D2R) state.verts[i] = q;
+    } else {
+      const test = state.verts.map(p => ({ ...p }));
+      test[i] = target;
+      const mm = measureOf(test);
+      if (mm && Math.min(...mm.angs) > 10 * D2R && Math.min(mm.a, mm.b, mm.c) > 0.5) {
+        state.verts[i] = target;
+      }
+    }
+    syncPanel();
+    draw();   // rAF 被节流的环境下也能立即看到拖动结果
+  });
+
+  function endDrag(ev) {
+    if (!drag) return;
+    drag = null;
+    cv.style.cursor = 'crosshair';
+    state.hover = -1;
+    try { cv.releasePointerCapture(ev.pointerId); } catch (e) {}
+  }
+  cv.addEventListener('pointerup', endDrag);
+  cv.addEventListener('pointercancel', endDrag);
+
+  /* ===================== 主循环 ===================== */
+  let lastT = performance.now();
+  let lastFrameT = performance.now();
+  function frame(now) {
+    const dt = Math.min(200, now - lastT);
+    lastT = now;
+    lastFrameT = now;
+
+    if (state.anim && !state.anim.paused) {
+      state.anim.acc += dt;
+      const p = Math.min(1, state.anim.acc / state.anim.dur);
+      state.anim.step(p);
+      if (p >= 1) {
+        const done = state.anim.done;
+        state.anim = null;
+        if (done) done();
+      }
+      syncPanel();
+    }
+
+    if (demo.active && demo.playing && !demo.live) {
+      const t = now - demo.stepT0;
+      const p = Math.min(1, t / STEP_DUR);
+      el('demoBar').style.width = (p * 100).toFixed(1) + '%';
+      if (p >= 1) demoAdvance();
+    }
+
+    draw();
+  }
+  function loop(now) {
+    frame(now);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  // 兜底驱动：部分预览环境会深度节流 rAF，定时器检测到停滞时手动推进帧
+  setInterval(() => {
+    const now = performance.now();
+    if (now - lastFrameT > 240) frame(now);
+  }, 120);
+
+  /* ===================== 声音 ===================== */
+  let ac = null, bgmOn = true, bgmTimer = null;
+  function audio() {
+    if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+  function tone(freq, dur, vol, type) {
+    const a = audio(); if (!a || !bgmOn) return;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.value = 0;
+    o.connect(g); g.connect(a.destination);
+    const t = a.currentTime;
+    g.gain.linearRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function sfxRight() { tone(659, .18, .09); setTimeout(() => tone(880, .2, .08), 110); setTimeout(() => tone(1175, .26, .06), 230); }
+  function sfxWrong() { tone(233, .22, .08, 'triangle'); setTimeout(() => tone(175, .3, .07, 'triangle'), 120); }
+  function sfxTick() { tone(1046, .07, .035, 'sine'); }
+  function startBgm() {
+    if (bgmTimer || !bgmOn) return;
+    const notes = [392, 440, 523, 440, 392, 330, 349, 392];
+    let i = 0;
+    bgmTimer = setInterval(() => {
+      if (!bgmOn) return;
+      tone(notes[i % notes.length], .5, .03, 'sine');
+      if (i % 2 === 0) tone(notes[i % notes.length] / 2, .6, .018, 'triangle');
+      i++;
+    }, 620);
+  }
+  function stopBgm() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+  el('btnBgm').addEventListener('click', function () {
+    bgmOn = !bgmOn;
+    this.classList.toggle('on', bgmOn);
+    this.textContent = bgmOn ? '🔊 音乐开' : '🔇 音乐关';
+    if (bgmOn) startBgm(); else stopBgm();
+  });
+
+  /* ===================== Tab ===================== */
+  const tabBtns = [...document.querySelectorAll('#modeTabs .seg-btn')];
+
+  function setMode(m) {
+    if (demo.active) endDemo(true);
+
+    if (m === 'presentation') {
+      const on = !app.classList.contains('presentation');
+      app.classList.toggle('presentation', on);
+      mode = on ? 'presentation' : 'explore';
+      tabBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === (on ? 'presentation' : 'explore')));
+      el('predictCard').style.display = 'none';
+      el('challengeCard').style.display = 'none';
+      el('cmpCard').style.display = '';
+      state.lockBC = false;
+      closeQuiz(false);
+      resize();
+      syncPanel();
+      return;
+    }
+
+    app.classList.remove('presentation');
+    mode = m;
+    tabBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    el('predictCard').style.display = m === 'predict' ? '' : 'none';
+    el('challengeCard').style.display = m === 'challenge' ? '' : 'none';
+    el('cmpCard').style.display = (m === 'explore' || m === 'predict') ? '' : 'none';
+
+    if (m === 'predict') {
+      predictRevealed = false;
+      state.focus = 0;
+      state.lockBC = true;
+      state.verts = buildAt(3, 4, 72, 0);
+      resetPredictUI();
+    } else {
+      state.lockBC = false;
+    }
+
+    if (m === 'challenge') openQuiz();
+    else { closeQuiz(false); el('stageShell').classList.remove('dimmed'); }
+    syncPanel();
+  }
+  tabBtns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+  /* ===================== 先猜后验 ===================== */
+  let picked = -1;
+  const predictOpts = [...document.querySelectorAll('#predictOpts .predict-opt')];
+  predictOpts.forEach((o, i) => {
+    o.addEventListener('click', () => {
+      if (picked >= 0) return;
+      picked = i;
+      o.classList.add('picked');
+      const btn = el('btnReveal');
+      btn.disabled = false;
+      btn.textContent = '✨ 揭晓并动画验证';
+    });
+  });
+
+  function resetPredictUI() {
+    picked = -1;
+    predictOpts.forEach(o => { o.className = 'predict-opt'; o.disabled = false; });
+    const btn = el('btnReveal');
+    btn.disabled = true;
+    btn.textContent = '✨ 请先选择一个猜想';
+    el('predictFeedback').classList.remove('show');
+  }
+
+  el('btnReveal').addEventListener('click', () => {
+    const correct = picked === 0;
+    predictOpts.forEach((o, i) => {
+      if (i === 0) o.classList.add('correct');
+      else if (i === picked) o.classList.add('wrong');
+      o.disabled = true;
+    });
+    el('predictFeedback').classList.add('show');
+    el('predictFeedback').innerHTML =
+      `<b>${correct ? '猜想正确 ✓' : '猜想不正确 ✗'}</b>　正确答案：<b>A. a² 越大</b><br>` +
+      `由 <b>a² = b² + c² − 2bc·cosA</b>，A ∈ (0, π) 时 cosA 随 A 增大而减小，` +
+      `于是 −2bc·cosA 增大，<b>a² 随 ∠A 增大持续变大</b>。` +
+      `画布已锁定 b = 3、c = 4，动画结束后可拖 B 或 C 绕 A 继续试验（Space 暂停 / 继续）。`;
+    el('btnReveal').disabled = true;
+    el('btnReveal').textContent = '✅ 已验证';
+    correct ? sfxRight() : sfxWrong();
+
+    predictRevealed = true;
+    state.lockBC = true;
+    state.focus = 0;
+    state.anim = {
+      kind: 'predict',
+      dur: 5600,
+      acc: 0,
+      paused: false,
+      step(p) {
+        const ang = 30 + 120 * p;
+        const psi = -0.34 + 0.68 * p;
+        state.verts = buildAt(3, 4, ang, psi);
+      },
+      done() {
+        state.verts = buildAt(3, 4, 150, 0.34);
+        toast('结论：b、c 固定，∠A 越大 a² 越大 ✓');
+      }
+    };
+    state.anim.step(0);
+  });
+
+  /* ===================== 题库 ===================== */
+  const QUIZ = [
+    {
+      stem: '在 △ABC 中，b = 3，c = 4，A = π/3，则边长 a = ？',
+      opts: ['√13', '5', '7', '√7'],
+      answer: 0,
+      explain: '由余弦定理 <b>a² = b² + c² − 2bc·cosA</b> = 3² + 4² − 2×3×4×cos(π/3) = 9 + 16 − 12 = 13，所以 <b>a = √13</b>。（注意：9 + 16 − 12 = 13，不是 7；√7 对应的是 cosA = 3/4 的情形。）',
+      preset: { a: Math.sqrt(13), b: 3, c: 4, focus: 0 }
+    },
+    {
+      stem: '△ABC 的三边 a = 3，b = 4，c = 5，则角 C = ？',
+      opts: ['π/6', 'π/4', 'π/2', '2π/3'],
+      answer: 2,
+      explain: 'c 是最长边，由余弦定理的变形 <b>cosC = (a² + b² − c²)/(2ab)</b> = (9 + 16 − 25)/24 = 0，所以 <b>C = π/2</b>，三角形为直角三角形。',
+      preset: { a: 3, b: 4, c: 5, focus: 2 }
+    },
+    {
+      stem: '在 △ABC 中，a = 5，b = 7，c = 8，判断 △ABC 的最大角是什么角？',
+      opts: ['锐角', '直角', '钝角', '平角'],
+      answer: 0,
+      explain: '最长边 <b>c = 8</b> 对应角 C（最大角）。<b>cosC = (a² + b² − c²)/(2ab)</b> = (25 + 49 − 64)/(2×5×7) = 10/70 = 1/7 &gt; 0，故 <b>角 C 为锐角</b>，最大角是锐角 → 该三角形是锐角三角形。',
+      preset: { a: 5, b: 7, c: 8, focus: 2 }
+    },
+    {
+      stem: '△ABC 中，a = 2，b = 3，C = 2π/3，则 c² = ？',
+      opts: ['19', '7', '13', '5'],
+      answer: 0,
+      explain: '由余弦定理 <b>c² = a² + b² − 2ab·cosC</b> = 2² + 3² − 2×2×3×cos(2π/3) = 4 + 9 − 12×(−1/2) = 13 + 6 = <b>19</b>。',
+      preset: { a: 2, b: 3, c: Math.sqrt(19), focus: 2 }
+    },
+    {
+      boss: true,
+      stem: '△ABC 三边长为 a = 4，b = 5，c = 6，判断这个三角形是什么三角形？',
+      opts: ['锐角三角形', '直角三角形', '钝角三角形', '等边三角形'],
+      answer: 0,
+      explain: '最长边 c = 6，对应角 C。<b>cosC = (a² + b² − c²)/(2ab)</b> = (16 + 25 − 36)/(2×4×5) = 5/40 = 1/8 &gt; 0，所以 <b>角 C 是锐角</b>，最大角是锐角 → 整个三角形为<b>锐角三角形</b>。<br>很多同学凭「6 比 4、5 大不少」就猜钝角三角形，这正是陷阱：判断形状要看最长边对应角的余弦符号。',
+      preset: { a: 4, b: 5, c: 6, focus: 2 }
+    }
+  ];
+
+  /* ===================== 分步推演脚本 ===================== */
+  function buildDemo(qi) {
+    if (qi === 0) return [
+      {
+        title: '加载题干图形',
+        lines: ['<span class="eq">b = 3，c = 4，∠A = 60°</span>'],
+        add: [
+          { k: 'side', i: 1, color: 'purple', width: 4.2, label: 'b = 3' },
+          { k: 'side', i: 2, color: 'amber', width: 4.2, label: 'c = 4' },
+          { k: 'side', i: 0, color: 'ink3', width: 2.2, dash: [9, 7], label: 'a = ?', labelColor: 'ink3' }
+        ]
+      },
+      {
+        title: '写出余弦定理',
+        lines: ['<span class="eq">a² = b² + c² − 2bc·cosA</span>'],
+        add: [{ k: 'arc', v: 0, color: 'amber' }]
+      },
+      {
+        title: '代入已知数值',
+        lines: ['<span class="eq">a² = 3² + 4² − 2 × 3 × 4 × cos60°</span>',
+                '<span class="eq">cos60° = 1/2</span>'],
+        add: []
+      },
+      {
+        title: '计算化简',
+        lines: ['<span class="eq">a² = 9 + 16 − 12 = 13</span>'],
+        add: [{ k: 'side', i: 0, color: 'cyan', width: 2.6, dash: [9, 7], label: 'a² = 13', labelColor: 'cyan' }]
+      },
+      {
+        title: '得出结果',
+        lines: ['<span class="eq">a = √13 ≈ 3.606</span>'],
+        add: [{ k: 'side', i: 0, color: 'cyan', width: 4.2, dash: null, label: 'a = √13 ≈ 3.61', labelColor: 'cyan', live: 'len', letter: 'a' }]
+      }
+    ];
+
+    if (qi === 1) return [
+      {
+        title: '加载题干图形',
+        lines: ['<span class="eq">a = 3，b = 4，c = 5</span>'],
+        add: [
+          { k: 'side', i: 0, color: 'cyan', width: 3.6, label: 'a = 3' },
+          { k: 'side', i: 1, color: 'purple', width: 3.6, label: 'b = 4' },
+          { k: 'side', i: 2, color: 'amber', width: 3.6, label: 'c = 5' }
+        ]
+      },
+      {
+        title: '确定最长边',
+        lines: ['<span class="eq">c = 5 → ∠C 为最大角</span>'],
+        add: [{ k: 'side', i: 2, color: 'amber', width: 5.6, label: 'c = 5' }]
+      },
+      {
+        title: '写出求角形式余弦定理',
+        lines: ['<span class="eq">cosC = (a² + b² − c²) / (2ab)</span>'],
+        add: []
+      },
+      {
+        title: '代入计算',
+        lines: ['<span class="eq">cosC = (9 + 16 − 25) / (2 × 3 × 4)</span>',
+                '<span class="eq">= 0 / 24 = 0</span>'],
+        add: []
+      },
+      {
+        title: '判断角度',
+        lines: ['<span class="eq">cosC = 0 → C = 90°</span>'],
+        add: [{ k: 'arc', v: 2, color: 'amber' }, { k: 'right', v: 2 }, { k: 'verdict', v: 'max' }]
+      }
+    ];
+
+    if (qi === 2) return [
+      {
+        title: '加载题干图形',
+        lines: ['<span class="eq">a = 5，b = 7，c = 8</span>'],
+        add: [
+          { k: 'side', i: 0, color: 'cyan', width: 3.2, label: 'a = 5' },
+          { k: 'side', i: 1, color: 'purple', width: 3.2, label: 'b = 7' },
+          { k: 'side', i: 2, color: 'amber', width: 3.2, label: 'c = 8' }
+        ]
+      },
+      {
+        title: '确定最长边',
+        lines: ['<span class="eq">c = 8 → ∠C 为最大角</span>'],
+        add: [{ k: 'side', i: 2, color: 'amber', width: 5.6, label: 'c = 8' }]
+      },
+      {
+        title: '写出余弦定理',
+        lines: ['<span class="eq">cosC = (a² + b² − c²) / (2ab)</span>'],
+        add: []
+      },
+      {
+        title: '代入计算',
+        lines: ['<span class="eq">cosC = (25 + 49 − 64) / (2 × 5 × 7)</span>',
+                '<span class="eq">= 10 / 70 = 1/7 &gt; 0</span>'],
+        add: []
+      },
+      {
+        title: '判定角 C',
+        lines: ['<span class="eq">cosC &gt; 0 → ∠C 锐角 → 锐角三角形</span>'],
+        add: [{ k: 'arc', v: 2, color: 'amber' }, { k: 'verdict', v: 'max' }]
+      }
+    ];
+
+    if (qi === 3) return [
+      {
+        title: '加载题干图形',
+        lines: ['<span class="eq">a = 2，b = 3，∠C = 2π/3 = 120°</span>'],
+        add: [
+          { k: 'side', i: 0, color: 'cyan', width: 3.8, label: 'a = 2' },
+          { k: 'side', i: 1, color: 'purple', width: 3.8, label: 'b = 3' },
+          { k: 'side', i: 2, color: 'ink3', width: 2.2, dash: [9, 7], label: 'c = ?', labelColor: 'ink3' }
+        ]
+      },
+      {
+        title: '写出余弦定理',
+        lines: ['<span class="eq">c² = a² + b² − 2ab·cosC</span>'],
+        add: []
+      },
+      {
+        title: '关键：cos(2π/3) = −1/2',
+        lines: ['<span class="eq">cos(2π/3) = −1/2</span>'],
+        add: [{ k: 'arc', v: 2, color: 'amber' }]
+      },
+      {
+        title: '代入计算',
+        lines: ['<span class="eq">c² = 4 + 9 − 12 × (−1/2)</span>', '<span class="eq">= 13 + 6 = 19</span>'],
+        add: [{ k: 'side', i: 2, color: 'cyan', width: 2.6, dash: [9, 7], label: 'c² = 19', labelColor: 'cyan' }]
+      },
+      {
+        title: '得出结果',
+        lines: ['<span class="eq">c² = 19，c = √19 ≈ 4.36</span>'],
+        add: [{ k: 'side', i: 2, color: 'cyan', width: 4.2, dash: null, label: 'c² = 19', labelColor: 'cyan', live: 'sq', letter: 'c' }]
+      }
+    ];
+
+    return [
+      {
+        title: '加载题干图形',
+        lines: ['<span class="eq">a = 4，b = 5，c = 6</span>'],
+        add: [
+          { k: 'side', i: 0, color: 'cyan', width: 3.0, label: 'a = 4' },
+          { k: 'side', i: 1, color: 'purple', width: 3.0, label: 'b = 5' },
+          { k: 'side', i: 2, color: 'amber', width: 3.0, label: 'c = 6' }
+        ]
+      },
+      {
+        title: '确定最长边',
+        lines: ['<span class="eq">c = 6 → ∠C 为最大角</span>'],
+        add: [{ k: 'side', i: 2, color: 'amber', width: 5.6, label: 'c = 6' }]
+      },
+      {
+        title: '写出余弦定理',
+        lines: ['<span class="eq">cosC = (a² + b² − c²) / (2ab)</span>'],
+        add: []
+      },
+      {
+        title: '代入计算',
+        lines: ['<span class="eq">cosC = (16 + 25 − 36) / (2 × 4 × 5)</span>',
+                '<span class="eq">= 5 / 40 = 1/8 &gt; 0</span>'],
+        add: []
+      },
+      {
+        title: '易错提醒',
+        lines: ['<span class="warn">⚠ 4、5、6 边长接近，不能凭肉眼判断</span>'],
+        add: []
+      },
+      {
+        title: '判定三角形形状',
+        lines: ['<span class="eq">cosC &gt; 0 → ∠C 锐角 → 锐角三角形</span>'],
+        add: [{ k: 'arc', v: 2, color: 'amber' }, { k: 'verdict', v: 'max' }]
+      }
+    ];
+  }
+
+  /* ===================== 演示控制 ===================== */
+  function startDemo(qi, fromQuiz = true) {
+    const pres = app.classList.contains('presentation');
+    closeQuiz(false);
+    el('stageShell').classList.remove('dimmed');
+    if (!pres) setMode('explore');   // 大屏模式下保持大屏，演示卡片与按钮自动放大
+    const q = QUIZ[qi];
+    setSSS(q.preset.a, q.preset.b, q.preset.c, q.preset.focus);
+    state.lockBC = false;
+    demo.steps = buildDemo(qi);
+    demo.idx = 0;
+    demo.active = true;
+    demo.live = false;
+    demo.playing = true;
+    demo.stepT0 = performance.now();
+    demo.fromQuiz = fromQuiz;
+    demo.qIndex = qi;
+    el('demoLayer').classList.add('on');
+    el('stageShell').classList.add('demo-on');
+    el('demoCtrl').classList.remove('live');
+    el('demoReplay').style.display = 'none';
+    el('demoBackQuiz').style.display = 'none';
+    el('demoPrev').style.display = '';
+    el('demoNext').style.display = '';
+    el('demoPlay').style.display = '';
+    renderDemo();
+    syncPanel();
+  }
+
+  function renderDemo() {
+    const st = demo.steps[demo.idx];
+    el('demoStepNo').textContent = '步骤 ' + (demo.idx + 1) + ' / ' + demo.steps.length;
+    el('demoTitle').textContent = st.title;
+    el('demoLines').innerHTML = st.lines.map(t => '<div class="ln">' + t + '</div>').join('');
+    el('demoBar').style.width = '0%';
+    el('demoPlay').textContent = demo.playing ? '⏸ 暂停' : '▶ 播放';
+    el('demoPrev').disabled = demo.idx === 0;
+    const last = demo.idx === demo.steps.length - 1;
+    el('demoNext').disabled = false;
+    el('demoNext').textContent = last ? '完成 ✓' : '下一步 →';
+  }
+
+  function demoAdvance() {
+    if (demo.idx < demo.steps.length - 1) {
+      demo.idx++;
+      demo.stepT0 = performance.now();
+      sfxTick();
+      renderDemo();
+    } else {
+      finishDemo();
+    }
+  }
+
+  function finishDemo() {
+    demo.playing = false;
+    demo.live = true;
+    el('demoBar').style.width = '100%';
+    el('demoPlay').style.display = 'none';
+    el('demoPrev').style.display = 'none';
+    el('demoNext').style.display = 'none';
+    el('demoReplay').style.display = '';
+    el('demoBackQuiz').style.display = demo.fromQuiz ? '' : 'none';
+    el('demoHint').textContent = '演示结束 · 拖动任一顶点，数值与标签实时更新';
+    el('demoTitle').textContent = '结论 · 可拖动验证';
+    // 演示结束：恢复左下角 HUD 按钮（重置 / 验证 / 分步演示），演示控制条居中避免遮挡
+    el('stageShell').classList.remove('demo-on');
+    el('demoCtrl').classList.add('live');
+    sfxRight();
+    toast('可拖动顶点继续验证');
+  }
+
+  function endDemo(silent) {
+    if (!demo.active) return;
+    demo.active = false;
+    demo.live = false;
+    demo.playing = false;
+    el('demoLayer').classList.remove('on');
+    el('stageShell').classList.remove('demo-on');
+    el('demoCtrl').classList.remove('live');
+    el('demoHint').textContent = 'Space 播放 / 暂停';
+    if (!silent) { syncPanel(); toast('已退出演示，可自由拖动'); }
+  }
+
+  el('demoPrev').addEventListener('click', () => {
+    demo.playing = false;
+    if (demo.idx > 0) { demo.idx--; demo.stepT0 = performance.now(); renderDemo(); }
+  });
+  el('demoNext').addEventListener('click', () => {
+    demo.playing = false;
+    demoAdvance();
+  });
+  el('demoPlay').addEventListener('click', () => {
+    demo.playing = !demo.playing;
+    demo.stepT0 = performance.now();
+    el('demoPlay').textContent = demo.playing ? '⏸ 暂停' : '▶ 播放';
+  });
+  el('demoReplay').addEventListener('click', () => {
+    demo.idx = 0;
+    demo.live = false;
+    demo.playing = true;
+    demo.stepT0 = performance.now();
+    el('demoReplay').style.display = 'none';
+    el('demoBackQuiz').style.display = 'none';
+    el('demoPrev').style.display = '';
+    el('demoNext').style.display = '';
+    el('demoPlay').style.display = '';
+    el('stageShell').classList.add('demo-on');
+    el('demoCtrl').classList.remove('live');
+    el('demoHint').textContent = 'Space 播放 / 暂停';
+    setSSS(QUIZ[demo.qIndex].preset.a, QUIZ[demo.qIndex].preset.b, QUIZ[demo.qIndex].preset.c, QUIZ[demo.qIndex].preset.focus);
+    renderDemo();
+  });
+  el('demoEnd').addEventListener('click', () => endDemo());
+  el('demoBackQuiz').addEventListener('click', () => { endDemo(true); setMode('challenge'); });
+
+  /* ===================== 闯关 ===================== */
+  let qi = 0, score = 0, answered = false, selected = -1;
+  const TOTAL = QUIZ.length;
+
+  function openQuiz(reset) {
+    if (reset) { qi = 0; score = 0; }
+    answered = false; selected = -1;
+    renderQuiz();
+    el('quizModal').classList.add('open');
+    el('stageShell').classList.add('dimmed');
+    startBgm();
+  }
+  function closeQuiz(clearDim = true) {
+    el('quizModal').classList.remove('open');
+    if (clearDim) el('stageShell').classList.remove('dimmed');
+  }
+  function renderQuiz() {
+    const q = QUIZ[qi];
+    answered = false; selected = -1;
+    el('quizProgress').textContent = `第 ${qi + 1} / ${TOTAL} 题`;
+    el('quizScoreBadge').textContent = `得分 ${score}`;
+    el('quizStem').innerHTML = (q.boss ? '<span class="tag-boss">BOSS</span>' : '') + q.stem;
+    const opts = el('quizOpts');
+    opts.innerHTML = '';
+    q.opts.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = 'ABCD'[i] + '. ' + t;
+      b.addEventListener('click', () => pickOpt(i));
+      opts.appendChild(b);
+    });
+    el('quizExplain').classList.remove('show');
+    el('quizExplain').innerHTML = '';
+    el('btnQuizDemo').style.display = 'none';
+    el('btnCallTool').style.display = 'none';
+    const next = el('btnQuizNext');
+    next.style.display = 'none';
+    next.textContent = qi === TOTAL - 1 ? '完成挑战 🏁' : '下一题 →';
+    el('chalProgress').textContent = `第 ${qi + 1} / ${TOTAL} 题`;
+    el('chalScore').textContent = `${score} / ${TOTAL}`;
+    el('chalScore2').textContent = score + ' 分';
+  }
+  function pickOpt(i) {
+    if (answered) return;
+    answered = true; selected = i;
+    const q = QUIZ[qi];
+    const btns = [...el('quizOpts').children];
+    btns.forEach((b, k) => {
+      b.disabled = true;
+      if (k === q.answer) b.classList.add('correct');
+      else if (k === i) b.classList.add('wrong');
+    });
+    const ok = i === q.answer;
+    if (ok) { score += 1; sfxRight(); } else { sfxWrong(); }
+    el('quizScoreBadge').textContent = `得分 ${score}`;
+    el('chalScore').textContent = `${score} / ${TOTAL}`;
+    el('chalScore2').textContent = score + ' 分';
+    const ex = el('quizExplain');
+    ex.innerHTML = `<span class="verdict" style="color:${ok ? 'var(--ok)' : 'var(--bad)'}">${ok ? '✓ 回答正确' : '✗ 回答错误'}　正确答案：${'ABCD'[q.answer]}</span>${q.explain}`;
+    ex.classList.add('show');
+    el('btnQuizDemo').style.display = '';
+    el('btnCallTool').style.display = '';
+    el('btnQuizNext').style.display = '';
+  }
+
+  function applyPreset(p) {
+    setSSS(p.a, p.b, p.c, p.focus);
+    state.lockBC = false;
+    syncPanel();
+  }
+
+  el('btnQuizNext').addEventListener('click', () => {
+    if (qi < TOTAL - 1) { qi++; renderQuiz(); }
+    else { finishQuiz(); }
+  });
+  el('btnCloseQuiz').addEventListener('click', () => { closeQuiz(); setMode('explore'); });
+  el('btnQuizDemo').addEventListener('click', () => { startDemo(qi); });
+  el('btnCallTool').addEventListener('click', () => {
+    applyPreset(QUIZ[qi].preset);
+    closeQuiz();
+    setMode('explore');
+    toast('教具已就位：拖动顶点实时验证本题');
+  });
+  el('btnOpenQuiz').addEventListener('click', () => openQuiz(true));
+
+  function finishQuiz() {
+    closeQuiz(false);
+    el('stageShell').classList.remove('dimmed');
+    el('passSub').textContent = `本轮得分 ${score} / ${TOTAL}，已解锁「三角侦探」称号。`;
+    el('btnQuizNext').style.display = 'none';
+    el('passModal').classList.add('open');
+    sfxRight();
+  }
+  el('btnPassClose').addEventListener('click', () => {
+    el('passModal').classList.remove('open');
+    setMode('explore');
+  });
+  el('btnRestart').addEventListener('click', () => {
+    el('passModal').classList.remove('open');
+    setMode('challenge');
+    openQuiz(true);
+  });
+
+  /* ===================== 画布按钮 / 快捷键 ===================== */
+  el('btnVerify').addEventListener('click', () => {
+    if (mode === 'predict') return;
+    state.focus = (state.focus + 1) % 3;
+    syncPanel();
+  });
+  el('btnReset').addEventListener('click', () => {
+    if (demo.active) endDemo(true);
+    state.lockBC = false;
+    if (state.anim) state.anim = null;
+    if (mode === 'predict') {
+      predictRevealed = false;
+      state.focus = 0;
+      state.verts = buildAt(3, 4, 72, 0);
+      resetPredictUI();
+      toast('已重置：b = 3、c = 4 重新锁定');
+    } else {
+      setSSS(START.a, 3, 4, 0);
+      toast('已重置为初始三角形');
+    }
+    syncPanel();
+  });
+
+  document.addEventListener('keydown', ev => {
+    if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'TEXTAREA') return;
+    if (ev.code === 'Space') {
+      ev.preventDefault();
+      if (demo.active && !demo.live) {
+        demo.playing = !demo.playing;
+        demo.stepT0 = performance.now();
+        el('demoPlay').textContent = demo.playing ? '⏸ 暂停' : '▶ 播放';
+        return;
+      }
+      if (state.anim) {
+        state.anim.paused = !state.anim.paused;
+        toast(state.anim.paused ? '动画已暂停（Space 继续）' : '继续播放');
+        return;
+      }
+      if (mode === 'predict') return;
+      state.focus = (state.focus + 1) % 3;
+      syncPanel();
+    } else if (ev.key === 'f' || ev.key === 'F') {
+      setMode('presentation');
+    } else if (ev.key === 'Escape') {
+      if (el('passModal').classList.contains('open')) el('passModal').classList.remove('open');
+      else if (demo.active) endDemo();
+      else if (el('quizModal').classList.contains('open')) { closeQuiz(); setMode('explore'); }
+    }
+  });
+
+  /* ===================== toast ===================== */
+  let toastTimer = null;
+  function toast(msg) {
+    const t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  /* ===================== 启动 ===================== */
+  setMode('explore');
+  syncPanel();
 })();
 </script>
 </body>

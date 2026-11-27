@@ -3,568 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>24.3 数据的四分位数 · 箱线图自动绘制与读图</title>
+<title>24.3 数据的四分位数</title>
 <style>
-  :root{
-    --blue:#2563eb; --orange:#ea580c; --purple:#7c3aed; --green:#15803d;
-    --ink:#1e293b; --sub:#64748b; --line:#e2e8f0; --amber:#d97706;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f1f5f9;color:var(--ink);
-       padding:14px 18px;max-width:1500px;margin:0 auto}
-  h1{font-size:26px;text-align:center;margin-bottom:6px}
-  h1 .hl{color:var(--blue)}
-  .cards{display:flex;gap:10px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
-  .card{background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 14px;font-size:15px;
-        box-shadow:0 1px 3px rgba(0,0,0,.06)}
-  .card b{font-size:16px}
-  .card.t1{border-color:#93c5fd}.card.t1 b{color:var(--blue)}
-  .card.t2{border-color:#fdba74}.card.t2 b{color:var(--orange)}
-  .card.t3{border-color:#6ee7b7}.card.t3 b{color:var(--green)}
-  .card.t4{border-color:#fca5a5}.card.t4 b{color:#dc2626}
-
-  .panel{background:#fff;border-radius:14px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.05);padding:12px 16px;margin-bottom:12px}
-  .panel h3,.panel h4{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .panel h3{font-size:18px}
-  .panel h4{font-size:15.5px;color:#334155;border-left:4px solid var(--blue);padding-left:8px}
-  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
-
-  /* ==================== 排序定位条 ==================== */
-  #strip{position:relative;height:178px}
-  #bands,#marks{position:absolute;inset:0;pointer-events:none}
-  .qband{position:absolute;top:10px;height:56px;border-radius:6px;opacity:.55;animation:fade .6s both}
-  .iqband{position:absolute;top:4px;height:68px;border:2px dashed #d97706;border-radius:8px;
-          background:rgba(217,119,6,.08);animation:fade .6s both}
-  .iqband span{position:absolute;top:-1px;left:50%;transform:translate(-50%,-100%);
-          font-size:13.5px;font-weight:bold;color:var(--amber);white-space:nowrap}
-  .chip{position:absolute;top:14px;height:48px;border-radius:9px;background:#fff;border:2px solid #cbd5e1;
-        display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;
-        transition:left .8s cubic-bezier(.22,1,.36,1), background-color .5s, border-color .5s, box-shadow .4s;
-        box-shadow:0 1px 2px rgba(0,0,0,.08)}
-  .chip .rank{font-size:11px;color:#94a3b8;line-height:1}
-  .chip .val{font-size:18px;font-weight:bold;line-height:1.2;font-family:"Cambria Math","Times New Roman",serif}
-  .chip.c1{background:#dbeafe;border-color:#60a5fa}.chip.c1 .rank{color:#3b82f6}
-  .chip.c2{background:#dcfce7;border-color:#4ade80}.chip.c2 .rank{color:#16a34a}
-  .chip.c3{background:#fef9c3;border-color:#facc15}.chip.c3 .rank{color:#ca8a04}
-  .chip.c4{background:#fee2e2;border-color:#f87171}.chip.c4 .rank{color:#dc2626}
-  .chip.five{box-shadow:0 0 0 3px rgba(37,99,235,.35),0 2px 6px rgba(0,0,0,.15)}
-  .oring{position:absolute;top:9px;height:58px;border:2.5px dashed #dc2626;border-radius:12px;
-         animation:fade .5s both;box-shadow:0 0 8px rgba(220,38,38,.3)}
-  .qmark{position:absolute;top:66px;width:0;animation:fade .6s both}
-  .qmark .stem{position:absolute;left:-1px;top:0;width:2px;height:22px;background:currentColor;border-radius:1px}
-  .qmark .tri{position:absolute;left:-5px;top:20px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid currentColor}
-  .qmark .qlab{position:absolute;left:-16px;top:-20px;width:34px;text-align:center;font-size:15px;font-weight:bold}
-  .qpop{position:absolute;transform:translateX(-50%);background:#fff;border:2px solid currentColor;
-        border-radius:9px;padding:4px 9px;font-size:14px;white-space:nowrap;animation:popfade .6s both;
-        font-family:"Cambria Math","Times New Roman","Microsoft YaHei",serif;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-  .qpop b{font-size:15px}
-  @keyframes fade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-  @keyframes bpin{from{opacity:0}to{opacity:1}}
-  .qpop{animation-name:popfade}
-  @keyframes popfade{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%)}}
-  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--sub);justify-content:center}
-
-  /* ==================== 主区 ==================== */
-  .main{display:grid;grid-template-columns:370px 1fr;gap:12px;align-items:start}
-  @media (max-width:1100px){.main{grid-template-columns:1fr}}
-  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-  button{font-family:inherit}
-  .btn{padding:8px 14px;font-size:15px;font-weight:bold;border-radius:9px;border:2px solid var(--line);
-       background:#fff;cursor:pointer;color:#334155;transition:.2s}
-  .btn:hover{border-color:#94a3b8}
-  .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.35)}
-  .btn.play{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.35)}
-  .btn.play.stop{background:#64748b;border-color:#64748b}
-  .nctl{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:15px}
-  .nctl button{width:32px;height:32px;border-radius:8px;border:2px solid var(--line);background:#fff;font-size:18px;font-weight:bold;cursor:pointer;color:#334155}
-  .nctl b{color:var(--blue);font-size:17px;min-width:26px;text-align:center;display:inline-block}
-  #inputs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-  .din{width:62px;padding:6px 4px;font-size:16px;text-align:center;border:2px solid #cbd5e1;border-radius:8px;
-       font-family:"Cambria Math","Times New Roman",serif;font-weight:bold;color:var(--ink)}
-  .din:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-  .steps{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
-  .stepdot{font-size:12.5px;padding:4px 8px;border-radius:20px;border:1.5px solid var(--line);color:var(--sub);
-           cursor:pointer;background:#fff;transition:.25s;white-space:nowrap}
-  .stepdot.done{background:#f1f5f9;border-color:#cbd5e1}
-  .stepdot.on{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:bold}
-  .opts{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:14px}
-  .opts label{cursor:pointer;display:flex;align-items:center;gap:4px}
-  .opts input{accent-color:var(--blue);cursor:pointer}
-  .tip{font-size:13.5px;color:var(--sub);line-height:1.65;background:#f8fafc;border-radius:9px;padding:8px 10px;margin-bottom:8px}
-  .tip b{color:#334155}
-  body.noanim *{animation:none!important;transition:none!important}
-
-  /* ==================== 五数 / IQR / 异常值 ==================== */
-  .five{display:flex;gap:8px;justify-content:space-between}
-  .ftile{flex:1;text-align:center;border-radius:11px;padding:8px 4px;border:2px solid var(--line);background:#f8fafc;transition:.4s}
-  .ftile .fname{font-size:14px;font-weight:bold}
-  .ftile .fval{font-size:23px;font-weight:bold;font-family:"Cambria Math","Times New Roman",serif;line-height:1.25}
-  .ftile .fpos{font-size:11.5px;color:var(--sub);line-height:1.4;margin-top:2px}
-  .ftile.min .fname,.ftile.min .fval{color:#475569}
-  .ftile.q1 .fname,.ftile.q1 .fval{color:var(--blue)}
-  .ftile.q2 .fname,.ftile.q2 .fval{color:var(--green)}
-  .ftile.q3 .fname,.ftile.q3 .fval{color:var(--orange)}
-  .ftile.max .fname,.ftile.max .fval{color:#475569}
-  .ftile.hl{transform:translateY(-4px);box-shadow:0 5px 14px rgba(0,0,0,.15);animation:fpulse 1.8s ease-in-out infinite}
-  @keyframes fpulse{0%,100%{box-shadow:0 5px 14px rgba(0,0,0,.12)}50%{box-shadow:0 5px 20px rgba(37,99,235,.4)}}
-  .calc{font-size:17px;line-height:1.8;background:#fefce8;border:1px solid #fde047;border-radius:10px;padding:8px 12px;
-        font-family:"Cambria Math","Times New Roman","Microsoft YaHei",serif;margin-bottom:8px}
-  .calc b{font-size:18px}
-  .calc .ca{color:var(--blue)}.calc .cb{color:var(--orange)}.calc .cg{color:var(--green)}
-  .note{font-size:13.5px;color:var(--sub);line-height:1.6}
-  .outbox{border-radius:10px;padding:9px 12px;font-size:15px;line-height:1.7;transition:.4s}
-  .outbox.none{background:#f0fdf4;border:2px solid #86efac}
-  .outbox.some{background:#fef2f2;border:2px solid #fca5a5}
-  .outbox b.ov{color:#dc2626;font-size:17px;font-family:"Cambria Math","Times New Roman",serif}
-
-  /* ==================== 箱线图 ==================== */
-  #bpwrap{background:#fff}
-  svg{display:block;width:100%;height:auto;user-select:none}
-  .bpnote{font-size:13.5px;color:var(--sub);line-height:1.7;background:#f5f3ff;border-radius:9px;padding:8px 11px;margin-top:8px}
-  .bpnote b{color:var(--purple)}
-
-  /* 警示与口诀 */
-  .warns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
-  @media (max-width:900px){.warns{grid-template-columns:1fr}}
-  .warn{background:#fef2f2;border:2px solid #fca5a5;border-left:6px solid #dc2626;border-radius:10px;
-        padding:9px 13px;font-size:14.5px;line-height:1.65}
-  .warn b{color:#dc2626}
-  .motto{margin-top:12px;text-align:center;font-size:21px;font-weight:bold;color:#fff;
-         background:linear-gradient(90deg,#15803d,#22c55e);border-radius:12px;padding:11px 16px;letter-spacing:2px;
-         animation:mpulse 2.4s ease-in-out infinite}
-  @keyframes mpulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 12px rgba(34,197,94,0)}}
+  :root{--blue:#2563eb;--blueL:#dbeafe;--green:#16a34a;--greenL:#dcfce7;--orange:#f59e0b;--orangeL:#fef3c7;--purple:#7c3aed;--purpleL:#ede9fe;--red:#ef4444;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f4f7fb;color:var(--ink);padding:14px 12px 30px;}
+  .wrap{max-width:940px;margin:0 auto;}
+  header{text-align:center;margin-bottom:10px;}
+  header h1{font-size:21px;}
+  header p{color:var(--sub);font-size:13px;margin-top:2px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.05);margin-bottom:12px;}
+  svg{display:block;width:100%;height:auto;}
+  .caption{text-align:center;font-size:16px;font-weight:700;min-height:26px;margin:6px 0;}
+  .caption .em{color:var(--purple);}
+  .presets{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+  .presets button{padding:7px 14px;border-radius:9px;border:2px solid var(--line);background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--sub);}
+  .presets button.on{background:var(--purple);border-color:var(--purple);color:#fff;}
+  .dataRow{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:8px 0;}
+  .dataRow input{width:48px;padding:6px 2px;border:1.5px solid var(--line);border-radius:7px;font-size:14px;text-align:center;font-weight:700;}
+  .dots{display:flex;gap:7px;justify-content:center;margin:8px 0 2px;}
+  .dots i{width:11px;height:11px;border-radius:50%;background:#cbd5e1;transition:.3s;cursor:pointer;}
+  .dots i.on{background:var(--purple);transform:scale(1.2);}
+  .ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .ctrl button{padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  .ctrl button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ctrl button.play{background:var(--green);border-color:var(--green);color:#fff;}
+  .ctrl button.play.on{background:var(--orange);border-color:var(--orange);}
+  .ctrl button:disabled{opacity:.4;cursor:default;}
+  .fivenum{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+  .fivenum .f{padding:8px 14px;border-radius:10px;text-align:center;min-width:80px;}
+  .fivenum .f .t{font-size:12px;color:var(--sub);}
+  .fivenum .f .v{font-size:20px;font-weight:800;}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.caption{font-size:14px;}.dataRow input{width:42px;}}
 </style>
 </head>
 <body>
-<h1><span class="hl">24.3</span> 数据的四分位数 · 箱线图自动绘制与读图</h1>
-<div class="cards">
-  <div class="card t1"><b>四分位数</b>：Q1 / Q2 / Q3 把排序数据一分为四</div>
-  <div class="card t2"><b>IQR</b>：IQR = Q3 − Q1，中间 50% 数据的"跨度"</div>
-  <div class="card t3"><b>五数概括</b>：Min、Q1、Q2、Q3、Max 五个数画像</div>
-  <div class="card t4"><b>异常值</b>：超出 [Q1−1.5IQR，Q3+1.5IQR] 即判定</div>
-</div>
+<div class="wrap">
+  <header>
+    <h1>24.3 数据的四分位数</h1>
+    <p>把排序数据一分为四 · 五数概括 / IQR / 异常值 / 箱线图</p>
+  </header>
 
-<!-- ==================== 排序定位条 ==================== -->
-<div class="panel">
-  <h3><span class="dot" style="background:var(--blue)"></span>数据排序与四分位定位区 <span id="stepLabel" style="font-size:14px;color:var(--sub);font-weight:normal"></span></h3>
-  <div id="strip">
-    <div id="bands"></div>
-    <div id="chips"></div>
-    <div id="marks"></div>
-  </div>
-  <div class="legend" id="stripLegend"></div>
-</div>
-
-<div class="main">
-  <!-- ==================== 左：数据与控制 ==================== -->
-  <div class="panel">
-    <h4>📝 数据录入（单元格可直接修改）</h4>
-    <div id="inputs"></div>
-    <div class="nctl">数据个数 n =
-      <button id="nMinus">−</button><b id="nVal">16</b><button id="nPlus">＋</button>
-      <span class="note">（12 ~ 20 个）</span>
+  <div class="card">
+    <div class="presets">
+      <button data-p="0" class="on">预设·无异常值</button>
+      <button data-p="1">预设·含异常值</button>
+      <button id="rand">🎲 随机 16 个</button>
     </div>
-    <div class="btnrow">
-      <button class="btn" id="btnRandom">🎲 随机生成</button>
-      <button class="btn" id="btnP1">预设·无异常值</button>
-      <button class="btn" id="btnP2">预设·含异常值</button>
+    <div class="dataRow" id="dataRow"></div>
+    <svg id="svg" viewBox="0 0 900 400"></svg>
+    <div class="caption" id="cap"></div>
+    <div class="dots" id="dots"></div>
+    <div class="ctrl">
+      <button id="prev">◀ 上一步</button>
+      <button id="next" class="primary">下一步 ▶</button>
+      <button id="play" class="play">▶ 自动播放</button>
+      <button id="reset">↺ 重置</button>
     </div>
-    <h4>🎬 动画演示（逐步 / 自动播放）</h4>
-    <div class="btnrow">
-      <button class="btn" id="btnReset">⏮ 重置</button>
-      <button class="btn" id="btnPrev">◀ 上一步</button>
-      <button class="btn play" id="btnPlay">▶ 播放演示</button>
-      <button class="btn" id="btnNext">下一步 ▶</button>
-    </div>
-    <div class="steps" id="stepDots"></div>
-    <h4 style="margin-top:14px">👁 显示选项</h4>
-    <div class="opts" id="opts"></div>
-    <h4 style="margin-top:14px">💡 读图提示与价值</h4>
-    <div class="tip"><b>箱体宽窄</b>：箱体（Q1~Q3）越窄，说明中间 50% 的数据越<b>集中</b>；越宽越分散。</div>
-    <div class="tip"><b>须线长短</b>：须线越长，两端数据越<b>分散</b>；异常值不会拉长须线，而是单独画成空心点。</div>
-    <div class="tip"><b>独特价值</b>：条形图看"多少"、折线图看"变化趋势"，而箱线图只用 <b>5 个数</b>就能为一组数据"画像"，还能一眼识别异常值——这是体质调查、成绩分析中的常用工具。</div>
+    <div class="fivenum" id="fivenum"></div>
   </div>
 
-  <!-- ==================== 右：五数 / IQR / 异常值 / 箱线图 ==================== -->
-  <div>
-    <div class="panel">
-      <h4>🔢 五数概括（实时计算 + 位置说明）</h4>
-      <div class="five" id="fiveBox"></div>
-      <h4 style="margin-top:12px">📐 IQR 与极差对比</h4>
-      <div class="calc" id="iqrBox"></div>
-      <div class="note" id="iqrNote"></div>
-      <h4 style="margin-top:12px">🚨 异常值判定（1.5 倍 IQR 法则）</h4>
-      <div class="outbox none" id="outBox"></div>
-    </div>
-    <div class="panel" id="bpwrap">
-      <h4>📊 箱线图（根据五数自动绘制）</h4>
-      <svg id="bpSvg" viewBox="0 0 840 280"></svg>
-      <div class="bpnote">📖 读图三句话：<b>箱体</b>=中间 50%（Q1~Q3）；<b>箱内横线</b>=中位数 Q2；<b>须线</b>延伸至非异常的最小/最大值，<b>红色空心点</b>=异常值。红色虚线为异常值判定边界 [Q1−1.5IQR，Q3+1.5IQR]。</div>
-    </div>
-  </div>
+  <footer>人教版八年级下册 · 24.3 数据的四分位数 · 奇数个数据剔除中位数再找 Q1/Q3</footer>
 </div>
-
-<div class="warns">
-  <div class="warn"><b>易错 ①</b> 数据个数为<b>偶数</b>时，中位数 Q2 取<b>中间两数的平均</b>；Q1、Q3 也分别是"下半部分、上半部分"（n 为奇数时不含总中位数）的中位数，同样是偶数个取平均——这是新课标最容易错的地方！</div>
-  <div class="warn"><b>易错 ②</b> 异常值不是"最小/最大的数"，而是<b>超出 [Q1−1.5×IQR，Q3+1.5×IQR]</b> 的数；判定前必须先把 IQR、上下界算对，且上下界不等于数据的最大/最小值。</div>
-</div>
-<div class="motto">一分为四取三分位，中间一半 IQR；一五倍外是异常，箱线一图画全貌。</div>
 
 <script>
-/* ==================== 工具 ==================== */
-function $(id){ return document.getElementById(id); }
-function fmt(n){ var r=Math.round(n*10)/10; return (Object.is(r,-0)?0:r).toString(); }
-var C={blue:'#2563eb',orange:'#ea580c',purple:'#7c3aed',green:'#15803d',amber:'#d97706',
-       red:'#dc2626',ink:'#1e293b',sub:'#64748b',line:'#e2e8f0'};
-function esc(s){ return s.replace(/</g,'&lt;'); }
-
-/* ==================== 状态 ==================== */
-var raw=[];            /* 录入顺序 */
-var step=0;            /* 0乱序 1排序 2四分位 3五数 4IQR 5异常值 6箱线图 */
-var opt={bandQ:true,five:true,bandIQR:true,out:true,box:true};
-var playTimer=null;
-var STEPS=['乱序数据','升序排序','四分位定位','五数提取','IQR 区间','异常值判定','箱线图绘制'];
-var chipEls=[];        /* 与 raw 一一对应 */
-
-/* ==================== 四分位计算 ==================== */
-function sortedData(){ return raw.slice().sort(function(a,b){return a-b;}); }
-/* arr 已升序；startRank 为 arr[0] 在全体的名次(1-based) */
-function medOf(arr,startRank,sArr){
-  var m=arr.length;
-  if (m%2===1){ var i=(m-1)/2; return {v:arr[i],a:startRank+i,b:null,pos:'第'+(startRank+i)+'个（正中）'}; }
-  var i=m/2-1;
-  return {v:(arr[i]+arr[i+1])/2, a:startRank+i, b:startRank+i+1,
-          pos:'第'+(startRank+i)+'、'+(startRank+i+1)+'个的平均'};
+"use strict";
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const svg=$('svg');
+const PRESETS=[
+  [64,66,68,70,70,72,73,74,75,76,78,79,81,83,85,88],
+  [25,64,66,68,70,71,72,73,74,75,76,78,80,82,85,102]
+];
+let DATA=PRESETS[1].slice();
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+function T(x,y,s,fill,size,op,w){const t=el('text',{x,y,'text-anchor':'middle','font-size':size||13,fill:fill||'#334155','font-weight':w||'bold','paint-order':'stroke',stroke:'#fff','stroke-width':4,opacity:op===undefined?1:op});t.textContent=s;return t;}
+function med(a){const n=a.length,m=n>>1;return n%2?a[m]:(a[m-1]+a[m])/2;}
+function stats(){
+  const s=[...DATA].sort((a,b)=>a-b),n=s.length,k=Math.floor(n/2);
+  const lower=s.slice(0,k),upper=s.slice(n-k);
+  const Q1=med(lower),Q2=med(s),Q3=med(upper);
+  const IQR=Q3-Q1,lo=Q1-1.5*IQR,hi=Q3+1.5*IQR;
+  const outliers=s.filter(v=>v<lo||v>hi);
+  const inliers=s.filter(v=>v>=lo&&v<=hi);
+  return {s,n,Q1,Q2,Q3,IQR,lo,hi,outliers,wLo:Math.min(...inliers),wHi:Math.max(...inliers),min:s[0],max:s[n-1]};
 }
-function quartiles(){
-  var s=sortedData(), n=s.length, k=Math.floor(n/2);
-  var lower=s.slice(0,k), upper=s.slice(n-k);
-  var q1=medOf(lower,1,s), q3=medOf(upper,n-k+1,s);
-  var q2=(n%2===1)? medOf([s[(n-1)/2]],(n-1)/2+1,s)
-                  : medOf([s[n/2-1],s[n/2]],n/2,s);
-  if (n%2===1) q2.pos='第'+((n-1)/2+1)+'个（正中）';
-  return {s:s,n:n,k:k,q1:q1,q2:q2,q3:q3,
-          min:s[0],max:s[n-1],iqr:q3.v-q1.v,
-          L:q1.v-(q3.v-q1.v)*1.5, U:q3.v+(q3.v-q1.v)*1.5};
-}
-function outlierInfo(Q){
-  var lo=[],hi=[];
-  Q.s.forEach(function(v){ if (v<Q.L) lo.push(v); if (v>Q.U) hi.push(v); });
-  var wl=null,wh=null;
-  for (var i=0;i<Q.n;i++){ if (Q.s[i]>=Q.L){ wl=Q.s[i]; break; } }
-  for (var i=Q.n-1;i>=0;i--){ if (Q.s[i]<=Q.U){ wh=Q.s[i]; break; } }
-  return {list:lo.concat(hi), wl:wl, wh:wh};
-}
-/* 名次 → strip 上的像素位置 */
-var slot=54, STRIP_PAD=10;
-function centerOf(rank){ return STRIP_PAD+(rank-1)*slot+(slot-8)/2; }
-function qX(q){ return q.b===null? centerOf(q.a) : (centerOf(q.a)+centerOf(q.b))/2; }
+const CAP=[
+  '原始数据（乱序）：先观察这 16 个数',
+  '第一步：<span class="em">升序排序</span>',
+  '找 Q1、Q2、Q3：奇数个时<span class="em">剔除中位数</span>，上下两半各取中位数',
+  '<span class="em">五数概括</span>：Min、Q1、Q2、Q3、Max',
+  'IQR = Q3 − Q1 = 中间 50% 数据的跨度',
+  '异常值：超出 [Q1−1.5IQR, Q3+1.5IQR] 的数',
+  '画出<span class="em">箱线图</span>：箱体 Q1~Q3，中位线 Q2，须到界内最值'
+];
+let target=0,cur=0,raf=null,playTimer=null;
+function ensureAnim(){if(raf==null)raf=requestAnimationFrame(tick);}
+function tick(){cur+=(target-cur)*0.16;if(Math.abs(target-cur)<0.002)cur=target;render(cur);if(cur!==target)raf=requestAnimationFrame(tick);else raf=null;}
+function setTarget(n){target=clamp(n,0,6);ensureAnim();updateUI();}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}$('play').textContent='▶ 自动播放';$('play').classList.remove('on');}
+function startPlay(){if(target>=6)setTarget(0);$('play').textContent='⏸ 暂停';$('play').classList.add('on');playTimer=setInterval(()=>{if(target<6)setTarget(target+1);else stopPlay();},2000);}
 
-/* ==================== 数据录入 ==================== */
 function buildInputs(){
-  var h='';
-  for (var i=0;i<raw.length;i++)
-    h+='<input class="din" data-i="'+i+'" type="number" value="'+raw[i]+'">';
-  $('inputs').innerHTML=h;
-  Array.prototype.forEach.call($('inputs').children,function(inp){
-    inp.onchange=function(){
-      var v=parseFloat(this.value);
-      if (isNaN(v)) v=raw[+this.dataset.i];
-      raw[+this.dataset.i]=v; this.value=v;
-      onDataChanged(false);
-    };
-  });
+  const d=$('dataRow');d.innerHTML='';
+  DATA.forEach((v,i)=>{const inp=document.createElement('input');inp.type='number';inp.value=v;
+    inp.oninput=()=>{const n=+inp.value;if(!isNaN(n)){DATA[i]=n;setTarget(0);cur=0;render(0);updateUI();}};d.appendChild(inp);});
 }
-function buildChips(){
-  var box=$('chips'); box.innerHTML=''; chipEls=[];
-  raw.forEach(function(v,i){
-    var d=document.createElement('div'); d.className='chip';
-    d.innerHTML='<span class="rank"></span><span class="val">'+fmt(v)+'</span>';
-    box.appendChild(d); chipEls.push(d);
-  });
-  layoutChips();
-}
-function layoutChips(){
-  var w=$('strip').clientWidth-STRIP_PAD*2;
-  slot=Math.min(58,Math.max(34,w/Math.max(raw.length,1)));
-  chipEls.forEach(function(d,i){
-    d.style.width=(slot-8)+'px';
-    d.querySelector('.val').textContent=fmt(raw[i]);
-  });
-  paintChips();
-}
-function displayPos(i){  /* 名次 0-based：乱序=录入位置；排序后=按大小 */
-  if (step>=1){
-    var order=raw.map(function(v,idx){ return [v,idx]; })
-                .sort(function(a,b){ return a[0]-b[0] || a[1]-b[1]; });
-    for (var r=0;r<order.length;r++) if (order[r][1]===i) return r;
-  }
-  return i;
-}
-function paintChips(){
-  var Q=quartiles();
-  chipEls.forEach(function(d,i){
-    var r=displayPos(i);             /* 0-based 名次 */
-    d.style.left=(STRIP_PAD+r*slot)+'px';
-    d.querySelector('.rank').textContent=(step>=1?('第'+(r+1)+'个'):'');
-    var cls='chip';
-    if (step>=2 && opt.bandQ){
-      cls+=' c'+(Math.min(3,Math.floor(r/(Q.n/4)))+1);
+function render(t){
+  svg.innerHTML='';
+  const st=stats();
+  const sortOp=clamp(t-1,0,1),qOp=clamp(t-2,0,1),fiveOp=clamp(t-3,0,1),iqrOp=clamp(t-4,0,1),outOp=clamp(t-5,0,1),boxOp=clamp(t-6,0,1);
+  const x0=70,x1=850;
+  const vmin=Math.min(20,st.min),vmax=Math.max(105,st.max);
+  const px=v=>x0+(v-vmin)/(vmax-vmin)*(x1-x0);
+  // 数据点行
+  const shown=sortOp>0.5?st.s:DATA;
+  const n=shown.length,bw=(x1-x0)/n;
+  shown.forEach((v,i)=>{
+    const cx=x0+i*bw+bw/2;
+    let fill='#dbeafe',stroke='#93c5fd',tc='#1d4ed8';
+    if(qOp>0.5){
+      if(v===st.Q2){fill='#ede9fe';stroke='#7c3aed';tc='#6d28d9';}
     }
-    if (step>=3 && opt.five && (r===0||r===Q.n-1||isQChip(Q,r))) cls+=' five';
-    d.className=cls;
+    if(outOp>0.5&&st.outliers.includes(v)){fill='#fee2e2';stroke='#ef4444';tc='#b91c1c';}
+    el('rect',{x:cx-15,y:40,width:30,height:30,rx:6,fill,stroke,'stroke-width':2});
+    T(cx,60,String(v),tc,12);
   });
-}
-function isQChip(Q,r){
-  var marks={};
-  [Q.q1,Q.q2,Q.q3].forEach(function(q){ marks[q.a]=1; if(q.b)marks[q.b]=1; });
-  return !!marks[r+1];
-}
-
-/* ==================== strip 标注层 ==================== */
-function renderBands(){
-  var Q=quartiles(), h='';
-  if (step>=2 && opt.bandQ){
-    var cols=['#dbeafe','#dcfce7','#fef9c3','#fee2e2'];
-    for (var i=0;i<4;i++){
-      var x0=STRIP_PAD+i*Q.n/4*slot, x1=STRIP_PAD+(i+1)*Q.n/4*slot;
-      h+='<div class="qband" style="left:'+x0+'px;width:'+(x1-x0-4)+'px;background:'+cols[i]+'"></div>';
-    }
+  if(qOp>0.5){
+    T(px(st.Q1),95,'Q1='+st.Q1,'#2563eb',14,qOp);
+    T(px(st.Q2),112,'Q2='+st.Q2,'#7c3aed',14,qOp);
+    T(px(st.Q3),95,'Q3='+st.Q3,'#16a34a',14,qOp);
   }
-  if (step>=4 && opt.bandIQR){
-    var a=qX(Q.q1), b=qX(Q.q3);
-    h+='<div class="iqband" style="left:'+a+'px;width:'+(b-a)+'px"><span>中间 50%：IQR 区间</span></div>';
+  // 数轴
+  const ay=200;
+  el('line',{x1:x0,y1:ay,x2:x1,y2:ay,stroke:'#cbd5e1','stroke-width':2});
+  for(let v=Math.ceil(vmin/10)*10;v<=vmax;v+=10){el('line',{x1:px(v),y1:ay-4,x2:px(v),y2:ay+4,stroke:'#cbd5e1','stroke-width':1.4});T(px(v),ay+20,String(v),'#94a3b8',11);}
+  // IQR 区间
+  if(iqrOp>0){
+    el('rect',{x:px(st.Q1),y:ay-30,width:px(st.Q3)-px(st.Q1),height:60,fill:'#ede9fe',opacity:0.4*iqrOp});
+    T((px(st.Q1)+px(st.Q3))/2,ay-38,'IQR='+st.IQR,'#7c3aed',14,iqrOp);
   }
-  $('bands').innerHTML=h;
-}
-function renderMarks(){
-  var Q=quartiles(), O=outlierInfo(Q), h='';
-  if (step>=2){
-    [[Q.q1,C.blue,'Q1',96],[Q.q2,C.green,'Q2',136],[Q.q3,C.orange,'Q3',96]].forEach(function(m){
-      var q=m[0], col=m[1], name=m[2], popY=m[3], x=qX(q);
-      h+='<div class="qmark" style="left:'+x+'px;color:'+col+'">'+
-         '<div class="qlab" style="color:'+col+'">'+name+'</div><div class="stem"></div><div class="tri"></div></div>';
-      var formula = q.b===null
-        ? name+' = <b>'+fmt(q.v)+'</b>'
-        : name+' = ('+fmt(Q.s[q.a-1])+'+'+fmt(Q.s[q.b-1])+')÷2 = <b>'+fmt(q.v)+'</b>';
-      h+='<div class="qpop" style="left:'+x+'px;top:'+popY+'px;color:'+col+'">'+formula+'</div>';
-    });
+  // 异常值界
+  if(outOp>0){
+    el('line',{x1:px(st.lo),y1:ay-50,x2:px(st.lo),y2:ay+50,stroke:'#ef4444','stroke-width':2,'stroke-dasharray':'6 4',opacity:outOp});
+    el('line',{x1:px(st.hi),y1:ay-50,x2:px(st.hi),y2:ay+50,stroke:'#ef4444','stroke-width':2,'stroke-dasharray':'6 4',opacity:outOp});
+    T(px(st.lo),ay+66,'下界'+Math.round(st.lo*10)/10,'#ef4444',11,outOp);
+    T(px(st.hi),ay+66,'上界'+Math.round(st.hi*10)/10,'#ef4444',11,outOp);
   }
-  if (step>=5 && opt.out){
-    chipEls.forEach(function(d,i){
-      var v=raw[i];
-      if (v<Q.L||v>Q.U){
-        var r=displayPos(i);
-        h+='<div class="oring" style="left:'+(STRIP_PAD+r*slot-4)+'px;width:'+(slot)+'px"></div>';
-      }
-    });
-  }
-  $('marks').innerHTML=h;
-}
-function renderStripLegend(){
-  var h='<span><i style="width:14px;height:14px;background:#dbeafe;border:1px solid #60a5fa;border-radius:4px;display:inline-block;vertical-align:-2px"></i> 下四分之一</span>'+
-        '<span><i style="width:14px;height:14px;background:#fef9c3;border:1px solid #facc15;border-radius:4px;display:inline-block;vertical-align:-2px"></i> 中间含 Q2</span>'+
-        '<span><i style="width:14px;height:14px;background:#fee2e2;border:1px solid #f87171;border-radius:4px;display:inline-block;vertical-align:-2px"></i> 上四分之一</span>'+
-        '<span><i style="width:14px;height:14px;border:2px dashed #d97706;border-radius:4px;display:inline-block;vertical-align:-2px"></i> IQR（中间50%）</span>'+
-        '<span><i style="width:14px;height:14px;border:2px dashed #dc2626;border-radius:7px;display:inline-block;vertical-align:-2px"></i> 异常值</span>'+
-        '<span style="color:#94a3b8">↑ 排序后：Q1、Q2、Q3 恰好把数据分成四等份</span>';
-  $('stripLegend').innerHTML=h;
-}
-
-/* ==================== 右侧面板 ==================== */
-function renderFive(Q){
-  function posMin(){ return '第1个（排序后最小）'; }
-  function posMax(){ return '第'+Q.n+'个（排序后最大）'; }
-  var tiles=[
-    ['min','Min 最小值',Q.min,posMin()],
-    ['q1','Q1',Q.q1.v,'下四分位数<br>'+Q.q1.pos],
-    ['q2','Q2 中位数',Q.q2.v,'中位数<br>'+Q.q2.pos],
-    ['q3','Q3',Q.q3.v,'上四分位数<br>'+Q.q3.pos],
-    ['max','Max 最大值',Q.max,posMax()]
-  ];
-  var h='';
-  tiles.forEach(function(t){
-    var cls='ftile '+t[0]+(step>=3&&opt.five?' hl':'');
-    h+='<div class="'+cls+'"><div class="fname">'+t[1]+'</div><div class="fval">'+fmt(t[2])+'</div><div class="fpos">'+t[3]+'</div></div>';
-  });
-  $('fiveBox').innerHTML=h;
-}
-function renderIqr(Q){
-  var h='IQR = Q3 − Q1 = <span class="ca">'+fmt(Q.q3.v)+'</span> − <span class="cb">'+fmt(Q.q1.v)+
-        '</span> = <b class="cg">'+fmt(Q.iqr)+'</b>';
-  if (step>=5) h+='<br><span style="font-size:15px">下界 = Q1 − 1.5×IQR = '+fmt(Q.q1.v)+' − '+fmt(Q.iqr*1.5)+' = <b style="color:'+C.red+'">'+fmt(Q.L)+'</b>；'+
-                  '上界 = Q3 + 1.5×IQR = '+fmt(Q.q3.v)+' + '+fmt(Q.iqr*1.5)+' = <b style="color:'+C.red+'">'+fmt(Q.U)+'</b></span>';
-  $('iqrBox').innerHTML=h;
-  $('iqrNote').innerHTML='对比极差：极差 = Max − Min = '+fmt(Q.max)+' − '+fmt(Q.min)+' = <b>'+fmt(Q.max-Q.min)+'</b>。'+
-    '极差只由两端两个数决定，一个极端值就能把它拉得很大；而 IQR 只看中间 50% 的数据，<b style="color:var(--green)">受极端值影响小，更稳定</b>。';
-}
-function renderOut(Q,O){
-  var box=$('outBox');
-  if (O.list.length===0){
-    box.className='outbox none';
-    box.innerHTML='✔ <b>无异常值</b>：所有数据都落在 [ '+fmt(Q.L)+'，'+fmt(Q.U)+' ] 内。<br><span class="note">判定规则：超出 Q1−1.5×IQR 或 Q3+1.5×IQR 范围的数据即为异常值。</span>';
-  } else {
-    box.className='outbox some';
-    var L=[],H=[];
-    O.list.forEach(function(v){ if (v<Q.L) L.push(v); else H.push(v); });
-    var txt=[];
-    if (L.length) txt.push('低于下界：'+L.map(function(v){return '<b class="ov">'+fmt(v)+'</b>';}).join('、'));
-    if (H.length) txt.push('高于上界：'+H.map(function(v){return '<b class="ov">'+fmt(v)+'</b>';}).join('、'));
-    box.innerHTML='🚨 <b>发现 '+O.list.length+' 个异常值</b>：'+txt.join('；')+'。<br><span class="note">它们超出了 [ '+fmt(Q.L)+'，'+fmt(Q.U)+' ]，在箱线图上单独画成红色空心点，不参与须线延伸。</span>';
+  // 箱线图
+  if(boxOp>0){
+    const by=320,bh=44;
+    el('line',{x1:px(st.wLo),y1:by+bh/2,x2:px(st.Q1),y2:by+bh/2,stroke:'#334155','stroke-width':2,opacity:boxOp});
+    el('line',{x1:px(st.Q3),y1:by+bh/2,x2:px(st.wHi),y2:by+bh/2,stroke:'#334155','stroke-width':2,opacity:boxOp});
+    el('line',{x1:px(st.wLo),y1:by+8,x2:px(st.wLo),y2:by+bh-8,stroke:'#334155','stroke-width':2,opacity:boxOp});
+    el('line',{x1:px(st.wHi),y1:by+8,x2:px(st.wHi),y2:by+bh-8,stroke:'#334155','stroke-width':2,opacity:boxOp});
+    el('rect',{x:px(st.Q1),y:by,width:px(st.Q3)-px(st.Q1),height:bh,rx:4,fill:'#dbeafe',stroke:'#2563eb','stroke-width':2.5,opacity:boxOp});
+    el('line',{x1:px(st.Q2),y1:by,x2:px(st.Q2),y2:by+bh,stroke:'#7c3aed','stroke-width':3,opacity:boxOp});
+    T(px(st.Q1),by-8,'Q1','#2563eb',12,boxOp);
+    T(px(st.Q2),by-8,'Q2','#7c3aed',12,boxOp);
+    T(px(st.Q3),by-8,'Q3','#16a34a',12,boxOp);
+    st.outliers.forEach(v=>{el('circle',{cx:px(v),cy:by+bh/2,r:7,fill:'#fff',stroke:'#ef4444','stroke-width':2.5,opacity:boxOp});T(px(v),by+bh+18,String(v),'#ef4444',12,boxOp);});
+    T(450,by+bh+38,'箱线图：须只到界内最值，异常值单独画空心点','#64748b',13,boxOp);
   }
 }
-
-/* ==================== 箱线图 ==================== */
-function ticks(lo,hi,n){
-  var r=(hi-lo)/n, pow=Math.pow(10,Math.floor(Math.log(r)/Math.LN10)), step=10*pow;
-  var ms=[1,2,2.5,5,10];
-  for (var i=0;i<ms.length;i++){ if (ms[i]*pow>=r){ step=ms[i]*pow; break; } }
-  return {step:step, start:Math.ceil(lo/step)*step};
+function updateUI(){
+  const st=stats();
+  $('cap').innerHTML=CAP[target];
+  $('dots').innerHTML=CAP.map((_,i)=>'<i class="'+(i<=target?'on':'')+'" data-i="'+i+'"></i>').join('');
+  document.querySelectorAll('.dots i').forEach(d=>d.onclick=()=>{stopPlay();setTarget(+d.dataset.i);});
+  $('prev').disabled=target===0;$('next').disabled=target===6;
+  if(target>=3){
+    $('fivenum').innerHTML=
+      '<div class="f" style="background:#f1f5f9;"><div class="t">Min</div><div class="v">'+st.min+'</div></div>'+
+      '<div class="f" style="background:var(--blueL);color:var(--blue);"><div class="t">Q1</div><div class="v">'+st.Q1+'</div></div>'+
+      '<div class="f" style="background:var(--purpleL);color:var(--purple);"><div class="t">Q2</div><div class="v">'+st.Q2+'</div></div>'+
+      '<div class="f" style="background:var(--greenL);color:var(--green);"><div class="t">Q3</div><div class="v">'+st.Q3+'</div></div>'+
+      '<div class="f" style="background:#f1f5f9;"><div class="t">Max</div><div class="v">'+st.max+'</div></div>'+
+      (target>=5?'<div class="f" style="background:#fee2e2;color:var(--red);"><div class="t">异常值</div><div class="v">'+(st.outliers.length?st.outliers.join(','):'无')+'</div></div>':'');
+  }else $('fivenum').innerHTML='';
 }
-function renderBoxplot(Q,O){
-  var W=840,H=280,ML=34,MR=24;
-  var lo=Math.min(Q.s[0],Q.L)-4, hi=Math.max(Q.s[Q.n-1],Q.U)+4;
-  function X(v){ return ML+(v-lo)/(hi-lo)*(W-ML-MR); }
-  var axY=205, boxT=88, boxB=168, midY=(boxT+boxB)/2;
-  var tk=ticks(lo,hi,8);
-  var s='';
-  /* 数轴 */
-  s+='<line x1="'+(ML-14)+'" y1="'+axY+'" x2="'+(W-MR+8)+'" y2="'+axY+'" stroke="#334155" stroke-width="2"/>';
-  s+='<polygon points="'+(W-MR+8)+','+axY+' '+(W-MR-2)+','+(axY-4)+' '+(W-MR-2)+','+(axY+4)+'" fill="#334155"/>';
-  for (var v=tk.start; v<=hi+1e-9; v+=tk.step){
-    var x=X(v);
-    s+='<line x1="'+x+'" y1="'+axY+'" x2="'+x+'" y2="'+(axY+6)+'" stroke="#334155"/>';
-    s+='<text x="'+x+'" y="'+(axY+22)+'" font-size="13.5" fill="#334155" text-anchor="middle">'+fmt(v)+'</text>';
-  }
-  s+='<text x="'+(W-MR)+'" y="'+(axY+42)+'" font-size="14" fill="#64748b" text-anchor="end" font-weight="bold">数据值</text>';
-  if (!opt.box || step<6){
-    s+='<text x="'+(W/2)+'" y="'+(boxT+30)+'" font-size="16" fill="#94a3b8" text-anchor="middle">（点击「播放演示」到最后一步，箱线图将分部分自动绘制）</text>';
-    $('bpSvg').innerHTML=s; return;
-  }
-  /* 判定边界虚线 */
-  [[Q.L,'下界'],[Q.U,'上界']].forEach(function(bd){
-    var x=X(bd[0]);
-    s+='<line class="bp-anim" style="animation:bpin .5s ease .9s both" x1="'+x+'" y1="52" x2="'+x+'" y2="'+axY+'" stroke="'+C.red+'" stroke-width="1.5" stroke-dasharray="6 4" opacity="0"/>';
-    s+='<text class="bp-anim" style="animation:bpin .5s ease 1s both" x="'+x+'" y="46" font-size="13" fill="'+C.red+'" text-anchor="middle">'+bd[1]+' '+fmt(bd[0])+'</text>';
-  });
-  /* 箱体 */
-  s+='<rect class="bp-anim" style="animation:bpin .55s ease 0s both" x="'+X(Q.q1.v)+'" y="'+boxT+'" width="'+(X(Q.q3.v)-X(Q.q1.v))+'" height="'+(boxB-boxT)+
-     '" fill="#fcd34d" stroke="#b45309" stroke-width="2.5" rx="4"/>';
-  /* 中位线 */
-  s+='<line class="bp-anim" style="animation:bpin .55s ease .3s both" x1="'+X(Q.q2.v)+'" y1="'+boxT+'" x2="'+X(Q.q2.v)+'" y2="'+boxB+'" stroke="#15803d" stroke-width="4"/>';
-  /* 须线 */
-  s+='<line class="bp-anim" style="animation:bpin .55s ease .5s both" x1="'+X(O.wl)+'" y1="'+midY+'" x2="'+X(Q.q1.v)+'" y2="'+midY+'" stroke="#334155" stroke-width="2.5"/>';
-  s+='<line class="bp-anim" style="animation:bpin .55s ease .5s both" x1="'+X(Q.q3.v)+'" y1="'+midY+'" x2="'+X(O.wh)+'" y2="'+midY+'" stroke="#334155" stroke-width="2.5"/>';
-  s+='<line class="bp-anim" style="animation:bpin .55s ease .6s both" x1="'+X(O.wl)+'" y1="'+(midY-14)+'" x2="'+X(O.wl)+'" y2="'+(midY+14)+'" stroke="#334155" stroke-width="2.5"/>';
-  s+='<line class="bp-anim" style="animation:bpin .55s ease .6s both" x1="'+X(O.wh)+'" y1="'+(midY-14)+'" x2="'+X(O.wh)+'" y2="'+(midY+14)+'" stroke="#334155" stroke-width="2.5"/>';
-  /* 异常值空心点 */
-  O.list.forEach(function(v,i){
-    s+='<circle class="bp-anim" style="animation:bpin .5s ease .8s both" cx="'+X(v)+'" cy="'+midY+'" r="8" fill="#fff" stroke="'+C.red+'" stroke-width="3"/>';
-  });
-  /* 数值标签 */
-  /* 数值标签：Q2 箱顶上方，Q1/Q3 分列箱体左右下角，避免挤压 */
-  function labPos(v,dy,col,txt,x,y,anch){
-    return '<text class="bp-anim" style="animation:bpin .5s ease '+dy+'s both" x="'+x+'" y="'+y+'" font-size="13.5" fill="'+col+'" text-anchor="'+anch+'" font-weight="bold">'+txt+'</text>';
-  }
-  s+=labPos(Q.q1.v,0,C.blue,'Q1='+fmt(Q.q1.v),X(Q.q1.v)-8,boxB+16,'end');
-  s+=labPos(Q.q2.v,0,C.green,'Q2='+fmt(Q.q2.v),X(Q.q2.v),boxT-12,'middle');
-  s+=labPos(Q.q3.v,0,C.orange,'Q3='+fmt(Q.q3.v),X(Q.q3.v)+8,boxB+16,'start');
-  s+='<text class="bp-anim" style="animation:bpin .5s ease .7s both" x="'+X(O.wl)+'" y="'+(midY-22)+'" font-size="12.5" fill="#475569" text-anchor="middle">须：非异常最小 '+fmt(O.wl)+'</text>';
-  s+='<text class="bp-anim" style="animation:bpin .5s ease .7s both" x="'+X(O.wh)+'" y="'+(midY-22)+'" font-size="12.5" fill="#475569" text-anchor="middle">须：非异常最大 '+fmt(O.wh)+'</text>';
-  $('bpSvg').innerHTML=s;
-}
-
-/* ==================== 步骤控制 ==================== */
-function buildStepDots(){
-  var h='';
-  STEPS.forEach(function(name,i){
-    h+='<span class="stepdot'+(i===step?' on':(i<step?' done':''))+'" data-i="'+i+'">'+(i+1)+' '+name+'</span>';
-  });
-  $('stepDots').innerHTML=h;
-  Array.prototype.forEach.call($('stepDots').children,function(d){
-    d.onclick=function(){ setStep(+d.dataset.i); };
-  });
-}
-function setStep(v){
-  step=Math.max(0,Math.min(6,v));
-  $('stepLabel').textContent='当前环节：'+STEPS[step]+'（'+(step+1)+'/7）';
-  buildStepDots(); renderAll();
-}
-function buildOpts(){
-  var items=[['bandQ','四分位色带'],['five','五数高亮'],['bandIQR','IQR 区间'],['out','异常值高亮'],['box','箱线图']];
-  var h='';
-  items.forEach(function(it){ h+='<label><input type="checkbox" id="o_'+it[0]+'"'+(opt[it[0]]?' checked':'')+'>'+it[1]+'</label>'; });
-  $('opts').innerHTML=h;
-  items.forEach(function(it){
-    $('o_'+it[0]).onchange=function(){ opt[it[0]]=this.checked; renderAll(); };
-  });
-}
-function play(){
-  if (playTimer) return;
-  $('btnPlay').textContent='⏸ 暂停'; $('btnPlay').classList.add('stop');
-  playTimer=setInterval(function(){
-    if (step>=6){ pause(); return; }
-    setStep(step+1);
-  },2000);
-}
-function pause(){
-  if (playTimer){ clearInterval(playTimer); playTimer=null; }
-  $('btnPlay').textContent='▶ 播放演示'; $('btnPlay').classList.remove('stop');
-}
-function onDataChanged(rebuildChips){
-  if (rebuildChips) buildChips(); else chipEls.forEach(function(d,i){ d.querySelector('.val').textContent=fmt(raw[i]); });
-  renderAll();
-}
-function renderAll(){
-  var Q=quartiles(), O=outlierInfo(Q);
-  renderBands(); renderMarks(); paintChips();
-  renderFive(Q); renderIqr(Q); renderOut(Q,O); renderBoxplot(Q,O);
-  /* 动画终态兜底：动画播完后强制定格（真实浏览器无跳变，headless 虚拟时间可快进） */
-  if (animFixTimer) clearTimeout(animFixTimer);
-  animFixTimer=setTimeout(function(){
-    var els=document.querySelectorAll('.qband,.iqband,.qmark,.qpop,.oring,.bp-anim');
-    for (var i=0;i<els.length;i++){ els[i].style.animation='none'; els[i].style.opacity='1'; }
-  },1300);
-}
-var animFixTimer=null;
-
-/* ==================== 数据源 ==================== */
-function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
-function setData(arr){
-  raw=arr.slice(); step=0; pause();
-  $('nVal').textContent=raw.length;
-  buildInputs(); buildChips(); setStep(0);
-}
-var P1=[64,66,68,70,70,72,73,74,75,76,78,79,81,83,85,88];
-var P2=[25,64,66,68,70,71,72,73,74,75,76,78,80,82,85,102];
-function randomData(n){
-  var a=[]; for (var i=0;i<n;i++) a.push(60+Math.floor(Math.random()*41));
-  return shuffle(a);
-}
-
-/* ==================== 事件绑定 ==================== */
-$('btnRandom').onclick=function(){ setData(randomData(16)); };
-$('btnP1').onclick=function(){ setData(shuffle(P1.slice())); };
-$('btnP2').onclick=function(){ setData(shuffle(P2.slice())); };
-$('btnPlay').onclick=function(){ if (playTimer) pause(); else play(); };
-$('btnNext').onclick=function(){ pause(); setStep(step+1); };
-$('btnPrev').onclick=function(){ pause(); setStep(step-1); };
-$('btnReset').onclick=function(){ pause(); setStep(0); };
-$('nMinus').onclick=function(){ var n=raw.length-1; if (n<12) return; raw=raw.slice(0,n); $('nVal').textContent=n; buildInputs(); buildChips(); setStep(Math.min(step,6)); };
-$('nPlus').onclick=function(){ var n=raw.length+1; if (n>20) return; raw.push(60+Math.floor(Math.random()*41)); $('nVal').textContent=n; buildInputs(); buildChips(); setStep(Math.min(step,6)); };
-window.addEventListener('resize',function(){ layoutChips(); renderAll(); });
-document.addEventListener('keydown',function(e){
-  if (e.target.tagName==='INPUT'&&e.target.type==='number') return;
-  if (e.key==='ArrowRight'){ pause(); setStep(step+1); }
-  if (e.key==='ArrowLeft'){ pause(); setStep(step-1); }
-  if (e.key===' '){ e.preventDefault(); if (playTimer) pause(); else play(); }
+document.querySelectorAll('.presets button[data-p]').forEach(b=>b.onclick=()=>{
+  DATA=PRESETS[+b.dataset.p].slice();
+  document.querySelectorAll('.presets button[data-p]').forEach(x=>x.classList.toggle('on',x===b));
+  buildInputs();setTarget(0);cur=0;render(0);updateUI();
 });
-
-/* ==================== 初始化 ==================== */
-buildOpts(); renderStripLegend();
-setData(shuffle(P2.slice()));
-setStep(0);
-var h=location.hash.replace("#",""); if (h.charAt(0)==="n" && /^[0-6]$/.test(h.charAt(1))) { document.body.classList.add("noanim"); setStep(+h.charAt(1)); } else if (/^[0-6]$/.test(h)) setStep(+h);
+$('rand').onclick=()=>{DATA=[];for(let i=0;i<16;i++)DATA.push(60+Math.floor(Math.random()*41));document.querySelectorAll('.presets button[data-p]').forEach(x=>x.classList.remove('on'));buildInputs();setTarget(0);cur=0;render(0);updateUI();};
+$('next').onclick=()=>{stopPlay();setTarget(target+1);};
+$('prev').onclick=()=>{stopPlay();setTarget(target-1);};
+$('reset').onclick=()=>{stopPlay();setTarget(0);};
+$('play').onclick=()=>playTimer?stopPlay():startPlay();
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){stopPlay();setTarget(target+1);}
+  if(e.key==='ArrowLeft'){stopPlay();setTarget(target-1);}
+  if(e.key===' '){e.preventDefault();playTimer?stopPlay():startPlay();}
+});
+buildInputs();render(0);updateUI();
 </script>
 </body>
 </html>

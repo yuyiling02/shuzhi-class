@@ -197,6 +197,71 @@
     font-family:inherit;font-size:11px;font-weight:800;background:#f1f5f9;
     border:1px solid #e2e8f0;border-bottom-width:2px;border-radius:5px;padding:1px 5px;color:#475569;
   }
+
+  /* ---------- 选角按钮（第③课） ---------- */
+  #srcBtns{display:flex;flex-wrap:wrap;gap:7px}
+  #srcBtns button{
+    font-family:inherit;font-size:12.5px;font-weight:800;font-style:italic;
+    border-radius:9px;padding:7px 10px;cursor:pointer;transition:.15s;
+    border:1.5px solid #e2e8f0;background:#f8fafc;color:#475569;
+  }
+  #srcBtns button:hover{border-color:#c9dbfb;background:#f2f7ff}
+  #srcBtns button.sa.on{background:#f59e0b;border-color:#f59e0b;color:#fff;box-shadow:0 4px 12px rgba(245,158,11,.3)}
+  #srcBtns button.sb.on{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 4px 12px rgba(124,58,237,.3)}
+
+  /* ---------- 八个角度数圆片（第③课） ---------- */
+  #degList{display:flex;flex-wrap:wrap;gap:6px}
+  #degList .dchip{
+    font-family:"Cambria Math",Cambria,Georgia,serif;font-style:italic;
+    font-size:12.5px;font-weight:800;border-radius:8px;padding:5px 8px;
+    background:#f1f5f9;color:#64748b;border:1.5px solid transparent;transition:.15s;
+  }
+  #degList .dchip.da{border-color:#fde1b5;background:#fffaf2;color:#b45309}
+  #degList .dchip.db{border-color:#e2d6fb;background:#faf8ff;color:#6d28d9}
+  #degList .dchip.cur{background:#f59e0b;border-color:#f59e0b;color:#fff;box-shadow:0 3px 10px rgba(245,158,11,.3)}
+  #degList .dchip.pt{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 3px 10px rgba(124,58,237,.3)}
+
+  /* ---------- 闯关题 ---------- */
+  .quizWrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:4;padding:14px}
+  .quizBox{
+    width:min(860px,96%);max-height:96%;overflow-y:auto;scrollbar-width:thin;
+    background:rgba(255,255,255,.97);border:1px solid #dfe7f3;border-radius:18px;
+    box-shadow:0 18px 50px rgba(30,64,120,.16);padding:18px 26px 16px;
+  }
+  .qTop{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800;color:#475569}
+  .qTop .sc{color:#b45309}
+  .qDots{display:flex;gap:6px;margin:10px 0 6px}
+  .qDots i{width:22px;height:6px;border-radius:4px;background:#e2e8f0;transition:.2s}
+  .qDots i.cur{background:#2563eb}
+  .qDots i.ok{background:#10b981}
+  .qDots i.no{background:#f87171}
+  .qFig{background:#fbfdff;border:1px solid #e6edf7;border-radius:12px;padding:10px 12px;margin:10px 0 4px}
+  .qFig svg{display:block;width:100%;height:auto}
+  .qText{font-size:15.5px;font-weight:700;color:#0f172a;line-height:1.7;margin:10px 0 12px}
+  .qOpts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .qOpts button{
+    font-family:inherit;text-align:left;font-size:14px;font-weight:700;color:#334155;
+    background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;
+    padding:11px 14px;cursor:pointer;transition:.15s;line-height:1.5;
+  }
+  .qOpts button:hover{border-color:#93b8f5;background:#f2f7ff}
+  .qOpts button.pick-ok{background:#ecfdf5;border-color:#34d399;color:#065f46}
+  .qOpts button.pick-no{background:#fef2f2;border-color:#f87171;color:#991b1b}
+  .qOpts button.dim{opacity:.5}
+  .qFb{margin-top:12px;border-radius:12px;padding:11px 14px;font-size:13.5px;line-height:1.75;display:none}
+  .qFb.ok{display:block;background:#ecfdf5;border:1px solid #b7ebd9;color:#065f46}
+  .qFb.no{display:block;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+  .qNav{display:flex;justify-content:space-between;margin-top:14px;gap:10px}
+  .qNav button{
+    font-family:inherit;font-size:13.5px;font-weight:800;border-radius:10px;
+    padding:9px 16px;cursor:pointer;border:1px solid #e2e8f0;background:#f8fafc;color:#334155;
+  }
+  .qNav button.pri{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-color:#2563eb;box-shadow:0 5px 14px rgba(37,99,235,.26)}
+  .qNav button:hover{border-color:#c9dbfb;background:#f2f7ff}
+  .qNav button.pri:hover{background:linear-gradient(135deg,#1d4ed8,#1e40af)}
+  .qFin{text-align:center;padding:26px 0 16px}
+  .qFin .big{font-size:46px;font-weight:800;color:#2563eb;letter-spacing:1px}
+  .qFin .msg{margin-top:12px;font-size:14.5px;color:#475569;line-height:1.7}
 </style>
 </head>
 <body>
@@ -53533,8 +53598,8 @@ const groundPlane = new THREE.Plane(V(0, 1, 0), 0);
 canvas.addEventListener('pointerdown', e => {
   const api = currentApi;
   if (api) {
-    const onHandle = api.pick ? api.pick(ndc(e), raycaster, camera) : false;
-    const onLine = !onHandle && api.grab ? api.grab(e) : false;
+    const onLine = api.grab ? api.grab(e) : false;
+    const onHandle = !onLine && api.pick ? api.pick(ndc(e), raycaster, camera) : false;
     if (onHandle || onLine) {
       dragTarget = api;
       canvas.classList.add('grabbing');
@@ -53693,6 +53758,10 @@ function buildConcept() {
   root.add(par);
 
   let lifted = 0;
+
+  // 抬起后的辅助效果：b 的影子（投影）、垂线段、影子与 a 的"交点"
+  const liftFx = new THREE.Group(); root.add(liftFx);
+
   api.setLift = k => {
     lifted = k;
     bG.position.y = k * 2.9;
@@ -53701,8 +53770,38 @@ function buildConcept() {
     ghost.traverse(o => { if (o.material && o.material.opacity !== undefined) o.material.opacity = .28 * clamp(k * 3, 0, 1); });
     par.visible = k < 0.06;
     planeTag.visible = k < 0.06;
-    if (k < 0.06) setBanner('在同一平面内，不相交 ⟹ 直线 <i>a</i> ∥ <i>b</i>', 'ok');
-    else setBanner('两直线仍然不相交，但不在同一平面内 ⟹ 它们<b>不平行</b>（异面直线）', 'warn');
+
+    clearG(liftFx);
+    if (k > 0.04) {
+      const th = k * 0.66, h = k * 2.9;
+      const e1 = V(-6.4 * Math.cos(th), h, 2.1 + 6.4 * Math.sin(th));
+      const e2 = V(6.4 * Math.cos(th), h, 2.1 - 6.4 * Math.sin(th));
+      const s1 = e1.clone().setY(0), s2 = e2.clone().setY(0);
+      // b 在平面上的影子（青虚线）
+      liftFx.add(dashedLine(s1, s2, 0x0d9488, { r: .034, dash: .16, gap: .14, opacity: .62 }));
+      liftFx.add(place(label('影子（投影）', { color: '#0f766e', size: 0.4, bg: 'rgba(240,253,250,.93)' }),
+        s1.clone().lerp(s2, 0.8).add(V(0, 0, 0.75)), 0.05));
+      // 两条垂线段：b 的端点落在平面上的"高度"
+      [e1, e2].forEach(ep => {
+        liftFx.add(dashedLine(ep, ep.clone().setY(0), 0x94a3b8, { r: .026, dash: .12, gap: .1, opacity: .55 }));
+      });
+      // 影子与 a 的交点（红点）：影子会相交，直线本身不会
+      if (th > 0.1) {
+        const xq = 4.2 / Math.tan(th);
+        if (Math.abs(xq) < 8.4) {
+          const Q = V(xq, 0, -2.1);
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 14),
+            new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+          dot.position.copy(Q);
+          liftFx.add(dot);
+          liftFx.add(place(label('影子与 a 相交', { color: '#dc2626', size: 0.4, bg: 'rgba(255,250,246,.94)' }), Q, 0.5)
+            .translateZ(-0.55));
+        }
+      }
+    }
+
+    if (k < 0.06) setBanner('同一平面内，不相交 ⟹ 直线 <i>a</i> ∥ <i>b</i>', 'ok');
+    else setBanner('看垂线和影子：b 已经<b>不在</b> a 所在的平面里 —— 没有交点，也<b>不平行</b> ⟹ <b>异面直线</b>', 'warn');
 
     // 正视状态下自动转成斜视，把"离开平面"看清楚
     if (k > 0.03 && cam.phi < 0.5) tweenPhi(0.95);
@@ -53756,30 +53855,57 @@ function buildPostulate() {
   root.add(line2(V(-6.3, 0, zA), V(6.3, 0, zA), COL.a));
   root.add(place(label('a', { color: '#2563eb', size: 0.8, italic: true, mono: true }), V(6.65, 0, zA)));
 
-  const P = V(0, 0, -2.7);
+  // P 可以在"直线外"（默认）和"直线上"（对比演示）之间移动
+  const P0 = V(0, 0, -2.7);          // 直线外一点
+  const P1 = V(2.4, 0, zA);          // 直线 a 上一点
+  let P = P0.clone(), pOnLine = false;
   const pdot = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 16),
     new THREE.MeshBasicMaterial({ color: 0xdb2777 }));
   pdot.position.copy(P);
   root.add(pdot);
-  root.add(ptLabel('P', P, '#9d174d', .76, .46));
+  const pLab = ptLabel('P', P, '#9d174d', .76, .46);
+  root.add(pLab);
 
   const dynG = new THREE.Group(); root.add(dynG);
   let ang = 40, fanOn = false, corOn = false, dir = V(1, 0, 0);
 
   function build() {
     clearG(dynG);
+    pdot.position.copy(P);
+    pLab.position.set(P.x, 0.26, P.z - 0.46);
     const rad = ang * D2R;
     const d = V(Math.cos(rad), 0, Math.sin(rad));
     dir = d;
     const isPar = Math.abs(ang) < 0.7;
 
-    // 过 P 的所有可能方向（浅色虚线）
+    // —— 多条直线一起看：一族过 P 的直线，只有一个方向能平行 ——
     if (fanOn) {
-      [-58, -44, -32, -20, -11, 11, 20, 32, 44, 58].forEach(a => {
-        const r2 = a * D2R, dd = V(Math.cos(r2), 0, Math.sin(r2));
-        dynG.add(dashedLine(P.clone().addScaledVector(dd, -7.0), P.clone().addScaledVector(dd, 7.0),
-          0x94a3b8, { r: 0.022, dash: .16, gap: .24, opacity: .5 }));
+      [-50, -30, -12, 0, 12, 30, 50].forEach(a2 => {
+        const r2 = a2 * D2R, dd = V(Math.cos(r2), 0, Math.sin(r2));
+        const p2 = Math.abs(a2) < 0.7;
+        if (p2 && pOnLine) return;                 // P 在线上时，0° 就是 a 本身，不重复画
+        if (p2) {
+          // 唯一平行的方向：实线青色加粗
+          dynG.add(line2(P.clone().addScaledVector(dd, -7.0), P.clone().addScaledVector(dd, 7.0), 0x0d9488, { r: 0.07 }));
+        } else {
+          dynG.add(dashedLine(P.clone().addScaledVector(dd, -7.0), P.clone().addScaledVector(dd, 7.0),
+            COL.c, { r: 0.03, dash: .2, gap: .18, opacity: .55 }));
+          // 每条不平行直线与 a 的交点
+          if (!pOnLine && Math.abs(dd.z) > 1e-3) {
+            const t2 = (zA - P.z) / dd.z;
+            const Q2 = P.clone().addScaledVector(dd, t2);
+            if (Math.abs(Q2.x) < 9.0) {
+              const dot2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 12),
+                new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+              dot2.position.copy(Q2);
+              dynG.add(dot2);
+            }
+          }
+        }
       });
+      if (!pOnLine) dynG.add(place(label('这族直线里，只有青色那一条 ∥ a', {
+        color: '#0f766e', size: 0.44, bg: 'rgba(240,253,250,.95)'
+      }), P.clone().add(V(0.1, 0, -1.55)), 0.05));
     }
 
     // 推论：两条直线都与 a 平行
@@ -53791,38 +53917,47 @@ function buildPostulate() {
     }
 
     // 过 P 的这条直线
-    dynG.add(line2(P.clone().addScaledVector(d, -9.6), P.clone().addScaledVector(d, 9.6),
-      isPar ? 0x0d9488 : COL.c));
+    const lineColor = isPar ? (pOnLine ? 0xf59e0b : 0x0d9488) : COL.c;
+    dynG.add(line2(P.clone().addScaledVector(d, -9.6), P.clone().addScaledVector(d, 9.6), lineColor));
 
     let near = false;
-    if (isPar) {
+    if (isPar && pOnLine) {
+      // 过直线上一点：唯一的"平行方向"就是 a 本身（重合）
+      dynG.add(place(label('与 a 重合（不是新的平行线）', { color: '#b45309', size: 0.46, bg: 'rgba(255,251,235,.96)' }),
+        P.clone().add(V(-2.2, 0, 0.62)), 0.05));
+      setBanner('过直线上一点，与它"平行"的直线只能<b>和 a 自己重合</b> ⟹ 画不出第二条平行线', 'warn');
+    } else if (isPar) {
       dynG.add(place(label('只有这一条 ∥ a', { color: '#0f766e', size: 0.46, bg: 'rgba(240,253,250,.95)' }),
         P.clone().add(V(0.1, 0, -0.95)), 0.05));
       setBanner('这条直线与 <i>a</i> <b>没有交点</b> ⟹ 就是那条唯一的平行线', 'ok');
     } else {
       const t = (zA - P.z) / d.z;
       const Q = P.clone().addScaledVector(d, t);
-      if (Math.abs(Q.x) < 9.2) {
+      if (pOnLine) {
+        setBanner('P 本身就在 <i>a</i> 上：这条直线<b>已经与 a 相交于 P</b> ⟹ 不平行', 'warn');
+      } else if (Math.abs(Q.x) < 9.2) {
         const dot2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 14),
           new THREE.MeshBasicMaterial({ color: 0xef4444 }));
         dot2.position.copy(Q);
         dynG.add(dot2);
         dynG.add(place(label('Q', { color: '#dc2626', size: 0.62, italic: true, mono: true }), Q, 0.42)
           .translateZ(-0.42));
+        setBanner('这条直线与 <i>a</i> <b>相交于点 Q</b> ⟹ 不是平行线', 'warn');
       } else {
         near = true;
         dynG.add(place(label('交点在很远的画外 →', { color: '#94a3b8', size: 0.4, bg: 'rgba(255,255,255,.92)' }),
           P.clone().addScaledVector(d.clone().normalize(), 7.4), 0.05));
+        setBanner('已经非常接近平行，但<b>只要不平行就一定相交</b> —— 交点只是跑得很远', 'warn');
       }
-      setBanner(near
-        ? '已经非常接近平行，但<b>只要不平行就一定相交</b> —— 交点只是跑得很远'
-        : '这条直线与 <i>a</i> <b>相交于点 Q</b> ⟹ 不是平行线', 'warn');
     }
 
     document.getElementById('p_deg').textContent = fmt(Math.abs(ang)) + '°';
-    document.getElementById('p_state').innerHTML = isPar
-      ? '<b style="color:#0f766e">平行（唯一）</b>'
-      : '<b style="color:#dc2626">相交</b>';
+    document.getElementById('p_state').innerHTML =
+      pOnLine ? (isPar
+        ? '<b style="color:#b45309">与 a 重合（非平行）</b>'
+        : '<b style="color:#dc2626">相交于 P</b>')
+      : (isPar ? '<b style="color:#0f766e">平行（唯一）</b>'
+               : '<b style="color:#dc2626">相交</b>');
     const s = document.getElementById('ps');
     if (s) { s.value = ang; }
   }
@@ -53840,6 +53975,34 @@ function buildPostulate() {
     tween(0.9, k => { ang = from * (1 - k); build(); }, () => { ang = 0; build(); });
   };
 
+  // —— 动画演示：让直线扫过一圈方向，只有 0° 没有交点 ——
+  let animating = false;
+  const sweepTo = (target, dur, next) => {
+    const from = ang;
+    tween(dur, k => { ang = from + (target - from) * k; build(); }, next);
+  };
+  document.getElementById('bAnim2').onclick = e => {
+    if (animating) return;
+    if (pOnLine) { document.getElementById('bOn').click(); }   // 动画前先回到"直线外"
+    const btn = e.currentTarget;
+    animating = true;
+    btn.classList.add('on');
+    sweepTo(60, 1.1, () => sweepTo(-60, 2.2, () => sweepTo(0, 1.1, () => {
+      animating = false;
+      btn.classList.remove('on');
+      setBanner('整圈方向扫下来：<b>只有 0° 这一个方向</b>与 a 平行 —— "有且只有一条"', 'ok');
+    })));
+  };
+
+  // —— 把 P 移到直线 a 上 / 移回直线外 ——
+  document.getElementById('bOn').onclick = e => {
+    pOnLine = !pOnLine;
+    e.currentTarget.classList.toggle('on', pOnLine);
+    e.currentTarget.textContent = pOnLine ? '把 P 移回直线外' : '把 P 移到直线 a 上';
+    const from = P.clone(), to = pOnLine ? P1 : P0;
+    tween(0.9, k => { P.copy(from).lerp(to, k); build(); }, () => { P.copy(to); build(); });
+  };
+
   // —— 直接拖动过 P 的直线来转动 ——
   const rot = makeRotator({
     pivot: () => P,
@@ -53853,14 +54016,17 @@ function buildPostulate() {
   api.grab = e => rot.grab(e);
   api.move = e => rot.move(e);
   api.end = () => rot.end();
+  api.reset = () => {
+    ang = 0; P.copy(P0); pOnLine = false;
+    const b = document.getElementById('bOn');
+    if (b) { b.classList.remove('on'); b.textContent = '把 P 移到直线 a 上'; }
+    build();
+  };
 
   build();
   return api;
 }
 
-/* =========================================================
-   第 3 课：三线八角
-   ========================================================= */
 function buildAngles() {
   const root = new THREE.Group();
   const api = { root, cam: { theta: Math.PI / 2, phi: 0.11, r: 17.2 } };
@@ -53870,11 +54036,20 @@ function buildAngles() {
   const TH0 = 62;
   let thDeg = TH0;
 
-  // 两条被截线（不动）
+  /* 三类关系统一配色（沿用相交线课件：F / Z / U） */
+  const KINDS = {
+    same: { name: '同位角', hex: '#f59e0b', col3d: 0xf59e0b, dark: '#b45309', dark3d: 0xd97706, L: 'F',
+            desc: '都在截线 <i>c</i> 的<b>同一侧</b>，位置相同 —— 像字母 <b>F</b>' },
+    alt:  { name: '内错角', hex: '#8b5cf6', col3d: 0x8b5cf6, dark: '#6d28d9', dark3d: 0x6d28d9, L: 'Z',
+            desc: '都<b>夹在两平行线之间</b>，且在截线 <i>c</i> 的<b>两侧</b>（交错）—— 像字母 <b>Z</b>' },
+    co:   { name: '同旁内角', hex: '#14b8a6', col3d: 0x14b8a6, dark: '#0f766e', dark3d: 0x0f766e, L: 'U',
+            desc: '都<b>夹在两平行线之间</b>，且在截线 <i>c</i> 的<b>同一侧</b> —— 像字母 <b>U / C</b>' }
+  };
+  const R_ALL = { same: 1.06, alt: 1.42, co: 1.78 };   // 三类同屏的同心环半径
+
+  // 被截线 a、b（平行，固定）
   root.add(line2(V(-6.6, 0, za), V(6.6, 0, za), COL.a));
-  root.add(line2(V(-6.6, 0, zb), V(6.6, 0, zb), COL.b));
   root.add(place(label('a', { color: '#2563eb', size: 0.8, italic: true, mono: true }), V(6.1, 0, za - 0.48)));
-  root.add(place(label('b', { color: '#0d9488', size: 0.8, italic: true, mono: true }), V(6.1, 0, zb + 0.48)));
 
   // 每个交点处的整圆（四段角弧合起来就是一个整圆，只建一次、随交点平移）
   const circles = [za, zb].map(() => {
@@ -53887,12 +54062,13 @@ function buildAngles() {
   const numG = new THREE.Group(); root.add(numG);
   const hiG = new THREE.Group(); root.add(hiG);
   const fxG = new THREE.Group(); root.add(fxG);
+  const pickG = new THREE.Group(); root.add(pickG);   // 透明的可点击扇形（选中"当前角"用）
 
   let u = V(Math.cos(TH0 * D2R), 0, Math.sin(TH0 * D2R));
   let A = V(0, 0, za), B = V(0, 0, zb);
   let rays = [], S = [[], []];
 
-  let kind = 'same', idx = 0, showLetter = false;
+  let kind = 'same', src = 0, showLetter = false;   // src = 当前角编号 0–7（∠1–∠8）
 
   /* 由截线角度重新算 8 个角 */
   function compute() {
@@ -53924,32 +54100,43 @@ function buildAngles() {
     const rL = Math.abs(u.z) > 0.85 ? 3.4 : 4.6;   // 近竖直时往里收，避免被横幅挡住
     trG.add(place(label('c', { color: '#ea580c', size: 0.8, italic: true, mono: true }),
       u.clone().multiplyScalar(rL).addScaledVector(pp, 1.05)));
+    trG.add(line2(V(-6.6, 0, zb), V(6.6, 0, zb), COL.b));
+    trG.add(place(label('b', { color: '#0d9488', size: 0.8, italic: true, mono: true }), V(6.1, 0, zb + 0.48)));
   }
 
-  function pairsOf(k) {
-    const out = [];
-    if (k === 'same') { for (let i = 0; i < 4; i++) out.push([i, i]); }
-    else {
-      for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
-        if (!S[0][i].interior || !S[1][j].interior) continue;
-        if (k === 'alt' && S[0][i].side !== S[1][j].side) out.push([i, j]);
-        if (k === 'co' && S[0][i].side === S[1][j].side) out.push([i, j]);
-      }
+  /* 任意角在给定关系下的"搭档"：返回另一条直线上的角下标 [另一条线的 vi, i]；不存在则 null */
+  function partnerOf(k, s) {
+    const vi = s < 4 ? 0 : 1, i = s % 4, ovi = 1 - vi;
+    if (k === 'same') return [ovi, i];          // 同位角：构造位置相同的那一个
+    const sS = S[vi][i];
+    if (!sS.interior) return null;              // 内错角 / 同旁内角必须都在两直线之间
+    for (let j = 0; j < 4; j++) {
+      const c = S[ovi][j];
+      if (!c.interior) continue;
+      if (k === 'alt' && c.side !== sS.side) return [ovi, j];
+      if (k === 'co' && c.side === sS.side) return [ovi, j];
     }
-    return out;
+    return null;
   }
 
-  function drawNumbers(hA, hB) {
-    clearG(numG);
-    for (let vi = 0; vi < 2; vi++) for (let i = 0; i < 4; i++) {
-      const s = S[vi][i];
-      const isHi = (vi === 0 && i === hA) || (vi === 1 && i === hB);
-      const p = s.vertex.clone().addScaledVector(s.mid, 1.02);
-      numG.add(place(label(String(s.num), {
-        color: isHi ? (vi === 0 ? '#b45309' : '#6d28d9') : '#7c8ea6',
-        size: isHi ? 0.66 : 0.52, mono: true, italic: true
-      }), p, 0.06));
+  /* 同心环带（三类同屏用） */
+  function ringBand(center, r0, r1, a0, a1, color, op) {
+    const seg = 40, pos = [], idx = [];
+    for (let i = 0; i <= seg; i++) {
+      const t = a0 + (a1 - a0) * i / seg, c = Math.cos(t), s2 = Math.sin(t);
+      pos.push(center.x + r0 * c, center.y + 0.008, center.z + r0 * s2);
+      pos.push(center.x + r1 * c, center.y + 0.008, center.z + r1 * s2);
     }
+    for (let i = 0; i < seg; i++) {
+      const a = i * 2, b = i * 2 + 1, c2 = i * 2 + 2, d = i * 2 + 3;
+      idx.push(a, c2, b, b, c2, d);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    return new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+      color, transparent: true, opacity: op, side: THREE.DoubleSide, depthWrite: false
+    }));
   }
 
   function letterOf(k, sA, sB) {
@@ -53973,59 +54160,189 @@ function buildAngles() {
     return g;
   }
 
-  function describe(k) {
-    if (k === 'same') return '都在截线 <i>c</i> 的同一侧：一个在两平行线之间，一个在外侧 —— 位置相同，像字母 <b>F</b>';
-    if (k === 'alt') return '都在两平行线之间，且在截线 <i>c</i> 的<b>两侧</b>（交错）—— 像字母 <b>Z</b>';
-    return '都在两平行线之间，且在截线 <i>c</i> 的<b>同一侧</b> —— 像字母 <b>U / C</b>';
+  /* 8 个角标签：被选中的做成彩色胶囊（角名 + 关系名），其余淡灰编号 */
+  function drawLabels(info) {   // info: Map num -> { text, bg, fg }
+    clearG(numG);
+    for (let vi = 0; vi < 2; vi++) for (let i = 0; i < 4; i++) {
+      const s = S[vi][i];
+      const it = info.get(s.num);
+      const p = s.vertex.clone().addScaledVector(s.mid, it ? 1.52 : 1.02);
+      numG.add(place(it
+        ? label(it.text, { color: it.fg, bg: it.bg, size: 0.52, mono: true, italic: true })
+        : label(String(s.num), { color: '#8a9ab2', size: 0.5, mono: true, italic: true }), p, 0.06));
+    }
   }
 
   function refresh() {
-    const list = pairsOf(kind);
-    idx = ((idx % list.length) + list.length) % list.length;
-    const [ia, ib] = list[idx];
-    const sA = S[0][ia], sB = S[1][ib];
+    const vi = src < 4 ? 0 : 1, i = src % 4, ovi = 1 - vi;
+    const sS = S[vi][i];
+    const info = new Map();    // num -> 胶囊标签
+    const bands = [];          // 三类同屏的环带 { k, a(0/1 顶点行), j }
+    let pair = null;           // 单类模式的搭档 [ovi, j]
 
-    clearG(hiG); clearG(fxG);
-    drawNumbers(ia, ib);
+    clearG(hiG); clearG(fxG); clearG(pickG);
+    // 8 个透明扇形：点谁就把谁设为当前角
+    for (let s2 = 0; s2 < 8; s2++) {
+      const ss = S[s2 < 4 ? 0 : 1][s2 % 4];
+      const m = new THREE.Mesh(sectorGeo(ss.vertex, 1.12, ss.args.a0, ss.args.a1),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+      m.userData.s = s2;
+      pickG.add(m);
+    }
 
-    hiG.add(sectorBetween(A, 1.25, rays[ia], rays[(ia + 1) % 4], COL.hi, .26));
-    hiG.add(arcBetween(A, 1.25, rays[ia], rays[(ia + 1) % 4], 0xd97706, .036));
-    hiG.add(place(label('∠' + sA.num, { color: '#b45309', size: 0.56, mono: true }), A.clone().addScaledVector(sA.mid, 1.62), 0.06));
+    const V0 = vi === 0 ? A : B;
 
-    hiG.add(sectorBetween(B, 1.25, rays[ib], rays[(ib + 1) % 4], COL.hi2, .26));
-    hiG.add(arcBetween(B, 1.25, rays[ib], rays[(ib + 1) % 4], 0x6d28d9, .036));
-    hiG.add(place(label('∠' + sB.num, { color: '#6d28d9', size: 0.56, mono: true }), B.clone().addScaledVector(sB.mid, 1.62), 0.06));
+    if (kind === 'all') {
+      // 三类同屏：当前角 + 三个搭档，同心色环
+      ['same', 'alt', 'co'].forEach(k => {
+        const pt = partnerOf(k, src);
+        if (pt) bands.push({ k, a: ovi, j: pt[1] });
+      });
+      // 当前角的淡底扇形 + 三层色环（两个角都画，像相交线课件）
+      hiG.add(sectorBetween(V0, 0.92, rays[i], rays[(i + 1) % 4], 0xf59e0b, .13));
+      hiG.add(arcBetween(V0, 0.92, rays[i], rays[(i + 1) % 4], 0xd97706, .026, .85));
+      bands.forEach(b => {
+        const K = KINDS[b.k];
+        const r = R_ALL[b.k];
+        hiG.add(ringBand(V0, r - 0.17, r, rays[i], rays[(i + 1) % 4], K.col3d, .40));
+        const va = b.a === 0 ? A : B;
+        const pj = S[b.a][b.j].i;
+        hiG.add(ringBand(va, r - 0.17, r, rays[pj], rays[(pj + 1) % 4], K.col3d, .40));
+        hiG.add(arcBetween(va, r, rays[pj], rays[(pj + 1) % 4], K.col3d, .024, .8));
+      });
+      info.set(sS.num, { text: `∠${sS.num} · 三种关系`, bg: 'rgba(30,41,59,.94)', fg: '#ffffff' });
+      bands.forEach(b => {
+        const n = S[b.a][b.j].num;
+        info.set(n, { text: `∠${n} · ${KINDS[b.k].name}`, bg: KINDS[b.k].hex, fg: '#ffffff' });
+      });
+    } else {
+      const K = KINDS[kind];
+      pair = partnerOf(kind, src);
+      const va = vi === 0 ? A : B, vb = vi === 0 ? B : A;
+      if (pair) {
+        const j = pair[1];
+        [[va, i], [vb, j]].forEach(([vc, ii]) => {
+          hiG.add(sectorBetween(vc, 1.25, rays[ii], rays[(ii + 1) % 4], K.col3d, .30));
+          hiG.add(arcBetween(vc, 1.25, rays[ii], rays[(ii + 1) % 4], K.dark3d, .036));
+        });
+        const n2 = S[ovi][j].num;
+        info.set(sS.num, { text: `∠${sS.num} · ${K.name}`, bg: K.hex, fg: '#ffffff' });
+        info.set(n2, { text: `∠${n2} · ${K.name}`, bg: K.hex, fg: '#ffffff' });
+        if (showLetter) fxG.add(letterOf(kind, S[0][vi === 0 ? i : j], S[1][vi === 0 ? j : i]));
+        fxG.visible = showLetter;
+      } else {
+        hiG.add(sectorBetween(V0, 1.25, rays[i], rays[(i + 1) % 4], K.col3d, .30));
+        hiG.add(arcBetween(V0, 1.25, rays[i], rays[(i + 1) % 4], K.dark3d, .036));
+        info.set(sS.num, { text: `∠${sS.num} · ${K.name}`, bg: K.hex, fg: '#ffffff' });
+      }
+    }
+    drawLabels(info);
 
-    if (showLetter) fxG.add(letterOf(kind, sA, sB));
-    fxG.visible = showLetter;
-
-    const m1 = sA.args.meas * R2D, m2 = sB.args.meas * R2D;
+    /* —— 图内顶部双色说明（像相交线课件的 callout）—— */
     const nameMap = { same: '同位角', alt: '内错角', co: '同旁内角' };
-    document.getElementById('relName').textContent = nameMap[kind];
-    document.getElementById('relPair').innerHTML = `∠${sA.num} 与 ∠${sB.num}`;
-    document.getElementById('relDesc').innerHTML = describe(kind) +
-      `<br><span style="color:#8798ad;font-size:12px">（${idx + 1} / ${list.length} 组）</span>`;
-    document.getElementById('relVal').innerHTML =
-      `∠${sA.num} = <b>${fmt(m1)}°</b> &nbsp;&nbsp; ∠${sB.num} = <b>${fmt(m2)}°</b>`;
-    document.getElementById('relConc').innerHTML = kind === 'co'
-      ? `∠${sA.num} + ∠${sB.num} = <b>${fmt(m1 + m2)}°</b>`
-      : (Math.abs(m1 - m2) < 0.3 ? `∠${sA.num} = ∠${sB.num}（相等）` : `∠${sA.num} ≠ ∠${sB.num}`);
+    const mS = fmt(sS.args.meas * R2D);
+    if (kind === 'all') {
+      hiG.add(place(label(`看 ∠${sS.num} 的三种关系（a ∥ b）`, { color: '#1e3a8a', size: 0.46, bg: 'rgba(255,255,255,.95)' }), V(0, 0.06, -4.55)));
+      hiG.add(place(label(bands.length === 3
+        ? bands.map(b => `${nameMap[b.k]} ∠${S[b.a][b.j].num}`).join(' · ')
+        : '外侧的角只有同位角', { color: '#64748b', size: 0.4, bg: 'rgba(255,255,255,.95)' }), V(0, 0.06, -3.95)));
+    } else if (pair) {
+      const K = KINDS[kind];
+      const n2 = S[ovi][pair[1]].num, m2 = fmt(S[ovi][pair[1]].args.meas * R2D);
+      hiG.add(place(label(kind === 'co'
+        ? `∠${sS.num} + ∠${n2} = ${mS}° + ${m2}° = 180°`
+        : `∠${sS.num} = ∠${n2} = ${mS}°`, { color: '#1e3a8a', size: 0.5, bg: 'rgba(255,255,255,.95)' }), V(0, 0.06, -4.55)));
+      hiG.add(place(label(`${K.name} · ${kind === 'co' ? '互补' : '相等'}`, { color: K.dark, size: 0.44, bg: 'rgba(255,255,255,.95)' }), V(0, 0.06, -3.95)));
+    } else {
+      hiG.add(place(label(`∠${sS.num} = ${mS}°（两直线外侧）`, { color: '#1e3a8a', size: 0.5, bg: 'rgba(255,255,255,.95)' }), V(0, 0.06, -4.55)));
+      hiG.add(place(label(`它没有${nameMap[kind]}：这类角必须都在两直线之间`, { color: '#9a3412', size: 0.42, bg: 'rgba(255,255,255,.95)' }), V(0, 0.06, -3.95)));
+    }
 
-    if (kind === 'co') setBanner(`∠${sA.num} + ∠${sB.num} = 180°　同旁内角互补`, 'ok');
-    else setBanner(`∠${sA.num} = ∠${sB.num}　${nameMap[kind]}相等`, 'ok');
+    /* —— 右侧面板 —— */
+    document.getElementById('relName').textContent = kind === 'all' ? '三类关系' : nameMap[kind];
+    const posTxt = sS.interior ? '两直线之间' : '两直线外侧';
+    if (kind === 'all') {
+      document.getElementById('relPair').innerHTML = `∠${sS.num}（直线 ${vi === 0 ? 'a' : 'b'} 上 · ${posTxt}）`;
+      document.getElementById('relDesc').innerHTML =
+        `三个色环就是 ∠${sS.num} 的三种关系：<b style="color:#b45309">内环同位角</b>、<b style="color:#6d28d9">中环内错角</b>、<b style="color:#0f766e">外环同旁内角</b>。<br>点 ∠1–∠8 或图里的角可换角，转动截线度数会变但关系不变。`;
+      document.getElementById('relVal').innerHTML = bands.length
+        ? bands.map(b => {
+            const sb = S[b.a][b.j];
+            return `${KINDS[b.k].name} ∠${sb.num} = <b>${fmt(sb.args.meas * R2D)}°</b>`;
+          }).join('<br>')
+        : `∠${sS.num} = <b>${mS}°</b>`;
+      document.getElementById('relConc').innerHTML = bands.length === 3
+        ? `同位角 = 内错角 = ${mS}°，同旁内角 + ${mS}° = 180°`
+        : `∠${sS.num} 在两直线<b>外侧</b> —— 它只有同位角，没有内错角和同旁内角。`;
+      if (bands.length === 3) {
+        setBanner(`看 ∠${sS.num} 的三种关系（a ∥ b）：` +
+          bands.map(b => `${nameMap[b.k]} ∠${S[b.a][b.j].num}`).join(' · '), 'ok');
+      } else {
+        setBanner(`∠${sS.num} 在两直线外侧：只有同位角`, 'warn');
+      }
+    } else {
+      const K = KINDS[kind];
+      if (pair) {
+        const sb = S[ovi][pair[1]];
+        const m2 = fmt(sb.args.meas * R2D);
+        document.getElementById('relPair').innerHTML = `∠${sS.num} 与 ∠${sb.num}`;
+        document.getElementById('relDesc').innerHTML = K.desc +
+          `<br>当前角 <b>∠${sS.num}</b>（直线 ${vi === 0 ? 'a' : 'b'} 上 · ${posTxt}）—— 点 ∠1–∠8 或图里的角可换角`;
+        document.getElementById('relVal').innerHTML =
+          `∠${sS.num} = <b>${mS}°</b> &nbsp;&nbsp; ∠${sb.num} = <b>${m2}°</b>`;
+        document.getElementById('relConc').innerHTML = kind === 'co'
+          ? `∠${sS.num} + ∠${sb.num} = <b>${fmt(sS.args.meas * R2D + sb.args.meas * R2D)}°</b>（互补）`
+          : `∠${sS.num} = ∠${sb.num}（相等）`;
+        if (kind === 'co') setBanner(`∠${sS.num} + ∠${sb.num} = 180°　同旁内角互补`, 'ok');
+        else setBanner(`∠${sS.num} = ∠${sb.num}　${K.name}相等`, 'ok');
+      } else {
+        document.getElementById('relPair').innerHTML = `∠${sS.num}（没有${K.name}）`;
+        document.getElementById('relDesc').innerHTML =
+          `∠${sS.num} 在两直线<b>外侧</b> —— 任何角都有同位角，但${K.name}要求两个角都<b>在两直线之间</b>，所以它没有${K.name}。`;
+        document.getElementById('relVal').innerHTML = `∠${sS.num} = <b>${mS}°</b>`;
+        document.getElementById('relConc').innerHTML =
+          `∠${sS.num} 在两直线<b>外侧</b> —— 只有同位角，没有${K.name}。`;
+        setBanner(`∠${sS.num} 在两直线外侧：只有同位角，没有${K.name}`, 'warn');
+      }
+    }
 
     document.querySelectorAll('#kindBtns button').forEach(b => b.classList.toggle('on', b.dataset.k === kind));
+    document.querySelectorAll('#srcBtns button').forEach((b, s2) => b.classList.toggle('on', s2 === src));
     const sl = document.getElementById('s4'), sv = document.getElementById('v4');
     if (sl) sl.value = Math.round(thDeg);
     if (sv) sv.textContent = Math.round(thDeg) + '°';
+
+    /* 八个角的度数（实时圆片） */
+    for (let s2 = 0; s2 < 8; s2++) {
+      const chip = degChips[s2];
+      if (!chip) continue;
+      const ss = S[s2 < 4 ? 0 : 1][s2 % 4];
+      chip.textContent = `∠${s2 + 1} ${fmt(ss.args.meas * R2D)}°`;
+      chip.classList.toggle('cur', s2 === src);
+      const isP = kind === 'all'
+        ? bands.some(b => b.a * 4 + b.j === s2)
+        : !!pair && (ovi * 4 + pair[1]) === s2;
+      chip.classList.toggle('pt', isP);
+    }
+  }
+
+  /* 八个角度数圆片（面板，只建一次） */
+  const degList = document.getElementById('degList');
+  const degChips = [];
+  if (degList) {
+    for (let s2 = 0; s2 < 8; s2++) {
+      const sp = document.createElement('span');
+      sp.className = 'dchip ' + (s2 < 4 ? 'da' : 'db');
+      degList.appendChild(sp);
+      degChips.push(sp);
+    }
   }
 
   function rebuild() { compute(); drawTr(); refresh(); }
 
   // —— 平移叠合验证 ——
   api.verify = () => {
-    const [ia, ib] = pairsOf('same')[0];
-    const sA = S[0][ia], sB = S[1][ib];
+    const sA = S[0][0], sB = S[1][0];
     clearG(fxG);
     const cp = new THREE.Group();
     cp.add(new THREE.Mesh(sectorGeo(V(0, 0, 0), 1.25, sA.args.a0, sA.args.a1),
@@ -54045,11 +54362,21 @@ function buildAngles() {
     });
   };
 
+  // —— 选角按钮：∠1–∠8 ——
+  const srcWrap = document.getElementById('srcBtns');
+  for (let s2 = 0; s2 < 8; s2++) {
+    const b = document.createElement('button');
+    b.textContent = '∠' + (s2 + 1);
+    b.className = s2 < 4 ? 'sa' : 'sb';
+    b.onclick = () => { src = s2; refresh(); };
+    srcWrap.appendChild(b);
+  }
+
   // —— 控件 ——
   document.querySelectorAll('#kindBtns button').forEach(b => {
-    b.onclick = () => { kind = b.dataset.k; idx = 0; refresh(); };
+    b.onclick = () => { kind = b.dataset.k; refresh(); };
   });
-  document.getElementById('nextPair').onclick = () => { idx++; refresh(); };
+  document.getElementById('nextPair').onclick = () => { src = (src + 1) % 8; refresh(); };
   const bl = document.getElementById('btnLetter');
   bl.onclick = () => { showLetter = !showLetter; bl.classList.toggle('on', showLetter); refresh(); };
 
@@ -54064,12 +54391,28 @@ function buildAngles() {
     get: () => thDeg,
     set: rafThrottle(v => { thDeg = v; rebuild(); })
   });
-  api.hint = '拖动橙色截线 c 转动 · 8 个角一起变，但三类关系不变';
-  api.hover = e => rot.hit(e);
+  // —— 点击图里的角，把它设为"当前角" ——
+  function angleAt(n, ray, c) {
+    ray.setFromCamera(n, c);
+    const hits = ray.intersectObjects(pickG.children);
+    return hits.length ? hits[0].object.userData.s : -1;
+  }
+  api.pick = (n, ray, c) => {
+    const s2 = angleAt(n, ray, c);
+    if (s2 < 0) return false;
+    src = s2; refresh();
+    return true;
+  };
+  api.hint = '拖动橙色截线 c 转动 · 点击任意角换"当前角"';
+  api.hover = e => rot.hit(e) || angleAt(ndc(e), raycaster, camera) >= 0;
   api.grab = e => rot.grab(e);
   api.move = e => rot.move(e);
   api.end = () => rot.end();
-  api.reset = () => { thDeg = TH0; rebuild(); };
+  api.reset = () => {
+    thDeg = TH0; src = 0; kind = 'same'; showLetter = false;
+    bl.classList.remove('on');
+    rebuild();
+  };
 
   rebuild();
   return api;
@@ -54117,7 +54460,7 @@ function buildJudge() {
       B.clone().addScaledVector(db, tL)));
 
     // ∠1（固定在 A 处，射线：+x 与 u）
-    dynG.add(sectorBetween(A, 1.5, V(1, 0, 0), u, COL.hi, .22));
+    dynG.add(sectorBetween(A, 1.5, V(1, 0, 0), u, COL.hi, .3));
     dynG.add(arcBetween(A, 1.5, V(1, 0, 0), u, 0xd97706, .036));
     const midA = V(Math.cos(TH / 2), 0, Math.sin(TH / 2));
     dynG.add(place(label('∠1', { color: '#b45309', size: 0.56, mono: true }), A.clone().addScaledVector(midA, 1.95), 0.06));
@@ -54127,7 +54470,7 @@ function buildJudge() {
     if (mode === 1) { d1 = db; d2 = u; sub = '同位角'; }
     else if (mode === 2) { d1 = db.clone().negate(); d2 = u.clone().negate(); sub = '内错角'; }
     else { d1 = db; d2 = u.clone().negate(); sub = '同旁内角'; }
-    dynG.add(sectorBetween(B, 1.15, d1, d2, COL.hi2, .22));
+    dynG.add(sectorBetween(B, 1.15, d1, d2, COL.hi2, .3));
     dynG.add(arcBetween(B, 1.15, d1, d2, 0x6d28d9, .036));
     const midB = V(0, 0, 0).copy(d1).normalize().add(d2.clone().normalize()).normalize();
     dynG.add(place(label('∠2', { color: '#6d28d9', size: 0.56, mono: true }), B.clone().addScaledVector(midB, 1.55), 0.06));
@@ -54246,12 +54589,12 @@ function buildProperty() {
     else if (mode === 2) { dB1 = V(-1, 0, 0); dB2 = u.clone().negate(); }
     else { dB1 = V(1, 0, 0); dB2 = u.clone().negate(); }
 
-    dynG.add(sectorBetween(A, 1.45, dA1, dA2, COL.hi, .22));
+    dynG.add(sectorBetween(A, 1.45, dA1, dA2, COL.hi, .3));
     dynG.add(arcBetween(A, 1.45, dA1, dA2, 0xd97706, .036));
     const mA = V(0, 0, 0).copy(dA1).normalize().add(dA2.clone().normalize()).normalize();
     dynG.add(place(label('∠1', { color: '#b45309', size: 0.56, mono: true }), A.clone().addScaledVector(mA, 1.9), 0.06));
 
-    dynG.add(sectorBetween(B, 1.45, dB1, dB2, COL.hi2, .22));
+    dynG.add(sectorBetween(B, 1.45, dB1, dB2, COL.hi2, .3));
     dynG.add(arcBetween(B, 1.45, dB1, dB2, 0x6d28d9, .036));
     const mB = V(0, 0, 0).copy(dB1).normalize().add(dB2.clone().normalize()).normalize();
     dynG.add(place(label('∠2', { color: '#6d28d9', size: 0.56, mono: true }), B.clone().addScaledVector(mB, 1.9), 0.06));
@@ -54366,13 +54709,13 @@ function buildBend() {
     const a2 = angBetween(left, PC) * R2D;
 
     // α 在 A 处
-    dynG.add(sectorBetween(A, 1.1, up, P.clone().sub(A), COL.hi, .26));
+    dynG.add(sectorBetween(A, 1.1, up, P.clone().sub(A), COL.hi, .34));
     dynG.add(arcBetween(A, 1.1, up, P.clone().sub(A), 0xd97706, .032));
     const mA = up.clone().normalize().add(P.clone().sub(A).normalize()).normalize();
     dynG.add(place(label('α', { color: '#b45309', size: 0.6, mono: true }), A.clone().addScaledVector(mA, 1.66), 0.06));
 
     // β 在 C 处
-    dynG.add(sectorBetween(C, 1.1, up, P.clone().sub(C), COL.hi2, .26));
+    dynG.add(sectorBetween(C, 1.1, up, P.clone().sub(C), COL.hi2, .34));
     dynG.add(arcBetween(C, 1.1, up, P.clone().sub(C), 0x6d28d9, .032));
     const mC = up.clone().normalize().add(P.clone().sub(C).normalize()).normalize();
     dynG.add(place(label('β', { color: '#6d28d9', size: 0.6, mono: true }), C.clone().addScaledVector(mC, 1.66), 0.06));
@@ -54467,6 +54810,249 @@ function disposeObj(o) {
 function clearG(g) { while (g.children.length) disposeObj(g.children.pop()); }
 
 /* =========================================================
+   第 7 课：闯关题（8 关，图形自动生成）
+   ========================================================= */
+function buildQuiz() {
+  const root = new THREE.Group();
+  const api = { root, cam: { theta: Math.PI / 2, phi: 0.11, r: 21 }, hint: '点击选项作答 · 看解析 · 答完进入下一关' };
+
+  const RAD = Math.PI / 180;
+  function pie(cx, cy, r, a1, a2, fill, op) {
+    let span = (a2 - a1) % 360; if (span < 0) span += 360;
+    if (span > 180) { const t = a1; a1 = a2; a2 = t; span = 360 - span; }
+    const x1 = cx + r * Math.cos(a1 * RAD), y1 = cy + r * Math.sin(a1 * RAD);
+    const x2 = cx + r * Math.cos((a1 + span) * RAD), y2 = cy + r * Math.sin((a1 + span) * RAD);
+    return `<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${fill}" opacity="${op ?? .35}"/>`;
+  }
+  function midOf(a1, a2) {
+    let sp = (a2 - a1) % 360; if (sp < 0) sp += 360; if (sp > 180) sp -= 360;
+    return a1 + sp / 2;
+  }
+  function angNum(cx, cy, r, aDeg, txt, color, fs = 14) {
+    const x = cx + r * Math.cos(aDeg * RAD), y = cy + r * Math.sin(aDeg * RAD);
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" fill="${color}" font-size="${fs}" font-weight="700" font-style="italic" text-anchor="middle" dominant-baseline="middle">${txt}</text>`;
+  }
+  function chev(x, y) {
+    return `<path d="M${x - 7},${y - 6} L${x + 4},${y} L${x - 7},${y + 6}" fill="none" stroke="#475569" stroke-width="2.2"/>`;
+  }
+
+  /* 三线八角图：编号与第③课 3D 场景一致（∠1∠2 在两线之间，截线"\"方向）；nums = 高亮的角 */
+  function fig3L(nums) {
+    const A = [305, 80], B = [425, 235];
+    const dx = B[0] - A[0], dy = B[1] - A[1];
+    const UC = Math.atan2(dy, dx) / RAD, UD = UC + 180;
+    const quads = [[0, UC], [UC, 180], [180, UD], [UD, 360]];   // ∠1..∠4（下交点 ∠5..∠8 同构）
+    let s = '';
+    s += `<line x1="40" y1="80" x2="640" y2="80" stroke="#2563eb" stroke-width="3"/>`;
+    s += `<line x1="40" y1="235" x2="640" y2="235" stroke="#0d9488" stroke-width="3"/>`;
+    s += `<line x1="${(A[0] - dx * .52).toFixed(1)}" y1="${(A[1] - dy * .52).toFixed(1)}" x2="${(B[0] + dx * .52).toFixed(1)}" y2="${(B[1] + dy * .52).toFixed(1)}" stroke="#ea580c" stroke-width="3"/>`;
+    s += chev(100, 80) + chev(560, 80) + chev(100, 235) + chev(560, 235);
+    s += `<text x="650" y="80" fill="#2563eb" font-size="17" font-weight="800" font-style="italic" dominant-baseline="middle">a</text>`;
+    s += `<text x="650" y="235" fill="#0d9488" font-size="17" font-weight="800" font-style="italic" dominant-baseline="middle">b</text>`;
+    s += `<text x="205" y="30" fill="#ea580c" font-size="17" font-weight="800" font-style="italic">c</text>`;
+    [A, B].forEach((P0, li) => {
+      for (let i = 0; i < 4; i++) {
+        const n = li * 4 + i + 1;
+        const hi = nums.includes(n);
+        const fill = n <= 4 ? '#f59e0b' : '#8b5cf6';
+        s += pie(P0[0], P0[1], 30, quads[i][0], quads[i][1], fill, hi ? .5 : .16);
+        s += angNum(P0[0], P0[1], 47, midOf(quads[i][0], quads[i][1]), n,
+          hi ? (n <= 4 ? '#b45309' : '#6d28d9') : '#64748b', hi ? 16 : 14);
+      }
+    });
+    return `<svg viewBox="0 0 690 300">${s}</svg>`;
+  }
+
+  /* 拐点模型图 */
+  function figBend() {
+    const A = [140, 80], C = [140, 235], P = [400, 185];
+    const aA = Math.atan2(185 - 80, 400 - 140) / RAD;              // A→P ≈ 22°
+    const aC = Math.atan2(185 - 235, 400 - 140) / RAD;             // C→P ≈ -10.9°
+    const aPA = Math.atan2(80 - 185, 140 - 400) / RAD;             // P→A ≈ -158°
+    const aPC = Math.atan2(235 - 185, 140 - 400) / RAD;            // P→C ≈ 169.1°
+    let s = '';
+    s += `<line x1="40" y1="80" x2="640" y2="80" stroke="#2563eb" stroke-width="3"/>`;
+    s += `<line x1="40" y1="235" x2="640" y2="235" stroke="#0d9488" stroke-width="3"/>`;
+    s += `<path d="M${A[0]},${A[1]} L${P[0]},${P[1]} L${C[0]},${C[1]}" fill="none" stroke="#334155" stroke-width="3"/>`;
+    s += `<line x1="${P[0] - 140}" y1="185" x2="${P[0] + 160}" y2="185" stroke="#db2777" stroke-width="2" stroke-dasharray="7 5" opacity=".85"/>`;
+    s += `<circle cx="${P[0]}" cy="${P[1]}" r="5" fill="#db2777"/>`;
+    s += pie(A[0], A[1], 34, 0, aA, '#f59e0b', .45);
+    s += angNum(A[0], A[1], 54, aA / 2, 'α', '#b45309', 15);
+    s += pie(C[0], C[1], 34, 0, aC, '#8b5cf6', .45);
+    s += angNum(C[0], C[1], 54, aC / 2, 'β', '#6d28d9', 15);
+    s += pie(P[0], P[1], 42, aPC, aPA + 360, '#db2777', .35);
+    s += angNum(P[0], P[1], 58, midOf(aPC, aPA + 360), 'γ', '#be185d', 15);
+    s += `<text x="118" y="66" fill="#334155" font-size="16" font-weight="800" font-style="italic">A</text>`;
+    s += `<text x="620" y="66" fill="#334155" font-size="16" font-weight="800" font-style="italic">B</text>`;
+    s += `<text x="118" y="258" fill="#334155" font-size="16" font-weight="800" font-style="italic">C</text>`;
+    s += `<text x="620" y="258" fill="#334155" font-size="16" font-weight="800" font-style="italic">D</text>`;
+    s += `<text x="${P[0] + 14}" y="${P[1] - 12}" fill="#9d174d" font-size="16" font-weight="800" font-style="italic">P</text>`;
+    s += `<text x="60" y="52" fill="#64748b" font-size="13" font-weight="700">AB ∥ CD　∠A = 40°　∠C = 55°</text>`;
+    return `<svg viewBox="0 0 690 290">${s}</svg>`;
+  }
+
+  /* 位置关系小图（相交 / 平行 / 异面） */
+  function figPlaces() {
+    let s = '';
+    s += `<line x1="30" y1="75" x2="190" y2="75" stroke="#334155" stroke-width="3"/>`;
+    s += `<line x1="65" y1="18" x2="155" y2="132" stroke="#334155" stroke-width="3"/>`;
+    s += `<circle cx="110" cy="75" r="5" fill="#ef4444"/>`;
+    s += `<text x="110" y="152" fill="#64748b" font-size="13" font-weight="700" text-anchor="middle">相交（有公共点）</text>`;
+    s += `<line x1="250" y1="45" x2="390" y2="45" stroke="#334155" stroke-width="3"/>`;
+    s += `<line x1="250" y1="115" x2="390" y2="115" stroke="#334155" stroke-width="3"/>`;
+    s += chev(300, 45) + chev(300, 115);
+    s += `<text x="320" y="152" fill="#64748b" font-size="13" font-weight="700" text-anchor="middle">平行（同一平面）</text>`;
+    s += `<line x1="480" y1="55" x2="610" y2="55" stroke="#334155" stroke-width="3"/>`;
+    s += `<line x1="500" y1="140" x2="620" y2="112" stroke="#334155" stroke-width="3"/>`;
+    s += `<text x="555" y="165" fill="#64748b" font-size="13" font-weight="700" text-anchor="middle">异面（不在同一平面）</text>`;
+    return `<svg viewBox="0 0 690 170">${s}</svg>`;
+  }
+
+  /* 异面直线图 */
+  function figSkew() {
+    let s = '';
+    s += `<line x1="90" y1="70" x2="430" y2="70" stroke="#334155" stroke-width="3"/>`;
+    s += `<line x1="250" y1="185" x2="590" y2="145" stroke="#334155" stroke-width="3"/>`;
+    s += `<line x1="430" y1="70" x2="620" y2="70" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>`;
+    s += `<line x1="590" y1="145" x2="655" y2="137" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>`;
+    s += `<line x1="90" y1="70" x2="30" y2="70" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>`;
+    s += `<line x1="250" y1="185" x2="185" y2="192.9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>`;
+    return `<svg viewBox="0 0 690 210">${s}</svg>`;
+  }
+
+  const QS = [
+    {
+      fig: figPlaces(),
+      text: '第 1 关　在同一平面内，两条直线的位置关系有（　）',
+      opts: ['A. 只有相交', 'B. 只有平行', 'C. 相交或平行', 'D. 垂直或平行'], ans: 2,
+      exp: '在同一平面内，两条直线要么有一个公共点（相交），要么没有公共点（平行）。垂直只是相交的特例，不算第三种。'
+    },
+    {
+      fig: figSkew(),
+      text: '第 2 关　"不相交的两条直线叫做平行线"这句话（　）',
+      opts: ['A. 正确', 'B. 错，缺少"在同一平面内"', 'C. 错，缺少"过直线外一点"', 'D. 正确，这就是定义'], ans: 1,
+      exp: '图中两条直线延长后（灰虚线）永不相交，但它们不在同一平面内 —— 是异面直线，不是平行线。定义里"同一平面内"这个条件不能丢。'
+    },
+    {
+      fig: fig3L([1, 5]),
+      text: '第 3 关　如图，直线 a、b 被直线 c 所截，∠1 的同位角是（　）',
+      opts: ['A. ∠5', 'B. ∠6', 'C. ∠7', 'D. ∠8'], ans: 0,
+      exp: '∠1 与 ∠5 都在截线 c 的同侧，且 ∠1 在 a 下方、∠5 在 b 下方 —— 相对位置相同（F 形）⟹ 同位角。'
+    },
+    {
+      fig: fig3L([1, 7, 8]),
+      text: '第 4 关　如图，∠1 的内错角与同旁内角分别是（　）',
+      opts: ['A. ∠7 和 ∠8', 'B. ∠8 和 ∠7', 'C. ∠5 和 ∠6', 'D. ∠6 和 ∠5'], ans: 0,
+      exp: '∠1 在两直线之间。内错角：也在两直线之间、但在 c 的另一侧 ⟹ ∠7（Z 形）；同旁内角：在两直线之间、c 的同一侧 ⟹ ∠8（U 形）。'
+    },
+    {
+      fig: fig3L([1, 8]),
+      text: '第 5 关　如图，a ∥ b，∠1 = 60°，则 ∠8 =（　）',
+      opts: ['A. 30°', 'B. 60°', 'C. 120°', 'D. 150°'], ans: 2,
+      exp: '∠1 与 ∠8 都在两直线之间、c 的同侧，是同旁内角。两直线平行 ⟹ 同旁内角互补：∠8 = 180° − 60° = 120°。'
+    },
+    {
+      fig: fig3L([2, 7]),
+      text: '第 6 关　如图，下列条件中，能判定 a ∥ b 的是（　）',
+      opts: ['A. ∠2 = ∠7', 'B. ∠2 + ∠7 = 180°', 'C. ∠1 = ∠2', 'D. ∠5 = ∠8'], ans: 1,
+      exp: '∠2 与 ∠7 是同旁内角：互补 ⟹ 平行（判定 3）。注意 A 选项：同旁内角"相等"反而推不出平行！C、D 里两个角是同一条直线上的邻补角，与平行无关。'
+    },
+    {
+      fig: figBend(),
+      text: '第 7 关　如图，AB ∥ CD，∠A = 40°，∠C = 55°，则 ∠APC =（　）',
+      opts: ['A. 15°', 'B. 85°', 'C. 95°', 'D. 105°'], ans: 2,
+      exp: '过拐点 P 作 PQ ∥ AB（图中粉色虚线），由推论得 PQ ∥ CD。∠APC 拆成两个内错角：∠APC = ∠A + ∠C = 40° + 55° = 95°。'
+    },
+    {
+      fig: '',
+      text: '第 8 关　若 AB ∥ EF，CD ∥ EF，则 AB ∥ CD。这个推理的依据是（　）',
+      opts: ['A. 平行公理', 'B. 平行公理的推论（平行于同一条直线的两条直线平行）', 'C. 内错角相等，两直线平行', 'D. 同位角相等，两直线平行'], ans: 1,
+      exp: '"平行于同一条直线的两条直线平行"是平行公理的推论，也是第 ⑦ 关拐点问题作辅助线的理论依据。'
+    }
+  ];
+
+  const ov = document.createElement('div');
+  ov.className = 'quizWrap';
+  ov.innerHTML = `<div class="quizBox" id="quizBox"></div>`;
+  stage.appendChild(ov);
+  const box = ov.querySelector('#quizBox');
+
+  let qi = 0, score = 0, results = [], finished = false;
+
+  function dots() {
+    return QS.map((_, k) => {
+      const cls = results[k] === true ? 'ok' : results[k] === false ? 'no' : (k === qi && !finished ? 'cur' : '');
+      return `<i class="${cls}"></i>`;
+    }).join('');
+  }
+
+  function render() {
+    if (finished) {
+      const msg = score === QS.length
+        ? '满分通关！概念、识别、性质、判定全部过关 🎉'
+        : score >= 6
+          ? '很棒！看看错题的解析，把对应考点再过一遍。'
+          : '继续加油！对照前面几课把错题的考点复习一下，再闯一次。';
+      box.innerHTML = `
+        <div class="qFin">
+          <div class="big">${score} / ${QS.length}</div>
+          <div class="msg">${msg}</div>
+          <div class="btns" style="justify-content:center;margin-top:16px">
+            <button id="qRetry">↻ 重做一遍</button>
+          </div>
+        </div>`;
+      box.querySelector('#qRetry').onclick = () => { qi = 0; score = 0; results = []; finished = false; render(); };
+      return;
+    }
+    const q = QS[qi];
+    box.innerHTML = `
+      <div class="qTop"><span>第 ${qi + 1} 关 / ${QS.length}</span><span class="sc">★ 已得 ${score} 分</span></div>
+      <div class="qDots">${dots()}</div>
+      ${q.fig ? `<div class="qFig">${q.fig}</div>` : ''}
+      <div class="qText">${q.text}</div>
+      <div class="qOpts">${q.opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div>
+      <div class="qFb" id="qFb"></div>
+      <div class="qNav">
+        <button id="qPrev" ${qi === 0 ? 'disabled' : ''}>‹ 上一关</button>
+        <button id="qNext" class="pri" style="visibility:hidden">下一关 ›</button>
+      </div>`;
+
+    box.querySelectorAll('.qOpts button').forEach(b => {
+      b.onclick = () => {
+        if (results[qi] !== undefined) return;
+        const k = +b.dataset.k;
+        const okk = k === q.ans;
+        results[qi] = okk;
+        if (okk) score++;
+        box.querySelectorAll('.qOpts button').forEach((b2, k2) => {
+          if (k2 === q.ans) b2.classList.add('pick-ok');
+          else if (k2 === k) b2.classList.add('pick-no');
+          else b2.classList.add('dim');
+        });
+        const ansLabel = q.opts[q.ans].slice(0, q.opts[q.ans].indexOf('.') + 1);
+        const fb = box.querySelector('#qFb');
+        fb.className = 'qFb ' + (okk ? 'ok' : 'no');
+        fb.innerHTML = (okk ? '<b>✓ 答对了！</b>' : `<b>✗ 再想想～ 正确答案是 ${ansLabel}</b>`) + `<br>${q.exp}`;
+        box.querySelector('#qNext').style.visibility = 'visible';
+        box.querySelector('.qDots').innerHTML = dots();
+        box.querySelector('.qTop .sc').textContent = `★ 已得 ${score} 分`;
+      };
+    });
+    box.querySelector('#qPrev').onclick = () => { if (qi > 0) { qi--; render(); } };
+    box.querySelector('#qNext').onclick = () => {
+      if (results[qi] === undefined) return;   // 必须先作答
+      if (qi === QS.length - 1) finished = true;
+      else qi++;
+      render();
+    };
+  }
+  render();
+
+  api.destroy = () => ov.remove();
+  return api;
+}
+
+/* =========================================================
    课件注册
    ========================================================= */
 const LESSONS = [
@@ -54494,14 +55080,14 @@ const LESSONS = [
           <label class="row"><span>让 b 离开平面</span><input id="s1" type="range" min="0" max="100" value="0"><b id="v1">0%</b></label>
           <div class="btns"><button id="bPlane" class="on">显示平面</button></div>
         </div>
-        <p class="note" style="margin-top:10px">也可以<b>直接用鼠标按住直线 b 往上拖</b>。把 b 抬起来看：两条直线依然没有交点，但它们歪着 —— 这就是"异面直线"，<b>不是平行</b>。</p>
+        <p class="note" style="margin-top:10px">也可以<b>直接用鼠标按住直线 b 往上拖</b>。抬起来后看三样东西：<b>灰虚线</b>是垂线段（b 悬在平面上方），<b>青虚线</b>是 b 在平面上的影子，<b>红点</b>是影子与 a 的交点 —— 影子会相交，但直线本身没有交点、也不在这个平面里 ⟹ <b>异面直线，不是平行</b>。</p>
       </div>
       <div class="blk">
         <h3>课堂追问</h3>
         <ul>
           <li>在同一平面内，两条直线有几种位置关系？<br><span class="note">答：只有两种 —— 相交、平行（重合除外）。</span></li>
           <li>过直线外一点，能画几条直线与已知直线平行？<br><span class="note">答：<b>有且只有一条</b>（平行公理）。</span></li>
-          <li>如果两条直线都与第三条直线平行，它们什么关系？<br><span class="note">答：<b>也互相平行</b>（平行公理的推论，第 5 课要用）。</span></li>
+          <li>如果两条直线都与第三条直线平行，它们什么关系？<br><span class="note">答：<b>也互相平行</b>（平行公理的推论，第 ⑥ 课要用）。</span></li>
         </ul>
       </div>
       <div class="blk">
@@ -54531,15 +55117,26 @@ const LESSONS = [
         <div class="ctrl">
           <label class="row"><span>过 P 的直线</span><input id="ps" type="range" min="-60" max="60" value="40"><b id="p_deg">40°</b></label>
           <div class="btns">
+            <button id="bAnim2">▶ 动画演示</button>
             <button id="bReset2">转成平行</button>
-            <button id="bFan">显示所有方向</button>
+            <button id="bFan">多条直线一起看</button>
             <button id="bCor">显示推论</button>
+            <button id="bOn">把 P 移到直线 a 上</button>
           </div>
           <table class="dat" style="margin-top:2px">
             <tr><td>与 a 的关系</td><td id="p_state">—</td></tr>
           </table>
         </div>
-        <p class="note" style="margin-top:10px">也可以<b>直接用鼠标按住那条橙色直线转动</b>。慢慢转向 0°：交点越来越远，可<b>只有真正平行的那个方向</b>才没有交点 —— 这就是"只有一条"。</p>
+        <p class="note" style="margin-top:10px"><b>▶ 动画演示</b>：直线自动扫过一圈方向，每个方向都冒出红色交点，只有 0° 那一刻没有交点。<b>多条直线一起看</b>：同时画出 7 条过 P 的直线，只有青色那条 ∥ a，其余全部相交。</p>
+      </div>
+      <div class="blk">
+        <h3>对比：过直线上一点行不行？</h3>
+        <p>点 <b>“把 P 移到直线 a 上”</b>，再拖动直线转一圈试试：</p>
+        <ul>
+          <li>只要不与 a 同方向，这条直线<b>马上就在 P 点和 a 相交</b>（P 自己就是交点）；</li>
+          <li>转到"平行方向"时，它只能<b>与 a 完全重合</b>——不是新的平行线。</li>
+        </ul>
+        <p class="note">所以"过直线外一点"这个条件不能丢：<b>过直线上的点画不出这条直线的平行线</b>。</p>
       </div>
       <div class="blk">
         <h3>推论（第 ⑥ 课要用）</h3>
@@ -54568,23 +55165,36 @@ const LESSONS = [
       <div class="blk">
         <h3>动手转一转截线</h3>
         <label class="row"><span>截线倾斜角</span><input id="s4" type="range" min="45" max="135" value="62"><b id="v4">62°</b></label>
-        <p class="note" style="margin-top:10px">也可以<b>用鼠标按住橙色截线 c 直接拖动</b>。截线怎么转，8 个角都在变，但同位角始终相等、内错角始终相等、同旁内角始终互补 —— 关系的"位置特征"不会变。</p>
+        <p class="note" style="margin-top:10px">也可以<b>用鼠标按住橙色截线 c 直接拖动</b>。截线怎么转，8 个角的度数都在变，但<b>只要 a ∥ b</b>：同位角始终相等、内错角始终相等、同旁内角始终互补。</p>
       </div>
       <div class="blk">
-        <h3>三类角 · 位置特征</h3>
+        <h3>八个角的度数（实时）</h3>
+        <div id="degList"></div>
+        <p class="note" style="margin-top:8px"><span class="chip" style="background:#f59e0b;color:#fff">橙 = 当前角</span><span class="chip" style="background:#7c3aed;color:#fff">紫 = 搭档</span>　转动截线，看度数怎么变、关系怎么不变。</p>
+      </div>
+      <div class="blk">
+        <h3>选一个角 · 看它的搭档</h3>
+        <div class="btns" id="srcBtns" style="margin-bottom:8px"></div>
         <div class="btns" id="kindBtns" style="margin-bottom:10px">
           <button data-k="same" class="on">同位角</button>
           <button data-k="alt">内错角</button>
           <button data-k="co">同旁内角</button>
-          <button id="nextPair">下一组 ›</button>
+          <button data-k="all">三类同屏</button>
+          <button id="nextPair">下一个角 ›</button>
           <button id="btnLetter">显形 F·Z·U</button>
         </div>
+        <p class="note" style="margin-bottom:8px">先点 ∠1–∠8 选"当前角"（<b>也可以直接点击图里任意一个角</b>），再看它的同位角 / 内错角 / 同旁内角是谁；点"三类同屏"，一个角的三种关系一眼全看到。</p>
         <div class="verdict">
           <div class="k"><span id="relName">同位角</span> · <span id="relPair">∠1 与 ∠5</span></div>
           <div class="v" id="relVal">—</div>
           <div style="font-size:12.5px;color:#54657c;margin-top:6px" id="relConc">—</div>
         </div>
         <p class="note" id="relDesc">—</p>
+      </div>
+      <div class="blk">
+        <h3>口诀</h3>
+        <p><span class="hlb">F 同位 · Z 内错 · U 同旁</span></p>
+        <p><span class="mth">a ∥ b</span> 时：<b>同位角相等，内错角相等，同旁内角互补</b>。</p>
       </div>
       <div class="blk">
         <h3>为什么同位角一定相等？</h3>
@@ -54594,9 +55204,9 @@ const LESSONS = [
       <div class="blk">
         <h3>易错提醒</h3>
         <ul>
-          <li>同位角不一定相等！<b>只有两直线平行时</b>才相等。</li>
-          <li>内错角、同旁内角也<b>不是"天生相等"</b>，都是平行时才有的结论。</li>
+          <li>书写要带前提：<span class="mth">∵ a ∥ b　∴ ∠1 = ∠2</span> —— "平行"是因，"角相等"是果，因果写全。</li>
           <li>同旁内角是<b>互补</b>（和为 180°），不是相等。</li>
+          <li>判断关系第一步永远是：<b>先找出那条"穿过去"的截线</b>。</li>
         </ul>
       </div>`
   },
@@ -54733,6 +55343,40 @@ const LESSONS = [
         <p><b>拐点问题，作平行线。</b>过每一个拐点作一条与已知直线平行的线，把大角拆成两个小角，再用"内错角相等"接上。</p>
         <p class="note">拖到线外时，结论变成 <span class="mth">∠APC = |α − β|</span> —— 说明<b>记结论不如会作图</b>。</p>
       </div>`
+  },
+  {
+    tab: '⑦ 闯关题', build: buildQuiz,
+    card: `
+      <div class="chead"><span class="num">LESSON 07</span>
+        <h2>闯关题 · 8 关</h2><p>从概念到拐点模型，一关一考点</p></div>
+      <div class="blk">
+        <h3>怎么用</h3>
+        <ul>
+          <li>在左侧答题区<b>点击选项</b>作答，答完自动出解析</li>
+          <li>答对才能进下一关；全部答完显示总得分</li>
+          <li>点"重做"可再来一遍；适合课上<b>先举手抢答、再点开验证</b></li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h3>考点对照</h3>
+        <table class="dat">
+          <tr><th>关</th><th>考点</th></tr>
+          <tr><td>1 – 2</td><td>平行线概念（同一平面内 · 异面）</td></tr>
+          <tr><td>3 – 4</td><td>同位角 · 内错角 · 同旁内角识别</td></tr>
+          <tr><td>5</td><td>平行线的性质（计算）</td></tr>
+          <tr><td>6</td><td>平行线的判定（选条件 · 防混淆）</td></tr>
+          <tr><td>7</td><td>拐点模型（性质 + 辅助线）</td></tr>
+          <tr><td>8</td><td>平行公理的推论</td></tr>
+        </table>
+      </div>
+      <div class="blk">
+        <h3>教师提示</h3>
+        <ul>
+          <li>第 2 关是概念题的高频失分点：题目故意漏掉"同一平面内"</li>
+          <li>第 6 关把"相等"和"互补"混在一起，训练审题（同旁内角相等推不出平行）</li>
+          <li>第 7 关讲评时可切回第 ⑥ 课，拖动 P 现场演示</li>
+        </ul>
+      </div>`
   }
 ];
 
@@ -54752,8 +55396,12 @@ LESSONS.forEach((L, i) => {
 
 function goto(i) {
   if (i === cur) return;
-  if (currentApi) { scene.remove(currentApi.root); disposeObj(currentApi.root); currentApi = null; }
+  if (currentApi) {
+    if (currentApi.destroy) currentApi.destroy();
+    scene.remove(currentApi.root); disposeObj(currentApi.root); currentApi = null;
+  }
   tweens.length = 0;
+  clearBanner();
   cur = i;
   cardEl.innerHTML = LESSONS[i].card;
   cardEl.scrollTop = 0;
