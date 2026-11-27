@@ -5,64 +5,144 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>6.2 直线、射线、线段 · 3D 数学课堂（人教版七上 第六章）</title>
 <style>
+  .quiz-root{ max-width:860px; margin:0 auto; }
+  .quiz-top{ display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+  .quiz-top .lv{
+    background:linear-gradient(135deg,#8b5cf6,#6366f1); color:#fff; font-size:12.5px; font-weight:700;
+    padding:7px 16px; border-radius:999px; box-shadow:0 3px 10px rgba(99,102,241,.3); white-space:nowrap;
+  }
+  .quiz-dots{ display:flex; gap:7px; flex:1; }
+  .quiz-dots .dot{
+    width:26px; height:10px; border-radius:999px; background:#e2e8f0; transition:.25s;
+  }
+  .quiz-dots .dot.cur{ background:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.2); }
+  .quiz-dots .dot.ok{ background:#10b981; }
+  .quiz-dots .dot.no{ background:#ef4444; }
+  .quiz-card{ background:var(--card); border-radius:18px; padding:26px 30px; box-shadow:0 4px 20px rgba(30,64,175,.10); }
+  .quiz-q{ font-size:17px; font-weight:700; line-height:1.8; margin-bottom:6px; }
+  .quiz-fig{ text-align:center; margin:6px 0 4px; }
+  .quiz-opts{ display:grid; gap:10px; margin-top:16px; }
+  .quiz-opts button{
+    text-align:left; padding:13px 18px; border-radius:13px; border:1.5px solid #e2e8f0; background:#f8fafc;
+    font-size:14.5px; font-weight:600; color:#334155; cursor:pointer; transition:.15s; line-height:1.6;
+    display:flex; align-items:flex-start; gap:10px;
+  }
+  .quiz-opts button .tag{
+    flex:none; width:26px; height:26px; border-radius:8px; background:#e2e8f0; color:#475569;
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;
+  }
+  .quiz-opts button:not(:disabled):hover{ border-color:#93c5fd; background:#eff6ff; transform:translateY(-1px); }
+  .quiz-opts button.ok{ border-color:#10b981; background:#ecfdf5; color:#047857; }
+  .quiz-opts button.ok .tag{ background:#10b981; color:#fff; }
+  .quiz-opts button.no{ border-color:#ef4444; background:#fef2f2; color:#b91c1c; }
+  .quiz-opts button.no .tag{ background:#ef4444; color:#fff; }
+  .quiz-opts button:disabled{ cursor:default; opacity:.92; }
+  .quiz-exp{
+    margin-top:16px; border-radius:13px; padding:13px 18px; font-size:13.5px; line-height:1.9; display:none;
+  }
+  .quiz-exp.good{ background:#ecfdf5; border:1px solid #a7f3d0; color:#047857; }
+  .quiz-exp.bad{ background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; }
+  .quiz-exp b.tagline{ font-size:14px; }
+  .quiz-foot{ margin-top:18px; display:flex; justify-content:flex-end; gap:10px; }
+  .quiz-foot button{
+    padding:10px 26px; border:none; border-radius:999px; font-size:14px; font-weight:700; cursor:pointer;
+    background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff; box-shadow:0 3px 12px rgba(79,70,229,.3);
+    transition:.15s; display:none;
+  }
+  .quiz-foot button:hover{ transform:translateY(-1px); }
+  .quiz-report{ display:none; }
+  .rpt-hero{ display:flex; gap:18px; align-items:center; background:linear-gradient(120deg,#312e81,#1d4ed8); border-radius:18px; padding:22px 28px; color:#fff; margin-bottom:14px; }
+  .rpt-ring{ flex:none; width:96px; height:96px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:800; }
+  .rpt-hero .rpt-main{ flex:1; }
+  .rpt-hero h3{ font-size:17px; margin-bottom:6px; }
+  .rpt-hero p{ font-size:13px; opacity:.85; line-height:1.8; }
+  .rpt-lv{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .rpt-lv .box{ flex:1; min-width:150px; background:var(--card); border-radius:14px; padding:13px 16px; box-shadow:0 2px 10px rgba(30,64,175,.08); text-align:center; }
+  .rpt-lv .box b{ font-size:20px; display:block; }
+  .rpt-lv .box span{ font-size:12px; color:var(--muted); }
+  .rpt-point{ background:var(--card); border-radius:16px; padding:16px 20px; box-shadow:0 2px 14px rgba(30,64,175,.08); }
+  .rpt-point h4{ font-size:14px; margin-bottom:12px; }
+  .prow{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .prow .pname{ flex:none; width:150px; font-size:13px; font-weight:600; color:#334155; }
+  .prow .pbar{ flex:1; height:10px; background:#eef2f8; border-radius:999px; overflow:hidden; }
+  .prow .pbar i{ display:block; height:100%; border-radius:999px; transition:width .5s; }
+  .prow .prate{ flex:none; width:52px; text-align:right; font-size:13px; font-weight:700; }
+  .prow .goto{ flex:none; font-size:11.5px; padding:4px 12px; border-radius:999px; border:1px solid #c7d2fe; background:#eef2ff; color:#4338ca; cursor:pointer; font-weight:700; }
+  .prow .goto:hover{ background:#e0e7ff; }
+  .prow.weak .pname{ color:#b91c1c; }
+  .rpt-actions{ display:flex; gap:10px; margin-top:14px; justify-content:center; flex-wrap:wrap; }
+  .rpt-actions button{ padding:10px 24px; border:none; border-radius:999px; font-size:13.5px; font-weight:700; cursor:pointer; transition:.15s; }
+  .rpt-actions .again{ background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff; box-shadow:0 3px 12px rgba(79,70,229,.3); }
+  .rpt-actions .wrongonly{ background:#fff7ed; color:#c2410c; border:1.5px solid #fdba74; }
+</style>
+<style>
   * { margin:0; padding:0; box-sizing:border-box; }
   :root{
     --blue:#3b82f6; --blue-d:#1d4ed8; --blue-l:#eff6ff;
     --green:#10b981; --green-l:#ecfdf5;
     --orange:#f59e0b; --orange-l:#fffbeb;
     --purple:#8b5cf6; --red:#ef4444;
-    --ink:#0f172a; --muted:#94a3b8; --bg:#f8fafc; --card:#ffffff;
+    --ink:#0f172a; --muted:#94a3b8; --bg:#f6f8fd; --card:#ffffff;
   }
   body{ font-family:"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); }
   header{
-    background:linear-gradient(120deg,#1e293b,#1e40af 65%,#2563eb);
-    color:#fff; padding:14px 26px; display:flex; align-items:center; gap:14px;
+    background:linear-gradient(120deg,#312e81 0%,#1d4ed8 55%,#0ea5e9 100%);
+    color:#fff; padding:16px 26px; display:flex; align-items:center; gap:14px;
+    box-shadow:0 2px 14px rgba(30,64,175,.25);
   }
-  header .logo{ width:40px; height:40px; background:rgba(255,255,255,.15); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:22px; }
-  header h1{ font-size:18px; font-weight:600; letter-spacing:.5px; }
-  header p{ font-size:12px; opacity:.7; margin-top:2px; }
-  nav{ display:flex; gap:4px; padding:8px 26px; background:#fff; border-bottom:1px solid #e2e8f0; flex-wrap:wrap; }
+  header .logo{ width:44px; height:44px; background:rgba(255,255,255,.18); border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:24px; backdrop-filter:blur(4px); }
+  header h1{ font-size:18px; font-weight:700; letter-spacing:.5px; }
+  header p{ font-size:12px; opacity:.75; margin-top:3px; }
+  nav{ display:flex; gap:6px; padding:10px 26px; background:#fff; border-bottom:1px solid #e5eaf3; flex-wrap:wrap; }
   nav button{
-    border:none; background:transparent; padding:8px 15px; font-size:13px; font-weight:600;
-    color:var(--muted); border-radius:8px; cursor:pointer; transition:.15s;
+    border:1.5px solid transparent; background:transparent; padding:8px 16px; font-size:13px; font-weight:600;
+    color:var(--muted); border-radius:999px; cursor:pointer; transition:.18s;
   }
   nav button:hover{ background:var(--blue-l); color:var(--blue-d); }
-  nav button.active{ color:var(--blue-d); background:var(--blue-l); }
-  .page{ display:none; padding:16px 26px 36px; max-width:1280px; margin:0 auto; }
+  nav button.active{
+    color:#fff; background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+    box-shadow:0 3px 10px rgba(99,102,241,.35);
+  }
+  .page{ display:none; padding:18px 26px 40px; max-width:1280px; margin:0 auto; }
   .page.active{ display:block; }
-  .card{ background:var(--card); border-radius:14px; padding:14px; box-shadow:0 1px 4px rgba(15,23,42,.06); }
-  .grid{ display:grid; gap:14px; }
+  .card{ background:var(--card); border-radius:16px; padding:16px; box-shadow:0 2px 14px rgba(30,64,175,.08); }
+  .grid{ display:grid; gap:16px; }
   .grid.cols-2{ grid-template-columns:1fr 1fr; }
   @media(max-width:900px){ .grid.cols-2{ grid-template-columns:1fr; } }
   .topline{ display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
   .topline b{ font-size:15px; font-weight:700; }
   .topline span{ font-size:12.5px; color:var(--muted); }
-  .scene-wrap{ position:relative; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0;
-    background:linear-gradient(180deg,#fdfdff 0%,#eef4ff 100%); }
+  .scene-wrap{ position:relative; border-radius:14px; overflow:hidden; border:1px solid #e2e8f0;
+    background:radial-gradient(130% 110% at 50% 0%, #ffffff 0%, #eef4ff 62%, #e2ebfd 100%); }
   .scene-wrap canvas{ display:block; }
-  .hint{ position:absolute; left:10px; bottom:8px; font-size:11.5px; color:#7c8aa0; background:rgba(255,255,255,.85); padding:3px 10px; border-radius:7px; pointer-events:none; }
-  .ovl{ position:absolute; right:10px; top:10px; display:flex; gap:6px; }
+  .hint{ position:absolute; left:10px; bottom:8px; font-size:11.5px; color:#64748b; background:rgba(255,255,255,.88); padding:4px 12px; border-radius:999px; pointer-events:none; box-shadow:0 1px 4px rgba(15,23,42,.08); }
+  .ovl{ position:absolute; right:10px; top:10px; display:flex; gap:6px; flex-wrap:wrap; }
   .ovl button{
-    padding:6px 14px; border:none; border-radius:8px; background:rgba(255,255,255,.92); color:#475569;
-    font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 1px 4px rgba(15,23,42,.12);
+    padding:7px 15px; border:none; border-radius:999px; background:rgba(255,255,255,.94); color:#475569;
+    font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 6px rgba(15,23,42,.14); transition:.15s;
   }
-  .ovl button.on{ background:var(--purple); color:#fff; }
+  .ovl button.on{ background:linear-gradient(135deg,#8b5cf6,#6366f1); color:#fff; }
   .seg-btns{ display:flex; gap:6px; }
   .seg-btns button{
-    padding:7px 20px; border-radius:999px; border:1.5px solid transparent; font-size:13.5px; font-weight:600; cursor:pointer; transition:.15s;
+    padding:8px 22px; border-radius:999px; border:1.5px solid transparent; font-size:13.5px; font-weight:700; cursor:pointer; transition:.15s;
+    box-shadow:0 1px 4px rgba(15,23,42,.06);
   }
   .btn-seg{ background:var(--green-l); color:#059669; border-color:#10b981!important; }
   .btn-ray{ background:var(--orange-l); color:#b45309; border-color:#f59e0b!important; }
   .btn-line{ background:var(--blue-l); color:var(--blue-d); border-color:#3b82f6!important; }
-  .seg-btns button.dim{ opacity:.4; filter:grayscale(.6); }
-  .mode-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+  .seg-btns button.dim{ opacity:.35; filter:grayscale(.7); }
+  .mode-btns{ display:flex; gap:8px; flex-wrap:wrap; }
   .mode-btns button{
-    padding:7px 18px; border-radius:999px; border:1.5px solid #cbd5e1; background:#fff; color:#475569;
+    padding:8px 20px; border-radius:999px; border:1.5px solid #cbd5e1; background:#fff; color:#475569;
     font-size:13px; font-weight:600; cursor:pointer; transition:.15s;
   }
-  .mode-btns button.on{ background:var(--purple); border-color:var(--purple); color:#fff; }
+  .mode-btns button.on{
+    background:linear-gradient(135deg,#10b981,#059669); border-color:#059669; color:#fff;
+    box-shadow:0 3px 10px rgba(16,185,129,.3);
+  }
   input[type=range]{ width:100%; accent-color:var(--blue); height:22px; }
-  .formula-box{ background:var(--blue-l); border:1px solid #dbeafe; border-radius:10px; padding:10px 14px; font-size:13px; margin-top:10px; line-height:1.9; }
+  .formula-box{ background:var(--blue-l); border:1px solid #dbeafe; border-radius:12px; padding:11px 15px; font-size:13px; margin-top:12px; line-height:1.9; }
   ul.points{ padding-left:18px; font-size:13px; line-height:2; }
 </style>
 </head>
@@ -71,7 +151,7 @@
 <header>
   <div class="logo">📐</div>
   <div>
-    <h1>6.2 直线 · 射线 · 线段 —— 3D 交互课堂 <span style="background:#fbbf24;color:#78350f;font-size:11px;padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:8px">v4 最终版</span></h1>
+    <h1>6.2 直线 · 射线 · 线段 —— 3D 交互课堂 <span style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#78350f;font-size:11px;padding:2px 9px;border-radius:999px;vertical-align:middle;margin-left:8px">v6 课堂练习版</span></h1>
     <p>人教版（2024）数学 · 七年级上册 · 第六章 几何图形初步 &nbsp;|&nbsp; 鼠标拖动旋转 · 滚轮缩放</p>
   </div>
 </header>
@@ -79,10 +159,12 @@
 <nav>
   <button class="active" data-page="p1">① 认识三种线</button>
   <button data-page="p2">② 两点确定一条直线</button>
-  <button data-page="p3">③ 线段的比较与中点</button>
-  <button data-page="p4">④ 线段的和差运算</button>
-  <button data-page="p5">⑤ 两点之间线段最短</button>
-  <button data-page="p6">⑥ 课堂小结</button>
+  <button data-page="p3">③ 中点 · 等分点</button>
+  <button data-page="p4">④ 尺规作图比大小</button>
+  <button data-page="p5">⑤ 线段的和差运算</button>
+  <button data-page="p6">⑥ 两点之间线段最短</button>
+  <button data-page="p7">⑦ 课堂练习</button>
+  <button data-page="p8">⑧ 课堂小结</button>
 </nav>
 
 <!-- ================= Page 1 认识三种线 + 延长线 ================= -->
@@ -133,33 +215,62 @@
   </div>
 </div>
 
-<!-- ================= Page 3 线段的比较与中点 ================= -->
+<!-- ================= Page 3 中点 · 等分点 ================= -->
 <div class="page" id="p3">
-  <div class="grid cols-2">
-    <div class="card">
-      <div class="topline">
-        <b style="color:#059669">比较线段长短</b>
-        <span>度量法 · 叠合法（尺规作图）</span>
-      </div>
-      <input type="range" id="lenSlider" min="30" max="100" value="60">
-      <div class="scene-wrap" style="margin-top:8px"><div id="scene5" style="height:360px"></div>
-        <div class="hint" id="cmpText">AB = 60，CD = 70 → AB &lt; CD</div>
-      </div>
+  <div class="card">
+    <div class="topline">
+      <b style="color:var(--purple)">线段的中点与等分点</b>
+      <span>AM = MB = ½ AB · 比较大小见第④页尺规作图</span>
     </div>
-    <div class="card">
-      <div class="topline">
-        <b style="color:var(--purple)">线段的中点</b>
-        <span>AM = MB = ½ AB · 还有三等分点、四等分点</span>
+    <div class="scene-wrap">
+      <div class="ovl" id="eqBtns">
+        <button class="on">二等分（中点）</button><button>三等分</button><button>四等分</button>
       </div>
-      <div class="scene-wrap"><div id="scene6" style="height:392px"></div>
-        <div class="hint">拖动 M 点：移到正中间时，AM = MB（变绿色）</div>
-      </div>
+      <div id="scene6" style="height:540px"></div>
+      <div class="hint">二等分：拖动 M 点，移到正中间时 AM = MB（变绿色）</div>
+    </div>
+    <div class="formula-box" style="margin-top:10px">
+      把线段分成<b>相等的几段</b>的点：分成两段 → <b>中点</b>（二等分点）；分成三段 → <b>三等分点</b>；分成四段 → <b>四等分点</b>。
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="topline">
+      <b style="color:#2563eb">怎么找线段的中点？—— 尺规作图</b>
+      <span>方法① 度量法（刻度尺量一半） · 方法② 尺规作图（往下看）</span>
+    </div>
+    <div class="mode-btns" style="margin-bottom:10px">
+      <button id="midPlay" class="on">▶ 演示尺规找中点</button>
+    </div>
+    <div class="scene-wrap"><div id="sceneMid" style="height:400px"></div>
+      <div class="hint">分别以 A、B 为圆心、大于 AB 一半的长为半径画弧，两弧相交 → 交点正下方就是中点</div>
+    </div>
+    <div class="formula-box" id="midText">
+      点「▶ 演示尺规找中点」观看：圆规分别以 A、B 为圆心画两道弧，两弧上方相交于一点，这个交点的正下方就是中点 M。
     </div>
   </div>
 </div>
 
-<!-- ================= Page 4 线段的和差运算 ================= -->
+<!-- ================= Page 4 尺规作图比较大小 ================= -->
 <div class="page" id="p4">
+  <div class="card">
+    <div class="topline">
+      <b style="color:#b45309">尺规作图：比较线段的大小</b>
+      <span>用直尺画线，用圆规"搬"长度 —— 这就是叠合法</span>
+    </div>
+    <div class="mode-btns" style="margin-bottom:10px">
+      <button id="rgPlay" class="on">▶ 演示作图</button>
+    </div>
+    <div class="scene-wrap"><div id="scene10" style="height:460px"></div>
+      <div class="hint">圆规先在较短的 A′B′ 上量取长度，再搬到较长的 AB 上画弧，交点 C 落在 AB 内部</div>
+    </div>
+    <div class="formula-box" id="rgText">
+      点「▶ 演示作图」观看：圆规先在较短的 A′B′ 上<b>量取</b>长度，再平移到点 A 处<b>画弧</b>，交点 C 落在 AB 内部 → A′B′ ＜ AB。
+    </div>
+  </div>
+</div>
+
+<!-- ================= Page 5 线段的和差运算 ================= -->
+<div class="page" id="p5">
   <div class="card">
     <div class="topline">
       <b style="color:var(--blue-d)">线段的和与差</b>
@@ -179,8 +290,8 @@
   </div>
 </div>
 
-<!-- ================= Page 5 两点之间线段最短 ================= -->
-<div class="page" id="p5">
+<!-- ================= Page 6 两点之间线段最短 ================= -->
+<div class="page" id="p6">
   <div class="card">
     <div class="topline">
       <b style="color:#059669">两点之间，线段最短</b>
@@ -203,8 +314,54 @@
   </div>
 </div>
 
-<!-- ================= Page 6 课堂小结 ================= -->
-<div class="page" id="p6">
+<!-- ================= Page 7 课堂练习（闯关题） ================= -->
+<div class="page" id="p7">
+  <div class="quiz-root">
+    <div class="card" style="margin-bottom:14px">
+      <div class="topline">
+        <b style="color:var(--purple)">课堂闯关练习 · 检验本节课的掌握情况</b>
+        <span>三关共 8 题 · 点击选项立即判对错 · 答完自动生成掌握情况报告</span>
+      </div>
+    </div>
+
+    <div id="quizPlay">
+      <div class="quiz-top">
+        <span class="lv" id="quizLv">第一关 · 基础辨析</span>
+        <div class="quiz-dots" id="quizDots"></div>
+        <span id="quizCount" style="font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap">1 / 8</span>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-q" id="quizQ"></div>
+        <div class="quiz-fig" id="quizFig"></div>
+        <div class="quiz-opts" id="quizOpts"></div>
+        <div class="quiz-exp" id="quizExp"></div>
+        <div class="quiz-foot"><button id="quizNext">下一题 →</button></div>
+      </div>
+    </div>
+
+    <div class="quiz-report" id="quizReport">
+      <div class="rpt-hero">
+        <div class="rpt-ring" id="rptRing">–</div>
+        <div class="rpt-main">
+          <h3 id="rptTitle">练习完成！本节课掌握情况报告</h3>
+          <p id="rptSummary"></p>
+        </div>
+      </div>
+      <div class="rpt-lv" id="rptLv"></div>
+      <div class="rpt-point">
+        <h4>各知识点掌握率 <span style="font-size:11.5px;color:var(--muted);font-weight:400">（低于 100% 的知识点，可点「去讲解」回到对应页面再演示）</span></h4>
+        <div id="rptPoints"></div>
+      </div>
+      <div class="rpt-actions">
+        <button class="again" id="quizAgain">↺ 全部重新练习</button>
+        <button class="wrongonly" id="quizWrong">✗ 只重做错题</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Page 8 课堂小结 ================= -->
+<div class="page" id="p8">
   <div class="card">
     <b style="font-size:15px">课堂小结 · 6.2 直线、射线、线段</b>
     <div class="grid cols-2" style="margin-top:8px">
@@ -223,7 +380,8 @@
           <li>经过两点有且只有一条直线（两点确定一条直线）；</li>
           <li>两直线相交只有一个交点；</li>
           <li>两点之间，线段最短；线段长度 = 两点间距离；</li>
-          <li>中点：AM = MB = ½AB；</li>
+          <li>中点：AM = MB = ½AB；三等分点、四等分点：每段分别等于 AB/3、AB/4；</li>
+          <li>叠合法比较大小：用圆规把一条线段"搬"到另一条上比；</li>
           <li>直线上 n 个点确定 n(n−1)/2 条线段、2n 条射线。</li>
         </ul>
       </div>
@@ -231,14 +389,15 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="/visual-classroom/vendor/three/0.128.0/build/three.min.js"></script>
+<script src="/visual-classroom/vendor/three/0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 /* ============ 通用工具 ============ */
 function makeScene(containerId, camPos){
   const box = document.getElementById(containerId);
   const w = box.clientWidth||600, h = box.clientHeight||400;
   const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xeaf1fc, 55, 140);
   const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 2000);
   camera.position.set(...(camPos||[0,6,18]));
   camera.lookAt(0,0,0);
@@ -248,9 +407,12 @@ function makeScene(containerId, camPos){
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.6;
   renderer.domElement.addEventListener('pointerdown', ()=>{ controls.autoRotate = false; });
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xdbe6ff, 1.0));
-  const dl = new THREE.DirectionalLight(0xffffff, 0.35); dl.position.set(6,12,8); scene.add(dl);
-  const grid = new THREE.GridHelper(30, 30, 0xc7d8f5, 0xe4ecfa);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xd7e3fa, 0.8));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.6); dl.position.set(6,12,8); scene.add(dl);
+  const dl2 = new THREE.DirectionalLight(0xdce8ff, 0.3); dl2.position.set(-8,6,-6); scene.add(dl2);
+  const pt = new THREE.PointLight(0xffffff, 0.3); pt.position.set(-5,9,11); scene.add(pt);
+  const grid = new THREE.GridHelper(36, 36, 0xc7d2fe, 0xe2e8f7);
+  grid.material.transparent = true; grid.material.opacity = 0.5;
   grid.position.y = -2.2; scene.add(grid);
   const animate = ()=>{ requestAnimationFrame(animate); controls.update(); renderer.render(scene,camera); };
   animate();
@@ -258,15 +420,26 @@ function makeScene(containerId, camPos){
   return {scene, camera, renderer, controls, box};
 }
 function ball(scene, pos, color, r){
-  const m = new THREE.Mesh(new THREE.SphereGeometry(r||0.26,32,32),
-    new THREE.MeshStandardMaterial({color:color, roughness:0.35, metalness:0.1}));
+  const rr = r||0.26;
+  const m = new THREE.Mesh(new THREE.SphereGeometry(rr,48,48),
+    new THREE.MeshPhysicalMaterial({color:color, roughness:0.25, metalness:0.0,
+      clearcoat:0.6, clearcoatRoughness:0.35, emissive:color, emissiveIntensity:0.15}));
   m.position.set(...pos); scene.add(m); return m;
 }
+/* 立体管状线：干净柔和的釉面质感 + 两端圆头端帽 */
 function fatLine(color, radius, flat){
-  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius||0.07, radius||0.07, 1, 14),
-    flat ? new THREE.MeshBasicMaterial({color:color})
-         : new THREE.MeshStandardMaterial({color:color, roughness:0.3}));
-  mesh.setPoints = function(a, b){
+  const r = radius||0.07;
+  const mat = flat ? new THREE.MeshBasicMaterial({color:color})
+                   : new THREE.MeshPhysicalMaterial({color:color, roughness:0.35, metalness:0.0,
+                       clearcoat:0.5, clearcoatRoughness:0.4, emissive:color, emissiveIntensity:0.08});
+  const g = new THREE.Group();
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 28), mat);
+  const capA = new THREE.Mesh(new THREE.SphereGeometry(r*1.2,18,14), mat);
+  const capB = new THREE.Mesh(new THREE.SphereGeometry(r*1.2,18,14), mat);
+  mesh.add(capA, capB);
+  g.add(mesh);
+  g.mat = mat;
+  g.setPoints = function(a, b){
     const A = a.isVector3 ? a.clone() : new THREE.Vector3(a[0],a[1],a[2]);
     const B = b.isVector3 ? b.clone() : new THREE.Vector3(b[0],b[1],b[2]);
     const d = new THREE.Vector3().subVectors(B,A);
@@ -274,8 +447,11 @@ function fatLine(color, radius, flat){
     mesh.position.copy(A).addScaledVector(d, 0.5);
     mesh.scale.set(1, len, 1);
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d.normalize());
+    capA.position.set(0,-0.5,0); capB.position.set(0,0.5,0);
+    const cs = 1/Math.max(len,1.2);
+    capA.scale.set(cs,cs,cs); capB.scale.set(cs,cs,cs);
   };
-  return mesh;
+  return g;
 }
 // 虚线（用于延长线）
 function dashLine(scene, a, b, color){
@@ -283,29 +459,65 @@ function dashLine(scene, a, b, color){
   const l = new THREE.Line(g, new THREE.LineDashedMaterial({color:color, dashSize:0.35, gapSize:0.25}));
   l.computeLineDistances(); scene.add(l); return l;
 }
-function arrowCone(color){
-  return new THREE.Mesh(new THREE.ConeGeometry(0.4,1.0,18),
-    new THREE.MeshStandardMaterial({color:color, roughness:0.3}));
-}
 function textSprite(scene, txt, pos, color, size){
-  const S4 = 4, fs = 56;
+  const S4 = 4, fs = 50, padX = 22, padY = 16;
+  const FONT = '700 ' + fs + 'px "Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif';
   const mc = document.createElement('canvas'); const mctx = mc.getContext('2d');
-  mctx.font = '500 ' + fs + 'px "Segoe UI","Microsoft YaHei",sans-serif';
+  mctx.font = FONT;
   const tw = Math.ceil(mctx.measureText(txt).width);
+  const w = tw + padX*2, h = fs + padY*2;
   const c = document.createElement('canvas');
-  c.width = (tw + 30) * S4; c.height = (fs + 24) * S4;
+  c.width = w * S4; c.height = h * S4;
   const ctx = c.getContext('2d');
   ctx.scale(S4, S4);
-  ctx.font = '500 ' + fs + 'px "Segoe UI","Microsoft YaHei",sans-serif';
+  // 圆角药丸底：柔和白底 + 淡色描边，文字清晰又好看
+  ctx.beginPath();
+  if(ctx.roundRect){ ctx.roundRect(1.5, 1.5, w-3, h-3, h/2); }
+  else { ctx.rect(1.5, 1.5, w-3, h-3); }
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.shadowColor = 'rgba(100,116,139,0.18)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = 'rgba(148,163,184,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+  // 文字
+  ctx.font = FONT;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.lineWidth = 4; ctx.lineJoin = 'round';
-  ctx.strokeText(txt, (tw+30)/2, (fs+24)/2 + 2);
   ctx.fillStyle = color;
-  ctx.fillText(txt, (tw+30)/2, (fs+24)/2 + 2);
+  ctx.fillText(txt, w/2, h/2 + 2);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), transparent:true}));
-  const s = (size||1.0) * 0.58;   // 全局缩小：标注更精致
-  sp.scale.set(s * (tw+30)/(fs+24), s, 1);
+  const s = (size||1.0) * 0.62;
+  sp.scale.set(s * w/h, s, 1);
+  sp.userData.s = s;
   sp.position.set(...pos); scene.add(sp); return sp;
+}
+/* 重绘已有 sprite（保持位置，更新文字与颜色） */
+function repaintSprite(sp, txt, color){
+  const S4 = 4, fs = 50, padX = 22, padY = 16;
+  const FONT = '700 ' + fs + 'px "Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif';
+  const mc = document.createElement('canvas'); const mctx = mc.getContext('2d');
+  mctx.font = FONT;
+  const tw = Math.ceil(mctx.measureText(txt).width);
+  const w = tw + padX*2, h = fs + padY*2;
+  const c = document.createElement('canvas');
+  c.width = w * S4; c.height = h * S4;
+  const ctx = c.getContext('2d');
+  ctx.scale(S4, S4);
+  ctx.beginPath();
+  if(ctx.roundRect){ ctx.roundRect(1.5, 1.5, w-3, h-3, h/2); }
+  else { ctx.rect(1.5, 1.5, w-3, h-3); }
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.shadowColor = 'rgba(100,116,139,0.18)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = 'rgba(148,163,184,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.font = FONT;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.fillText(txt, w/2, h/2 + 2);
+  sp.material.map.dispose();
+  sp.material.map = new THREE.CanvasTexture(c);
+  sp.material.needsUpdate = true;
+  sp.scale.set(sp.userData.s * w/h, sp.userData.s, 1);
 }
 /* ============ Page1 三种线 + 延长线 ============ */
 (function(){
@@ -317,7 +529,6 @@ function textSprite(scene, txt, pos, color, size){
     ray:['射线：1 个端点，向一方无限延伸，不可度量','#b45309'],
     line:['直线：没有端点，向两方无限延伸，不可度量','#1d4ed8']
   };
-  const TARGET = {seg:8, ray:26, line:26};
   let curType=null, extGroup=null, extMode=0;
   const X0=-4, XB=4;
   function build(type){
@@ -335,8 +546,8 @@ function textSprite(scene, txt, pos, color, size){
     }
     curType=type;
     const lm=fatLine(COLORS[type],0.09); group.add(lm);
-    // 不画箭头（会被误认成端点）：线一直延伸到画面之外，看不到头；
-    // 再让几段淡白色短段沿线向外流动、到边缘淡出，表示"还在一直延伸下去"
+    // 不画箭头（会被误认成端点）：线一直延伸到画面之外；
+    // 几段淡白色短段沿线向外流动、到边缘淡出，表示"还在一直延伸下去"
     const flows=[];
     function addFlow(dir){
       for(let i=0;i<3;i++){
@@ -357,13 +568,12 @@ function textSprite(scene, txt, pos, color, size){
       if(type==='seg'){
         lm.setPoints([X0,0,0],[X0+8*e,0,0]);
       } else if(type==='ray'){
-        const L=4+38*e;                      // 端点 O 固定，另一端一直伸到画面外
+        const L=4+38*e;
         lm.setPoints([X0,0,0],[X0+L,0,0]);
       } else {
-        const L=3+42*e;                      // 以中心对称，两端同时一直伸到画面外
+        const L=3+42*e;
         lm.setPoints([-L,0,0],[L,0,0]);
       }
-      // 流动短段：从起点向外跑，越往外越淡，跑出边缘就消失
       const base = (type==='ray') ? X0 : 0;
       const span = (type==='ray') ? 30 : 22;
       flows.forEach(f=>{
@@ -382,11 +592,11 @@ function textSprite(scene, txt, pos, color, size){
     document.querySelectorAll('#extOvl button').forEach(b=>b.classList.remove('on'));
     if(mode===0) return;
     extGroup=new THREE.Group(); group.add(extGroup);
-    if(mode===1){ // 延长线段 AB：从 A 向 B 方向延长
+    if(mode===1){
       dashLine(extGroup,[XB,0,0],[XB+4,0,0],0x94a3b8);
       textSprite(extGroup,'延长线段 AB（虚线部分）',[XB+2,1.3,0],'#64748b',0.8);
       document.getElementById('extAB').classList.add('on');
-    } else { // 反向延长线段 BA：从 B 向 A 方向反向延长
+    } else {
       dashLine(extGroup,[X0,0,0],[X0-4,0,0],0x94a3b8);
       textSprite(extGroup,'反向延长线段 BA',[X0-2,1.3,0],'#64748b',0.8);
       document.getElementById('extBA').classList.add('on');
@@ -411,21 +621,14 @@ function textSprite(scene, txt, pos, color, size){
   const balls=[0,1].map(i=>ball(S.scene,[pts[i].x,pts[i].y,pts[i].z],0xef4444,0.32));
   const labels=[textSprite(S.scene,'A',[-4,1.2,0],'#b91c1c',0.95), textSprite(S.scene,'B',[4,1.2,0],'#b91c1c',0.95)];
   textSprite(S.scene,'直线 l',[9.5,1.4,0],'#1d4ed8',1.0);
-  const line = fatLine(0x3b82f6, 0.08);
+  const line = fatLine(0x3b82f6, 0.11);
   line.setPoints([-40,0,0],[40,0,0]); S.scene.add(line);
-  // 探究演示：过 A 反复画直线 → 每次都不一样（过一点有无数条）；
-  // 画"经过 A、B"的直线 → 不管画多少次都是同一条（两点确定一条直线）
   let extraGroup=new THREE.Group(); S.scene.add(extraGroup);
-  let extras=[]; // {line, angle}
+  let extras=[];
   const PALETTE=[0xf59e0b,0x8b5cf6,0xec4899,0x14b8a6,0xef4444,0x84cc16];
-  const capSprite=textSprite(S.scene,'点上面的按钮试一试：过 A 反复画线，再画经过 A、B 的线',[0,4.0,0],'#64748b',0.75);
+  const capSprite=textSprite(S.scene,'点上面的按钮试一试：过 A 反复画线，再画经过 A、B 的线',[0,4.2,0],'#64748b',0.72);
   function setCap(txt,color){
-    capSprite.material.map.dispose();
-    capSprite.material.map=(()=>{const S4=4,fs=56;const c=document.createElement('canvas');c.width=1600*S4;c.height=(fs+24)*S4;
-      const x=c.getContext('2d');x.scale(S4,S4);x.font='500 '+fs+'px "Segoe UI","Microsoft YaHei",sans-serif';
-      x.textAlign='center';x.textBaseline='middle';x.fillStyle=color||'#475569';x.fillText(txt,800,(fs+24)/2+2);
-      return new THREE.CanvasTexture(c);})();
-    capSprite.material.needsUpdate=true;
+    repaintSprite(capSprite, txt, color||'#475569');
   }
   function addExtra(angle){
     const l=fatLine(PALETTE[extras.length%PALETTE.length],0.075,true);
@@ -441,17 +644,17 @@ function textSprite(scene, txt, pos, color, size){
     });
   }
   function flashAB(){
-    // 蓝色直线闪两下，强调"还是这一条"
     const t0=performance.now();
+    const setC=c=>{ line.mat.color.set(c); if(line.outer) line.outer.material.color.set(c); };
     (function blink(t){
       const k=Math.floor((t-t0)/220)%2;
-      line.material.color.set(k?0x93c5fd:0x3b82f6);
+      setC(k?0x93c5fd:0x3b82f6);
       if(t-t0<1000) requestAnimationFrame(blink);
-      else line.material.color.set(0x3b82f6);
+      else setC(0x3b82f6);
     })(t0);
   }
   document.getElementById('drawA').addEventListener('click',()=>{
-    let a; do{ a=(Math.random()*2-1)*2.4; }while(Math.abs(a)<0.25); // 避开恰好经过 B 的方向
+    let a; do{ a=(Math.random()*2-1)*2.4; }while(Math.abs(a)<0.25);
     addExtra(a);
     setCap('又画了一条！过一点可以画无数条直线，但这些都不经过 B','#b45309');
   });
@@ -463,16 +666,15 @@ function textSprite(scene, txt, pos, color, size){
     extras.forEach(x=>{S.scene.remove(x.line);});
     extras=[]; setCap('已清空。先"过 A 画直线"多画几条，再"画经过 A、B 的直线"对比','#64748b');
   });
-  // 点 O 在直线上（教材样式：扁平小圆点，不是立体球）
-  const dotO=new THREE.Mesh(new THREE.SphereGeometry(0.09,16,12),new THREE.MeshBasicMaterial({color:0x334155}));
+  // 点 O 在直线上（教材样式：扁平小圆点）
+  const dotO=new THREE.Mesh(new THREE.SphereGeometry(0.12,16,12),new THREE.MeshBasicMaterial({color:0x334155}));
   dotO.scale.y=0.35; dotO.position.set(0,0,0); S.scene.add(dotO);
   textSprite(S.scene,'O',[0,-0.85,0],'#475569',0.55);
-  // 点 P 在直线外：只画点 + 字母（教材就是这样，不画连线）；放在同一平面内、直线的一侧
-  const dotP=new THREE.Mesh(new THREE.SphereGeometry(0.13,16,12),new THREE.MeshBasicMaterial({color:0xdb2777}));
+  // 点 P 在直线外：教材式"直线外一点"，放大醒目
+  const dotP=new THREE.Mesh(new THREE.SphereGeometry(0.24,20,16),new THREE.MeshBasicMaterial({color:0xdb2777}));
   dotP.scale.y=0.35; dotP.position.set(-2.2,0,4.4); S.scene.add(dotP);
-  textSprite(S.scene,'P',[-1.7,0.6,4.4],'#be185d',0.6);
-  // 一行小结
-  textSprite(S.scene,'O 在直线 l 上 · P 在直线 l 外',[1.5,-1.9,0],'#475569',0.8);
+  textSprite(S.scene,'P',[-1.5,0.75,4.4],'#be185d',0.8);
+  textSprite(S.scene,'O 在直线 l 上 · P 在直线 l 外',[-6,-2.1,0],'#475569',0.8);
   let dragging=-1, plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
   function cvPos(e){ const r=S.renderer.domElement.getBoundingClientRect();
     mouse.x=((e.clientX-r.left)/r.width)*2-1; mouse.y=-((e.clientY-r.top)/r.height)*2+1; }
@@ -496,63 +698,289 @@ function textSprite(scene, txt, pos, color, size){
   });
   window.addEventListener('pointerup',()=>{ dragging=-1; S.controls.enabled=true; });
 })();
-/* ============ Page3 线段比较 ============ */
-(function(){
-  const S = makeScene('scene5',[0,5,14]);
-  let abLen=60, cdLen=70;
-  const lineA=fatLine(0xef4444,0.075), lineC=fatLine(0x3b82f6,0.075);
-  S.scene.add(lineA,lineC);
-  const b=ball(S.scene,[0,0.8,0],0xef4444,0.22), d=ball(S.scene,[0,-0.8,0],0x3b82f6,0.22);
-  ball(S.scene,[-6,0.8,0],0xef4444,0.22); ball(S.scene,[-6,-0.8,0],0x3b82f6,0.22);
-  textSprite(S.scene,'线段 AB',[-7.6,0.8,0],'#b91c1c',1.0);
-  textSprite(S.scene,'线段 CD',[-7.6,-0.8,0],'#1d4ed8',1.0);
-  function upd(){
-    const A=abLen/100*9, C=cdLen/100*9;
-    lineA.setPoints([-6,0.8,0],[-6+A,0.8,0]); b.position.set(-6+A,0.8,0);
-    lineC.setPoints([-6,-0.8,0],[-6+C,-0.8,0]); d.position.set(-6+C,-0.8,0);
-    const s = abLen<cdLen? 'AB < CD' : abLen>cdLen? 'AB > CD' : 'AB = CD';
-    document.getElementById('cmpText').textContent = 'AB = '+abLen+'，CD = '+cdLen+'  →  '+s;
-  }
-  document.getElementById('lenSlider').addEventListener('input',e=>{ abLen=+e.target.value; upd(); });
-  upd();
-})();
-/* ============ Page3 中点 ============ */
+/* ============ Page3 中点 · 等分点 ============ */
 (function(){
   const S = makeScene('scene6',[0,4,12]);
-  const base=fatLine(0xcbd5e1,0.055); base.setPoints([-5,0,0],[5,0,0]); S.scene.add(base);
-  ball(S.scene,[-5,0,0],0xef4444,0.26); ball(S.scene,[5,0,0],0xef4444,0.26);
-  textSprite(S.scene,'A',[-5,1.1,0],'#b91c1c',0.9); textSprite(S.scene,'B',[5,1.1,0],'#b91c1c',0.9);
+  const AX=-5, BX=5;
+  const base=fatLine(0xcbd5e1,0.05); base.setPoints([AX,0,0],[BX,0,0]); S.scene.add(base);
+  ball(S.scene,[AX,0,0],0xef4444,0.26); ball(S.scene,[BX,0,0],0xef4444,0.26);
+  textSprite(S.scene,'A',[AX,1.0,0],'#b91c1c',0.8); textSprite(S.scene,'B',[BX,1.0,0],'#b91c1c',0.8);
+  let mode=2;
+  const dyn=new THREE.Group(); S.scene.add(dyn);
   const M=ball(S.scene,[0,0,0],0x8b5cf6,0.3);
-  const textM=textSprite(S.scene,'M（拖我）',[0,1.35,0],'#7c3aed',0.95);
+  const textM=textSprite(S.scene,'M（拖我）',[0,1.35,0],'#7c3aed',0.9);
   const l1=fatLine(0xf59e0b,0.07), l2=fatLine(0xf59e0b,0.07);
   S.scene.add(l1,l2);
+  function updM(){
+    const p=M.position;
+    l1.setPoints([AX,0,0],[p.x,0,0]); l2.setPoints([p.x,0,0],[BX,0,0]);
+    const isMid=Math.abs(p.x)<0.15;
+    const col=isMid?0x10b981:0xf59e0b;
+    l1.mat.color.set(col); l2.mat.color.set(col);
+    if(l1.outer) l1.outer.material.color.set(col);
+    if(l2.outer) l2.outer.material.color.set(col);
+    textM.position.set(p.x,1.5,p.z);
+    repaintSprite(textM, isMid?'AM = MB ✓':'AM ≠ MB', isMid?'#059669':'#b45309');
+  }
+  function buildEq(n){
+    dyn.clear();
+    M.visible=false; textM.visible=false; l1.visible=false; l2.visible=false;
+    const cols=[0x047857,0x059669,0x10b981,0x34d399];
+    const NAMES=['C','D','E'];
+    for(let k=1;k<n;k++){
+      const x=AX+(BX-AX)*k/n;
+      ball(dyn,[x,0,0],0x8b5cf6,0.28);
+      textSprite(dyn,NAMES[k-1],[x,0.95,0],'#7c3aed',0.85);
+    }
+    for(let k=0;k<n;k++){
+      const x1=AX+(BX-AX)*k/n, x2=AX+(BX-AX)*(k+1)/n;
+      const ln=fatLine(cols[k%4],0.115); ln.setPoints([x1,0,0],[x2,0,0]); dyn.add(ln);
+    }
+    const eq = n===3 ? 'AC = CD = DB（每段 = AB/3）' : 'AC = CD = DE = EB（每段 = AB/4）';
+    textSprite(dyn,eq,[0,2.3,0],'#059669',1.0);
+    textSprite(dyn,n+' 等分点：把 AB 分成相等的 '+n+' 段',[0,-1.6,0],'#64748b',0.8);
+  }
+  function setMode(m){
+    mode=m;
+    document.querySelectorAll('#eqBtns button').forEach((b,i)=>b.classList.toggle('on',i===m-2));
+    if(m===2){
+      dyn.clear();
+      M.visible=true; textM.visible=true; l1.visible=true; l2.visible=true;
+      updM();
+    } else buildEq(m);
+  }
   const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
   const plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
   let drag=false;
   function cv(e){const r=S.renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;}
   S.renderer.domElement.addEventListener('pointerdown',e=>{cv(e);ray.setFromCamera(mouse,S.camera);
-    if(ray.intersectObjects([M]).length){drag=true;S.controls.enabled=false;S.controls.autoRotate=false;}});
+    if(mode===2 && ray.intersectObjects([M]).length){drag=true;S.controls.enabled=false;S.controls.autoRotate=false;}});
   S.renderer.domElement.addEventListener('pointermove',e=>{
-    if(!drag)return; cv(e);ray.setFromCamera(mouse,S.camera);
+    if(!drag||mode!==2)return; cv(e);ray.setFromCamera(mouse,S.camera);
     const p=new THREE.Vector3();
     if(ray.ray.intersectPlane(plane,p)){ p.y=0;p.x=Math.max(-4.9,Math.min(4.9,p.x));
-      M.position.copy(p); textM.position.set(p.x,1.35,p.z);
-      l1.setPoints([-5,0,0],[p.x,0,0]);
-      l2.setPoints([p.x,0,0],[5,0,0]);
-      const isMid=Math.abs(p.x)<0.15;
-      const col=isMid?0x10b981:0xf59e0b;
-      l1.material.color.set(col); l2.material.color.set(col);
-      textM.material.map.dispose();
-      textM.material.map = (()=>{const S4=4;const c=document.createElement('canvas');c.width=260*S4;c.height=56*S4;const x=c.getContext('2d');
-        x.scale(S4,S4);x.font='500 34px "Segoe UI","Microsoft YaHei",sans-serif';x.textAlign='center';x.textBaseline='middle';
-        x.fillStyle=isMid?'#059669':'#b45309';
-        x.fillText(isMid?'AM = MB ✓':'AM ≠ MB',130,30);return new THREE.CanvasTexture(c);})();
-      textM.scale.set(1.5,0.32,1);
+      M.position.copy(p); updM();
     }
   });
   window.addEventListener('pointerup',()=>{drag=false;S.controls.enabled=true;});
+  document.querySelectorAll('#eqBtns button').forEach((btn,i)=>{
+    btn.addEventListener('click',()=>setMode(i+2));
+  });
+  updM();
 })();
-/* ============ Page4 线段和差运算（教材例题） ============ */
+/* ============ Page3 尺规找中点 ============ */
+(function(){
+  const S = makeScene('sceneMid',[0,4.2,12.5]);
+  const capEl=document.getElementById('midText');
+  function cap(html){ capEl.innerHTML=html; }
+  const AX=-3.2, BX=3.2, R=4.2;
+  const seg=fatLine(0x10b981,0.1); seg.setPoints([AX,0,0],[BX,0,0]); S.scene.add(seg);
+  ball(S.scene,[AX,0,0],0xef4444,0.3); ball(S.scene,[BX,0,0],0xef4444,0.3);
+  textSprite(S.scene,'A',[AX-0.7,0.8,0],'#b91c1c',0.85);
+  textSprite(S.scene,'B',[BX+0.7,0.8,0],'#b91c1c',0.85);
+  textSprite(S.scene,'线段 AB',[0,-1.15,0],'#059669',0.9);
+  // 小圆规：银灰双腿 + 蓝旋钮 + 针脚/铅笔脚（锥尖正好落在点上）
+  const metal=new THREE.MeshStandardMaterial({color:0xc9d3e2,roughness:0.32,metalness:0.35});
+  const darkM=new THREE.MeshStandardMaterial({color:0x3c4a63,roughness:0.4,metalness:0.3});
+  function limb(rt,rb,mat){ return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,1,20),mat); }
+  const leg1=limb(0.03,0.06,metal), leg2=limb(0.03,0.06,metal);
+  const knob=new THREE.Mesh(new THREE.SphereGeometry(0.14,20,16),new THREE.MeshStandardMaterial({color:0x2563eb,roughness:0.3,metalness:0.4}));
+  const needle=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.22,14),darkM);
+  const pencil=new THREE.Mesh(new THREE.ConeGeometry(0.05,0.26,14),new THREE.MeshStandardMaterial({color:0xf97316,roughness:0.35}));
+  S.scene.add(leg1,leg2,knob,needle,pencil);
+  function place(mesh,a,b){
+    const va=new THREE.Vector3(a.x,a.y,0), vb=new THREE.Vector3(b.x,b.y,0);
+    const d=new THREE.Vector3().subVectors(vb,va);
+    mesh.position.copy(va).addScaledVector(d,0.5);
+    mesh.scale.set(1,Math.max(d.length(),0.01),1);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d.clone().normalize());
+  }
+  function setCompass(f1,f2,h){
+    const v1=new THREE.Vector3(f1.x,f1.y,0), v2=new THREE.Vector3(f2.x,f2.y,0);
+    const d=new THREE.Vector3().subVectors(v2,v1);
+    const n=new THREE.Vector3(-d.y,d.x,0).normalize();
+    const mid=new THREE.Vector3().addVectors(v1,v2).multiplyScalar(0.5);
+    const P=mid.clone().addScaledVector(n,h);
+    place(leg1,P,{x:v1.x,y:v1.y}); place(leg2,P,{x:v2.x,y:v2.y});
+    const up=P.clone().sub(mid).normalize();
+    knob.position.copy(P).addScaledVector(up,0.3);
+    const d1=new THREE.Vector3().subVectors(v1,P).normalize();
+    needle.position.copy(v1).addScaledVector(d1,-0.1);
+    needle.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d1);
+    const d2=new THREE.Vector3().subVectors(v2,P).normalize();
+    pencil.position.copy(v2).addScaledVector(d2,-0.12);
+    pencil.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d2);
+  }
+  setCompass({x:AX,y:0},{x:BX,y:0},2.2);
+  const TH=Math.atan2(Math.sqrt(R*R-AX*AX), AX<0?-AX:AX); // 上交点角度
+  let trail=[], reveal=null, playing=false, lastA=null;
+  function clearFx(){
+    trail.forEach(t=>{S.scene.remove(t);}); trail=[]; lastA=null;
+    if(reveal){ S.scene.remove(reveal); reveal=null; }
+  }
+  const T1=1600;
+  function play(){
+    if(playing) return; playing=true;
+    clearFx(); S.controls.autoRotate=false;
+    const t0=performance.now();
+    function anim(t){
+      const tt=t-t0;
+      if(tt<T1){                                    // ① 两道弧同时画出
+        const p=tt/T1;
+        const th=(10+(TH*180/Math.PI-10)*p)*Math.PI/180;
+        const pA={x:AX+R*Math.cos(th), y:R*Math.sin(th)};
+        const pB={x:BX-R*Math.cos(th), y:R*Math.sin(th)};
+        setCompass({x:AX,y:0},pA,1.5);
+        if(lastA){
+          const la=fatLine(0xfbbf24,0.03); la.setPoints([lastA.x,lastA.y,0],[pA.x,pA.y,0]); S.scene.add(la); trail.push(la);
+          const lb=fatLine(0xfbbf24,0.03); lb.setPoints([-lastA.x,lastA.y,0],[pB.x,pB.y,0]); S.scene.add(lb); trail.push(lb);
+        }
+        lastA=pA;
+        cap('① 圆规针脚扎在 <b>A</b> 画弧；同时以 <b>B</b> 为圆心、<b>同样的半径</b>画一道一样大的弧');
+      } else {                                      // ② 交点 → 中点
+        if(!reveal){
+          reveal=new THREE.Group(); S.scene.add(reveal);
+          const iy=Math.sqrt(R*R-AX*AX);
+          ball(reveal,[0,iy,0],0xec4899,0.24);
+          textSprite(reveal,'两弧的交点',[0,iy+0.85,0],'#be185d',0.85);
+          const dash=new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+            [new THREE.Vector3(0,iy-0.15,0),new THREE.Vector3(0,0.12,0)]),
+            new THREE.LineDashedMaterial({color:0x94a3b8,dashSize:0.3,gapSize:0.2}));
+          dash.computeLineDistances(); reveal.add(dash);
+          ball(reveal,[0,0,0],0x8b5cf6,0.32);
+          textSprite(reveal,'M 就是中点（AM = MB ✓）',[0,1.05,0],'#7c3aed',1.0);
+        }
+        cap('② 两弧交于一点 → 这个交点<b>正下方</b>的 <b>M</b> 就是线段 AB 的<b>中点</b>（AM = MB）。这是教材"思考"栏目里找中点的尺规作图方法。');
+        playing=false;
+        return;
+      }
+      requestAnimationFrame(anim);
+    }
+    requestAnimationFrame(anim);
+  }
+  document.getElementById('midPlay').addEventListener('click',play);
+})();
+/* ============ Page4 尺规作图：比较线段大小 ============ */
+(function(){
+  const S = makeScene('scene10',[0,4.5,15]);
+  const capEl=document.getElementById('rgText');
+  function cap(html){ capEl.innerHTML=html; }
+  const A1={x:-6.5,y:1.5}, abLen=8, B1={x:A1.x+abLen,y:1.5};
+  const A2={x:-6.5,y:-1.5}, apLen=5.5, B2={x:A2.x+apLen,y:-1.5};
+  const C={x:A1.x+apLen,y:A1.y};
+  // 上：线段 AB（绿，较长）
+  const segAB=fatLine(0x10b981,0.09); segAB.setPoints([A1.x,A1.y,0],[B1.x,B1.y,0]); S.scene.add(segAB);
+  ball(S.scene,[A1.x,A1.y,0],0xef4444,0.22); ball(S.scene,[B1.x,B1.y,0],0xef4444,0.22);
+  textSprite(S.scene,'A',[A1.x-0.5,A1.y+0.55,0],'#b91c1c',0.7);
+  textSprite(S.scene,'B',[B1.x+0.5,B1.y+0.55,0],'#b91c1c',0.7);
+  textSprite(S.scene,'线段 AB（较长）',[A1.x+abLen/2,A1.y-0.85,0],'#059669',0.85);
+  // 下：线段 A'B'（橙，较短）
+  const seg2=fatLine(0xf97316,0.09); seg2.setPoints([A2.x,A2.y,0],[B2.x,B2.y,0]); S.scene.add(seg2);
+  ball(S.scene,[A2.x,A2.y,0],0xef4444,0.22); ball(S.scene,[B2.x,B2.y,0],0xef4444,0.22);
+  textSprite(S.scene,"A'",[A2.x-0.5,A2.y+0.55,0],'#b45309',0.7);
+  textSprite(S.scene,"B'",[B2.x+0.5,B2.y+0.55,0],'#b45309',0.7);
+  textSprite(S.scene,"线段 A'B'（较短）",[A2.x+apLen/2,A2.y-0.85,0],'#b45309',0.85);
+  // 圆规模型（真实感）：金属锥形双腿 + 蓝色顶帽旋钮 + 针脚 + 橙色铅笔脚
+  const metal=new THREE.MeshStandardMaterial({color:0xc9d3e2, roughness:0.32, metalness:0.35});
+  const darkM=new THREE.MeshStandardMaterial({color:0x3c4a63, roughness:0.4, metalness:0.3});
+  const capM =new THREE.MeshStandardMaterial({color:0x2563eb, roughness:0.28, metalness:0.45});
+  function limb(rt,rb,mat){ return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,1,20),mat); }
+  const leg1=limb(0.035,0.075,metal), leg2=limb(0.035,0.075,metal);
+  const stem=limb(0.06,0.085,darkM);
+  const knob=new THREE.Mesh(new THREE.SphereGeometry(0.17,22,18),capM);
+  const knobTop=new THREE.Mesh(new THREE.SphereGeometry(0.085,18,14),darkM);
+  const needle=new THREE.Mesh(new THREE.ConeGeometry(0.045,0.26,14),darkM);
+  const pencil=new THREE.Mesh(new THREE.ConeGeometry(0.06,0.3,14),new THREE.MeshStandardMaterial({color:0xf97316,roughness:0.35,metalness:0.1}));
+  S.scene.add(leg1,leg2,stem,knob,knobTop,needle,pencil);
+  function place(mesh,a,b){ // 把柱体放在 a→b 之间
+    const va=new THREE.Vector3(a.x,a.y,0), vb=new THREE.Vector3(b.x,b.y,0);
+    const d=new THREE.Vector3().subVectors(vb,va);
+    mesh.position.copy(va).addScaledVector(d,0.5);
+    mesh.scale.set(1,Math.max(d.length(),0.01),1);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d.clone().normalize());
+  }
+  function setCompass(f1,f2,h){
+    const v1=new THREE.Vector3(f1.x,f1.y,0), v2=new THREE.Vector3(f2.x,f2.y,0);
+    const d=new THREE.Vector3().subVectors(v2,v1);
+    const n=new THREE.Vector3(-d.y,d.x,0).normalize();
+    const mid=new THREE.Vector3().addVectors(v1,v2).multiplyScalar(0.5);
+    const P=mid.clone().addScaledVector(n,h);
+    place(leg1,P,{x:v1.x,y:v1.y}); place(leg2,P,{x:v2.x,y:v2.y});
+    // 顶帽：沿角平分线立在铰点上
+    const up=P.clone().sub(mid).normalize();
+    place(stem,{x:P.x,y:P.y,z:0},{x:P.x+up.x*0.24,y:P.y+up.y*0.24,z:0});
+    knob.position.copy(P).addScaledVector(up,0.38);
+    knobTop.position.copy(P).addScaledVector(up,0.52);
+    // 针脚（v1）与铅笔脚（v2）：锥体立在脚点上方，锥尖正好"点"在点上，不戳穿线
+    const d1=new THREE.Vector3().subVectors(v1,P).normalize();
+    needle.position.copy(v1).addScaledVector(d1,-0.12);
+    needle.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d1);
+    const d2=new THREE.Vector3().subVectors(v2,P).normalize();
+    pencil.position.copy(v2).addScaledVector(d2,-0.14);
+    pencil.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d2);
+  }
+  setCompass(A2,B2,3.2);
+  let trail=[], reveal=null, playing=false, lastTip=null;
+  function clearFx(){
+    trail.forEach(t=>{S.scene.remove(t);}); trail=[];
+    if(reveal){ S.scene.remove(reveal); reveal=null; }
+    lastTip=null;
+  }
+  const T1=900, T2=1900, T3=3300;
+  function play(){
+    if(playing) return; playing=true;
+    clearFx(); S.controls.autoRotate=false;
+    const t0=performance.now();
+    function seg(t){
+      const tt=t-t0;
+      if(tt<T1){                                  // ① 落到 A'B' 上量取
+        const e=1-Math.pow(1-Math.min(tt/T1,1),3);
+        setCompass(A2,B2,3.2-1.85*e);
+        cap('① 圆规两只脚分开，分别落在 <b>A′</b> 和 <b>B′</b> 上 —— 量出 A′B′ 的长度');
+      } else if(tt<T2){                           // ② 保持张角平移到 A
+        const p=(tt-T1)/(T2-T1), k=1-Math.pow(1-Math.min(p,1),2);
+        const gx=A2.x+(A1.x-A2.x)*k;
+        const gy=A2.y+(A1.y-A2.y)*k+Math.sin(Math.PI*Math.min(p,1))*1.2;
+        setCompass({x:gx,y:gy},{x:gx+apLen,y:gy},1.35+0.7*Math.sin(Math.PI*Math.min(p,1)));
+        cap('② <b>保持圆规张角不变</b>（长度就不变！），整体平移到点 A 的上方');
+      } else if(tt<T3){                           // ③ 绕 A 画弧
+        const p=(tt-T2)/(T3-T2);
+        const th=(42-42*p)*Math.PI/180;
+        const f1={x:A1.x,y:A1.y};
+        const f2={x:A1.x+apLen*Math.cos(th),y:A1.y+apLen*Math.sin(th)};
+        setCompass(f1,f2,1.3);
+        if(lastTip){
+          const L=Math.hypot(f2.x-lastTip.x,f2.y-lastTip.y);
+          if(L>0.05){
+            const ln=fatLine(0xfbbf24,0.03);
+            ln.setPoints([lastTip.x,lastTip.y,0],[f2.x,f2.y,0]);
+            S.scene.add(ln); trail.push(ln); lastTip=f2;
+          }
+        } else lastTip=f2;
+        cap('③ 针脚扎在 <b>A</b> 不动，铅笔脚旋转<b>画弧</b>……');
+      } else {                                    // ④ 交点 C → 结论
+        if(!reveal){
+          reveal=new THREE.Group(); S.scene.add(reveal);
+          ball(reveal,[C.x,C.y,0],0xf59e0b,0.24);
+          textSprite(reveal,'C',[C.x,C.y+0.7,0],'#b45309',0.75);
+          // A→C：细橙线垫在绿色 AB 下方（不遮盖 AB），表示搬过来的 AC = A'B'
+          const hl1=fatLine(0xf59e0b,0.045); hl1.setPoints([A1.x,A1.y-0.16,0],[C.x,C.y-0.16,0]); reveal.add(hl1);
+          textSprite(reveal,"AC = A'B′",[(A1.x+C.x)/2,C.y-1.55,0],'#c2410c',0.75);
+          // C→B：AB 比 A'B' 多出来的部分（玫红粗线）
+          const hl2=fatLine(0xf43f5e,0.09); hl2.setPoints([C.x,C.y,0],[B1.x,B1.y,0]); reveal.add(hl2);
+          textSprite(reveal,'AB 多出的部分',[(C.x+B1.x)/2,C.y+0.75,0],'#e11d48',0.8);
+        }
+        cap('④ 弧与 AB 交于点 <b>C</b>：C 落在 AB 的<b>内部</b> → AC = A′B′ ＜ AB，所以 <b>A′B′ ＜ AB</b>（叠合法比出大小）。剩下的 CB 就是 AB 比 A′B′ 多出的部分。若 C 与 B 重合，则两线段相等。');
+        playing=false;
+        return;
+      }
+      requestAnimationFrame(seg);
+    }
+    requestAnimationFrame(seg);
+  }
+  document.getElementById('rgPlay').addEventListener('click',play);
+})();
+/* ============ Page5 线段和差运算（教材例题） ============ */
 (function(){
   const S = makeScene('scene8',[0,5,15]);
   let group=new THREE.Group(); S.scene.add(group);
@@ -565,7 +993,6 @@ function textSprite(scene, txt, pos, color, size){
     mix:['在直线 l 上作线段 AB = a，在延长线上作 BC = a，再在线段 AC 上作线段 CD = b（C 向 A 方向），则线段 <b>AD = 2a − b</b>。',
          [['A',A],['B',A+a],['C',A+2*a],['D',A+2*a-b]]]
   };
-  // 底部基准直线 l（浅灰虚线延伸感）
   const base=fatLine(0xcbd5e1,0.04); base.setPoints([A-2.5,0,0],[A+2*a+3.5,0,0]); S.scene.add(base);
   textSprite(S.scene,'直线 l',[A+2*a+3,1.2,0],'#94a3b8',0.85);
   function seg(x1,x2,color,label,ly){
@@ -588,7 +1015,6 @@ function textSprite(scene, txt, pos, color, size){
     const pts = TEXTS[op][1];
     const names={};
     pts.forEach(([n,x])=>{ if(!names[n]){ names[n]=1; dot(x,n);} });
-    // 结论括线
     const res = {add:['AC = a + b',A,A+a+b,'#1d4ed8'],sub:['AD = a − b',A,A+a-b,'#1d4ed8'],mix:['AD = 2a − b',A,A+2*a-b,'#7c3aed']}[op];
     const ln=fatLine(new THREE.Color(res[3]).getHex(),0.045);
     ln.setPoints([res[1],-2.2,0],[res[2],-2.2,0]); group.add(ln);
@@ -604,7 +1030,7 @@ function textSprite(scene, txt, pos, color, size){
     });
   });
 })();
-/* ============ Page5 两点之间线段最短（A/B 可拖动） ============ */
+/* ============ Page6 两点之间线段最短（A/B 可拖动） ============ */
 (function(){
   const S = makeScene('scene9',[0,6,15]);
   window.__S9=S;
@@ -617,7 +1043,6 @@ function textSprite(scene, txt, pos, color, size){
   const tB=textSprite(S.scene,'B 地',[5,1.2,0],'#b91c1c',0.75);
   const best=fatLine(0x10b981,0.11); S.scene.add(best);
   const tBest=textSprite(S.scene,'线段 AB（最短 ✓）',[0,0.9,0],'#059669',0.9);
-  // 三条弯曲路线：点击可"拉直"与线段对比，再点恢复弯曲
   const curveDefs=[
     {color:0x94a3b8, offs:[[0,2.2,2.5],[0,2.2,-2.5]], k:0, target:0},
     {color:0xf59e0b, offs:[[0.5,-2.4,2.5]], k:0, target:0},
@@ -632,32 +1057,29 @@ function textSprite(scene, txt, pos, color, size){
     tubes.forEach(t=>{ S.scene.remove(t); t.geometry.dispose(); });
     tubes=[];
     const mid=new THREE.Vector3().addVectors(A,B).multiplyScalar(0.5);
-    const up=new THREE.Vector3(0,1,0);
     curveDefs.forEach(cd=>{
-      // 弯路真实长度（始终按完全弯曲形态计算）
       const bentPts=[A.clone()];
       cd.offs.forEach(o=>bentPts.push(mid.clone().add(new THREE.Vector3(o[0],o[1],o[2]))));
       bentPts.push(B.clone());
       const bentLen=new THREE.CatmullRomCurve3(bentPts).getLength();
       let curve;
       if(cd.k>0.98){
-        // A、B 之间保持绿色线段；只把弯路"多出来的部分"用彩色接到 B 点外面
         const dir=new THREE.Vector3().subVectors(B,A).normalize();
         const abLen=A.distanceTo(B);
         const extra=Math.max(bentLen-abLen,0.01);
         curve=new THREE.LineCurve3(B.clone(), B.clone().addScaledVector(dir, extra));
       }else{
-        const s=Math.max(1-cd.k,0.02); // 动画过程中控制点永不重合
+        const s=Math.max(1-cd.k,0.02);
         const pts=[A.clone()];
         cd.offs.forEach(o=>pts.push(mid.clone().add(new THREE.Vector3(o[0]*s,o[1]*s,o[2]*s))));
         pts.push(B.clone());
         curve=new THREE.CatmullRomCurve3(pts);
       }
-      const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,64,0.13,10,false),
-        new THREE.MeshStandardMaterial({color:cd.color,roughness:0.4}));
+      const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,64,0.13,12,false),
+        new THREE.MeshPhysicalMaterial({color:cd.color,roughness:0.35,clearcoat:0.5,clearcoatRoughness:0.4,
+          emissive:cd.color,emissiveIntensity:0.08}));
       tube.userData.ci=curveDefs.indexOf(cd);
       S.scene.add(tube); tubes.push(tube);
-      // 拉直后末端标注（彩色段起点在 B 外侧）
       if(cd.k>0.98){
         const dir=new THREE.Vector3().subVectors(B,A).normalize();
         const abLen=A.distanceTo(B);
@@ -692,7 +1114,6 @@ function textSprite(scene, txt, pos, color, size){
     curveDefs.forEach((cd,i)=>{ if(cd.target!==0){ cd.target=0; animateTo(cd);} });
     ['str1','str2','str3'].forEach(id=>document.getElementById(id).classList.remove('on'));
   });
-  // 单击弯线拉直/恢复（注意：pointerdown 里不能再切换，否则一次点击=切换两次=看不到变化）
   S.renderer.domElement.addEventListener('click',e=>{
     cv(e); ray.setFromCamera(mouse,S.camera);
     const hitTube=ray.intersectObjects(tubes);
@@ -706,7 +1127,7 @@ function textSprite(scene, txt, pos, color, size){
     const hits=ray.intersectObjects([bA,bB]);
     if(hits.length){dragging=hits[0].object===bA?'A':'B';S.controls.enabled=false;S.controls.autoRotate=false;}});
   S.renderer.domElement.addEventListener('pointermove',e=>{
-    if(!dragging){ // 悬停提示：可点击处显示手型
+    if(!dragging){
       cv(e); ray.setFromCamera(mouse,S.camera);
       const hot=ray.intersectObjects([...tubes,bA,bB]).length>0;
       S.renderer.domElement.style.cursor=hot?'pointer':'grab';
@@ -721,6 +1142,180 @@ function textSprite(scene, txt, pos, color, size){
   });
   window.addEventListener('pointerup',()=>{dragging=null;S.controls.enabled=true;});
 })();
+/* ============ Page7 课堂练习（闯关题 + 掌握情况报告） ============ */
+(function(){
+  const LV = [
+    {name:'第一关 · 基础辨析', range:[0,2]},
+    {name:'第二关 · 概念应用', range:[3,5]},
+    {name:'第三关 · 挑战冲刺', range:[6,7]}
+  ];
+  const QUIZ = [
+    { lv:0, point:'三种线的特征', page:'p1',
+      q:'下列说法中，正确的是（  ）',
+      opts:['直线有两个端点，可以向两方延伸','射线有一个端点，向一方无限延伸','线段可以向两方无限延伸，可以度量','射线可以度量长度'],
+      ans:1,
+      exp:'射线只有 1 个端点，向一方无限延伸；直线没有端点；线段有 2 个端点、不可延伸；射线无限长，不可度量。' },
+    { lv:0, point:'三种线的特征', page:'p1',
+      q:'手电筒射出的光柱、激光笔发出的光线，都可以近似地看作（  ）',
+      opts:['线段','射线','直线','以上都不对'],
+      ans:1,
+      exp:'光从灯泡这一点出发，向一方无限延伸 —— 正好符合"射线"的特征。' },
+    { lv:0, point:'线的表示法', page:'p1',
+      q:'关于"射线 OA"和"射线 AO"，下列说法正确的是（  ）',
+      opts:['是同一条射线','不是同一条射线，因为端点不同','都是直线的一部分，所以相同','无法判断'],
+      ans:1,
+      exp:'表示射线时端点字母必须写在前面：射线 OA 的端点是 O，射线 AO 的端点是 A，端点不同就不是同一条射线。' },
+    { lv:1, point:'两点确定一条直线', page:'p2',
+      q:'要把一根细木条固定在墙上，至少需要（  ）枚钉子，理由是（  ）',
+      opts:['1 枚；过一点可以画无数条直线','2 枚；两点确定一条直线','3 枚；三点确定一条直线','2 枚；两点之间线段最短'],
+      ans:1,
+      exp:'经过两点有且只有一条直线（两点确定一条直线），所以两枚钉子就能固定木条的位置。' },
+    { lv:1, point:'中点与等分点', page:'p3',
+      q:'点 M 是线段 AB 的中点，且 AB = 8 cm，那么 AM 的长是（  ）',
+      opts:['2 cm','4 cm','8 cm','16 cm'],
+      ans:1,
+      exp:'中点把线段分成相等的两段：AM = MB = ½AB = ½ × 8 = 4 cm。' },
+    { lv:1, point:'两点之间线段最短', page:'p6',
+      q:'把弯曲的河道改直，船舶航行的路程就变短了。这样做的数学依据是（  ）',
+      opts:['两点确定一条直线','两点之间，线段最短','线段可以度量长度','过一点有无数条直线'],
+      ans:1,
+      exp:'两点之间的所有连线中，线段最短 —— "改弯为直"正是这一性质的实际应用。' },
+    { lv:2, point:'线段的和差', page:'p5',
+      q:'线段 AB = 6 cm，点 C 在线段 AB 上，且 BC = 2 cm，则 AC 的长是（  ）',
+      opts:['2 cm','4 cm','8 cm','4 cm 或 8 cm'],
+      ans:1,
+      exp:'点 C 在线段 AB 上（不是延长线上），所以 AC = AB − BC = 6 − 2 = 4 cm。' },
+    { lv:2, point:'比较大小（叠合法）', page:'p4',
+      q:'用圆规量取线段 A′B′ 的长，再以点 A 为圆心画弧，弧恰好交线段 AB 于点 C。若点 C 与点 B 重合，则（  ）',
+      opts:['A′B′ ＞ AB','A′B′ ＜ AB','A′B′ = AB','无法确定'],
+      ans:2,
+      exp:'搬过来的长度正好"落"在 B 点上，说明 A′B′ 与 AB 一样长，即 A′B′ = AB（叠合法）。若交点落在 AB 内部则 A′B′ ＜ AB。' }
+  ];
+  const TAGS = ['A','B','C','D'];
+  const el = id => document.getElementById(id);
+  let order = [], cur = 0, results = [], done = false;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+  function shuffleOpts(item){
+    const idx = shuffle(item.opts.map((_,i)=>i));
+    return Object.assign({}, item, {
+      opts: idx.map(i=>item.opts[i]),
+      ans: idx.indexOf(item.ans)
+    });
+  }
+  function renderDots(){
+    el('quizDots').innerHTML = order.map((qi,i)=>{
+      let cls = 'dot';
+      if(results[i] !== undefined) cls += results[i].correct ? ' ok' : ' no';
+      else if(i === cur) cls += ' cur';
+      return '<div class="'+cls+'"></div>';
+    }).join('');
+    el('quizCount').textContent = (cur+1) + ' / ' + order.length;
+  }
+  function showQ(){
+    const item = order[cur];
+    const q = QUIZ[item.src];
+    el('quizLv').textContent = LV[q.lv].name;
+    el('quizQ').innerHTML = '<span style="color:#94a3b8;font-size:13px;margin-right:8px">第 ' + (cur+1) + ' 题</span>' + q.q;
+    el('quizFig').innerHTML = q.fig || '';
+    el('quizExp').style.display = 'none';
+    el('quizNext').style.display = 'none';
+    const box = el('quizOpts');
+    box.innerHTML = '';
+    q.opts.forEach((t,i)=>{
+      const b = document.createElement('button');
+      b.innerHTML = '<span class="tag">' + TAGS[i] + '</span><span>' + t + '</span>';
+      b.addEventListener('click', ()=>answer(i, b, box, q));
+      box.appendChild(b);
+    });
+    renderDots();
+  }
+  function answer(pick, btn, box, q){
+    const correct = pick === q.ans;
+    results[cur] = { correct:correct, point:q.point, page:q.page };
+    [...box.children].forEach((b,i)=>{
+      b.disabled = true;
+      if(i === q.ans) b.classList.add('ok');
+      else if(i === pick && !correct) b.classList.add('no');
+    });
+    const exp = el('quizExp');
+    exp.className = 'quiz-exp ' + (correct ? 'good' : 'bad');
+    exp.innerHTML = '<b class="tagline">' + (correct ? '🎉 回答正确！' : '💪 再想想——正确答案是 ' + TAGS[q.ans] + '。') + '</b><br>' + q.exp;
+    exp.style.display = 'block';
+    el('quizNext').textContent = (cur === order.length - 1) ? '📊 查看掌握情况报告' : '下一题 →';
+    el('quizNext').style.display = 'inline-block';
+    renderDots();
+  }
+  function finish(){
+    el('quizPlay').style.display = 'none';
+    el('quizReport').style.display = 'block';
+    const okN = results.filter(r=>r.correct).length;
+    const total = results.length;
+    const rate = Math.round(okN / total * 100);
+    const ring = el('rptRing');
+    ring.textContent = rate + '%';
+    const rc = rate >= 85 ? '#10b981' : rate >= 60 ? '#f59e0b' : '#ef4444';
+    ring.style.background = 'conic-gradient(' + rc + ' ' + (rate*3.6) + 'deg, rgba(255,255,255,.18) 0deg)';
+    ring.style.color = '#fff';
+    ring.style.boxShadow = '0 0 0 6px rgba(255,255,255,.12)';
+    el('rptTitle').textContent = okN + ' / ' + total + ' 题正确 · ' + (rate >= 85 ? '掌握得非常棒！🎉' : rate >= 60 ? '基本掌握，个别知识点需巩固 💪' : '需要重点复习本节课内容 📖');
+    // 按关卡统计
+    el('rptLv').innerHTML = LV.map(function(lv){
+      const idxs = order.map((o,i)=>({o,i})).filter(function(x){ return QUIZ[x.o.src].lv === LV.indexOf(lv); });
+      const ok = idxs.filter(function(x){ return results[x.i].correct; }).length;
+      const col = ok === idxs.length ? '#10b981' : ok >= 1 ? '#f59e0b' : '#ef4444';
+      return '<div class="box"><b style="color:'+col+'">' + ok + ' / ' + idxs.length + '</b><span>' + lv.name.replace(' · ','<br>') + '</span></div>';
+    }).join('');
+    // 按知识点统计
+    const byPoint = {};
+    order.forEach(function(o,i){
+      const q = QUIZ[o.src];
+      if(!byPoint[q.point]) byPoint[q.point] = { ok:0, n:0, page:q.page };
+      byPoint[q.point].n++; if(results[i].correct) byPoint[q.point].ok++;
+    });
+    el('rptPoints').innerHTML = Object.keys(byPoint).map(function(k){
+      const v = byPoint[k];
+      const r = Math.round(v.ok / v.n * 100);
+      const col = r >= 85 ? '#10b981' : r >= 60 ? '#f59e0b' : '#ef4444';
+      const weak = r < 85;
+      return '<div class="prow'+(weak?' weak':'')+'">'
+        + '<span class="pname">' + k + '</span>'
+        + '<div class="pbar"><i style="width:'+r+'%;background:'+col+'"></i></div>'
+        + '<span class="prate" style="color:'+col+'">' + r + '%</span>'
+        + (weak ? '<button class="goto" data-goto="' + v.page + '">去讲解 →</button>' : '<span style="font-size:11.5px;color:#059669">✓ 已掌握</span>')
+        + '</div>';
+    }).join('');
+    el('rptPoints').querySelectorAll('.goto').forEach(function(b){
+      b.addEventListener('click', function(){
+        const nav = document.querySelector('nav button[data-page="' + b.dataset.goto + '"]');
+        if(nav) nav.click();
+      });
+    });
+    el('quizWrong').style.display = results.some(function(r){ return !r.correct; }) ? 'inline-block' : 'none';
+  }
+  function start(list){
+    order = shuffle(list).map(src=>{ const item = shuffleOpts(QUIZ[src]); item.src = src; return item; });
+    cur = 0; results = [];
+    el('quizReport').style.display = 'none';
+    el('quizPlay').style.display = 'block';
+    showQ();
+  }
+  el('quizNext').addEventListener('click', ()=>{
+    if(cur === order.length - 1){ finish(); }
+    else { cur++; showQ(); }
+  });
+  el('quizAgain').addEventListener('click', ()=>start(QUIZ.map((_,i)=>i)));
+  el('quizWrong').addEventListener('click', ()=>{
+    const wrongSrcs = order.filter((o,i)=>!results[i].correct).map(o=>o.src);
+    start(wrongSrcs);
+  });
+  start(QUIZ.map((_,i)=>i));
+})();
+
 /* ============ 导航 ============ */
 document.querySelectorAll('nav button').forEach(btn=>{
   btn.addEventListener('click',()=>{

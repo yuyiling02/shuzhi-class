@@ -2,326 +2,150 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>24.2 数据的离散程度 · 课堂演示</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24.2 数据的离散程度</title>
 <style>
-  :root{
-    --blue:#2563eb; --orange:#ea580c; --purple:#7c3aed; --green:#16a34a;
-    --red:#dc2626; --amber:#d97706; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:#f1f5f9; color:var(--ink); padding:14px 18px;}
-  .wrap{max-width:1560px; margin:0 auto;}
-  header{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;}
-  h1{font-size:24px;}
-  h1 .sub{font-size:14px; color:var(--sub); font-weight:400; margin-left:8px;}
-  .mottos{display:flex; gap:8px;}
-  .motto{background:linear-gradient(135deg,#dc2626,#ea580c); color:#fff; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px; box-shadow:0 2px 6px rgba(220,38,38,.3);}
-  .motto.g{background:linear-gradient(135deg,#16a34a,#059669); box-shadow:0 2px 6px rgba(22,163,74,.3);}
-  .stage{display:grid; grid-template-columns:330px 1fr; gap:14px; align-items:start;}
-  .card{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 1px 4px rgba(15,23,42,.06);}
-  /* 左侧 */
-  .left{display:flex; flex-direction:column; gap:10px;}
-  .steps-nav{display:flex; flex-direction:column; gap:6px;}
-  .nav-item{display:flex; gap:9px; align-items:center; border:1.5px solid var(--line); border-radius:9px; padding:8px 10px; cursor:pointer; transition:.25s; background:#fff;}
-  .nav-item .no{width:24px; height:24px; border-radius:50%; color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;}
-  .nav-item .tt{font-size:13.5px; font-weight:700; line-height:1.35;}
-  .nav-item .tt small{display:block; font-weight:400; color:var(--sub); font-size:11.5px;}
-  .nav-item:hover{border-color:#94a3b8;}
-  .nav-item.cur{border-color:var(--blue); background:var(--blue-bg, #eff6ff); box-shadow:0 0 0 2px rgba(37,99,235,.15);}
-  .nav-item.done{opacity:.62;}
-  .nav-item.done .tt::after{content:' ✔'; color:var(--green);}
-  .kcard{border-left:4px solid; border-radius:8px; padding:8px 10px; font-size:13px; line-height:1.55; background:#f8fafc;}
-  .kcard b{font-size:13.5px;}
-  .kcard.k1{border-color:var(--purple);} .kcard.k1 b{color:var(--purple);}
-  .kcard.k2{border-color:var(--red); background:#fef2f2;}
-  .kcard.k2 b{color:var(--red);}
-  .kcard.k3{border-color:var(--green);} .kcard.k3 b{color:var(--green);}
-  .kcard.k4{border-color:var(--amber);} .kcard.k4 b{color:var(--amber);}
-  .formula-inline{font-family:"Cambria Math",Cambria,serif; font-size:15.5px; color:var(--red); font-weight:700;}
-  /* 易错 */
-  .warn{border:2px solid #fecaca; background:var(--red-bg,#fef2f2); border-radius:10px; padding:9px 11px; font-size:12.8px; line-height:1.6; color:#7f1d1d;}
-  .warn b{color:var(--red);}
-  .warn .wt{font-weight:800; margin-bottom:3px;}
-  /* 右侧 */
-  .ctrl{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:8px;}
-  button{border:none; border-radius:9px; padding:9px 18px; font-size:14.5px; font-weight:700; cursor:pointer; background:#e2e8f0; color:var(--ink); transition:.2s; font-family:inherit;}
-  button:hover{filter:brightness(.96);}
-  button:disabled{opacity:.4; cursor:not-allowed;}
-  button.primary{background:linear-gradient(135deg,#2563eb,#7c3aed); color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.35); font-size:15.5px; padding:10px 24px;}
-  .dots{display:flex; gap:6px;}
-  .dots i{width:11px; height:11px; border-radius:50%; background:#e2e8f0; transition:.25s;}
-  .dots i.on{background:var(--blue); transform:scale(1.2);}
-  /* 数据行 */
-  .datarow{display:flex; justify-content:center; gap:18px; font-family:"Cambria Math",Cambria,serif; font-size:15.5px; margin-bottom:6px; color:#334155;}
-  .datarow b.b1{color:var(--blue);} .datarow b.b2{color:var(--orange);}
-  /* 公式 */
-  .formula-zone{display:flex; flex-direction:column; align-items:center; gap:8px; padding:8px 0 2px;}
-  .formula{font-family:"Cambria Math",Cambria,Georgia,serif; font-size:44px; display:flex; align-items:center; gap:10px; user-select:none;}
-  .formula .frac{display:inline-flex; flex-direction:column; align-items:center; line-height:1.15;}
-  .formula .frac .top{border-bottom:3px solid var(--ink); padding:0 12px 2px;}
-  .formula .frac .bot{padding-top:2px;}
-  .sym{border-radius:8px; padding:1px 6px; transition:.35s; cursor:pointer; display:inline-block;}
-  .sym-xi{color:var(--red);} .sym-mu{color:var(--blue);} .sym-dev{color:var(--purple);}
-  .sym-sq{color:var(--orange);} .sym-sum{color:var(--green);} .sym-nn{color:var(--amber);}
-  .sym.hot{background:#fef08a; box-shadow:0 0 0 3px rgba(234,179,8,.35), 0 0 18px rgba(234,179,8,.5); transform:scale(1.14);}
-  .sym-desc{min-height:52px; max-width:820px; text-align:center; font-size:14.5px; line-height:1.55; color:#334155;}
-  .sym-desc b{font-size:15px;}
-  .formula.dim .sym{opacity:.35;}
-  .formula.dim .sym.hot{opacity:1;}
-  /* 点阵 SVG */
-  svg#viz{width:100%; height:auto; display:block; background:#fcfdff; border-radius:8px;}
-  .dot{transition:.4s;}
-  .dot.pulse{animation:pulse 1.2s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}
-  /* 方差条 */
-  .bars{display:flex; flex-direction:column; gap:10px; margin-top:10px;}
-  .bar-row{display:flex; align-items:center; gap:10px; font-size:14px; font-weight:700;}
-  .bar-row .lab{width:120px; text-align:right;}
-  .bar-track{flex:1; height:26px; background:#f1f5f9; border-radius:999px; overflow:hidden; position:relative;}
-  .bar-fill{height:100%; width:0; border-radius:999px; transition:width .9s cubic-bezier(.22,1,.36,1);}
-  .bar-row .v{width:150px; font-family:"Cambria Math",Cambria,serif; font-size:14.5px;}
-  /* 结论 */
-  .concl{margin-top:12px; display:none; background:linear-gradient(135deg,#16a34a,#059669); color:#fff; border-radius:12px; padding:14px 18px; font-size:19px; font-weight:800; text-align:center; box-shadow:0 4px 14px rgba(22,163,74,.4); animation:pop .5s ease;}
-  .concl.show{display:block;}
-  .concl small{display:block; font-size:13px; font-weight:400; margin-top:4px; opacity:.92;}
-  @keyframes pop{0%{transform:scale(.85); opacity:0;}100%{transform:scale(1); opacity:1;}}
+  :root{--blue:#2563eb;--blueL:#dbeafe;--green:#16a34a;--greenL:#dcfce7;--orange:#f59e0b;--red:#ef4444;--purple:#7c3aed;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f4f7fb;color:var(--ink);padding:14px 12px 30px;}
+  .wrap{max-width:940px;margin:0 auto;}
+  header{text-align:center;margin-bottom:10px;}
+  header h1{font-size:21px;}
+  header p{color:var(--sub);font-size:13px;margin-top:2px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.05);margin-bottom:12px;}
+  svg{display:block;width:100%;height:auto;}
+  .caption{text-align:center;font-size:17px;font-weight:700;min-height:28px;margin:6px 0;}
+  .caption .em{color:var(--purple);}
+  .formula{text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:24px;font-weight:bold;padding:8px;line-height:1.8;}
+  .formula .tm{transition:opacity .4s;padding:0 3px;}
+  .formula .tm.dim{opacity:.2;}
+  .formula sup{font-size:.6em;} .formula sub{font-size:.6em;}
+  .dots{display:flex;gap:7px;justify-content:center;margin:8px 0 2px;}
+  .dots i{width:11px;height:11px;border-radius:50%;background:#cbd5e1;transition:.3s;cursor:pointer;}
+  .dots i.on{background:var(--purple);transform:scale(1.2);}
+  .ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .ctrl button{padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  .ctrl button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ctrl button.play{background:var(--green);border-color:var(--green);color:#fff;}
+  .ctrl button.play.on{background:var(--orange);border-color:var(--orange);}
+  .ctrl button:disabled{opacity:.4;cursor:default;}
+  .vbars{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .vbar{display:flex;align-items:center;gap:10px;}
+  .vbar .lab{width:60px;font-weight:800;font-size:15px;}
+  .vbar .track{flex:1;height:26px;background:#f1f5f9;border-radius:8px;overflow:hidden;}
+  .vbar .fill{height:100%;border-radius:8px;transition:width .8s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-weight:800;font-size:13px;min-width:36px;}
+  .concl{text-align:center;font-size:16px;font-weight:800;background:var(--greenL);color:var(--green);border-radius:12px;padding:12px;margin-top:10px;opacity:0;transition:.5s;}
+  .concl.show{opacity:1;}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.formula{font-size:18px;}.caption{font-size:15px;}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>24.2 数据的离散程度<span class="sub">极差 · 方差 · 标准差 · 稳定性对比</span></h1>
-    <div class="mottos">
-      <span class="motto">先求偏差 → 再平方 → 再平均</span>
-      <span class="motto g">方差越小越稳定</span>
-    </div>
+    <h1>24.2 数据的离散程度</h1>
+    <p>甲、乙两组数据平均数都是 6，谁更稳定？用方差说话</p>
   </header>
 
-  <div class="stage">
-    <!-- 左：导航 + 知识点 + 易错 -->
-    <aside class="left">
-      <div class="card">
-        <div style="font-weight:800; margin-bottom:8px;">🎬 演示步骤（点击直达）</div>
-        <div class="steps-nav" id="nav">
-          <div class="nav-item" data-s="1"><span class="no" style="background:var(--purple)">1</span><span class="tt">极差<small>最大值 − 最小值，最粗略的波动</small></span></div>
-          <div class="nav-item" data-s="2"><span class="no" style="background:var(--red)">2</span><span class="tt">方差公式逐符号拆解<small>xi、x̄、偏差、平方、Σ、÷n</small></span></div>
-          <div class="nav-item" data-s="3"><span class="no" style="background:var(--green)">3</span><span class="tt">标准差<small>方差的算术平方根，单位一致</small></span></div>
-          <div class="nav-item" data-s="4"><span class="no" style="background:var(--blue)">4</span><span class="tt">两组数据点阵对比<small>一组密集、一组分散</small></span></div>
-          <div class="nav-item" data-s="5"><span class="no" style="background:var(--amber)">5</span><span class="tt">方差条对比 → 结论<small>长则波动大，短则稳定</small></span></div>
-        </div>
-        <div class="ctrl" style="margin-top:10px;">
-          <button class="primary" id="btnPlay">▶ 播放演示</button>
-          <button id="btnPrev">⏮</button>
-          <button id="btnNext">▶▶</button>
-          <button id="btnReset">🔁</button>
-        </div>
-        <div class="dots" id="dots" style="justify-content:center;"><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
-
-      <div class="kcard k1"><b>极差</b>＝最大值 − 最小值。只看两个极端数据，太粗略。</div>
-      <div class="kcard k2"><b>方差</b>（核心）：每项与平均数之<b>偏差的平方</b>的平均数　<span class="formula-inline">s² ＝ Σ(xᵢ − x̄)² / n</span>　— 红色公式为本节灵魂。</div>
-      <div class="kcard k3"><b>标准差</b> ＝ 方差的算术平方根 s＝√s²，与原始数据<b>单位一致</b>，更常用于实际比较。</div>
-      <div class="kcard k4"><b>结论</b>：方差（标准差）越<b>小</b>，数据越<b>稳定</b>；越<b>大</b>，波动越<b>大</b>。</div>
-
-      <div class="warn"><div class="wt">⚠ 易错 1｜运算顺序</div>方差公式：<b>先求偏差</b>（xᵢ−x̄）→ <b>再平方</b> → <b>再求平均</b>（除以 n）。<b>勿漏平方</b>（不平方正负抵消，结果恒为 0 的错误）、<b>勿忘除以 n</b>（只加平方和不除，会随数据个数变大）。</div>
-      <div class="warn"><div class="wt">⚠ 易错 2｜单位问题</div><b>标准差</b>与原始数据<b>单位一致</b>（如 cm）；<b>方差</b>的单位是<b>原始单位的平方</b>（如 cm²），所以实际比较常说标准差。</div>
-    </aside>
-
-    <!-- 右：可视化动画区 -->
-    <section class="card">
-      <div class="datarow">
-        <span><b class="b1">甲</b>：5，6，6，6，7</span>
-        <span><b class="b2">乙</b>：2，4，6，8，10</span>
-        <span style="color:var(--sub); font-size:13.5px;">（两组平均数都是 x̄＝6）</span>
-      </div>
-
-      <div class="formula-zone">
-        <div class="formula" id="formula">
-          <span>s²</span><span>＝</span>
-          <span class="frac">
-            <span class="top"><span class="sym sym-sum">Σ</span><span class="sym sym-sq">(</span><span class="sym sym-xi">x<sub>i</sub></span><span class="sym sym-dev">−</span><span class="sym sym-mu">x̄</span><span class="sym sym-sq">)²</span></span>
-            <span class="bot"><span class="sym sym-nn">n</span></span>
-          </span>
-        </div>
-        <div class="sym-desc" id="symDesc">点「▶ 播放演示」开始五步动画；也可点左侧任一步骤直达。公式中的彩色符号在<b>第 2 步</b>逐个点亮。</div>
-      </div>
-
-      <svg id="viz" viewBox="0 0 820 300"></svg>
-
-      <div class="bars" id="bars">
-        <div class="bar-row">
-          <span class="lab" style="color:var(--blue)">甲的方差 s²</span>
-          <div class="bar-track"><div class="bar-fill" id="barA" style="background:linear-gradient(90deg,#60a5fa,#2563eb)"></div></div>
-          <span class="v" id="barAv"></span>
-        </div>
-        <div class="bar-row">
-          <span class="lab" style="color:var(--orange)">乙的方差 s²</span>
-          <div class="bar-track"><div class="bar-fill" id="barB" style="background:linear-gradient(90deg,#fdba74,#ea580c)"></div></div>
-          <span class="v" id="barBv"></span>
-        </div>
-      </div>
-
-      <div class="concl" id="concl">🎯 方差越小越稳定：s²甲＝0.4 ＜ s²乙＝8 → 甲组成绩更稳定！
-        <small>标准差：s甲≈0.63，s乙≈2.83 —— 与原始数据单位一致，结论相同</small>
-      </div>
-    </section>
+  <div class="card">
+    <svg id="svg" viewBox="0 0 900 300"></svg>
+    <div class="caption" id="cap"></div>
+    <div class="dots" id="dots"></div>
+    <div class="ctrl">
+      <button id="prev">◀ 上一步</button>
+      <button id="next" class="primary">下一步 ▶</button>
+      <button id="play" class="play">▶ 自动播放</button>
+      <button id="reset">↺ 重置</button>
+    </div>
   </div>
+
+  <div class="card">
+    <div class="formula" id="formula"></div>
+    <div class="vbars">
+      <div class="vbar"><span class="lab" style="color:var(--blue);">甲</span><div class="track"><div class="fill" id="barA" style="background:var(--blue);width:5%;">0.4</div></div></div>
+      <div class="vbar"><span class="lab" style="color:var(--orange);">乙</span><div class="track"><div class="fill" id="barB" style="background:var(--orange);width:5%;">8</div></div></div>
+    </div>
+    <div class="concl" id="concl">方差越小越稳定：甲 s²=0.4 ＜ 乙 s²=8 → 甲组数据更稳定</div>
+  </div>
+
+  <footer>人教版八年级下册 · 24.2 数据的离散程度 · 极差 / 方差 / 标准差</footer>
 </div>
 
 <script>
-/* ============ 数据 ============ */
-const A=[5,6,6,6,7], B=[2,4,6,8,10];       // 均值都为 6
-const MEAN=6, VARA=0.4, VARB=8, SDA=0.632, SDB=2.828, RA=2, RB=8;
+"use strict";
 const $=id=>document.getElementById(id);
-const svg=$('viz');
-
-/* ============ 点阵图绘制 ============ */
-const X0=55, U=58, ROW={A:78, B:158}, BASE=232;
-const px=v=>X0+v*U;
-function dots(g){
-  const cnt={};
-  return g.map(v=>{
-    cnt[v]=(cnt[v]||0)+1;
-    return {v, k:cnt[v]-1};
-  });
-}
-const dotsA=dots(A), dotsB=dots(B);
-
-function drawViz(){
-  const step=cur;
-  let s='';
-  /* 数字轴 */
-  s+=`<line x1="${px(0)}" y1="${BASE}" x2="${px(12)}" y2="${BASE}" stroke="#475569" stroke-width="2"/>`;
-  for(let v=0;v<=12;v++){
-    s+=`<line x1="${px(v)}" y1="${BASE-5}" x2="${px(v)}" y2="${BASE+5}" stroke="#94a3b8"/>`;
-    s+=`<text x="${px(v)}" y="${BASE+22}" font-size="12.5" fill="#64748b" text-anchor="middle" font-family="Cambria Math,serif">${v}</text>`;
-  }
-  s+=`<text x="816" y="${BASE+22}" font-size="13" fill="#475569" text-anchor="end" font-family="Cambria Math,serif">成绩</text>`;
-  /* 平均数虚线 */
-  s+=`<line x1="${px(MEAN)}" y1="34" x2="${px(MEAN)}" y2="${BASE}" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="6 5" opacity="${step>=2?1:.45}"/>`;
-  s+=`<text x="${px(MEAN)+8}" y="${BASE-8}" font-size="14" font-weight="700" fill="#7c3aed" font-family="Cambria Math,serif">x̄＝6</text>`;
-  /* 两组点 */
-  const drawGroup=(ds,row,color,label,gone)=>{
-    let t=`<text x="${X0-30}" y="${row+5}" font-size="16" font-weight="800" fill="${color}" font-family="Cambria Math,serif">${label}</text>`;
-    for(const d of ds){
-      const cx=px(d.v), cy=row-d.k*20;
-      if(step>=2&&step<5){ /* 偏差线 */
-        t+=`<line x1="${cx}" y1="${cy}" x2="${px(MEAN)}" y2="${cy}" stroke="${color}" stroke-width="2.5" stroke-dasharray="3 3" opacity=".55"/>`;
-      }
-      const hot=(step===4);
-      t+=`<circle class="dot${hot?' pulse':''}" cx="${cx}" cy="${cy}" r="8.5" fill="${color}" fill-opacity="${hot?1:.85}" stroke="#fff" stroke-width="2" style="transform-box:fill-box; transform-origin:center;"/>`;
-    }
-    return t;
-  };
-  s+=drawGroup(dotsA,ROW.A,'#2563eb','甲');
-  s+=drawGroup(dotsB,ROW.B,'#ea580c','乙');
-  /* 极差括号（第 1 步） */
-  if(step===1){
-    const bracket=(row,color,g)=>{
-      const mn=Math.min(...g), mx=Math.max(...g), r=mx-mn;
-      const y=row-40;
-      let t=`<path d="M ${px(mn)} ${y} L ${px(mn)} ${y-8} M ${px(mn)} ${y} L ${px(mx)} ${y} L ${px(mx)} ${y-8}" stroke="${color}" stroke-width="2.5" fill="none"/>`;
-      t+=`<text x="${(px(mn)+px(mx))/2}" y="${y-14}" font-size="14.5" font-weight="800" fill="${color}" text-anchor="middle" font-family="Cambria Math,serif">极差＝${mx}−${mn}＝${r}</text>`;
-      t+=`<circle cx="${px(mn)}" cy="${row}" r="11" fill="none" stroke="${color}" stroke-width="2.5"/><circle cx="${px(mx)}" cy="${row}" r="11" fill="none" stroke="${color}" stroke-width="2.5"/>`;
-      return t;
-    };
-    s+=bracket(ROW.A,'#2563eb',A)+bracket(ROW.B,'#ea580c',B);
-  }
-  svg.innerHTML=s;
-}
-
-/* ============ 公式逐符号拆解 ============ */
-const SUBS=[
-  {cls:'sym-xi', t:'xᵢ —— 每一个数据', d:'甲组的 xᵢ 就是 5、6、6、6、7 这 5 个数；乙组是 2、4、6、8、10。每个数据都要参加运算。'},
-  {cls:'sym-mu', t:'x̄ —— 平均数', d:'x̄＝(5＋6＋6＋6＋7)÷5＝6，乙组也是 6 —— 两组平均数相同！所以比较谁更稳，就要看<b>偏离平均数的程度</b>。'},
-  {cls:'sym-dev', t:'xᵢ − x̄ —— 偏差（图中的虚线段）', d:'每个数据离开平均数的距离：甲组 −1,0,0,0,1；乙组 −4,−2,0,2,4。有正有负，<b>直接相加会抵消成 0</b>，反映不了波动！'},
-  {cls:'sym-sq', t:'(…)² —— 先平方（易错点！）', d:'把每个偏差平方：负号消失、大偏差被放大。甲：1＋0＋0＋0＋1＝2；乙：16＋4＋0＋4＋16＝40。<b>千万别漏平方</b>！'},
-  {cls:'sym-sum', t:'Σ —— 求和', d:'Σ 读"西格玛"，表示把 5 个平方偏差<b>全部累加</b>：甲 Σ＝2，乙 Σ＝40。'},
-  {cls:'sym-nn', t:'÷n —— 再平均（易错点！）', d:'除以数据个数 n＝5：甲 2÷5＝<b>0.4</b>，乙 40÷5＝<b>8</b> —— 这就是方差！<b>别忘了除以 n</b>。'},
+const NS='http://www.w3.org/2000/svg';
+const svg=$('svg');
+const A=[5,6,6,6,7],B=[2,4,6,8,10],MEAN=6,N=5;
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+function T(x,y,s,fill,size,op,w){const t=el('text',{x,y,'text-anchor':'middle','font-size':size||14,fill:fill||'#334155','font-weight':w||'bold','paint-order':'stroke',stroke:'#fff','stroke-width':4,opacity:op===undefined?1:op});t.textContent=s;return t;}
+const CAP=[
+  '两组数据：甲 <span class="em">5,6,6,6,7</span>，乙 <span class="em">2,4,6,8,10</span>',
+  '先求平均数：两组都是 <span class="em">x̄ = 6</span>',
+  '看每个数到平均数的<span class="em">偏差</span>（虚线）—— 直接相加会抵消成 0',
+  '把偏差<span class="em">平方</span>：负号消失，大偏差被放大',
+  '平方后<span class="em">求和</span>：甲 = 2，乙 = 40',
+  '再<span class="em">除以 n=5</span> 取平均：甲 s²=0.4，乙 s²=8'
 ];
-let subTimer=null, subIdx=-1;
+let target=0,cur=0,raf=null,playTimer=null;
+function ensureAnim(){if(raf==null)raf=requestAnimationFrame(tick);}
+function tick(){cur+=(target-cur)*0.16;if(Math.abs(target-cur)<0.002)cur=target;render(cur);if(cur!==target)raf=requestAnimationFrame(tick);else raf=null;}
+function setTarget(n){target=Math.max(0,Math.min(5,n));ensureAnim();updateUI();}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}$('play').textContent='▶ 自动播放';$('play').classList.remove('on');}
+function startPlay(){if(target>=5)setTarget(0);$('play').textContent='⏸ 暂停';$('play').classList.add('on');playTimer=setInterval(()=>{if(target<5)setTarget(target+1);else stopPlay();},1900);}
 
-function runSub(){
-  if(cur!==2)return;
-  subIdx++;
-  if(subIdx>=SUBS.length){ /* 全部点亮，停留 */ return; }
-  const F=$('formula');
-  F.classList.add('dim');
-  document.querySelectorAll('.sym').forEach(el=>el.classList.remove('hot'));
-  for(let i=0;i<=subIdx;i++)F.querySelector('.'+SUBS[i].cls).classList.add('hot');
-  const sb=SUBS[subIdx];
-  $('symDesc').innerHTML=`<b style="color:var(--red)">第 2 步 · ${subIdx+1}/${SUBS.length}：</b><b>${sb.t}</b>　${sb.d}`;
-  subTimer=setTimeout(runSub,1900);
-}
-function stopSub(){clearTimeout(subTimer); subTimer=null; subIdx=-1;}
-
-/* ============ 步骤调度 ============ */
-let cur=0, playTimer=null;
-const DUR={1:3200,2:12000,3:3600,4:3600,5:999999};
-
-function setStep(n){
-  stopSub(); clearTimeout(playTimer); playTimer=null;
-  $('btnPlay').textContent='▶ 播放演示'; $('btnPlay').disabled=false;
-  cur=n;
-  document.querySelectorAll('.nav-item').forEach(el=>{
-    const s=+el.dataset.s;
-    el.classList.toggle('cur',s===n);
-    el.classList.toggle('done',s<n);
+function drawRow(data,y,color,devOp,sqOp,label){
+  const x0=80,x1=840,px=v=>x0+(v/12)*(x1-x0);
+  el('line',{x1:px(0),y1:y,x2:px(12),y2:y,stroke:'#cbd5e1','stroke-width':2});
+  for(let t=0;t<=12;t+=2){el('line',{x1:px(t),y1:y-4,x2:px(t),y2:y+4,stroke:'#cbd5e1','stroke-width':1.4});T(px(t),y+20,String(t),'#94a3b8',11);}
+  el('line',{x1:px(MEAN),y1:y-46,x2:px(MEAN),y2:y+8,stroke:'#16a34a','stroke-width':2,'stroke-dasharray':'5 4'});
+  T(px(MEAN),y-52,'x̄=6','#16a34a',13);
+  T(x0-30,y+5,label,color,18);
+  data.forEach(v=>{
+    el('circle',{cx:px(v),cy:y,r:9,fill:color,stroke:'#fff','stroke-width':2});
+    T(px(v),y-16,String(v),color,14);
+    if(devOp>0){
+      el('line',{x1:px(v),y1:y,x2:px(MEAN),y2:y,stroke:color,'stroke-width':2.5,'stroke-dasharray':'4 3',opacity:devOp});
+      const d=v-MEAN;
+      if(sqOp>0)T((px(v)+px(MEAN))/2,y+38,(d<0?'−':'')+Math.abs(d)+'²='+d*d,'#7c3aed',12,sqOp);
+      else if(devOp>0.5)T((px(v)+px(MEAN))/2,y+38,(d>0?'+':'')+d,color,12,devOp);
+    }
   });
-  document.querySelectorAll('#dots i').forEach((d,i)=>d.classList.toggle('on',i<n));
-  /* 公式区 */
-  const F=$('formula');
-  document.querySelectorAll('.sym').forEach(el=>el.classList.remove('hot'));
-  if(n===2){runSub();}
-  else{
-    F.classList.remove('dim');
-    if(n>2)document.querySelectorAll('.sym').forEach(el=>el.classList.add('hot'));
-    const msgs={
-      0:'点「▶ 播放演示」开始五步动画；也可点左侧任一步骤直达。公式中的彩色符号在<b>第 2 步</b>逐个点亮。',
-      1:'<b style="color:var(--purple)">第 1 步｜极差</b>：最大值 − 最小值。图中圈出两组的最值并画出括号：甲 7−5＝2，乙 10−2＝8 —— 极差小说明波动小？<b>只看两个极端值，太粗略！</b>',
-      3:'<b style="color:var(--green)">第 3 步｜标准差</b>：方差开算术平方根 s＝√s²。甲 √0.4≈<b>0.63</b>，乙 √8≈<b>2.83</b>。标准差与原始数据<b>单位一致</b>（方差单位是原始单位的平方），所以实际中更常用。',
-      4:'<b style="color:var(--blue)">第 4 步｜点阵对比</b>：两组均值相同（x̄＝6），但<b>甲的点密集</b>地挤在 6 附近（偏差虚线短），<b>乙的点分散</b>在 2~10（虚线长）。虚线段的长短就是偏差的大小。',
-      5:'<b style="color:var(--amber)">第 5 步｜方差条对比</b>：乙的条远长于甲 → s²乙＝8 ＞ s²甲＝0.4 → <b>方差越小越稳定，甲组更稳！</b>',
-    };
-    $('symDesc').innerHTML=msgs[n]||'';
-  }
-  /* 方差条与结论 */
-  $('barA').style.width=n>=5?(VARA/8*100)+'%':'0';
-  $('barB').style.width=n>=5? '100%':'0';
-  $('barAv').textContent=n>=5?'0.4（短 → 稳定）':'';
-  $('barBv').textContent=n>=5?'8（长 → 波动大）':'';
-  $('concl').classList.toggle('show',n===5);
-  drawViz();
 }
-
-function playAll(){
-  stopSub(); clearTimeout(playTimer);
-  setStep(1);
-  $('btnPlay').disabled=true; $('btnPlay').textContent='⏳ 演示中…';
-  const next=(s)=>{
-    if(s>=5){$('btnPlay').disabled=false; $('btnPlay').textContent='▶ 重新播放'; return;}
-    playTimer=setTimeout(()=>{setStep(s+1); next(s+1);}, DUR[s]);
-  };
-  next(1);
+function render(t){
+  svg.innerHTML='';
+  const dev=clamp(t-2,0,1),sq=clamp(t-3,0,1),sum=clamp(t-4,0,1),div=clamp(t-5,0,1);
+  drawRow(A,90,'#2563eb',dev,sq,'甲');
+  drawRow(B,210,'#f59e0b',dev,sq,'乙');
+  if(sum>0){T(450,270,'平方和：甲 = 1+0+0+0+1 = 2　　乙 = 16+4+0+4+16 = 40','#7c3aed',15,sum);}
+  if(div>0){T(450,292,'÷5：甲 s² = 2÷5 = 0.4　　乙 s² = 40÷5 = 8','#16a34a',15,div);}
 }
-
-/* ============ 事件 ============ */
-$('btnPlay').onclick=playAll;
-$('btnNext').onclick=()=>setStep(Math.min(cur+1,5));
-$('btnPrev').onclick=()=>setStep(Math.max(cur-1,0));
-$('btnReset').onclick=()=>setStep(0);
-document.querySelectorAll('.nav-item').forEach(el=>el.onclick=()=>setStep(+el.dataset.s));
-document.querySelectorAll('.sym').forEach(el=>{
-  el.addEventListener('click',()=>{
-    if(cur!==2)return;
-    const i=SUBS.findIndex(x=>'.'+x.cls===('.'+[...el.classList].find(c=>c.startsWith('sym-'))));
-    if(i<0)return;
-    clearTimeout(subTimer); subIdx=i-1; runSub();
-  });
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function formulaHTML(){
+  const tm=(s,step,color)=>'<span class="tm'+(target>=step?'':' dim')+'" style="color:'+(color||'inherit')+'">'+s+'</span>';
+  return tm('s²',5,'#16a34a')+' '+tm('=',5)+' '+tm('Σ',4,'#7c3aed')+'('+tm('x<sub>i</sub>',0,'#2563eb')+' '+tm('−',2)+' '+tm('x̄',1,'#16a34a')+')'+tm('²',3,'#7c3aed')+' '+tm('/ n',5,'#16a34a');
+}
+function updateUI(){
+  $('cap').innerHTML=CAP[target];
+  $('dots').innerHTML=CAP.map((_,i)=>'<i class="'+(i<=target?'on':'')+'" data-i="'+i+'"></i>').join('');
+  document.querySelectorAll('.dots i').forEach(d=>d.onclick=()=>{stopPlay();setTarget(+d.dataset.i);});
+  $('formula').innerHTML=formulaHTML();
+  $('barA').style.width=target>=5?'5%':'5%';
+  $('barB').style.width=target>=5?'100%':'5%';
+  $('concl').classList.toggle('show',target>=5);
+  $('prev').disabled=target===0;$('next').disabled=target===5;
+}
+$('next').onclick=()=>{stopPlay();setTarget(target+1);};
+$('prev').onclick=()=>{stopPlay();setTarget(target-1);};
+$('reset').onclick=()=>{stopPlay();setTarget(0);};
+$('play').onclick=()=>playTimer?stopPlay():startPlay();
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){stopPlay();setTarget(target+1);}
+  if(e.key==='ArrowLeft'){stopPlay();setTarget(target-1);}
+  if(e.key===' '){e.preventDefault();playTimer?stopPlay():startPlay();}
 });
-
-/* ============ 入口 ============ */
-setStep(0);
+render(0);updateUI();
 </script>
 </body>
 </html>

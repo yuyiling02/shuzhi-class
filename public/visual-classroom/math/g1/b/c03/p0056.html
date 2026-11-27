@@ -40,7 +40,7 @@
   .sidepanel{flex:0 0 320px; display:flex; flex-direction:column; gap:12px;}
   @media (max-width:1000px){
     .layout{flex-direction:column;}
-    .sidepanel{flex:auto; width:100%; flex-direction:row; flex-wrap:wrap;}
+    .sidepanel{flex:auto; width:100%; flex-direction:column;}
     .sidepanel .stepcard{flex:1 1 280px;}
   }
 
@@ -91,13 +91,95 @@
   footer b{color:var(--ink);}
   footer .fml{font-family:"Cambria Math","Times New Roman",serif; font-size:16px; color:#b8502e;}
   footer .q{margin-top:10px; color:#7b8d9c; font-size:13.5px;}
+
+  /* ---------- 任务单 ---------- */
+  .sidepanel{flex:0 0 372px;}
+  .ptitle{font-size:20px; font-weight:bold; letter-spacing:4px; color:#2f6f92; margin:2px 0 4px;}
+  .psub{font-size:12.5px; color:#93a6b6; margin-bottom:11px; letter-spacing:.4px;}
+
+  .task{background:#fff; border:1px solid #dbeaf5; border-radius:12px; margin-bottom:9px; overflow:hidden; transition:.2s;}
+  .task.open{border-color:var(--teal); box-shadow:0 4px 14px rgba(70,120,160,.13);}
+  .task.done{background:#f7fcf9; border-color:#d6ecdf;}
+  .thead{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 12px; cursor:pointer; background:#f4fafd;}
+  .task.open .thead{background:#e9f4fc;}
+  .task.done .thead{background:#f1faf5;}
+  .tno{font-size:14px; font-weight:bold; color:#2f6f92; letter-spacing:1.5px;}
+  .task.done .tno{color:#5f9a7d;}
+  .tick{font-size:12.5px; color:#8fa1b2;}
+  .task.done .tick{color:#2e8b57; font-weight:bold;}
+  .tbody{padding:2px 12px 12px;}
+  .task .tbody{display:none;}
+  .task.open .tbody{display:block;}
+  .task.open .tdone{display:none;}
+  .tdone{display:none; padding:8px 12px; font-size:12.5px; line-height:1.7; color:#5c7d6c;}
+  .task.done .tdone{display:block;}
+  .tq{font-size:13.5px; line-height:1.8; color:#3b5568; margin:7px 0 9px;}
+  .tq b{color:#b8502e; white-space:nowrap;}
+
+  .optbtn{display:block; width:100%; text-align:left; padding:8px 11px; margin:6px 0; border:1px solid #d6e7f3;
+    border-radius:9px; background:#fbfdff; font-family:inherit; font-size:13px; color:#3b5568; cursor:pointer; transition:.14s; line-height:1.5;}
+  .optbtn:hover{background:#eef7fd; border-color:#b7d7ea;}
+  .optbtn.ok{background:#eafaf1; border-color:#7ec49a; color:#20734a;}
+  .optbtn.no{background:#fdf0ec; border-color:#e6a994; color:#b04a2a;}
+
+  .mrow{display:flex; align-items:center; gap:7px; margin:7px 0; font-size:12.8px; color:#4a6275;}
+  .mrow span{flex:0 0 118px;}
+  .mrow select{flex:1 1 auto; min-width:0; font-family:inherit; font-size:12.5px; padding:5px 4px;
+    border:1px solid #d6e7f3; border-radius:7px; background:#fbfdff; color:#3b5568;}
+
+  .frow2{display:flex; align-items:center; gap:8px; margin:7px 0; font-size:12.8px; color:#4a6275;}
+  .frow2 span{flex:0 0 76px; white-space:nowrap;}
+  .frow2 input{flex:1 1 auto; min-width:0; padding:6px 8px; border:1px solid #d6e7f3; border-radius:7px;
+    font-family:inherit; font-size:13px; color:#2f6f92; background:#fbfdff;}
+  .frow2 em{flex:0 0 auto; white-space:nowrap; font-style:normal; color:#93a6b6; font-size:11.5px;}
+
+  .chip{display:inline-block; padding:6px 10px; margin:4px 5px 4px 0; border:1px solid #cfe2f0; border-radius:8px;
+    background:#f7fcff; font-size:12.5px; color:#3b5568; cursor:pointer; transition:.14s; line-height:1.45;}
+  .chip:hover{background:#eaf5fd; border-color:#a9cfe6;}
+  .chip.used{display:none;}
+  .chain{list-style:none; margin:9px 0 0; padding:0;}
+  .chain li{display:flex; gap:7px; font-size:12.6px; color:#4a6275; padding:5px 0; border-bottom:1px dashed #e6f0f8;}
+  .chain li i{flex:0 0 17px; height:17px; border-radius:50%; background:#4d95c4; color:#fff; font-style:normal;
+    font-size:11px; text-align:center; line-height:17px;}
+  .chain .empty{color:#a4b4c1; border:none;}
+
+  .chk{display:flex; gap:8px; align-items:flex-start; margin:7px 0; font-size:12.8px; color:#4a6275; line-height:1.55; cursor:pointer;}
+  .chk input{flex:0 0 auto; margin-top:2px; accent-color:#e0714f; cursor:pointer;}
+
+  .pchip{display:inline-block; padding:5px 9px; margin:5px 6px 2px 0; border:1px solid #cfe2f0; border-radius:7px;
+    background:#f2f9fe; font-size:12.2px; color:#48708c; cursor:pointer;}
+  .pchip:hover{background:#e4f1fb;}
+
+  .fb{font-size:12.5px; line-height:1.65; margin-top:8px; min-height:15px; color:#8798a8;}
+  .fb.ok{color:#2e8b57;}
+  .fb.no{color:#c0392b;}
+
+  .btnrow{display:flex; gap:7px; margin-top:9px;}
+  .btnrow button{flex:1 1 auto; padding:7px 10px; border:none; border-radius:8px; background:var(--teal); color:#fff;
+    font-family:inherit; font-size:12.8px; cursor:pointer; transition:.14s;}
+  .btnrow button:hover{filter:brightness(1.07);}
+  .btnrow button.ghost{background:#edf5fc; color:#5e7183; border:1px solid #cfe2f0;}
+
+  .final{display:none; margin-top:12px; padding:12px 14px; border-radius:11px; text-align:center;
+    background:linear-gradient(120deg,#eaf5fc,#fdf4ef); border:1px dashed var(--teal);
+    font-size:15.5px; font-weight:bold; color:#b8502e; letter-spacing:.5px; line-height:1.7;}
+  .final.on{display:block;}
+
+  .toolrow{display:flex; align-items:center; gap:9px; margin-top:9px; padding:8px 12px; background:#f7fcff;
+    border:1px solid #dcebf6; border-radius:11px;}
+  .toolrow label{font-size:12.5px; color:#5d7487; flex:0 0 auto;}
+  .toolrow input[type=range]{flex:1 1 auto; min-width:0; accent-color:#4d95c4; height:4px; cursor:pointer;}
+  .toolrow button{padding:6px 12px; border:1px solid #cfe2f0; border-radius:8px; background:#edf5fc;
+    color:#5e7183; font-family:inherit; font-size:12.8px; cursor:pointer; flex:0 0 auto;}
+  .toolrow button:hover{background:#e2effa;}
+  .toolrow button.pri{background:var(--teal); color:#fff; border-color:var(--teal);}
 </style>
 </head>
 <body>
 
 <header>
   <h1>圆柱 · 圆锥 · 圆台 的表面积</h1>
-  <p>剪一剪 · 展一展 —— 侧面展开的过程里，藏着弧长与半径的关系</p>
+  <p>先动手试一试 —— 公式不用记，自己会浮出来</p>
 </header>
 
 <div class="tabs">
@@ -112,45 +194,129 @@
       <div class="stage-col">
         <div class="status" id="status"></div>
         <svg class="stage" id="stage" viewBox="0 0 1120 620"></svg>
-        <div class="hint">按住图形拖动可旋转视角 · 拖动“展开”滑块可手动控制摊平的过程</div>
-        <div class="derive" id="derive"></div>
+        <div class="toolrow">
+          <label>展开</label>
+          <input type="range" id="su" min="0" max="100" step="0.5" value="0">
+          <button class="pri" id="btnOpen">展开 ▶</button>
+          <button id="btnClose">复原</button>
+          <button id="btnView">视角</button>
+        </div>
+        <div class="hint">按住图形拖动可旋转视角</div>
       </div>
 
       <aside class="sidepanel">
-        <div class="stepcard">
-          <div class="steptitle"><span>①</span>图形参数</div>
-          <div class="row"><label>底面半径 r</label><input type="range" id="sr" min="0.8" max="5" step="0.1"><em id="vr">3.0</em></div>
-          <div class="row hide" id="rowR2"><label>上底半径 r′</label><input type="range" id="sr2" min="0.3" max="4.6" step="0.1"><em id="vr2">1.4</em></div>
-          <div class="row"><label>高 h</label><input type="range" id="shh" min="1" max="8" step="0.1"><em id="vh">5.0</em></div>
-          <div class="row calc"><label id="lbL">母线 l</label><em id="vl">5.00</em></div>
-        </div>
+        <div class="ptitle">试一试</div>
+        <div class="psub">先动手，再发现；六个任务做完，公式自己会浮出来。</div>
 
-        <div class="stepcard">
-          <div class="steptitle"><span>②</span>展开侧面</div>
-          <input type="range" id="su" class="wide" min="0" max="100" step="0.5" value="0">
-          <div class="stepbtns">
-            <button class="act" id="btnOpen">展开 ▶</button>
-            <button class="act ghost" id="btnClose">复原</button>
-            <button class="act ghost" id="btnView">视角</button>
+        <div id="tasks">
+
+          <!-- 任务一 -->
+          <div class="task open" data-id="1">
+            <div class="thead"><span class="tno">任务一</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">把“展开”滑块拖到 100%，盯住那圈红线和母线。展开过程中，什么变了？</p>
+              <div id="t1opts">
+                <button class="optbtn" data-k="a">弧长变长了，母线没变</button>
+                <button class="optbtn" data-k="b">母线变长了，弧长没变</button>
+                <button class="optbtn" data-k="c">只有形状变了，弧长和母线都没变</button>
+              </div>
+              <div class="fb" id="t1fb"></div>
+            </div>
+            <div class="tdone">已发现：展开只是把曲面拉直，弧长和母线都没变。</div>
           </div>
+
+          <!-- 任务二 -->
+          <div class="task" data-id="2">
+            <div class="thead"><span class="tno">任务二</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">圆柱已完全展开。矩形的那两条边，分别对应立体图上的什么？</p>
+              <div class="mrow"><span>矩形的长</span>
+                <select id="c1"><option value="0">请选择</option><option value="c">底面周长 2πr</option><option value="l">母线 l</option><option value="s">底面积 πr²</option></select></div>
+              <div class="mrow"><span>矩形的宽</span>
+                <select id="c2"><option value="0">请选择</option><option value="c">底面周长 2πr</option><option value="l">母线 l</option><option value="s">底面积 πr²</option></select></div>
+              <div class="btnrow"><button id="t2check">对一下</button></div>
+              <div class="fb" id="t2fb"></div>
+            </div>
+            <div class="tdone">已发现：矩形的长就是底面周长，宽就是母线（圆柱里母线等于高）。</div>
+          </div>
+
+          <!-- 任务三 -->
+          <div class="task" data-id="3">
+            <div class="thead"><span class="tno">任务三</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">换成圆锥，侧面展开成扇形（r = 3、l = 5）。把三个量对上号。</p>
+              <div class="mrow"><span>扇形的半径</span>
+                <select id="k1"><option value="0">请选择</option><option value="l">母线 l</option><option value="c">底面周长 2πr</option><option value="h">高 h</option></select></div>
+              <div class="mrow"><span>扇形的弧长</span>
+                <select id="k2"><option value="0">请选择</option><option value="l">母线 l</option><option value="c">底面周长 2πr</option><option value="h">高 h</option></select></div>
+              <div class="mrow"><span>圆心角 θ</span>
+                <select id="k3"><option value="0">请选择</option><option value="216">216°</option><option value="108">108°</option><option value="180">180°</option><option value="360">360°</option></select></div>
+              <div class="btnrow"><button id="t3check">对一下</button></div>
+              <div class="fb" id="t3fb"></div>
+            </div>
+            <div class="tdone">已发现：扇形半径 = 母线 l，弧长 = 底面周长，圆心角 θ = 360°·r/l。</div>
+          </div>
+
+          <!-- 任务四 -->
+          <div class="task" data-id="4">
+            <div class="thead"><span class="tno">任务四</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">再换成圆台（r = 4、r′ = 1、l = 5），侧面展开成扇环。三条线各是谁？</p>
+              <div class="mrow"><span>扇环的外弧</span>
+                <select id="f1"><option value="0">请选择</option><option value="c">下底周长 2πr</option><option value="t">上底周长 2πr′</option><option value="l">母线 l</option><option value="L">补全后的大扇形半径 L</option></select></div>
+              <div class="mrow"><span>扇环的内弧</span>
+                <select id="f2"><option value="0">请选择</option><option value="c">下底周长 2πr</option><option value="t">上底周长 2πr′</option><option value="l">母线 l</option><option value="L">补全后的大扇形半径 L</option></select></div>
+              <div class="mrow"><span>大扇形半径 L</span>
+                <select id="f3"><option value="0">请选择</option><option value="c">下底周长 2πr</option><option value="t">上底周长 2πr′</option><option value="l">母线 l</option><option value="L">补全后的大扇形半径 L</option></select></div>
+              <div class="btnrow"><button id="t4mcheck">对一下</button></div>
+              <div class="fb" id="t4mfb"></div>
+            </div>
+            <div class="tdone">已发现：外弧对下底周长，内弧对上底周长；L 是补全后的大扇形半径，不是母线 l。</div>
+          </div>
+
+          <!-- 任务五 -->
+          <div class="task" data-id="5">
+            <div class="thead"><span class="tno">任务五</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">这是 r = 4、r′ = 1、l = 5 的圆台展开图。下面五句话，<b>三句是错的</b>，把它们勾出来。</p>
+              <label class="chk"><input type="checkbox" data-i="1"><span>① 外弧长 = 2π×4 = 8π</span></label>
+              <label class="chk"><input type="checkbox" data-i="2"><span>② 内弧长 = 2π×1 = 2π</span></label>
+              <label class="chk"><input type="checkbox" data-i="3"><span>③ 这个展开图是一个完整的扇形</span></label>
+              <label class="chk"><input type="checkbox" data-i="4"><span>④ 母线 l 就是大扇形的半径 L</span></label>
+              <label class="chk"><input type="checkbox" data-i="5"><span>⑤ 圆心角 θ = 2πr/l = 288°</span></label>
+              <div class="btnrow"><button id="t5check">交卷</button></div>
+              <div class="fb" id="t5fb"></div>
+            </div>
+            <div class="tdone">已发现：圆台展开是扇环，不是扇形；要补成大扇形再相减，L = lr/(r−r′)，圆心角按 r−r′ 算。</div>
+          </div>
+
+          <!-- 任务六 -->
+          <div class="task" data-id="6">
+            <div class="thead"><span class="tno">任务六</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">固定 r = 4、h = 3，把 r′ 从 0 慢慢拖到 r，看扇环怎么变。</p>
+              <div class="frow2"><span>上底 r′</span><input type="range" id="sr2" min="0" max="4" step="0.05" style="padding:0;border:none;accent-color:#4d95c4;background:none"><em id="vr2">1.00</em></div>
+              <div>
+                <span class="pchip" data-v="0">r′ = 0</span>
+                <span class="pchip" data-v="2">r′ = 2</span>
+                <span class="pchip" data-v="4">r′ = r</span>
+              </div>
+              <div class="mrow"><span>r′ = 0 时</span>
+                <select id="t6a"><option value="0">扇环变成……</option><option value="s">扇形</option><option value="r">矩形</option><option value="c">圆环</option></select></div>
+              <div class="mrow"><span>r′ = r 时</span>
+                <select id="t6b"><option value="0">扇环变成……</option><option value="s">扇形</option><option value="r">矩形</option><option value="c">梯形</option></select></div>
+              <div class="btnrow"><button id="t6check">对一下</button></div>
+              <div class="fb" id="t6fb"></div>
+            </div>
+            <div class="tdone">已发现：r′ = 0 时是扇形（圆锥），r′ = r 时是矩形（圆柱）—— 三种图形是一家人。</div>
+          </div>
+
         </div>
 
-        <div class="stepcard">
-          <div class="steptitle"><span>③</span>展开图里的等量</div>
-          <div id="facts"></div>
-        </div>
+        <div class="final" id="final">S<sub>侧</sub> = ½ (C<sub>上</sub> + C<sub>下</sub>) · l　=　平均周长 × 母线</div>
       </aside>
     </div>
   </section>
-
-  <footer>
-    <div class="fcard">
-      <b>三种侧面展开图是一家人：</b>侧面积 = <b>平均周长 × 母线</b> = <span class="fml">½ (C<sub>下</sub> + C<sub>上</sub>) · l</span><br>
-      圆柱 <span class="fml">½(2πr + 2πr)·l = 2πrl</span>　｜　圆锥 <span class="fml">½(2πr + 0)·l = πrl</span>　｜　圆台 <span class="fml">½(2πr + 2πr′)·l = π(r + r′)l</span><br>
-      <b>这是不是和梯形面积公式一模一样？</b>因为圆锥就是“上底缩成 0”的圆台，圆柱就是“上底等于下底”的圆台 —— 三种展开图（扇形、扇环、矩形）本来就可以互相演变。
-      <div class="q"><b>想一想：</b>① 圆锥展开的扇形圆心角会不会超过 180°？什么时候正好是 180°？　② 圆台上底半径 r′ 一点点变大到等于 r 时，扇环怎样变成矩形？　③ 为什么圆锥侧面积里没有“2”？</div>
-    </div>
-  </footer>
 </main>
 
 <script>
@@ -233,6 +399,13 @@ function shape(){
     return {kind:"cone", r:r2, l:l2, s0:0, s1:l2*SC, Th:2*Math.PI*r2/l2, a0:Math.asin(clamp(r2/l2,-1,1))};
   }
   var rf = P.fr.r, rt = P.fr.r2, hf = P.fr.h;
+  if(rt < 0.06){                                      // 上底缩成一点：已经是圆锥
+    var lf0 = Math.hypot(hf, rf);
+    return {kind:"cone", r:rf, l:lf0, s0:0, s1:lf0*SC, Th:2*Math.PI*rf/lf0, a0:Math.asin(clamp(rf/lf0,-1,1))};
+  }
+  if(rf - rt < 0.05){                                 // 上底追平下底：已经摊成矩形
+    return {kind:"cyl", r:rf, l:hf, R:rf*SC, H:hf*SC, C:2*Math.PI*rf*SC};
+  }
   var lf = Math.hypot(hf, rf-rt);
   var L = lf*rf/(rf-rt);                              // 补全后的大圆锥母线
   return {kind:"fr", r:rf, r2:rt, l:lf, s0:(L-lf)*SC, s1:L*SC,
@@ -611,7 +784,12 @@ function overlay(sh, surf){
     if(sh.kind !== "cyl"){
       var rhoArc = (sh.kind === "cone") ? 0.24*sh.s1 : 0.62*sh.s0;
       var vArc = (rhoArc - sh.s0)/(sh.s1 - sh.s0);
+      var cen = (sh.kind === "cone") ? surf.pt(0.5, 0.0005) : [OFF[0], OFF[1], OFF[2]];
+      var e0 = surf.pt(0, vArc), e1 = surf.pt(1, vArc);
+      var qc0 = proj(cen), qc1 = proj(e0), qc2 = proj(e1);
       g += '<path d="' + poly(function(t){ return surf.pt(t, vArc); }, 60) + '" fill="none" stroke="#e0714f" stroke-width="1.6" stroke-dasharray="4 4" opacity=".8"/>';
+      g += '<path d="M' + qc1.x.toFixed(1) + ' ' + qc1.y.toFixed(1) + 'L' + qc0.x.toFixed(1) + ' ' + qc0.y.toFixed(1) +
+           'L' + qc2.x.toFixed(1) + ' ' + qc2.y.toFixed(1) + '" fill="none" stroke="rgba(224,113,79,.5)" stroke-width="1.2" stroke-dasharray="3 3"/>';
     }
     g += '</g>';
     o += g;
@@ -624,7 +802,7 @@ function numbers(){
   if(mode === "cyl"){
     var r = P.cyl.r, h = P.cyl.h, C = 2*Math.PI*r;
     var Sl = C*h, Sb = 2*Math.PI*r*r;
-    return {r:r, l:h, C:C, Sl:Sl, Sb:Sb, Stot:Sl+Sb, l2:0};
+    return {r:r, l:h, C:C, Sl:Sl, Sb:Sb, Stot:Sl+Sb, th:0};
   }
   if(mode === "cone"){
     var r2 = P.cone.r, h2 = P.cone.h, l2 = Math.hypot(r2, h2), C2 = 2*Math.PI*r2;
@@ -632,6 +810,15 @@ function numbers(){
     return {r:r2, l:l2, C:C2, Sl:Sl2, Sb:Sb2, Stot:Sl2+Sb2, th:C2/l2*180/Math.PI};
   }
   var rf = P.fr.r, rt = P.fr.r2, hf = P.fr.h;
+  if(rt < 0.06){                            // 上底缩成一点：按圆锥算
+    var lc0 = Math.hypot(hf, rf), Cc0 = 2*Math.PI*rf;
+    var Sl0 = Math.PI*rf*lc0, Sb0 = Math.PI*rf*rf;
+    return {r:rf, r2:rt, l:lc0, C:Cc0, C2:0, Sl:Sl0, Sb:Sb0, Stot:Sl0+Sb0, th:Cc0/lc0*180/Math.PI};
+  }
+  if(rf - rt < 0.05){                       // 上底追平下底：已经摊成矩形
+    var Cc = 2*Math.PI*rf, Slc = Cc*hf, Sbc = 2*Math.PI*rf*rf;
+    return {r:rf, r2:rt, l:hf, C:Cc, C2:2*Math.PI*rt, Sl:Slc, Sb:Sbc, Stot:Slc+Sbc, th:0};
+  }
   var lf = Math.hypot(hf, rf-rt), Cf = 2*Math.PI*rf, Ct = 2*Math.PI*rt;
   var Slf = Math.PI*(rf+rt)*lf, Sbf = Math.PI*(rf*rf + rt*rt);
   var L = lf*rf/(rf-rt);
@@ -639,123 +826,226 @@ function numbers(){
           th:2*Math.PI*(rf-rt)/lf*180/Math.PI, L:L, Lin:L-lf};
 }
 
-/* ==================== 文字面板 ==================== */
+/* ==================== 界面与任务 ==================== */
 var statusEl = document.getElementById("status");
-var factsEl = document.getElementById("facts");
-var deriveEl = document.getElementById("derive");
+var suEl     = document.getElementById("su");
+var sr2El    = document.getElementById("sr2");
+var vr2El    = document.getElementById("vr2");
 
-function updateText(){
-  var N = numbers();
-  var who = {cyl:"圆柱", cone:"圆锥", fr:"圆台"}[mode];
+var curTask = 1;
+var doneArr = [false, false, false, false, false, false];
+var NTASK = 6;
 
-  /* 状态 */
-  var st;
-  if(s < 0.02){
-    st = "「" + who + "」的完整立体 —— <em>红色曲线是底面圆周</em>，它的长度就是底面周长，先记住这圈红色。";
-  } else if(s < 0.96){
-    st = "剪开一条母线，侧面正在摊平…… 请注意：<em>那圈红色始终是同一圈红线</em>，它被拉直了，但长度一点没变。";
-  } else {
-    if(mode === "cyl") st = "展开完成：侧面变成<em>矩形</em> —— 长 = 底面周长 2πr，宽 = 高 l，所以 S<sub>侧</sub> = 2πr·l。";
-    else if(mode === "cone") st = "展开完成：侧面变成<em>扇形</em> —— 半径 = 母线 l，弧长 = 底面周长 2πr，所以 S<sub>侧</sub> = ½·2πr·l = πrl。";
-    else st = "展开完成：侧面变成<em>扇环</em> —— 外弧 2πr、内弧 2πr′，所以 S<sub>侧</sub> = ½(2πr + 2πr′)·l = π(r+r′)l。";
+function q(sel){ return document.querySelector(sel); }
+function setStatus(t){ statusEl.innerHTML = t; }
+
+function setMode(m){
+  mode = m;
+  var tabs = document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].className = (tabs[i].getAttribute("data-mode") === m) ? "tab active" : "tab";
   }
-  statusEl.innerHTML = st;
-
-  /* 等量关系 */
-  var f = "";
-  if(mode === "cyl"){
-    f += '<div class="frow"><span>底面周长 C</span><b>' + fmt(N.C) + '</b></div>';
-    f += '<div class="frow key"><span>矩形的长 = C</span><b>' + fmt(N.C) + '</b></div>';
-    f += '<div class="frow"><span>矩形的宽 = l</span><b>' + fmt(N.l) + '</b></div>';
-    f += '<div class="frow key"><span>高 l = h</span><b>' + fmt(N.l) + '</b></div>';
-  } else if(mode === "cone"){
-    f += '<div class="frow"><span>底面周长 C</span><b>' + fmt(N.C) + '</b></div>';
-    f += '<div class="frow key"><span>扇形弧长 = C</span><b>' + fmt(N.C) + '</b></div>';
-    f += '<div class="frow key"><span>扇形半径 = 母线 l</span><b>' + fmt(N.l) + '</b></div>';
-    f += '<div class="frow"><span>圆心角 θ = 2πr / l</span><b>' + N.th.toFixed(1) + '°</b></div>';
-  } else {
-    f += '<div class="frow"><span>外弧 = 2πr</span><b>' + fmt(N.C) + '</b></div>';
-    f += '<div class="frow"><span>内弧 = 2πr′</span><b>' + fmt(N.C2) + '</b></div>';
-    f += '<div class="frow"><span>圆心角 θ</span><b>' + N.th.toFixed(1) + '°</b></div>';
-    f += '<div class="frow"><span>大扇形母线 L</span><b>' + fmt(N.L) + '</b></div>';
-    f += '<div class="frow key"><span>母线 l = L − (L−l)</span><b>' + fmt(N.l) + '</b></div>';
-  }
-  factsEl.innerHTML = f;
-
-  /* 推导 */
-  var d = "";
-  if(mode === "cyl"){
-    d += '<div class="dline"><span class="tag2">矩形</span>长 = 底面周长 = 2πr = <b>' + fmt(N.C) + '</b>　宽 = 高 = l = <b>' + fmt(N.l) + '</b></div>';
-    d += '<div class="dline">S<sub>侧</sub> = 长 × 宽 = 2πr·l = <b>' + fmt(N.Sl) + '</b></div>';
-    d += '<div class="dline">S<sub>底</sub> = 2πr² = <b>' + fmt(N.Sb) + '</b>　（上下两个圆）</div>';
-    d += '<div class="dline hl">S<sub>表</sub> = S<sub>侧</sub> + 2πr² = 2πr(r + l) = <b>' + fmt(N.Stot) + '</b></div>';
-  } else if(mode === "cone"){
-    d += '<div class="dline"><span class="tag2">扇形</span>半径 = 母线 l = <b>' + fmt(N.l) + '</b>　弧长 = 底面周长 = 2πr = <b>' + fmt(N.C) + '</b></div>';
-    d += '<div class="dline">圆心角 θ = 弧长 ÷ 半径 = 2πr / l = <b>' + N.th.toFixed(1) + '°</b></div>';
-    d += '<div class="dline">S<sub>侧</sub> = ½ × 弧长 × 半径 = ½ × 2πr × l = πrl = <b>' + fmt(N.Sl) + '</b></div>';
-    d += '<div class="dline">S<sub>底</sub> = πr² = <b>' + fmt(N.Sb) + '</b></div>';
-    d += '<div class="dline hl">S<sub>表</sub> = πrl + πr² = πr(r + l) = <b>' + fmt(N.Stot) + '</b></div>';
-  } else {
-    d += '<div class="dline"><span class="tag2">扇环</span>外弧 = 2πr = <b>' + fmt(N.C) + '</b>　内弧 = 2πr′ = <b>' + fmt(N.C2) + '</b>　圆心角 θ = <b>' + N.th.toFixed(1) + '°</b></div>';
-    d += '<div class="dline">补成大扇形：L = l·r /(r − r′) = <b>' + fmt(N.L) + '</b>，小扇形半径 L − l = <b>' + fmt(N.Lin) + '</b></div>';
-    d += '<div class="dline">S<sub>侧</sub> = ½·2πr·L − ½·2πr′·(L − l) = π(r + r′)·l = <b>' + fmt(N.Sl) + '</b></div>';
-    d += '<div class="dline">S<sub>底</sub> = πr² + πr′² = <b>' + fmt(N.Sb) + '</b></div>';
-    d += '<div class="dline hl">S<sub>表</sub> = π(r² + r′²) + π(r + r′)l = <b>' + fmt(N.Stot) + '</b></div>';
-  }
-  deriveEl.innerHTML = d;
 }
 
-/* ==================== 交互 ==================== */
-var srEl = document.getElementById("sr"), sr2El = document.getElementById("sr2"), shEl = document.getElementById("shh");
-var vrEl = document.getElementById("vr"), vr2El = document.getElementById("vr2"), vhEl = document.getElementById("vh"), vlEl = document.getElementById("vl");
-var suEl = document.getElementById("su"), rowR2 = document.getElementById("rowR2");
+function syncR2(){
+  if(mode === "fr"){
+    sr2El.max = P.fr.r;
+    sr2El.value = P.fr.r2;
+    vr2El.textContent = P.fr.r2.toFixed(2);
+  }
+}
 
-function syncInputs(){
-  var p = (mode === "cyl") ? P.cyl : (mode === "cone" ? P.cone : P.fr);
-  srEl.value = p.r;
-  shEl.value = p.h;
-  sr2El.value = (mode === "fr") ? p.r2 : 1.4;
-  vrEl.textContent = p.r.toFixed(1);
-  vhEl.textContent = p.h.toFixed(1);
-  vr2El.textContent = (mode === "fr" ? p.r2 : 1.4).toFixed(1);
-  sr2El.max = Math.max(0.4, (p.r - 0.6)).toFixed(1);
-  rowR2.className = (mode === "fr") ? "row" : "row hide";
-  var N = numbers();
-  vlEl.textContent = fmt(N.l);
+function taskStatus(){
+  if(curTask === 1){
+    if(s < 0.02)      setStatus("还没拆开：<em>红色曲线</em>是底面圆周，它的长度就是底面周长。");
+    else if(s < 0.98) setStatus("正在摊平（" + Math.round(s*100) + "%）—— 盯住红线，它被拉长了没有？");
+    else              setStatus("完全展开：红线被拉直了，再量一量那条母线。");
+  } else if(curTask === 2){
+    setStatus("圆柱已完全展开：矩形就摆在眼前，它的长和宽各是什么？");
+  } else if(curTask === 3){
+    setStatus("换到圆锥：侧面成了扇形，半径、弧长、圆心角都能在标注上读到。");
+  } else if(curTask === 4){
+    setStatus("换到圆台：侧面成了扇环，两条弧和那个大扇形的中心，先认清再对号。");
+  } else if(curTask === 5){
+    setStatus("圆台已完全展开：图上标着外弧、内弧、L 和圆心角，逐句核对。");
+  } else if(curTask === 6){
+    setStatus("两条弧正在分开或靠拢 —— 拖 r′，看这个扇环最后会变成什么。");
+  }
+}
+
+function goScene(n){
+  curTask = n;
+  if(n === 1){ setMode("cyl");  P.cyl.r = 3;  P.cyl.h = 5;  s = 0; }
+  else if(n === 2){ setMode("cyl");  P.cyl.r = 3;  P.cyl.h = 5;  s = 1; }
+  else if(n === 3){ setMode("cone"); P.cone.r = 3; P.cone.h = 4; s = 1; }
+  else if(n === 4){ setMode("fr");  P.fr.r = 4; P.fr.r2 = 1; P.fr.h = 4; s = 1; }
+  else if(n === 5){ setMode("fr");  P.fr.r = 4; P.fr.r2 = 1; P.fr.h = 4; s = 1; }
+  else if(n === 6){ setMode("fr");  P.fr.r = 4; P.fr.r2 = 1; P.fr.h = 3; s = 1; }
   suEl.value = (s*100).toFixed(0);
-  document.getElementById("lbL").textContent = (mode === "cyl") ? "母线 l = h" : "母线 l";
+  syncR2();
+  camBase.az = 1.15; camBase.ph = 0.42;
+  taskStatus();
+  dirty = true;
 }
 
-function refresh(){ updateText(); syncInputs(); dirty = true; }
+function activate(n){
+  var card = document.querySelector('.task[data-id="' + n + '"]');
+  if(!card) return;
+  var all = document.querySelectorAll(".task");
+  for(var i=0;i<all.length;i++) all[i].classList.remove("open");
+  card.classList.add("open");
+  goScene(n);
+}
 
-srEl.addEventListener("input", function(){
-  var v = parseFloat(srEl.value);
-  if(mode === "cyl") P.cyl.r = v;
-  else if(mode === "cone") P.cone.r = v;
-  else { P.fr.r = v; if(P.fr.r2 > v - 0.6) P.fr.r2 = Math.max(0.3, v - 0.6); }
-  refresh();
+function complete(n, text){
+  var wasDone = doneArr[n-1];
+  doneArr[n-1] = true;
+  var card = document.querySelector('.task[data-id="' + n + '"]');
+  card.classList.remove("open");
+  card.classList.add("done");
+  card.querySelector(".tdone").textContent = "已发现：" + text;
+  card.querySelector(".tick").textContent = "✓";
+
+  var allDone = true, next = 0;
+  for(var i=n; i<NTASK; i++){
+    if(!doneArr[i]){ next = i+1; break; }
+  }
+  for(var j=0;j<NTASK;j++){ if(!doneArr[j]) allDone = false; }
+  if(allDone){
+    q("#final").classList.add("on");
+    setStatus("六个任务做完了 —— 三种旋转体的侧面积，其实是同一条：<em>平均周长 × 母线</em>。");
+  } else if(!wasDone && next){
+    activate(next);          // 只往后顺延，不往回跳
+  }
+}
+
+/* ---------------- 任务一：判断 ---------------- */
+q("#t1opts").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest(".optbtn") : null;
+  if(!b) return;
+  var fb = q("#t1fb");
+  if(b.getAttribute("data-k") === "c"){
+    b.classList.add("ok");
+    fb.className = "fb ok";
+    fb.textContent = "对。展开只是把曲面拉直：那条弧还是那条弧，母线还是那条母线。";
+    complete(1, "展开只是把曲面拉直，弧长和母线都没变。");
+  } else {
+    b.classList.add("no");
+    fb.className = "fb no";
+    fb.textContent = "再拖一次看看：红线是底面圆周，摊平后它究竟是变长了，还是只是被拉直了？";
+    setTimeout(function(){ b.classList.remove("no"); }, 1200);
+  }
 });
+
+/* ---------------- 选择型任务的通用校验 ---------------- */
+function checkSelects(n, pairs, fbId, okText, okDone, badText){
+  var allOk = true;
+  for(var i=0;i<pairs.length;i++){
+    var sel = document.getElementById(pairs[i][0]);
+    var row = sel.parentNode;
+    if(sel.value === pairs[i][1]){
+      row.style.background = "#eefaf3"; row.style.borderRadius = "8px";
+    } else {
+      row.style.background = "#fdf0ec"; row.style.borderRadius = "8px";
+      allOk = false;
+    }
+  }
+  var fb = q(fbId);
+  if(allOk){
+    fb.className = "fb ok";
+    fb.textContent = okText;
+    complete(n, okDone);
+  } else {
+    fb.className = "fb no";
+    fb.textContent = badText;
+  }
+}
+
+/* ---------------- 任务二：圆柱 ---------------- */
+q("#t2check").addEventListener("click", function(){
+  checkSelects(2, [["c1","c"], ["c2","l"]], "#t2fb",
+    "两处都对：长 = 底面周长，宽 = 母线。",
+    "矩形的长就是底面周长，宽就是母线（圆柱里母线等于高）。",
+    "标红的再想想：贴着上下底的那条边，是绕圆一圈的长度；另一条是直上直下的那条。");
+});
+
+/* ---------------- 任务三：圆锥 ---------------- */
+q("#t3check").addEventListener("click", function(){
+  checkSelects(3, [["k1","l"], ["k2","c"], ["k3","216"]], "#t3fb",
+    "三处都对：半径 = 母线 5，弧长 = 2πr ≈ 18.85，圆心角 = 216°。",
+    "扇形半径 = 母线 l，弧长 = 底面周长，圆心角 θ = 360°·r/l。",
+    "标红的再想想：从哪里量到哪里的那条叫半径？弧的长度原本贴在哪一圈上？");
+});
+
+/* ---------------- 任务四：圆台 ---------------- */
+q("#t4mcheck").addEventListener("click", function(){
+  checkSelects(4, [["f1","c"], ["f2","t"], ["f3","L"]], "#t4mfb",
+    "三处都对：外弧对下底，内弧对上底，L 是大扇形补全后的半径。",
+    "外弧对下底周长，内弧对上底周长；L 是补全后的大扇形半径，不是母线 l。",
+    "标红的再想想：外弧是外面那个大圆摊平的，内弧是上面那个小圆摊平的；L 比母线 l 长。");
+});
+
+/* ---------------- 任务五：挑错 ---------------- */
+q("#t5check").addEventListener("click", function(){
+  var boxes = document.querySelectorAll("#tasks .task[data-id='5'] .chk input");
+  var pickedWrong = [], need = [3, 4, 5], ok = true;
+  for(var i=0;i<boxes.length;i++){
+    if(boxes[i].checked) pickedWrong.push(parseInt(boxes[i].getAttribute("data-i"), 10));
+  }
+  if(pickedWrong.length !== 3) ok = false;
+  for(var j=0;j<need.length;j++){ if(pickedWrong.indexOf(need[j]) < 0) ok = false; }
+  var fb = q("#t5fb");
+  if(ok){
+    fb.className = "fb ok";
+    fb.textContent = "三处都挑中了：③扇环不是完整扇形；④L ≠ l；⑤圆心角要用 r−r′，是 216° 不是 288°。";
+    complete(5, "圆台展开是扇环，不是扇形；要补成大扇形再相减，L = lr/(r−r′)，圆心角按 r−r′ 算。");
+  } else {
+    fb.className = "fb no";
+    fb.textContent = "再核对：外弧 8π、内弧 2π 都是对的；错的三句都藏在“扇形”“半径 L”“圆心角”上。";
+  }
+});
+
+/* ---------------- 任务六：推到极端 ---------------- */
 sr2El.addEventListener("input", function(){
   if(mode !== "fr") return;
-  var v = parseFloat(sr2El.value);
-  P.fr.r2 = Math.min(v, P.fr.r - 0.6);
-  refresh();
-});
-shEl.addEventListener("input", function(){
-  var v = parseFloat(shEl.value);
-  if(mode === "cyl") P.cyl.h = v;
-  else if(mode === "cone") P.cone.h = v;
-  else P.fr.h = v;
-  refresh();
-});
-suEl.addEventListener("input", function(){
-  cancelAnim();
-  s = parseFloat(suEl.value)/100;
-  updateText();
+  P.fr.r2 = parseFloat(sr2El.value);
+  vr2El.textContent = P.fr.r2.toFixed(2);
   dirty = true;
 });
+var pchips = document.querySelectorAll("#tasks .task[data-id='6'] .pchip");
+for(var pi=0; pi<pchips.length; pi++){
+  pchips[pi].addEventListener("click", function(){
+    P.fr.r2 = parseFloat(this.getAttribute("data-v"));
+    sr2El.value = P.fr.r2;
+    vr2El.textContent = P.fr.r2.toFixed(2);
+    dirty = true;
+  });
+}
+q("#t6check").addEventListener("click", function(){
+  var a = q("#t6a").value, b = q("#t6b").value;
+  var fb = q("#t6fb");
+  if(a === "s" && b === "r"){
+    fb.className = "fb ok";
+    fb.textContent = "对：r′ = 0 时上底缩成一点，是扇形；r′ = r 时两弧重合，是矩形。";
+    complete(6, "r′ = 0 时是扇形（圆锥），r′ = r 时是矩形（圆柱）—— 三种图形是一家人。");
+  } else {
+    fb.className = "fb no";
+    fb.textContent = "把 r′ 拖到两端再各看一眼：一端只剩一个顶点，一端两条弧一样长。";
+  }
+});
 
-/* 展开动画 */
+/* ---------------- 卡片点击 ---------------- */
+var taskCards = document.querySelectorAll(".task");
+for(var ci=0; ci<taskCards.length; ci++){
+  taskCards[ci].querySelector(".thead").addEventListener("click", function(){
+    var id = parseInt(this.parentNode.getAttribute("data-id"), 10);
+    var card = this.parentNode;
+    if(card.classList.contains("open")){ card.classList.remove("open"); return; }
+    activate(id);
+  });
+}
+
+/* ---------------- 展开控制 ---------------- */
 var animId = null;
 function cancelAnim(){ if(animId){ cancelAnimationFrame(animId); animId = null; } }
 function animateTo(target, dur){
@@ -765,16 +1055,22 @@ function animateTo(target, dur){
     var p = Math.min(1, (t - t0)/dur);
     s = s0 + (target - s0)*easeIO(p);
     suEl.value = (s*100).toFixed(0);
-    updateText();
+    taskStatus();
     dirty = true;
     if(p < 1) animId = requestAnimationFrame(step); else animId = null;
   })(performance.now());
 }
-/* 展开/复原时长（毫秒）：放慢，便于课堂边看边讲 */
-var DUR_OPEN = 3600, DUR_CLOSE = 3000;
+var DUR_OPEN = 3200, DUR_CLOSE = 2600;
 document.getElementById("btnOpen").addEventListener("click", function(){ animateTo(1, DUR_OPEN); });
 document.getElementById("btnClose").addEventListener("click", function(){ animateTo(0, DUR_CLOSE); });
 document.getElementById("btnView").addEventListener("click", function(){ camBase.az = 1.15; camBase.ph = 0.42; dirty = true; });
+
+suEl.addEventListener("input", function(){
+  cancelAnim();
+  s = parseFloat(suEl.value)/100;
+  taskStatus();
+  dirty = true;
+});
 
 /* 拖动旋转 */
 var drag = null;
@@ -793,14 +1089,12 @@ svg.addEventListener("pointercancel", function(){ drag = null; });
 
 /* 切换图形 */
 var tabs = document.querySelectorAll(".tab");
-for(var i=0;i<tabs.length;i++){
-  tabs[i].addEventListener("click", function(){
-    for(var j=0;j<tabs.length;j++) tabs[j].className = "tab";
-    this.className = "tab active";
-    mode = this.getAttribute("data-mode");
-    s = 0; camBase.az = 1.15; camBase.ph = 0.42;
-    cancelAnim();
-    refresh();
+for(var ti=0;ti<tabs.length;ti++){
+  tabs[ti].addEventListener("click", function(){
+    setMode(this.getAttribute("data-mode"));
+    syncR2();
+    if(curTask >= 2 && curTask <= 4) taskStatus();
+    dirty = true;
   });
 }
 
@@ -812,9 +1106,9 @@ function loop(){
 }
 
 /* 启动 */
-refresh();
+goScene(1);
 draw();
-dCur = dTgt;                 // 首帧直接就位，避免开场缩放
+dCur = dTgt;
 dirty = true;
 requestAnimationFrame(loop);
 
@@ -822,3 +1116,4 @@ requestAnimationFrame(loop);
 </script>
 </body>
 </html>
+<!-- （注：内容由AI生成） -->

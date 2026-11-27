@@ -48,7 +48,14 @@
   .tabs button:hover{color:var(--ink);background:rgba(255,255,255,.7)}
   .tabs button.on{background:#fff;color:var(--brand);box-shadow:0 2px 8px rgba(76,90,232,.16)}
 
-  main#stage{position:relative;overflow:hidden;background:radial-gradient(120% 100% at 45% -12%,#FFFFFF 0%,#FAFBFE 42%,#E7ECF6 100%)}
+  main#stage{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(560px 420px at 82% 14%, rgba(126,104,200,.075), transparent 62%),
+      radial-gradient(640px 480px at 12% 86%, rgba(242,113,92,.065), transparent 62%),
+      radial-gradient(500px 380px at 62% 78%, rgba(46,175,159,.055), transparent 62%),
+      radial-gradient(120% 100% at 45% -12%,#FFFFFF 0%,#FAFBFE 42%,#E7ECF6 100%);
+  }
   #host{position:absolute;inset:0;z-index:1}
   #host canvas{display:block;width:100%;height:100%;touch-action:none}
   .overlay{position:absolute;z-index:3;pointer-events:none}
@@ -209,14 +216,14 @@
 
 <div id="boot"><div>
   <h2>3D 引擎加载失败</h2>
-  <p>本页面需要联网加载 Three.js 图形库。<br>请检查网络后刷新页面；若在无网络的教室环境，可提前联网打开一次以缓存资源。</p>
+  <p>本页面使用仓库内置的 Three.js 图形库。若加载失败，请检查本地资源文件是否完整后刷新页面。</p>
 </div></div>
 
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    "three": "/visual-classroom/vendor/three/0.160.0/build/three.module.js",
+    "three/addons/": "/visual-classroom/vendor/three/0.160.0/examples/jsm/"
   }
 }
 </script>
@@ -235,7 +242,7 @@ const D2R = Math.PI / 180, R2D = 180 / Math.PI;
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const C = {
-  line: 0x3E6BC8, line2: 0x8B7BE0, ink: 0x2C3E6B,
+  line: 0x2E62D9, line2: 0x8156E8, ink: 0x33415E,
   orange: 0xF2715C, teal: 0x2BAF9F, purple: 0x7E6BF2,
   amber: 0xE5A03A, green: 0x1EA982, grey: 0xB7C3D4, accent: 0x4361EE
 };
@@ -293,7 +300,7 @@ function makeGridTexture() {
   cv.width = cv.height = S;
   const g2 = cv.getContext('2d');
   const N = 24;
-  g2.strokeStyle = 'rgba(92,110,136,.26)';
+  g2.strokeStyle = 'rgba(110,130,158,.22)';
   g2.lineWidth = 1.7;
   for (let i = 0; i <= N; i++) {
     const p = Math.round(i * S / N) + 0.5;
@@ -344,21 +351,72 @@ function segment(a, b, o) {
   const color = o.color !== undefined ? o.color : C.line;
   const dir = new THREE.Vector3().subVectors(b, a);
   const len = dir.length();
-  if (len < 1e-6) return new THREE.Group();
-  const geo = new THREE.CylinderGeometry(r, r, len, 18, 1);
-  const m = new THREE.Mesh(geo, std(color, o.opacity !== undefined ? { transparent: true, opacity: o.opacity } : null));
+  const grp = new THREE.Group();
+  if (len < 1e-6) return grp;
+  const geo = new THREE.CylinderGeometry(r, r, len, 20, 1);
+  // 顶点色渐变：以图形中心为"发光点"——越靠近中心越亮，向外渐深，
+  // 棍子有光泽感的同时，视觉重心自然落在交点上
+  const c1 = new THREE.Color(color);
+  const c2 = c1.clone().offsetHSL(0.015, 0.06, 0.13);
+  const pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
+  const tmp = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) {
+    const s = pos.getY(i) + len / 2;
+    const wx = a.x + (b.x - a.x) * s / len;
+    const wz = a.z + (b.z - a.z) * s / len;
+    const t = Math.min(1, Math.hypot(wx, wz) / 5.5);
+    tmp.copy(c2).lerp(c1, t);
+    colors[i * 3] = tmp.r; colors[i * 3 + 1] = tmp.g; colors[i * 3 + 2] = tmp.b;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const hasOp = o.opacity !== undefined;
+  const mat = new THREE.MeshStandardMaterial({
+    vertexColors: true, roughness: 0.32, metalness: 0.12,
+    transparent: hasOp, opacity: hasOp ? o.opacity : 1
+  });
+  const m = new THREE.Mesh(geo, mat);
   m.position.copy(a).add(b).multiplyScalar(0.5);
   m.quaternion.setFromUnitVectors(V(0, 1, 0), dir.normalize());
   m.castShadow = o.shadow !== false;
-  return m;
+  grp.add(m);
+  // 圆头端帽：两端圆润收口，颜色与该端的渐变色一致
+  const capGeo = new THREE.SphereGeometry(r * 1.12, 14, 12);
+  const capMats = [-len / 2, len / 2].map(y => {
+    const s = y + len / 2;
+    const wx = a.x + (b.x - a.x) * s / len;
+    const wz = a.z + (b.z - a.z) * s / len;
+    const t = Math.min(1, Math.hypot(wx, wz) / 5.5);
+    return new THREE.MeshStandardMaterial({
+      color: c2.clone().lerp(c1, t), roughness: 0.32, metalness: 0.12,
+      transparent: hasOp, opacity: hasOp ? o.opacity : 1
+    });
+  });
+  [-len / 2, len / 2].forEach((y, i) => {
+    const cap = new THREE.Mesh(capGeo, capMats[i]);
+    cap.position.y = y;
+    cap.castShadow = o.shadow !== false;
+    m.add(cap);
+  });
+  return grp;
 }
 
 function dot(p, o) {
   o = o || {};
-  const m = new THREE.Mesh(new THREE.SphereGeometry(o.r || 0.085, 20, 16), std(o.color !== undefined ? o.color : C.accent, { roughness: 0.35 }));
+  const grp = new THREE.Group();
+  const r = o.r || 0.085;
+  // 白色光晕底衬：让点像课本里"描了白边"的重点标记，更精致醒目
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(r * 1.42, 20, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, depthWrite: false })
+  );
+  halo.position.copy(p);
+  grp.add(halo);
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 16), std(o.color !== undefined ? o.color : C.accent, { roughness: 0.32, metalness: 0.08 }));
   m.position.copy(p);
   m.castShadow = true;
-  return m;
+  grp.add(m);
+  return grp;
 }
 
 /* 可拖拽手柄（不可见但可被射线拾取） */
@@ -511,8 +569,18 @@ function arcTube(vertex, a1, d, radius, color, r) {
     pts.push(new THREE.Vector3(vertex.x + Math.cos(t) * radius, vertex.y + 0.008, vertex.z + Math.sin(t) * radius));
   }
   const curve = new THREE.CatmullRomCurve3(pts);
-  const geo = new THREE.TubeGeometry(curve, 56, r || 0.022, 8, false);
-  return new THREE.Mesh(geo, std(color, { roughness: 0.4 }));
+  const grp = new THREE.Group();
+  // 白色衬边 + 彩色弧线：课本"描边重点"的效果，精致醒目
+  const under = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 56, (r || 0.022) * 2.0, 8, false),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, depthWrite: false })
+  );
+  grp.add(under);
+  grp.add(new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 56, r || 0.022, 8, false),
+    std(color, { roughness: 0.4 })
+  ));
+  return grp;
 }
 
 /* 环形扇面（用于同一顶点叠放多种关系） */
@@ -609,11 +677,11 @@ function buildM1() {
 
   world.add(dot(V(0, Y, 0), { r: 0.115, color: C.ink }));
 
-  const lA = mkLabel('A', { size: 0.62, bg: null, color: '#2F58AF' }).pos(-L - 0.45, 0.42, 0);
-  const lB = mkLabel('B', { size: 0.62, bg: null, color: '#2F58AF' }).pos(L + 0.45, 0.42, 0);
-  const lC = mkLabel('C', { size: 0.62, bg: null, color: '#6F5DD1' });
-  const lD = mkLabel('D', { size: 0.62, bg: null, color: '#6F5DD1' });
-  const lO = mkLabel('O', { size: 0.58, bg: null, color: '#22345C' }).pos(0, 0.72, 0);
+  const lA = mkLabel('A', { size: 0.62, bg: null, color: '#2E5BC8' }).pos(-L - 0.45, 0.42, 0);
+  const lB = mkLabel('B', { size: 0.62, bg: null, color: '#2E5BC8' }).pos(L + 0.45, 0.42, 0);
+  const lC = mkLabel('C', { size: 0.62, bg: null, color: '#6D45C8' });
+  const lD = mkLabel('D', { size: 0.62, bg: null, color: '#6D45C8' });
+  const lO = mkLabel('O', { size: 0.58, bg: null, color: '#33415E' }).pos(0, 0.72, 0);
   cdg.add(lC.sprite, lD.sprite);
   world.add(lA.sprite, lB.sprite, lO.sprite);
 
@@ -621,7 +689,7 @@ function buildM1() {
   const hC = makeHandle(cdg, 0.42, p => onDragPoint(p));
   const hD = makeHandle(cdg, 0.42, p => onDragPoint(p));
   const ringC = new THREE.Mesh(new THREE.RingGeometry(0.2, 0.3, 32),
-    basic(0x3a6aa6, { transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false }));
+    basic(0x8156E8, { transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false }));
   const ringD = ringC.clone();
   ringC.rotation.x = -Math.PI / 2; ringD.rotation.x = -Math.PI / 2;
   cdg.add(hC, hD, ringC, ringD);
@@ -754,7 +822,7 @@ function buildM2() {
   world.add(segment(V(-L, Y, 0), V(L, Y, 0), { r: 0.06, color: C.line }));
   world.add(dot(V(-L, Y, 0), { r: 0.065, color: C.line }));
   world.add(dot(V(L, Y, 0), { r: 0.065, color: C.line }));
-  const lLine = mkLabel('l', { size: 0.62, bg: null, color: '#2F58AF' }).pos(L + 0.42, 0.4, 0);
+  const lLine = mkLabel('l', { size: 0.62, bg: null, color: '#2E5BC8' }).pos(L + 0.42, 0.4, 0);
   world.add(lLine.sprite);
 
   const dyn = new THREE.Group();
@@ -770,7 +838,10 @@ function buildM2() {
   const lPQ = mkLabel('', { size: 0.56, color: '#0E8F82' });
   const lAl = mkLabel('', { size: 0.58, color: '#5B45D6' });
   const lUniq = mkLabel('', { size: 0.55, color: '#0E8F82' });
-  world.add(lP.sprite, lH.sprite, lQ.sprite, lM.sprite, lN.sprite, lPH.sprite, lPQ.sprite, lAl.sprite, lUniq.sprite);
+  // 证明用的两条"灰色对照线"的夹角标签
+  const lG1 = mkLabel('', { size: 0.5, color: '#8FA0B8' });
+  const lG2 = mkLabel('', { size: 0.5, color: '#8FA0B8' });
+  world.add(lP.sprite, lH.sprite, lQ.sprite, lM.sprite, lN.sprite, lPH.sprite, lPQ.sprite, lAl.sprite, lUniq.sprite, lG1.sprite, lG2.sprite);
 
   const ringP = new THREE.Mesh(new THREE.RingGeometry(0.19, 0.27, 32),
     basic(C.orange, { transparent: true, opacity: 0.34, side: THREE.DoubleSide, depthWrite: false }));
@@ -845,13 +916,34 @@ function buildM2() {
       }
 
       if (isPerp) {
-        lUniq.set('α = 90°，与 l 垂直 —— 这样的直线只有 1 条').pos(P.x, 1.35, P.z + 0.15);
+        // 证明演示：旁边画两条灰色对照线（90°±25°），它们的夹角都不是 90° —— 其他方向都不垂直
+        [st.alpha - 25, st.alpha + 25].forEach((ga, gi) => {
+          const ag = ga * D2R;
+          const eg = V(Math.cos(ag), 0, Math.sin(ag));
+          if (Math.abs(eg.z) < 0.05) return;
+          const tG = -P.z / eg.z;
+          const XG = V(P.x + tG * eg.x, Y, 0);
+          const half = 2.3;
+          dyn.add(segment(P.clone().addScaledVector(eg, -half), P.clone().addScaledVector(eg, half),
+            { r: 0.02, color: 0xA9B6CC, shadow: false, opacity: 0.85 }));
+          if (Math.abs(XG.x) < L - 0.2) {
+            const arcG = sector(XG, V(1, 0, 0), eg, 0.72, 0xA9B6CC, 0.14);
+            dyn.add(arcG);
+            dyn.add(arcTube(XG, arcG.userData.a1, arcG.userData.d, 0.72, 0xA9B6CC, 0.018));
+            dyn.add(dot(XG, { r: 0.05, color: 0xA9B6CC }));
+            const bpG = bisectorPos(XG, V(1, 0, 0), eg, 0.52, Y + 0.36);
+            (gi === 0 ? lG1 : lG2).set(Math.round(ga) + '°').pos(bpG.x, bpG.y, bpG.z);
+          }
+        });
+        lUniq.set('两旁 65°、115° 都 ≠ 90° ⇒ 垂直的只有这 1 条').pos(P.x + 0.42, 1.3, P.z + 0.92);
         lUniq.show(true);
       } else {
+        lG1.show(false); lG2.show(false);
         lUniq.show(false);
       }
     } else {
       lAl.show(false);
+      lG1.show(false); lG2.show(false);
       lUniq.show(false);
     }
 
@@ -925,8 +1017,20 @@ function buildM2() {
           <input type="range" id="m2-ar" min="55" max="125" step="1" value="60">
         </div>
         <button class="btn" id="m2-sweep">自动扫描</button>
+        <button class="btn ghost" id="m2-to90" style="margin-top:8px">转到 α = 90° 看垂线</button>
       </div>
       <div class="rule second" id="m2-uniq" style="margin-top:11px">过直线外一点 P，有且只有 <b>1</b> 条直线与 l 垂直（α = 90°）。</div>
+    </section>
+
+    <section class="card note">
+      <h3>为什么只有一条？<span class="sub">说理过程</span></h3>
+      <div class="rule" style="margin-top:2px">
+        <b>①</b> P 不在 l 上，过 P 的任何直线都与 l 相交，设夹角为 α（0° &lt; α &lt; 180°）；<br>
+        <b>②</b> 这条直线与 l 垂直，当且仅当 α = 90°；<br>
+        <b>③</b> 直线绕 P 转动时，α 连续地变大——先经过锐角，再经过 90°，最后是钝角，<b>90° 只出现一次</b>；<br>
+        <b>④</b> 所以过 P 与 l 垂直的直线<b>有且只有一条</b>。
+      </div>
+      <div class="tip">点上方「转到 α = 90°」，注意两旁出现的灰色直线：65°、115° 都不是 90°，都不垂直——这就是"只有一条"的道理。</div>
     </section>
   `;
 
@@ -1022,6 +1126,14 @@ function buildM2() {
     eSweep.classList.toggle('on', st.sweeping);
     eSweep.textContent = st.sweeping ? '暂停扫描' : '自动扫描';
   };
+  panel.querySelector('#m2-to90').onclick = () => {
+    st.sweeping = false;
+    eSweep.classList.remove('on');
+    eSweep.textContent = '自动扫描';
+    cancelAnims();
+    const from = st.alpha;
+    anims.push(tweenValue(from, 90, 700, v => { st.alpha = v; eAr.value = Math.round(v); apply(); }));
+  };
 
   frameHook = dt => {
     if (st.qAuto) {
@@ -1080,17 +1192,18 @@ function fzuSVG(cat) {
 }
 
 function buildM3() {
-  const st = { phi: 62, mode: 'corresponding', sel: 0 };
+  const st = { phi: 62, mode: 'corresponding', sel: 0, parallel: true, tilt: 14 };
   const ZA = -1.75, ZB = 1.75, X = 4.5, Y = 0.02;
 
   world.add(segment(V(-X, Y, ZA), V(X, Y, ZA), { r: 0.055, color: C.line }));
-  world.add(segment(V(-X, Y, ZB), V(X, Y, ZB), { r: 0.055, color: C.line }));
-  world.add(mkLabel('a', { size: 0.6, bg: null, color: '#2F58AF' }).pos(X + 0.4, 0.36, ZA).sprite);
-  world.add(mkLabel('b', { size: 0.6, bg: null, color: '#2F58AF' }).pos(X + 0.4, 0.36, ZB).sprite);
+  world.add(mkLabel('a', { size: 0.6, bg: null, color: '#2E5BC8' }).pos(X + 0.4, 0.36, ZA).sprite);
+  // 直线 b 是动态的（可倾斜做"不平行"对比），在 apply() 里画
+  const lb = mkLabel('b', { size: 0.6, bg: null, color: '#2E5BC8' });
+  world.add(lb.sprite);
 
   const cg = new THREE.Group();
   cg.position.y = Y;
-  cg.add(segment(V(-4.9, 0, 0), V(4.9, 0, 0), { r: 0.058, color: 0x6C5AD8 }));
+  cg.add(segment(V(-4.9, 0, 0), V(4.9, 0, 0), { r: 0.058, color: 0x8156E8 }));
   world.add(cg);
   const lc = mkLabel('c', { size: 0.6, bg: null, color: '#5B45D6' });
   cg.add(lc.sprite);
@@ -1106,7 +1219,7 @@ function buildM3() {
   const hC2 = makeHandle(world, 0.46, onDragC);
   [hC1, hC2].forEach((h, i) => {
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.19, 0.28, 32),
-      basic(0x6C5AD8, { transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false }));
+      basic(0x8156E8, { transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false }));
     ring.rotation.x = -Math.PI / 2;
     ring.userData.idx = i;
     world.add(ring);
@@ -1116,8 +1229,8 @@ function buildM3() {
   const dyn = new THREE.Group();
   world.add(dyn);
 
-  const lA = mkLabel('A', { size: 0.55, bg: null, color: '#2F58AF' });
-  const lB = mkLabel('B', { size: 0.55, bg: null, color: '#2F58AF' });
+  const lA = mkLabel('A', { size: 0.55, bg: null, color: '#2E5BC8' });
+  const lB = mkLabel('B', { size: 0.55, bg: null, color: '#2E5BC8' });
   const call = mkLabel('', { size: 1.15, tall: true, w: 1500 });
   world.add(lA.sprite, lB.sprite, call.sprite);
 
@@ -1141,8 +1254,14 @@ function buildM3() {
     world.add(l.sprite);
   });
 
-  function val(uS, vS, phi) {
-    const c = uS * vS * Math.cos(phi * D2R);
+  // 直线 b 的方向（平行时与 a 相同；不平行时绕点 B 倾斜 tilt 度）—— 在 apply() 里更新
+  let dirB = V(1, 0, 0);
+
+  // k = { I, uS, vS }：I='A' 用直线 a 的方向，I='B' 用直线 b 的方向
+  function val(k, phi) {
+    const d = V(Math.cos(phi * D2R), 0, Math.sin(phi * D2R));
+    const u = (k.I === 'A' ? V(k.uS, 0, 0) : dirB.clone().multiplyScalar(k.uS));
+    const c = u.x * d.x * k.vS + u.z * d.z * k.vS;
     return Math.acos(Math.max(-1, Math.min(1, c))) * R2D;
   }
 
@@ -1160,6 +1279,8 @@ function buildM3() {
     const d = V(Math.cos(phi * D2R), 0, Math.sin(phi * D2R));
     const cot = Math.cos(phi * D2R) / Math.sin(phi * D2R);
     const A = V(ZA * cot, Y, ZA), B = V(ZB * cot, Y, ZB);
+    const tb = st.parallel ? 0 : st.tilt * D2R;
+    dirB = V(Math.cos(tb), 0, Math.sin(tb));
 
     hC1.position.set(d.x * 4.9, Y, d.z * 4.9);
     hC2.position.set(-d.x * 4.9, Y, -d.z * 4.9);
@@ -1173,13 +1294,24 @@ function buildM3() {
     lA.pos(A.x - 0.78, 0.42, A.z - 0.66);
     lB.pos(B.x - 0.78, 0.42, B.z + 0.72);
 
+    // 直线 b：平行时与 a 同向；不平行时绕交点 B 倾斜
+    dyn.add(segment(B.clone().addScaledVector(dirB, -X), B.clone().addScaledVector(dirB, X),
+      { r: 0.055, color: C.line }));
+    lb.pos(B.x + X * dirB.x + 0.4, 0.36, B.z + X * dirB.z);
+    // 不平行时 a 与 b 有第二个交点，画个小点提示"两线相交"
+    if (!st.parallel && Math.abs(dirB.z) > 0.02) {
+      const sI = (ZA - B.z) / dirB.z;
+      const XI = V(B.x + sI * dirB.x, Y, ZA);
+      if (Math.abs(XI.x) < X - 0.25) dyn.add(dot(XI, { r: 0.085, color: C.ink }));
+    }
+
     const groups = activeGroups();
     const map = {};
     groups.forEach(g => g.pair.forEach(n => { (map[n] = map[n] || []).push(g); }));
 
     KEY.forEach(k => {
       const O = k.I === 'A' ? A : B;
-      const dA = V(k.uS, 0, 0);
+      const dA = k.I === 'A' ? V(k.uS, 0, 0) : dirB.clone().multiplyScalar(k.uS);
       const dB = d.clone().multiplyScalar(k.vS);
       const hits = map[k.num];
       const baseCol = hits ? CATS[hits[0].cat].color : C.grey;
@@ -1222,14 +1354,20 @@ function buildM3() {
     });
 
     if (st.mode === 'all') {
-      call.set('看同一个 ∠1 的三种关系', '同位 ∠5 · 内错 ∠7 · 同旁内 ∠8').pos(0, 0.9, 4.5);
+      if (st.parallel) call.set('看同一个 ∠1 的三种关系', '同位 ∠5 · 内错 ∠7 · 同旁内 ∠8').pos(0, 0.9, 4.5);
+      else call.set('a 与 b 不平行', '这三种相等 / 互补的关系还会成立吗？').pos(0, 0.9, 4.5);
     } else {
       const g = groups[0];
       const n1 = g.pair[0], n2 = g.pair[1];
       const k1 = KEY.find(k => k.num === n1), k2 = KEY.find(k => k.num === n2);
-      const v1 = Math.round(val(k1.uS, k1.vS, phi)), v2 = Math.round(val(k2.uS, k2.vS, phi));
-      if (st.mode === 'same') call.set('∠' + n1 + ' + ∠' + n2 + ' = ' + v1 + '° + ' + v2 + '° = 180°', '同旁内角 · 互补').pos(0, 0.9, 4.5);
-      else call.set('∠' + n1 + ' = ∠' + n2 + ' = ' + v1 + '°', CATS[st.mode].name + ' · ' + (st.mode === 'corresponding' ? '相等' : '相等')).pos(0, 0.9, 4.5);
+      const v1 = Math.round(val(k1, phi)), v2 = Math.round(val(k2, phi));
+      if (st.parallel) {
+        if (st.mode === 'same') call.set('∠' + n1 + ' + ∠' + n2 + ' = ' + v1 + '° + ' + v2 + '° = 180°', '同旁内角 · 互补').pos(0, 0.9, 4.5);
+        else call.set('∠' + n1 + ' = ∠' + n2 + ' = ' + v1 + '°', CATS[st.mode].name + ' · 相等').pos(0, 0.9, 4.5);
+      } else {
+        if (st.mode === 'same') call.set('∠' + n1 + ' + ∠' + n2 + ' = ' + v1 + '° + ' + v2 + '° ≠ 180°', '不平行 · 不再互补').pos(0, 0.9, 4.5);
+        else call.set('∠' + n1 + ' = ' + v1 + '° ≠ ∠' + n2 + ' = ' + v2 + '°', '不平行 · 不再相等').pos(0, 0.9, 4.5);
+      }
     }
 
     onClick = (obj) => {
@@ -1261,6 +1399,18 @@ function buildM3() {
         <label>截线 c 与 a 的夹角<b id="m3-deg">62°</b></label>
         <input type="range" id="m3-phi" min="42" max="138" step="1" value="62">
       </div>
+      <div class="field">
+        <label>直线 a 与 b 的关系</label>
+        <div class="seg" id="m3-par" style="margin-bottom:0">
+          <button data-v="1" class="on">平行 a ∥ b</button>
+          <button data-v="0">不平行（相交）</button>
+        </div>
+      </div>
+      <div class="field" id="m3-tiltbox" style="display:none">
+        <label>直线 b 的倾斜角<b id="m3-tiltv">14°</b></label>
+        <input type="range" id="m3-tilt" min="8" max="24" step="1" value="14">
+      </div>
+      <div class="tip">先看<b>平行</b>：同位角相等、内错角相等、同旁内角互补；再切到<b>不平行</b>——这些关系全部失效！说明它们只在 a ∥ b 时才成立。</div>
       <button class="btn ghost" id="m3-next">换一组角</button>
       <div class="tip">也可以<b>拖动截线 c 的两端</b>改变角度；<b>点场景里任意一个角</b>，能直接找到和它配对的那个角。</div>
     </section>
@@ -1317,20 +1467,30 @@ function buildM3() {
       rows = groups.map(g => {
         const p = g.pair, c = CATS[g.cat];
         const k1 = KEY.find(k => k.num === p[0]), k2 = KEY.find(k => k.num === p[1]);
-        const v1 = Math.round(val(k1.uS, k1.vS, st.phi)), v2 = Math.round(val(k2.uS, k2.vS, st.phi));
-        const right = g.cat === 'same' ? v1 + '° + ' + v2 + '° = 180°' : v1 + '° = ' + v2 + '°';
+        const v1 = Math.round(val(k1, st.phi)), v2 = Math.round(val(k2, st.phi));
+        const right = g.cat === 'same' ? v1 + '° + ' + v2 + '°' : v1 + '° vs ' + v2 + '°';
         return `<div class="kv"><span><i class="dotc" style="background:${c.hex}"></i>${c.name}　∠${p[0]} 与 ∠${p[1]}</span><b style="font-size:12.5px">${right}</b></div>`;
       }).join('');
-      rule = `<span class="hi">同一个 ∠1，三种关系</span><br>和 ∠5 是同位角，和 ∠7 是内错角，和 ∠8 是同旁内角。<br>三条彩色弧＝三种关系，颜色见上方小卡片。`;
+      rule = st.parallel
+        ? `<span class="hi">同一个 ∠1，三种关系</span><br>和 ∠5 是同位角，和 ∠7 是内错角，和 ∠8 是同旁内角。<br>三条彩色弧＝三种关系，颜色见上方小卡片。`
+        : `<span class="hi">a 与 b 不平行</span><br>同位角不再相等、内错角不再相等、同旁内角不再互补。<br><b>这些关系只在 a ∥ b 时才成立。</b>`;
     } else {
       const c = CATS[st.mode];
       const pair = groups[0].pair;
       const k1 = KEY.find(k => k.num === pair[0]), k2 = KEY.find(k => k.num === pair[1]);
-      const v1 = Math.round(val(k1.uS, k1.vS, st.phi)), v2 = Math.round(val(k2.uS, k2.vS, st.phi));
+      const v1 = Math.round(val(k1, st.phi)), v2 = Math.round(val(k2, st.phi));
       rows = `<div class="kv"><span><i class="dotc" style="background:${c.hex}"></i>∠${pair[0]}</span><b>${v1}°</b></div>
               <div class="kv"><span><i class="dotc" style="background:${c.hex}"></i>∠${pair[1]}</span><b>${v2}°</b></div>`;
-      if (st.mode === 'same') rule = `<span class="hi">同旁内角互补</span><br>∠${pair[0]} + ∠${pair[1]} = ${v1}° + ${v2}° = 180°<br><span style="font-weight:500;color:#8B98AC">${c.desc}（${c.L} 形）</span>`;
-      else rule = `<span class="hi">${c.name}相等</span><br>∠${pair[0]} = ∠${pair[1]} = ${v1}°<br><span style="font-weight:500;color:#8B98AC">${c.desc}（${c.L} 形）</span>`;
+      if (st.parallel) {
+        if (st.mode === 'same') rule = `<span class="hi">同旁内角互补</span><br>∠${pair[0]} + ∠${pair[1]} = ${v1}° + ${v2}° = 180°<br><span style="font-weight:500;color:#8B98AC">${c.desc}（${c.L} 形）</span>`;
+        else rule = `<span class="hi">${c.name}相等</span><br>∠${pair[0]} = ∠${pair[1]} = ${v1}°<br><span style="font-weight:500;color:#8B98AC">${c.desc}（${c.L} 形）</span>`;
+      } else {
+        const eq = Math.abs(v1 - v2) < 1;
+        if (st.mode === 'same') rule = `<span class="hi">不平行时不再互补</span><br>∠${pair[0]} + ∠${pair[1]} = ${v1}° + ${v2}° = ${v1 + v2}° ≠ 180°<br><span style="font-weight:500;color:#8B98AC">把 b 切回「平行」，和就变回 180° 了。</span>`;
+        else rule = eq
+          ? `<span class="hi">巧合：这个位置恰好相等</span><br>∠${pair[0]} = ∠${pair[1]} = ${v1}°<br><span style="font-weight:500;color:#8B98AC">拖动截线 c 或倾斜角试试，一般都不相等。</span>`
+          : `<span class="hi">${c.name}不再相等</span><br>∠${pair[0]} = ${v1}°，∠${pair[1]} = ${v2}°，相差 ${Math.abs(v1 - v2)}°<br><span style="font-weight:500;color:#8B98AC">只有 a ∥ b 时，${c.name}才一定相等。</span>`;
+      }
     }
     ePairs.innerHTML = rows;
     eRule.innerHTML = rule;
@@ -1342,7 +1502,7 @@ function buildM3() {
       .sort((a, b) => a.num - b.num)
       .map(k => {
         const hi = sel.has(k.num);
-        return `<div style="${hi ? 'color:#1B2436;font-weight:700' : ''}">∠${k.num} = ${Math.round(val(k.uS, k.vS, st.phi))}°</div>`;
+        return `<div style="${hi ? 'color:#1B2436;font-weight:700' : ''}">∠${k.num} = ${Math.round(val(k, st.phi))}°</div>`;
       }).join('');
 
     syncButtons();
@@ -1363,6 +1523,18 @@ function buildM3() {
     };
   });
   ePhi.oninput = () => { st.phi = +ePhi.value; apply(); syncPanel(); };
+  const eTilt = panel.querySelector('#m3-tilt');
+  const eTiltV = panel.querySelector('#m3-tiltv');
+  const eTiltBox = panel.querySelector('#m3-tiltbox');
+  eTilt.oninput = () => { st.tilt = +eTilt.value; eTiltV.textContent = st.tilt + '°'; apply(); syncPanel(); };
+  panel.querySelectorAll('#m3-par button').forEach(btn => {
+    btn.onclick = () => {
+      st.parallel = btn.dataset.v === '1';
+      panel.querySelectorAll('#m3-par button').forEach(b => b.classList.toggle('on', b === btn));
+      eTiltBox.style.display = st.parallel ? 'none' : 'block';
+      apply(); syncPanel();
+    };
+  });
   eNext.onclick = () => {
     if (st.mode === 'all') return;
     st.sel = (st.sel + 1) % PAIRS[st.mode].length;
@@ -1376,7 +1548,7 @@ function buildM3() {
     <div class="li"><span class="sw" style="background:#F2715C"></span>珊瑚色：同位角（F 形）</div>
     <div class="li"><span class="sw" style="background:#7E6BF2"></span>紫色：内错角（Z 形）</div>
     <div class="li"><span class="sw" style="background:#18A79A"></span>青色：同旁内角（U 形）</div>
-    <div class="li drag">↔ 拖动截线 c ｜ 点任意角看配对</div>
+    <div class="li drag">↔ 拖动截线 c ｜ 切换平行 / 不平行做对比</div>
   `;
 }
 

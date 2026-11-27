@@ -87,16 +87,21 @@
   .note b{color:var(--ink-2);font-weight:600;}
   .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0;}
   .row-label{font-size:13px;color:var(--ink-2);}
-  .switch{
-    position:relative;width:40px;height:22px;border-radius:999px;background:#dbe1ea;
-    cursor:pointer;transition:background .2s;flex:none;
+  .model-column{min-width:0;display:flex;flex-direction:column;gap:12px;}
+  .display-controls{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;
+    padding:15px 18px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 8px 24px -22px rgba(30,41,59,.45);
   }
-  .switch::after{
-    content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
-    background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25);transition:transform .2s;
+  .check-item{
+    display:flex;align-items:center;gap:9px;min-width:0;cursor:pointer;
+    font-size:13px;line-height:1.5;color:var(--ink-2);user-select:none;
   }
-  .switch.on{background:var(--indigo);}
-  .switch.on::after{transform:translateX(18px);}
+  .check-item input{
+    width:17px;height:17px;margin:0;flex:none;cursor:pointer;accent-color:var(--indigo);
+  }
+  .check-item input:focus-visible{outline:2px solid var(--indigo);outline-offset:2px;}
+  .check-item label{cursor:pointer;}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
   .seg button{
     appearance:none;border:0;background:#fbfcfe;color:var(--ink-2);
@@ -130,8 +135,6 @@
   .cust-row input:focus{outline:none;border-color:var(--indigo);background:#fff;}
   .cust-row .op{color:var(--muted);font-size:14px;}
   .cust .btn.wide{margin-top:4px;}
-  footer{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.8;}
-  footer b{color:var(--ink-2);font-weight:600;}
   @media (max-width:960px){
     main{grid-template-columns:minmax(0,1fr);}
     .panel{max-height:none;flex-direction:row;flex-wrap:wrap;overflow:visible;}
@@ -149,6 +152,7 @@
   </header>
 
   <main>
+    <div class="model-column">
     <section class="stage">
       <svg id="plane" viewBox="0 0 700 660" aria-label="复平面交互图" role="img">
         <defs>
@@ -184,6 +188,15 @@
       </svg>
       <div class="hint">拖动向量箭头改变复数 ｜ 方向键调 Z₁，Shift + 方向键调 Z₂</div>
     </section>
+    <div class="display-controls" aria-label="图形显示控制">
+      <div class="check-item"><input type="checkbox" id="swArc1" checked><label for="swArc1">显示 z₁ 的角 θ₁</label></div>
+      <div class="check-item"><input type="checkbox" id="swArc2" checked><label for="swArc2">显示 z₂ 的角 θ₂</label></div>
+      <div class="check-item"><input type="checkbox" id="swArc3" checked><label for="swArc3">显示积 / 商的角 θ</label></div>
+      <div class="check-item"><input type="checkbox" id="swAux" checked><label for="swAux">显示辅助三角形</label></div>
+      <div class="check-item"><input type="checkbox" id="swCircle"><label for="swCircle">显示积 / 商的模圆</label></div>
+      <div class="check-item"><input type="checkbox" id="swTrail"><label for="swTrail">动画留下余迹</label></div>
+    </div>
+    </div>
 
     <aside class="panel">
       <div class="card">
@@ -213,7 +226,7 @@
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="dot amber"></span>运算与显示</div>
+        <div class="card-title"><span class="dot amber"></span>运算与操作</div>
         <div class="row">
           <span class="row-label">运算方式</span>
           <div class="seg" id="segOp">
@@ -239,30 +252,6 @@
           </div>
           <button class="btn wide" id="btnApply">应用自定义值</button>
         </div>
-        <div class="row">
-          <span class="row-label">显示 z₁ 的角 θ₁</span>
-          <div class="switch on" id="swArc1" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示 z₂ 的角 θ₂</span>
-          <div class="switch on" id="swArc2" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示积 / 商的角 θ</span>
-          <div class="switch on" id="swArc3" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示辅助三角形</span>
-          <div class="switch on" id="swAux" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">显示积 / 商的模圆</span>
-          <div class="switch" id="swCircle" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">动画留下余迹</span>
-          <div class="switch" id="swTrail" role="switch" tabindex="0"></div>
-        </div>
         <button class="btn play" id="btnPlay">▶ 演示：先旋转，再伸缩</button>
         <div class="presets">
           <button class="btn" data-op="mul" data-a1="2" data-b1="1" data-a2="1" data-b2="2">(2+i)(1+2i)</button>
@@ -277,12 +266,6 @@
     </aside>
   </main>
 
-  <footer>
-    <b>教材原话：</b>z₁ = r₁(cos θ₁ + i sin θ₁)，z₂ = r₂(cos θ₂ + i sin θ₂)，则
-    z₁z₂ = r₁r₂[cos(θ₁+θ₂) + i sin(θ₁+θ₂)]，z₁÷z₂ = (r₁/r₂)[cos(θ₁−θ₂) + i sin(θ₁−θ₂)]。<br>
-    两个复数相乘，积的模等于模的积，积的辐角等于辐角的和 —— 几何上就是把向量 OZ₁ <b>先旋转 θ₂，再伸缩 r₂ 倍</b>；相除则旋转 −θ₂、伸缩 1/r₂ 倍。
-    非规范的近似数以 ≈ 标记；公式链中不能精确表达的数保留符号写法。
-  </footer>
 </div>
 
 <script>
@@ -298,7 +281,7 @@
     arc1: true, arc2: true, arc3: true,
     aux: true, circle: false, trail: false
   };
-  var anim = {on: false, paused: false, raf: 0, t0: 0, elapsed: 0, p: null, frame: null, trail: []};
+  var anim = {on: false, paused: false, raf: 0, t0: 0, elapsed: 0, p: null, frame: null, trail: [], step: 0};
   var animating = false;
 
   var svg = document.getElementById('plane');
@@ -493,7 +476,7 @@
   }
   function pointSvg(x, y, color, hitId){
     // 只保留透明点击区，去掉可见大圆点（箭头已标记位置）
-    return '<circle cx="' + x + '" cy="' + y + '" r="20" fill="transparent" ' +
+    return '<circle cx="' + x + '" cy="' + y + '" r="30" fill="transparent" ' +
            'style="cursor:grab" id="' + hitId + '"/>';
   }
   function modLabel(r, th, txt, color){
@@ -683,7 +666,7 @@
     var r1s = eR1 ? r1v : 'r₁', r2s = eR2 ? r2v : 'r₂';
     var t1s = eT1 ? t1v : 'θ₁', t2s = eT2 ? t2v : 'θ₂';
 
-    var line1, line2, note;
+    var line1, line2, noteRot, noteScl;
     var tExpr = isMul ? signedJoin(t1s, t2s) : signedSub(t1s, t2s);
     var rExpr = (isMul ? r1s + ' × ' + r2s : r1s + ' ÷ ' + r2s);
     var tMid = (eT1 || eT2) ? ' = ' + tExpr : '';
@@ -697,19 +680,18 @@
     if (isMul){
       line1 = 'z = z₁·z₂ = r₁·r₂[cos(θ₁+θ₂) + <i>i</i> sin(θ₁+θ₂)]';
       line2 = '= (' + rExpr + ')[cos(' + tExpr + ') + <i>i</i> sin(' + tExpr + ')]';
-      note = '<b>模相乘：</b>|z| = r₁·r₂' + rMid + ' = <b>' + resultModTxt(d) + '</b>；' +
-             '<b>辐角相加：</b>θ = θ₁+θ₂' + tMid + ' = <b>' + degTxt(d.thRaw) + '</b>。' +
-             '几何上：把 OZ₁ <b>' + geoRot + '，' + geoScl + '</b>。';
+      noteRot = '<b>① 旋转 · 辐角相加：</b>θ = θ₁+θ₂' + tMid + ' = <b>' + degTxt(d.thRaw) + '</b>。' +
+                '几何上：把 OZ₁ <b>' + geoRot + '</b>。';
+      noteScl = '<b>② 伸缩 · 模相乘：</b>|z| = r₁·r₂' + rMid + ' = <b>' + resultModTxt(d) + '</b>。' +
+                '几何上：把旋转后的向量 <b>' + geoScl + '</b>。';
     } else {
       line1 = 'z = z₁ ÷ z₂ = (r₁/r₂)[cos(θ₁−θ₂) + <i>i</i> sin(θ₁−θ₂)]';
       line2 = '= (' + rExpr + ')[cos(' + tExpr + ') + <i>i</i> sin(' + tExpr + ')]';
-      note = '<b>模相除：</b>|z| = r₁/r₂' + rMid + ' = <b>' + resultModTxt(d) + '</b>；' +
-             '<b>辐角相减：</b>θ = θ₁−θ₂' + tMid + ' = <b>' + degTxt(d.thRaw) + '</b>。' +
-             '几何上：把 OZ₁ <b>' + geoRot + '，' + geoScl + '</b>。';
+      noteRot = '<b>① 旋转 · 辐角相减：</b>θ = θ₁−θ₂' + tMid + ' = <b>' + degTxt(d.thRaw) + '</b>。' +
+                '几何上：把 OZ₁ <b>' + geoRot + '</b>。';
+      noteScl = '<b>② 伸缩 · 模相除：</b>|z| = r₁/r₂' + rMid + ' = <b>' + resultModTxt(d) + '</b>。' +
+                '几何上：把旋转后的向量 <b>' + geoScl + '</b>。';
     }
-    // 代入行若与符号行完全相同（全为符号），不重复显示
-    var showLine2 = (eR1 || eR2 || eT1 || eT2);
-
     // 结果行：模 / 角非规范时用 ≈ 小数
     var r3s = resultModTxt(d);
     var eR3 = isInt(d.r3) || (eR1 && eR2);
@@ -722,8 +704,19 @@
     if (Math.abs(d.thRaw - d.th3) > 1e-6){
       line3 += '<br><span class="dim">（θ = ' + degTxt(d.thRaw) + ' 与 ' + t3s + ' 终边相同，取主值 ' + t3s + '）</span>';
     }
-    F.innerHTML = line1 + '<br>' + line2 + '<br>' + line3;
-    N.innerHTML = note;
+    if (anim.step === 1){
+      F.innerHTML = line1;
+      N.innerHTML = noteRot;
+    } else if (anim.step === 2){
+      F.innerHTML = line2;
+      N.innerHTML = noteScl;
+    } else if (anim.step === 3){
+      F.innerHTML = line3;
+      N.innerHTML = '<b>✓ 完成：</b>旋转与伸缩均已完成，得到最终的' + (isMul ? '乘积' : '商') + '。';
+    } else {
+      F.innerHTML = line1;
+      N.innerHTML = '点击“演示”，依次查看旋转、伸缩与最终结果。';
+    }
   }
   // 结果模：整数坐标时可精确化简（乘 √n₁n₂，除 √n₁n₂/n₂），否则近似小数
   function resultModTxt(d){
@@ -747,23 +740,21 @@
   }
   // ---------- 交互：拖动 ----------
   var dragTarget = null;
-  svg.addEventListener('pointerdown', function(evt){
-    stopAnim();
-    var id = evt.target.id;
-    if (id === 'hit1' || id === 'hit2' || id === 'hit3'){
-      dragTarget = id;
-      svg.setPointerCapture(evt.pointerId);
-      evt.preventDefault();
-    }
-  });
-  svg.addEventListener('pointermove', function(evt){
-    if (!dragTarget) return;
-    var sp = svgPt(evt);
+  var dragPointerId = null;
+  var dragPos = null;
+  var dragFrame = 0;
+  var suppressClick = false;
+
+  function updateDrag(){
+    if (!dragTarget || !dragPos) return;
+    var sp = svgPt(dragPos);
     var z = fromSvg(sp[0], sp[1]);
-    z.a = Math.round(z.a * 100) / 100;
-    z.b = Math.round(z.b * 100) / 100;
     var r = Math.sqrt(z.a * z.a + z.b * z.b);
-    if (r < MIN_R){ z.a = MIN_R; z.b = 0; }
+    if (r < MIN_R){
+      if (r < 1e-9) return;
+      z.a *= MIN_R / r;
+      z.b *= MIN_R / r;
+    }
     clampZ(z);
     if (dragTarget === 'hit1'){ state.z1 = z; }
     else if (dragTarget === 'hit2'){ state.z2 = z; }
@@ -777,11 +768,53 @@
       state.z2 = clampZ({a: nr2 * Math.cos(nth2), b: nr2 * Math.sin(nth2)});
     }
     render();
+  }
+  function queueDrag(evt){
+    dragPos = {clientX: evt.clientX, clientY: evt.clientY};
+    if (dragFrame) return;
+    dragFrame = requestAnimationFrame(function(){
+      dragFrame = 0;
+      updateDrag();
+    });
+  }
+  function finishDrag(evt){
+    if (evt.pointerId !== dragPointerId) return;
+    if (dragFrame){ cancelAnimationFrame(dragFrame); dragFrame = 0; }
+    dragPos = {clientX: evt.clientX, clientY: evt.clientY};
+    updateDrag();
+    dragTarget = null;
+    dragPointerId = null;
+    dragPos = null;
+  }
+
+  svg.addEventListener('pointerdown', function(evt){
+    var id = evt.target.id;
+    if (id !== 'hit1' && id !== 'hit2' && id !== 'hit3') return;
+    stopAnim();
+    dragTarget = id;
+    dragPointerId = evt.pointerId;
+    svg.setPointerCapture(evt.pointerId);
+    evt.preventDefault();
+    dragPos = {clientX: evt.clientX, clientY: evt.clientY};
+    updateDrag();
   });
-  svg.addEventListener('pointerup', function(){ dragTarget = null; });
-  svg.addEventListener('pointercancel', function(){ dragTarget = null; });
+  svg.addEventListener('pointermove', function(evt){
+    if (!dragTarget || evt.pointerId !== dragPointerId) return;
+    evt.preventDefault();
+    queueDrag(evt);
+  });
+  svg.addEventListener('pointerup', function(evt){
+    var wasDragging = dragTarget !== null && evt.pointerId === dragPointerId;
+    finishDrag(evt);
+    if (wasDragging) suppressClick = true;
+  });
+  svg.addEventListener('pointercancel', function(evt){
+    finishDrag(evt);
+    suppressClick = false;
+  });
   // 点击空白处移动 z₁
   svg.addEventListener('click', function(evt){
+    if (suppressClick){ suppressClick = false; return; }
     var id = evt.target.id || '';
     if (id.indexOf('hit') === 0) return;
     stopAnim();
@@ -820,11 +853,14 @@
     btnPlay.classList.remove('busy');
   }
   function stopAnim(){
+    var shouldRender = animating || anim.step !== 0;
     anim.on = false; anim.paused = false;
+    anim.step = 0;
     if (anim.raf) cancelAnimationFrame(anim.raf);
     anim.raf = 0;
     animLayer.innerHTML = '';
-    if (animating){ animating = false; render(); }
+    animating = false;
+    if (shouldRender) render();
     resetPlayBtn();
   }
   // 自然结束：保留余迹，不清空 animLayer
@@ -834,7 +870,8 @@
     anim.raf = 0;
     resetPlayBtn();
     var keep = state.trail ? anim.trail : [];
-    if (animating){ animating = false; render(); }  // 恢复静态结果向量
+    anim.step = 3;
+    if (animating){ animating = false; render(); }  // 恢复静态结果向量并显示完成步骤
     var s = '';
     if (keep.length > 1){
       var pts = keep.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
@@ -864,6 +901,7 @@
     var d = derive();
     if (!d.valid || d.p1.r < 1e-9) return;
     anim.on = true; anim.paused = false;
+    anim.step = 1;
     animating = true;
     render();  // 动画期间隐藏静态结果向量，避免重复箭头
     btnPlay.textContent = '⏸ 暂停演示';
@@ -882,17 +920,23 @@
     anim.t0 = performance.now();
     anim.frame = function(now){
       if (!anim.on || anim.paused) return;
-      var el = now - anim.t0, ang, rad, done = false, phase;
+      var el = now - anim.t0, ang, rad, done = false, phase, step;
       if (el < rotDur){
         var k = ease(el / rotDur);
         ang = th1 + rot * k; rad = r1;
         phase = '① 旋转：把 OZ₁ 旋转 ' + rotTxt;
+        step = 1;
       } else if (el < rotDur + sclDur){
         var k2 = ease((el - rotDur) / sclDur);
         ang = th1 + rot; rad = r1 * (1 + (f - 1) * k2);
         phase = '② 伸缩：再伸缩 ' + fTxt + ' 倍';
+        step = 2;
       } else {
-        ang = th1 + rot; rad = r3t; phase = '✓ 完成'; done = true;
+        ang = th1 + rot; rad = r3t; phase = '✓ 完成'; done = true; step = 3;
+      }
+      if (!done && anim.step !== step){
+        anim.step = step;
+        updateCards(derive());
       }
       drawAnim(rad, ang, anim.trail, el < rotDur, phase);
       if (done){ finishAnim(); return; }
@@ -946,24 +990,20 @@
       stopAnim(); render();
     });
   });
-  function bindSwitch(id, key){
+  function bindCheckbox(id, key){
     var el = document.getElementById(id);
-    el.classList.toggle('on', state[key]);
-    el.addEventListener('click', function(){
-      state[key] = !state[key];
-      el.classList.toggle('on', state[key]);
+    el.checked = state[key];
+    el.addEventListener('change', function(){
+      state[key] = el.checked;
       render();
     });
-    el.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
-    });
   }
-  bindSwitch('swArc1', 'arc1');
-  bindSwitch('swArc2', 'arc2');
-  bindSwitch('swArc3', 'arc3');
-  bindSwitch('swAux', 'aux');
-  bindSwitch('swCircle', 'circle');
-  bindSwitch('swTrail', 'trail');
+  bindCheckbox('swArc1', 'arc1');
+  bindCheckbox('swArc2', 'arc2');
+  bindCheckbox('swArc3', 'arc3');
+  bindCheckbox('swAux', 'aux');
+  bindCheckbox('swCircle', 'circle');
+  bindCheckbox('swTrail', 'trail');
 
   document.getElementById('btnApply').addEventListener('click', applyCustom);
   function applyCustom(){

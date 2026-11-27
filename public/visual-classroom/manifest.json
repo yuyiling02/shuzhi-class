@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generatedAt": "2026-11-05T06:03:37+08:00",
+  "generatedAt": "2026-11-27T23:51:19+08:00",
   "root": "/visual-classroom",
   "subjects": [
     {
@@ -26,7 +26,7 @@
                       "id": "p0001",
                       "name": "有理数数轴",
                       "url": "/visual-classroom/math/g7/a/c01/p0001.html",
-                      "source": "七年级/七年级/人教版七年级（上）/第一章有理数/有理数数轴.html",
+                      "source": "七年级/第一章有理数/有理数数轴动点3D教具.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -40,7 +40,7 @@
                       "id": "p0002",
                       "name": "6.1几何图形",
                       "url": "/visual-classroom/math/g7/a/c02/p0002.html",
-                      "source": "七年级/七年级/人教版七年级（上）/第六章 几何图形初步/6.1几何图形.html",
+                      "source": "七年级/第六章 几何图形初步/6.1几何图形.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -48,15 +48,15 @@
                       "id": "p0003",
                       "name": "6.2直线射线线段",
                       "url": "/visual-classroom/math/g7/a/c02/p0003.html",
-                      "source": "七年级/七年级/人教版七年级（上）/第六章 几何图形初步/6.2直线射线线段.html",
-                      "needsNetwork": true,
+                      "source": "七年级/第六章 几何图形初步/6.2直线射线线段.html",
+                      "needsNetwork": false,
                       "missingAssets": false
                     },
                     {
                       "id": "p0004",
                       "name": "6.3角",
                       "url": "/visual-classroom/math/g7/a/c02/p0004.html",
-                      "source": "七年级/七年级/人教版七年级（上）/第六章 几何图形初步/6.3角.html",
+                      "source": "七年级/第六章 几何图形初步/6.3角.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -76,15 +76,15 @@
                       "id": "p0005",
                       "name": "7.1相交线",
                       "url": "/visual-classroom/math/g7/b/c01/p0005.html",
-                      "source": "七年级/七年级/人教版七年级（下）/第七章相交线与平行线/7.1相交线.html",
-                      "needsNetwork": true,
+                      "source": "七年级/第七章相交线与平行线/7.1相交线.html",
+                      "needsNetwork": false,
                       "missingAssets": false
                     },
                     {
                       "id": "p0006",
                       "name": "7.2平行线",
                       "url": "/visual-classroom/math/g7/b/c01/p0006.html",
-                      "source": "七年级/七年级/人教版七年级（下）/第七章相交线与平行线/7.2平行线.html",
+                      "source": "七年级/第七章相交线与平行线/7.2平行线.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -92,7 +92,7 @@
                       "id": "p0007",
                       "name": "7.4平移",
                       "url": "/visual-classroom/math/g7/b/c01/p0007.html",
-                      "source": "七年级/七年级/人教版七年级（下）/第七章相交线与平行线/7.4平移.html",
+                      "source": "七年级/第七章相交线与平行线/7.4平移.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -106,7 +106,7 @@
                       "id": "p0008",
                       "name": "9.1用坐标描述平面内点的位置",
                       "url": "/visual-classroom/math/g7/b/c02/p0008.html",
-                      "source": "七年级/七年级/人教版七年级（下）/第九章平面直角坐标系/9.1用坐标描述平面内点的位置.html",
+                      "source": "七年级/第九章平面直角坐标系/9.1用坐标描述平面内点的位置.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -114,8 +114,8 @@
                       "id": "p0009",
                       "name": "9.2坐标方法的简单应用",
                       "url": "/visual-classroom/math/g7/b/c02/p0009.html",
-                      "source": "七年级/七年级/人教版七年级（下）/第九章平面直角坐标系/9.2坐标方法的简单应用.html",
-                      "needsNetwork": true,
+                      "source": "七年级/第九章平面直角坐标系/9.2坐标方法的简单应用.html",
+                      "needsNetwork": false,
                       "missingAssets": false
                     }
                   ]
@@ -232,7 +232,7 @@
                       "id": "p0022",
                       "name": "16.1幂的运算",
                       "url": "/visual-classroom/math/g8/a/c04/p0022.html",
-                      "source": "人教版八年级/人教版八年级（上）/十六章 整式的乘法/16.1幂的运算.html",
+                      "source": "八年级修改/16.1幂的运算·闯关互动版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -246,9 +246,9 @@
                     },
                     {
                       "id": "p0024",
-                      "name": "16.3乘法公式几何证明实验",
+                      "name": "16.3乘法公式",
                       "url": "/visual-classroom/math/g8/a/c04/p0024.html",
-                      "source": "人教版八年级/人教版八年级（上）/十六章 整式的乘法/16.3乘法公式几何证明实验.html",
+                      "source": "八年级修改/16.3乘法公式·几何证明动画版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -260,17 +260,17 @@
                   "lessons": [
                     {
                       "id": "p0010",
-                      "name": "17.1 提公因式法 · 分步提取演示",
+                      "name": "17.1提公因式法",
                       "url": "/visual-classroom/math/g8/a/c05/p0010.html",
-                      "source": "人教版八年级/人教版八年级（上）/十七章 因式分解/17.1 提公因式法 · 分步提取演示.html",
+                      "source": "八年级修改/17.1提公因式法闯关课堂(修改).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
                     {
                       "id": "p0011",
-                      "name": "17.2公式法-面积逆推分解",
+                      "name": "17.2公式法",
                       "url": "/visual-classroom/math/g8/a/c05/p0011.html",
-                      "source": "人教版八年级/人教版八年级（上）/十七章 因式分解/17.2公式法-面积逆推分解.html",
+                      "source": "八年级修改/17.2公式法·面积拼图互动版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -282,9 +282,9 @@
                   "lessons": [
                     {
                       "id": "p0018",
-                      "name": "18.1分式条件判断器实验",
+                      "name": "18.1分式条件判断",
                       "url": "/visual-classroom/math/g8/a/c06/p0018.html",
-                      "source": "人教版八年级/人教版八年级（上）/十八章 分式/18.1分式条件判断器实验.html",
+                      "source": "八年级修改/18.1分式·条件判断互动版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -309,6 +309,14 @@
                       "name": "18.5 分式方程 · 去分母与验根演示",
                       "url": "/visual-classroom/math/g8/a/c06/p0021.html",
                       "source": "人教版八年级/人教版八年级（上）/十八章 分式/18.5 分式方程 · 去分母与验根演示.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0189",
+                      "name": "18.1分式及其基本性质",
+                      "url": "/visual-classroom/math/g8/a/c06/p0189.html",
+                      "source": "八年级修改/18.1分式及其基本性质闯关课堂（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -438,7 +446,7 @@
                       "id": "p0034",
                       "name": "24.1数据的集中趋势",
                       "url": "/visual-classroom/math/g8/b/c06/p0034.html",
-                      "source": "人教版八年级/人教版八年级（下）/二十四章 数据的分析/24.1数据的集中趋势.html",
+                      "source": "八年级修改/24.1数据的集中趋势·互动版(修改).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -446,7 +454,7 @@
                       "id": "p0035",
                       "name": "24.2数据的离散程度",
                       "url": "/visual-classroom/math/g8/b/c06/p0035.html",
-                      "source": "人教版八年级/人教版八年级（下）/二十四章 数据的分析/24.2数据的离散程度.html",
+                      "source": "八年级修改/24.2数据的离散程度·互动版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -454,7 +462,7 @@
                       "id": "p0036",
                       "name": "24.3数据的四分位数",
                       "url": "/visual-classroom/math/g8/b/c06/p0036.html",
-                      "source": "人教版八年级/人教版八年级（下）/二十四章 数据的分析/24.3数据的四分位数.html",
+                      "source": "八年级修改/24.3数据的四分位数·互动版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -462,7 +470,7 @@
                       "id": "p0037",
                       "name": "24.4数据的分组",
                       "url": "/visual-classroom/math/g8/b/c06/p0037.html",
-                      "source": "人教版八年级/人教版八年级（下）/二十四章 数据的分析/24.4数据的分组.html",
+                      "source": "八年级修改/24.4数据的分组·互动版（修改）.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -490,8 +498,8 @@
                       "id": "p0042",
                       "name": "集合的基本运算",
                       "url": "/visual-classroom/math/g1/a/c01/p0042.html",
-                      "source": "高一上/高一上/第一章集合与常用逻辑用语/集合的基本运算.html",
-                      "needsNetwork": false,
+                      "source": "高一上修改/第一章集合与常用逻辑用语/集合的基本运算-修改.html",
+                      "needsNetwork": true,
                       "missingAssets": false
                     }
                   ]
@@ -504,7 +512,7 @@
                       "id": "p0044",
                       "name": "二次函数与方程、不等式的对应关系",
                       "url": "/visual-classroom/math/g1/a/c02/p0044.html",
-                      "source": "高一上/高一上/第二章一元二次函数、方程和不等式/二次函数与方程、不等式的对应关系.html",
+                      "source": "高一上修改/第二章一元二次函数、方程和不等式/二次函数与方程、不等式的对应关系-修改.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -512,7 +520,7 @@
                       "id": "p0045",
                       "name": "基本不等式的几何证明",
                       "url": "/visual-classroom/math/g1/a/c02/p0045.html",
-                      "source": "高一上/高一上/第二章一元二次函数、方程和不等式/基本不等式的几何证明.html",
+                      "source": "高一上修改/第二章一元二次函数、方程和不等式/基本不等式的几何证明-修改.html",
                       "needsNetwork": true,
                       "missingAssets": false
                     }
@@ -526,7 +534,7 @@
                       "id": "p0043",
                       "name": "幂函数的图像与性质",
                       "url": "/visual-classroom/math/g1/a/c03/p0043.html",
-                      "source": "高一上/高一上/第三章函数的概念与性质/幂函数的图像与性质.html",
+                      "source": "高一上修改/第三章函数的概念与性质/幂函数的图像与性质-修改.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -540,7 +548,7 @@
                       "id": "p0050",
                       "name": "对数函数的图像与性质",
                       "url": "/visual-classroom/math/g1/a/c04/p0050.html",
-                      "source": "高一上/高一上/第四章指数函数与对数函数/对数函数的图像与性质.html",
+                      "source": "高一上修改/第四章指数函数与对数函数/对数函数的图像与性质-修改.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -548,7 +556,7 @@
                       "id": "p0051",
                       "name": "指数函数的图像与性质",
                       "url": "/visual-classroom/math/g1/a/c04/p0051.html",
-                      "source": "高一上/高一上/第四章指数函数与对数函数/指数函数的图像与性质.html",
+                      "source": "高一上修改/第四章指数函数与对数函数/指数函数的图像与性质-修改.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -578,15 +586,39 @@
                       "id": "p0048",
                       "name": "三角函数的诱导公式",
                       "url": "/visual-classroom/math/g1/a/c05/p0048.html",
-                      "source": "高一上/高一上/第五章三角函数/三角函数的诱导公式.html",
+                      "source": "高一上修改/第五章三角函数/三角函数的诱导公式-修改.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
                     {
                       "id": "p0049",
-                      "name": "三角恒等变化",
+                      "name": "三角恒等变换",
                       "url": "/visual-classroom/math/g1/a/c05/p0049.html",
-                      "source": "高一上/高一上/第五章三角函数/三角恒等变化.html",
+                      "source": "高一上修改/第五章三角函数/三角恒等变化-修改.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0190",
+                      "name": "弹簧振子生成余弦波",
+                      "url": "/visual-classroom/math/g1/a/c05/p0190.html",
+                      "source": "高一上修改/第五章三角函数/弹簧振子生成余弦波.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0191",
+                      "name": "探照灯生成正切波",
+                      "url": "/visual-classroom/math/g1/a/c05/p0191.html",
+                      "source": "高一上修改/第五章三角函数/探照灯生成正切波.html",
+                      "needsNetwork": false,
+                      "missingAssets": false
+                    },
+                    {
+                      "id": "p0192",
+                      "name": "摩天轮生成正弦波",
+                      "url": "/visual-classroom/math/g1/a/c05/p0192.html",
+                      "source": "高一上修改/第五章三角函数/摩天轮生成正弦波.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -606,7 +638,7 @@
                       "id": "p0062",
                       "name": "三角形解的个数模型",
                       "url": "/visual-classroom/math/g1/b/c01/p0062.html",
-                      "source": "高一下/第六章平面向量及其应用/三角形解的个数模型.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/三角形解的个数_交互模型（探究版） (1).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -614,7 +646,7 @@
                       "id": "p0063",
                       "name": "余弦定理验证模型",
                       "url": "/visual-classroom/math/g1/b/c01/p0063.html",
-                      "source": "高一下/第六章平面向量及其应用/余弦定理验证模型.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/解三角形探究工坊-余弦定理.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -622,7 +654,7 @@
                       "id": "p0064",
                       "name": "向量加减与数乘演示器",
                       "url": "/visual-classroom/math/g1/b/c01/p0064.html",
-                      "source": "高一下/第六章平面向量及其应用/向量加减与数乘演示器.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/向量加减与数乘演示器.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -630,7 +662,7 @@
                       "id": "p0065",
                       "name": "向量数量积与投影演示器",
                       "url": "/visual-classroom/math/g1/b/c01/p0065.html",
-                      "source": "高一下/第六章平面向量及其应用/向量数量积与投影演示器.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/向量数量积与投影演示器.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -638,7 +670,7 @@
                       "id": "p0066",
                       "name": "平面向量三点共线定理_交互模型",
                       "url": "/visual-classroom/math/g1/b/c01/p0066.html",
-                      "source": "高一下/第六章平面向量及其应用/平面向量三点共线定理_交互模型.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/平面向量三点共线定理_交互模型（探究版） (2).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -646,7 +678,7 @@
                       "id": "p0067",
                       "name": "平面向量基本定理_交互模型",
                       "url": "/visual-classroom/math/g1/b/c01/p0067.html",
-                      "source": "高一下/第六章平面向量及其应用/平面向量基本定理_交互模型.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/平面向量基本定理_交互模型（探究版） (5).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -654,7 +686,7 @@
                       "id": "p0068",
                       "name": "正弦定理验证模型",
                       "url": "/visual-classroom/math/g1/b/c01/p0068.html",
-                      "source": "高一下/第六章平面向量及其应用/正弦定理验证模型.html",
+                      "source": "高一下（修改版）/第六章平面向量及其应用/解三角形探究工坊-正弦定理 (2).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -668,7 +700,7 @@
                       "id": "p0052",
                       "name": "复数乘除的三角表示_交互模型",
                       "url": "/visual-classroom/math/g1/b/c02/p0052.html",
-                      "source": "高一下/第七章复数/复数乘除的三角表示_交互模型.html",
+                      "source": "高一下（修改版）/第七章复数/复数乘除的三角表示_交互模型.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -676,7 +708,7 @@
                       "id": "p0053",
                       "name": "复数的几何意义_交互模型",
                       "url": "/visual-classroom/math/g1/b/c02/p0053.html",
-                      "source": "高一下/第七章复数/复数的几何意义_交互模型.html",
+                      "source": "高一下（修改版）/第七章复数/复数的几何意义_交互模型.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -688,9 +720,9 @@
                   "lessons": [
                     {
                       "id": "p0056",
-                      "name": "圆柱圆锥圆台展开图模型",
+                      "name": "圆柱圆锥圆台表面积",
                       "url": "/visual-classroom/math/g1/b/c03/p0056.html",
-                      "source": "高一下/第八章立体几何初步/圆柱圆锥圆台展开图模型.html",
+                      "source": "高一下（修改版）/第八章立体几何初步/圆柱圆锥圆台表面积-试一试 (3).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -698,15 +730,15 @@
                       "id": "p0057",
                       "name": "基本立体图形模型",
                       "url": "/visual-classroom/math/g1/b/c03/p0057.html",
-                      "source": "高一下/第八章立体几何初步/基本立体图形模型.html",
-                      "needsNetwork": true,
+                      "source": "高一下（修改版）/第八章立体几何初步/基本立体图形模型.html",
+                      "needsNetwork": false,
                       "missingAssets": false
                     },
                     {
                       "id": "p0058",
                       "name": "斜二测画法直观图模型",
                       "url": "/visual-classroom/math/g1/b/c03/p0058.html",
-                      "source": "高一下/第八章立体几何初步/斜二测画法直观图模型.html",
+                      "source": "高一下（修改版）/第八章立体几何初步/斜二测画法直观图模型.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -714,7 +746,7 @@
                       "id": "p0059",
                       "name": "球的表面积与体积_祖暅原理_交互模型",
                       "url": "/visual-classroom/math/g1/b/c03/p0059.html",
-                      "source": "高一下/第八章立体几何初步/球的表面积与体积_祖暅原理_交互模型.html",
+                      "source": "高一下（修改版）/第八章立体几何初步/球的体积与表面积_祖暅原理_探究版 (2).html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -722,7 +754,7 @@
                       "id": "p0060",
                       "name": "空间中的角",
                       "url": "/visual-classroom/math/g1/b/c03/p0060.html",
-                      "source": "高一下/第八章立体几何初步/空间中的角.html",
+                      "source": "高一下（修改版）/第八章立体几何初步/空间中的角.html",
                       "needsNetwork": false,
                       "missingAssets": true
                     },
@@ -730,8 +762,8 @@
                       "id": "p0061",
                       "name": "线面垂直与面面垂直模型",
                       "url": "/visual-classroom/math/g1/b/c03/p0061.html",
-                      "source": "高一下/第八章立体几何初步/线面垂直与面面垂直模型.html",
-                      "needsNetwork": true,
+                      "source": "高一下（修改版）/第八章立体几何初步/线面垂直与面面垂直模型 (16).html",
+                      "needsNetwork": false,
                       "missingAssets": false
                     }
                   ]
@@ -744,7 +776,7 @@
                       "id": "p0054",
                       "name": "频率分布直方图_交互模型",
                       "url": "/visual-classroom/math/g1/b/c04/p0054.html",
-                      "source": "高一下/第九章统计/频率分布直方图_交互模型.html",
+                      "source": "高一下（修改版）/第九章统计/频率分布直方图_交互模型.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     },
@@ -752,7 +784,7 @@
                       "id": "p0055",
                       "name": "频率分布直方图估计模型",
                       "url": "/visual-classroom/math/g1/b/c04/p0055.html",
-                      "source": "高一下/第九章统计/频率分布直方图估计模型.html",
+                      "source": "高一下（修改版）/第九章统计/频率分布直方图估计模型.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }
@@ -766,7 +798,7 @@
                       "id": "p0069",
                       "name": "古典概型与频率的稳定性模型",
                       "url": "/visual-classroom/math/g1/b/c05/p0069.html",
-                      "source": "高一下/第十章概率/古典概型与频率的稳定性模型.html",
+                      "source": "高一下（修改版）/第十章概率/古典概型与频率的稳定性模型.html",
                       "needsNetwork": false,
                       "missingAssets": false
                     }

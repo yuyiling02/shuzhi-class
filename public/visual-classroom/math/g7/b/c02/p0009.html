@@ -159,6 +159,66 @@
   #coordList li.on span.coord,
   #targetList li.on span.coord{ background:#dbeafe; color:#1d4ed8; }
 
+  /* ---- 闯关练习 ---- */
+  .qprog{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .qprog-bar{ flex:1; height:8px; background:#e8eef7; border-radius:999px; overflow:hidden; }
+  .qprog-fill{ height:100%; width:0%; background:linear-gradient(90deg,#60a5fa,#2563eb); border-radius:999px; transition:width .3s ease; }
+  .qprog span{ font-size:11px; color:#5f7392; font-weight:600; flex:none; }
+
+  .qcard{
+    border:1px solid var(--line); border-radius:13px; background:#fff;
+    padding:14px; margin-bottom:14px;
+    box-shadow:0 4px 16px rgba(22,35,58,.05);
+  }
+  .qtag{
+    display:inline-block; font-size:10.5px; font-weight:700; color:#2563eb;
+    background:#eff6ff; border-radius:999px; padding:3px 10px; margin-bottom:9px;
+  }
+  .qtext{ font-size:12.5px; line-height:1.85; color:#2b3d55; margin-bottom:12px; }
+  .qopts{ display:grid; gap:8px; }
+  .qopts button{
+    display:flex; align-items:center; gap:9px;
+    padding:10px 12px; border:1px solid var(--line); background:#fff;
+    border-radius:10px; font:inherit; font-size:12px; color:#3c4f68;
+    cursor:pointer; transition:all .15s ease; text-align:left;
+  }
+  .qopts button:hover:not(:disabled){ border-color:#93b8f0; background:#f7fbff; }
+  .qopts button:disabled{ cursor:default; opacity:.72; }
+  .qopts button .qletter{
+    flex:none; width:20px; height:20px; border-radius:50%;
+    background:#eef3fa; color:#5f7392; font-size:10.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .qopts button.right{ border-color:#34d399; background:#f0fdf7; color:#0f766e; opacity:1; }
+  .qopts button.right .qletter{ background:#34d399; color:#fff; }
+  .qopts button.wrong{ border-color:#f87171; background:#fef2f2; color:#b91c1c; }
+  .qopts button.wrong .qletter{ background:#f87171; color:#fff; }
+  .qfb{
+    display:none; margin-top:12px; border-radius:10px;
+    padding:10px 12px; font-size:11.5px; line-height:1.8;
+  }
+  .qfb.ok{ background:#f0fdf7; color:#0f766e; border:1px solid #bbf7d0; font-weight:600; }
+  .qfb.no{ background:#fef6ec; color:#9a5b18; border:1px solid #fde0b8; font-weight:600; }
+  .qfb span{ display:block; margin-top:4px; color:#5f7392; font-weight:500; }
+  .qnext{
+    display:none; width:100%; margin-top:12px; padding:10px 6px;
+    border:none; background:var(--accent); color:#fff;
+    border-radius:10px; font:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    transition:background .15s;
+  }
+  .qnext:hover{ background:#1d4ed8; }
+  .qresult{
+    display:none; border:1px solid var(--line); border-radius:13px;
+    background:linear-gradient(180deg,#f6faff,#fff);
+    padding:22px 14px 18px; text-align:center; margin-bottom:14px;
+  }
+  .qscore{
+    font-size:32px; font-weight:800; color:#1d4ed8;
+    font-family:ui-monospace,"SF Mono",Consolas,monospace;
+  }
+  .qmsg{ margin:8px 0 4px; font-size:12px; color:#5f7392; line-height:1.8; }
+  .qresult .qnext{ display:block; }
+
   .tip{
     margin-top:14px; font-size:11.5px; line-height:1.75;
     color:#7c8da4; padding:10px 12px;
@@ -206,8 +266,8 @@
 
   .table{ border:1px solid var(--line); border-radius:11px; overflow:hidden; margin-bottom:14px; }
   .tr{
-    display:grid; grid-template-columns:34px 1fr 18px 1fr;
-    align-items:center; gap:2px;
+    display:grid; grid-template-columns:40px 1fr;
+    align-items:center; gap:4px;
     padding:8px 11px; font-size:11.5px;
     border-bottom:1px solid #f0f5fb;
     font-family:ui-monospace,"SF Mono",Consolas,monospace;
@@ -221,6 +281,58 @@
   .tr .vname{ font-weight:700; color:#64748b; }
   .tr .arrow{ color:#b6c6da; text-align:center; font-size:11px; }
   .tr .vnew{ color:#1d4ed8; font-weight:700; }
+  .tr .vq{ color:#c2410c; font-weight:700; letter-spacing:.08em; }
+
+  /* ---- 平移规律知识卡 ---- */
+  .kp{
+    background:linear-gradient(180deg,#f4f8ff 0%,#fbfdff 100%);
+    border:1px solid #dbe7f7; border-radius:11px;
+    padding:11px 13px; margin-bottom:14px;
+  }
+  .kp-title{
+    font-size:11px; font-weight:700; color:#1e3a5f;
+    margin-bottom:8px; letter-spacing:.02em;
+  }
+  .kp-grid{
+    display:grid; grid-template-columns:1fr auto; gap:5px 10px;
+    align-items:center; font-size:11.5px;
+  }
+  .kp-grid span{ color:#5f7392; }
+  .kp-grid b{
+    font-family:ui-monospace,"SF Mono",Consolas,monospace;
+    color:#1d4ed8; font-weight:700; font-size:11.5px;
+  }
+  .kp-note{
+    margin-top:9px; padding-top:8px; border-top:1px dashed #d7e4f5;
+    font-size:11px; line-height:1.75; color:#5f7392;
+  }
+  .kp-note b{ color:#b45309; font-family:ui-monospace,Consolas,monospace; }
+
+  /* ---- 逆向练习卡 ---- */
+  .quiz{
+    display:none;
+    border:1px solid #ffe0bf; background:linear-gradient(180deg,#fffaf3,#fffdf9);
+    border-radius:11px; padding:12px 13px; margin-bottom:14px;
+  }
+  .quiz-q{ font-size:11.5px; line-height:1.9; color:#5a4a35; }
+  .quiz-q b{ color:#b45309; font-family:ui-monospace,Consolas,monospace; font-size:12px; }
+  .quiz-btn{
+    width:100%; margin-top:10px; padding:8px 6px;
+    border:1px solid #f0b27a; background:#fff; color:#c2410c;
+    border-radius:9px; font:inherit; font-size:11.5px; font-weight:700;
+    cursor:pointer; transition:all .16s ease;
+  }
+  .quiz-btn:hover{ background:#fff7ed; }
+  .quiz-btn.done{ background:#f1f5f9; border-color:#cbd5e1; color:#64748b; }
+  .quiz-a{ display:none; margin-top:11px; font-size:11.5px; color:#3c4f68; }
+  .quiz-a b{
+    display:block; font-family:ui-monospace,Consolas,monospace;
+    color:#1d4ed8; font-size:13px; margin-bottom:5px;
+  }
+  .quiz-cal{
+    display:block; font-family:ui-monospace,Consolas,monospace;
+    font-size:11px; line-height:1.95; color:#b45309;
+  }
 
   /* ---- 分段按钮 ---- */
   .seg{
@@ -253,6 +365,126 @@
   .presets button.is-active{
     background:var(--accent); color:#fff; border-color:var(--accent);
     box-shadow:0 4px 12px rgba(37,99,235,.22); font-weight:600;
+  }
+
+  /* ---- 平移：三阶段标签 ---- */
+  .stage-tabs{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:13px; }
+  .stage-tabs button{
+    border:1px solid var(--line); background:#fff; border-radius:10px;
+    padding:7px 3px 8px; font:inherit; font-size:11px; font-weight:600;
+    color:#5f7392; cursor:pointer; transition:all .16s; line-height:1.3;
+    text-align:center;
+  }
+  .stage-tabs button b{
+    display:block; font-size:12.5px; color:#b6c6da; margin-bottom:2px; font-weight:800;
+  }
+  .stage-tabs button:hover{ border-color:#c3d6f0; color:#2f5fa8; }
+  .stage-tabs button.is-active{
+    background:linear-gradient(160deg,#4a86f2,#2563eb);
+    color:#fff; border-color:transparent;
+    box-shadow:0 5px 14px rgba(37,99,235,.26);
+  }
+  .stage-tabs button.is-active b{ color:rgba(255,255,255,.7); }
+
+  /* ---- 平移：老师示范卡 ---- */
+  .teach-card{
+    border:1px solid #dbe7f7; border-radius:12px; padding:11px 13px;
+    margin-bottom:12px; background:linear-gradient(180deg,#f6faff,#fff);
+  }
+  .teach-head{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:10.5px; color:#94a3b8; margin-bottom:7px; letter-spacing:.03em;
+  }
+  .teach-head .dots{ letter-spacing:2px; }
+  .teach-head .dots i{ font-style:normal; color:#d3e0f1; }
+  .teach-head .dots i.on{ color:#2563eb; }
+  .teach-title{ font-size:12.5px; font-weight:800; color:#1e3a5f; margin-bottom:6px; }
+  .teach-body{ font-size:11.5px; line-height:1.85; color:#55708f; }
+  .teach-body b{ color:#b45309; font-weight:700; }
+  .teach-body .mono{ font-family:ui-monospace,"SF Mono",Consolas,monospace; color:#1d4ed8; font-weight:700; }
+  .teach-nav{ display:flex; gap:7px; margin-top:10px; }
+  .teach-nav button{
+    flex:1; padding:8px 4px; border-radius:9px; border:1px solid var(--line);
+    background:#fff; font:inherit; font-size:11.5px; font-weight:700;
+    color:#5f7392; cursor:pointer; transition:all .16s;
+  }
+  .teach-nav button:hover{ border-color:#c3d6f0; background:#f8fbff; }
+  .teach-nav button.primary{
+    background:var(--accent); color:#fff; border-color:var(--accent);
+    box-shadow:0 4px 11px rgba(37,99,235,.24);
+  }
+  .teach-nav button:disabled{ opacity:.38; cursor:not-allowed; box-shadow:none; }
+
+  /* ---- 平移：出题卡 ---- */
+  .task-card{
+    border:1px solid #ffe0bf; border-radius:12px; padding:11px 13px;
+    margin-bottom:12px; background:linear-gradient(180deg,#fffaf3,#fffdf9);
+  }
+  .task-tag{ font-size:10.5px; font-weight:800; color:#c2410c; letter-spacing:.04em; margin-bottom:6px; }
+  .task-q{ font-size:11.5px; line-height:1.85; color:#5a4a35; }
+  .task-q b{ color:#b45309; font-family:ui-monospace,"SF Mono",Consolas,monospace; font-size:12px; }
+  .task-fb{
+    display:none; margin-top:9px; padding-top:8px; border-top:1px dashed #f0cfa8;
+    font-size:11.5px; line-height:1.8;
+  }
+  .task-fb.ok{ display:block; color:#15803d; }
+  .task-fb.no{ display:block; color:#b91c1c; }
+  .task-fb.info{ display:block; color:#a16207; border-top-color:#f5e0be; }
+  .task-fb.info b{ font-family:ui-monospace,"SF Mono",Consolas,monospace; color:#c2410c; }
+
+  /* ---- 平移：方向 + 单位控件 ---- */
+  .mv-ctrl{
+    border:1px solid var(--line); border-radius:12px; padding:11px 12px;
+    margin-bottom:12px; background:#fbfdff; transition:opacity .2s;
+  }
+  .mv-ctrl.locked{ opacity:.45; pointer-events:none; }
+  .mv-ctrl-head{
+    font-size:10.5px; font-weight:700; color:#8494ac;
+    margin-bottom:9px; letter-spacing:.03em;
+  }
+  .axis-row{
+    display:grid; grid-template-columns:30px 1fr; gap:7px 8px; align-items:center;
+  }
+  .axis-row + .axis-row{ margin-top:10px; padding-top:10px; border-top:1px dashed #e4edf9; }
+  .axis-name{ font-size:11px; font-weight:800; color:#8494ac; }
+  .dirbtns{ display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
+  .dirbtns button{
+    padding:7px 1px; border:1px solid var(--line); background:#fff;
+    border-radius:8px; font:inherit; font-size:11px; font-weight:600;
+    color:#64748b; cursor:pointer; transition:all .14s;
+  }
+  .dirbtns button:hover{ border-color:#c3d6f0; }
+  .dirbtns button.is-active{
+    background:#eaf2ff; border-color:#a9c8f5; color:#1d4ed8;
+    box-shadow:inset 0 1px 0 #fff;
+  }
+  .numbox{ display:flex; align-items:center; gap:6px; }
+  .numbox .nstep{
+    width:26px; height:26px; border-radius:8px; border:1px solid var(--line);
+    background:#fff; font:inherit; font-size:14px; font-weight:700; line-height:1;
+    color:#64748b; cursor:pointer; transition:all .14s;
+  }
+  .numbox .nstep:hover{ border-color:#a9c8f5; color:#1d4ed8; }
+  .numbox input{
+    width:46px; height:26px; text-align:center; box-sizing:border-box;
+    border:1px solid #cfdcf0; border-radius:8px; background:#fff;
+    font-family:ui-monospace,"SF Mono",Consolas,monospace;
+    font-size:13px; font-weight:800; color:#1d4ed8; outline:none;
+  }
+  .numbox input:focus{ border-color:#7fa9e8; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+  .numbox input::-webkit-outer-spin-button,
+  .numbox input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .numbox .unit{ font-size:11px; color:#8494ac; }
+
+  .check-btn{
+    width:100%; padding:10px; margin-bottom:12px; border:none; border-radius:10px;
+    background:linear-gradient(160deg,#4a86f2,#2563eb); color:#fff;
+    font:inherit; font-size:12px; font-weight:700; cursor:pointer;
+    box-shadow:0 5px 14px rgba(37,99,235,.24); transition:all .16s;
+  }
+  .check-btn:hover{ transform:translateY(-1px); box-shadow:0 7px 18px rgba(37,99,235,.3); }
+  .check-btn.gray{
+    background:#f1f5fb; color:#64748b; box-shadow:none; border:1px solid var(--line);
   }
 
   .sent{ padding:13px; font-size:12.5px; line-height:1.9; color:#4d6079; }
@@ -305,6 +537,17 @@
     border-color:rgba(217,150,50,.4);
     font-size:11px; font-weight:700;
   }
+  /* 平移量标签：直接标在图上的那一段路上 */
+  .lbl-disp{
+    background:linear-gradient(160deg,#fb923c,#ea580c);
+    color:#fff; border:none;
+    font-size:12.5px; font-weight:800; letter-spacing:.02em;
+    padding:4px 11px; border-radius:999px;
+    box-shadow:0 5px 14px rgba(234,88,12,.34), 0 1px 0 rgba(255,255,255,.35) inset;
+  }
+
+
+  .lbl-disp .dir-ar{ font-size:13px; margin-right:2px; }
   .axis-x, .axis-y{
     background:transparent; border:none; box-shadow:none;
     font-size:16px; font-weight:700; font-style:italic;
@@ -336,6 +579,46 @@
     box-shadow:0 3px 14px rgba(30,60,100,.07);
     pointer-events:none;
   }
+
+  /* 自己画：图形上方的「平移要求」横幅 */
+  .draw-banner{
+    position:absolute; left:50%; top:62px; transform:translate(-50%, -12px);
+    display:none; align-items:center; gap:10px;
+    padding:10px 20px 10px 12px;
+    background:rgba(255,255,255,.94);
+    border:1.5px solid rgba(37,99,235,.35);
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(37,99,235,.16), 0 2px 6px rgba(30,60,100,.06);
+    backdrop-filter:blur(10px);
+    pointer-events:none; opacity:0;
+    transition:opacity .28s ease, transform .28s ease;
+    white-space:nowrap; z-index:6;
+  }
+  .draw-banner.show{ display:flex; opacity:1; transform:translate(-50%, 0); }
+  .draw-banner .db-tag{
+    font-size:11px; font-weight:700; color:#fff;
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+    border-radius:8px; padding:4px 9px; letter-spacing:.02em;
+  }
+  .draw-banner .db-main{
+    font-size:17px; font-weight:800; color:#1e3a5f; letter-spacing:.01em;
+  }
+  .draw-banner .db-main b{ color:#e2620b; }
+  .draw-banner .db-main .db-ar{
+    display:inline-block; color:#ea580c; font-weight:900; margin:0 1px;
+  }
+  .draw-banner .db-hint{
+    font-size:11px; font-weight:600; color:#64748b;
+    border-left:1px solid rgba(148,163,184,.5);
+    padding-left:10px; margin-left:2px; line-height:1.4;
+    white-space:nowrap;
+  }
+  .draw-banner.done{
+    border-color:rgba(22,163,74,.45);
+    box-shadow:0 10px 30px rgba(22,163,74,.16), 0 2px 6px rgba(30,60,100,.06);
+  }
+  .draw-banner.done .db-tag{ background:linear-gradient(135deg,#10b981,#059669); }
+  .draw-banner.done .db-main b{ color:#059669; }
   .hud{
     position:absolute; left:20px; bottom:18px;
     font-size:11.5px; color:#7c8da4;
@@ -412,6 +695,7 @@
       <button class="tab is-active" data-tab="geo">① 地理位置</button>
       <button class="tab" data-tab="bearing">② 方向距离</button>
       <button class="tab" data-tab="move">③ 坐标平移</button>
+      <button class="tab" data-tab="quiz">④ 闯关</button>
     </div>
 
     <!-- ================= 模块① 用坐标表示地理位置 ================= -->
@@ -420,13 +704,13 @@
         <span class="book-tag">课本 例 1</span>
         <p>根据以下条件画一幅示意图，标出学校和小刚家、小强家、小敏家的位置。</p>
         <ul>
-          <li>小刚家：出校门向东走 1500 m，再向北走 2000 m。</li>
-          <li>小强家：出校门向西走 2000 m，再向北走 3500 m，最后向东走 500 m。</li>
-          <li>小敏家：出校门向南走 1000 m，再向东走 3000 m，最后向南走 750 m。</li>
+          <li>小刚家：出校门向东走 3 格，再向北走 4 格。</li>
+          <li>小强家：出校门向西走 4 格，再向北走 7 格，最后向东走 1 格。</li>
+          <li>小敏家：出校门向南走 2 格，再向东走 6 格，最后向南走 1.5 格。</li>
         </ul>
       </div>
 
-      <p class="hint">以<b>学校</b>为原点，正东为 x 轴正方向、正北为 y 轴正方向，规定<b>一个单位长度代表 500 m</b>。</p>
+      <p class="hint">以<b>学校</b>为原点，正东为 x 轴正方向、正北为 y 轴正方向，<b>一格就是一个单位长度</b>——坐标直接用格数写，简洁又好记。</p>
 
       <div class="readout">
         <div class="readout-title">各地点坐标（点一行可看走法）</div>
@@ -446,9 +730,9 @@
     <section class="pane" id="pane-bearing">
       <div class="book">
         <span class="book-tag">课本 思考</span>
-        <p>一艘船在 A 处遇险后，向相距 35 n mile 位于 B 处的救生船报警。</p>
+        <p>一次救援演练中，遇险船 A 发出求救信号，救生船 B 收到信号，两船相距 35 米（图上 1 格表示 5 米）。</p>
         <p>(1) 如何用方向和距离描述救生船相对于遇险船的位置？</p>
-        <p>(2) 救生船接到报警后准备前往救援，如何用方向和距离描述遇险船相对于救生船的位置？</p>
+        <p>(2) 救生船前往救援时，如何用方向和距离描述遇险船相对于救生船的位置？</p>
       </div>
 
       <div class="readout">
@@ -484,49 +768,145 @@
     <section class="pane" id="pane-move">
       <div class="book">
         <span class="book-tag">课本 探究 · 例 2</span>
-        <p><b>探究：</b>三角形 ABC 三个顶点 A(4,3)、B(3,1)、C(1,2)，把各点横坐标都减 6（或纵坐标都减 5），得到 A₁、B₁、C₁。</p>
-        <p><b>例 2：</b>长方形 ABCD，A(-3,2)、B(-3,-2)、C(3,-2)、D(3,2)，横坐标都加 3、纵坐标都加 2，得到 A′B′C′D′。</p>
+        <p>三角形 ABC 的三个顶点：A(4, 3)、B(3, 1)、C(1, 2)。<br>
+           长方形 ABCD 的四个顶点：A(−3, 2)、B(−3, −2)、C(3, −2)、D(3, 2)。</p>
       </div>
 
       <div class="seg" id="figBtns">
-        <button data-fig="tri">探究 · 三角形 ABC</button>
-        <button class="is-active" data-fig="rect">例 2 · 长方形 ABCD</button>
+        <button data-fig="tri">三角形</button>
+        <button data-fig="rect" class="is-active">长方形</button>
+        <button data-fig="diamond">菱形</button>
       </div>
 
-      <div class="presets" id="presetBtns"></div>
-
-      <div class="slider-row">
-        <div class="slider-head"><span>向左 ← → 向右</span><b id="valA">向右 3</b></div>
-        <input type="range" id="rangeA" min="-8" max="8" step="1" value="3">
+      <div class="stage-tabs" id="stageBtns">
+        <button data-stage="teach" class="is-active"><b>①</b>先看怎么画</button>
+        <button data-stage="task"><b>②</b>出题练一练</button>
+        <button data-stage="free"><b>③</b>我自己画</button>
       </div>
 
-      <div class="slider-row">
-        <div class="slider-head"><span>向下 ← → 向上</span><b id="valB">向上 2</b></div>
-        <input type="range" id="rangeB" min="-8" max="8" step="1" value="2">
+      <!-- ① 示范 -->
+      <div class="teach-card" id="teachCard">
+        <div class="teach-head">
+          <span id="teachStepNum">第 1 步 / 共 6 步</span>
+          <span class="dots" id="teachDots"></span>
+        </div>
+        <div class="teach-title" id="teachTitle"></div>
+        <div class="teach-body" id="teachBody"></div>
+        <div class="teach-nav">
+          <button id="teachPrev">← 上一步</button>
+          <button id="teachNext" class="primary">下一步 →</button>
+        </div>
       </div>
 
-      <div class="rule" id="dirSent"></div>
+      <!-- ② 出题 -->
+      <div class="task-card" id="taskCard" style="display:none">
+        <div class="task-tag" id="taskTag"></div>
+        <div class="task-q" id="taskQ"></div>
+        <div class="task-fb" id="taskFb"></div>
+      </div>
+
+      <!-- 方向 + 单位（②③共用） -->
+      <div class="mv-ctrl locked" id="mvCtrl">
+        <div class="mv-ctrl-head" id="ctrlHead">先选方向，再填走几个单位</div>
+        <div class="axis-row">
+          <span class="axis-name">左右</span>
+          <div class="dirbtns" id="dirX">
+            <button data-d="-1">← 左</button>
+            <button data-d="0">不动</button>
+            <button data-d="1" class="is-active">右 →</button>
+          </div>
+          <span></span>
+          <div class="numbox">
+            <button class="nstep" data-n="-1">−</button>
+            <input type="number" id="numX" min="1" max="9" step="1" value="3">
+            <button class="nstep" data-n="1">+</button>
+            <span class="unit">个单位</span>
+          </div>
+        </div>
+        <div class="axis-row">
+          <span class="axis-name">上下</span>
+          <div class="dirbtns" id="dirY">
+            <button data-d="-1">↓ 下</button>
+            <button data-d="0">不动</button>
+            <button data-d="1" class="is-active">↑ 上</button>
+          </div>
+          <span></span>
+          <div class="numbox">
+            <button class="nstep" data-n="-1">−</button>
+            <input type="number" id="numY" min="1" max="9" step="1" value="2">
+            <button class="nstep" data-n="1">+</button>
+            <span class="unit">个单位</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="check-btn" id="checkBtn" style="display:none">对照答案</button>
 
       <div class="table" id="coordTable"></div>
 
-      <div class="tip">口诀：<b>右加左减 · 上加下减</b>——向右（上）平移几个单位，横（纵）坐标就加几；向左（下）平移几个单位，就减几。</div>
+      <div class="rule" id="dirSent"></div>
 
-      <p class="hint small">💡 灰色原图的<b>顶点可以一个个单独拖动</b>（拖哪个哪个变），蓝色平移图会同步跟着走；拖<b>橙色把手</b>则是整个图形一起平移。</p>
+      <div class="kp">
+        <div class="kp-title">点的平移规律（原坐标为 (x, y)）</div>
+        <div class="kp-grid">
+          <span>向右平移 a 个单位</span><b>(x + a, y)</b>
+          <span>向左平移 a 个单位</span><b>(x − a, y)</b>
+          <span>向上平移 b 个单位</span><b>(x, y + b)</b>
+          <span>向下平移 b 个单位</span><b>(x, y − b)</b>
+        </div>
+        <div class="kp-note">逆推：已知平移后的点 (x′, y′) 和平移量 a、b，原坐标就是 <b>(x′ − a, y′ − b)</b>——<b>加变减，减变加</b>。</div>
+      </div>
 
-      <div class="tip">图形平移，就是图形上<b>每一个点</b>都按同样的方向、同样的距离移动。所以四个顶点的坐标变化完全一致，图形的形状和大小都不变；反过来，只动一个顶点，图形的形状就变了——这就不是平移了。</div>
+      <div class="tip">口诀：<b>右加左减 · 上加下减</b>。平移时每个顶点都用同一组算式，所以形状、大小都不变，只是整个图形换了位置。</div>
+
+      <p class="hint small">💡 第 ③ 步是<b>自己动手画</b>：图上方会一直写着「平移要求」。先<b>点一下蓝球</b>选中它，再<b>点目标格点</b>放下（球会自动对齐格点）；放对的球变绿落定。全部放对，蓝色图形就连起来。想练别的方向、别的格数，改上面的控件就行。</p>
+    </section>
+
+    <!-- ================= 模块④ 闯关练习 ================= -->
+    <section class="pane" id="pane-quiz">
+      <div class="book">
+        <span class="book-tag">闯关练习</span>
+        <p>6 道题覆盖本节三个知识点。选错了会给出解析，可以回到对应模块里拖一拖再答。看看能拿几分！</p>
+      </div>
+
+      <div class="qprog">
+        <div class="qprog-bar"><div class="qprog-fill" id="qFill"></div></div>
+        <span id="qCount">第 1 / 6 题</span>
+      </div>
+
+      <div class="qcard" id="qCard">
+        <div class="qtag" id="qTag"></div>
+        <div class="qtext" id="qText"></div>
+        <div class="qopts" id="qOpts"></div>
+        <div class="qfb" id="qFb"></div>
+        <button class="qnext" id="qNext">下一题 →</button>
+      </div>
+
+      <div class="qresult" id="qResult">
+        <div class="qscore" id="qScore"></div>
+        <div class="qmsg" id="qMsg"></div>
+        <button class="qnext" id="qRestart">再来一轮 ↻</button>
+      </div>
+
+      <p class="hint small">💡 场景里的网格就是答题板：做坐标题时可以先在图上比划一下位置再作答。</p>
     </section>
   </aside>
 
   <main id="stage">
     <div id="scene"></div>
     <div class="badge" id="sceneBadge">用坐标表示地理位置 · 例 1</div>
+    <div class="draw-banner" id="drawBanner">
+      <span class="db-tag">平移要求</span>
+      <span class="db-main" id="drawBannerText"></span>
+      <span class="db-hint" id="drawBannerHint"></span>
+    </div>
     <div class="viewbtns">
       <button id="viewIso" class="is-active">斜视</button>
       <button id="viewTop">俯视</button>
     </div>
     <div class="hud"><kbd>拖动</kbd> 旋转视角 <kbd>滚轮</kbd> 缩放</div>
     <div class="drag-tip" id="dragTip">按住拖动试试</div>
-    <div id="fallback">正在加载三维场景…<br><span style="font-size:12px;color:#94a3b8">若长时间无反应，请检查网络后刷新页面</span></div>
+    <div id="fallback">正在加载三维场景…<br><span style="font-size:12px;color:#94a3b8">若长时间无反应，请检查本地资源文件后刷新页面</span></div>
   </main>
 </div>
 
@@ -540,8 +920,8 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    "three": "/visual-classroom/vendor/three/0.160.0/build/three.module.js",
+    "three/addons/": "/visual-classroom/vendor/three/0.160.0/examples/jsm/"
   }
 }
 </script>
@@ -558,12 +938,12 @@ document.getElementById('fallback').style.display = 'none';
    0. 常量
    ========================================================= */
 const R = 8;                     // 坐标平面半边长（格）
-const S = { tab: 'geo', ox: 0, oy: 0, selected: null, a: 3, b: 2, ref: 'A', target: 'B' };
+const S = { tab: 'geo', ox: 0, oy: 0, selected: null, a: 3, b: 2, ref: 'A', target: 'B', mode: 'fwd', reveal: false };
 const C_X = 0xd9482f;
 const C_Y = 0x2f6fe0;
 
-const UNIT_GEO = 500;            // 模块①：1 格 = 500 m
-const UNIT_SEA = 5;              // 模块②：1 格 = 5 n mile
+const UNIT_GEO = 1;              // 模块①：直接用格数
+const UNIT_SEA = 5;              // 模块②：1 格 = 5 米
 
 const host = document.getElementById('scene');
 
@@ -574,6 +954,7 @@ const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 500);
 const CAM_ISO = new THREE.Vector3(14, 15.5, 18.5);
+const CAM_MOVE = new THREE.Vector3(11.2, 12.6, 15.2);   // 平移模块贴近一点，图形更大
 camera.position.copy(CAM_ISO);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -732,7 +1113,7 @@ function currentUnit() {
 
 function rebuildTicks() {
   clearGroup(ticksGroup);
-  const unit = currentUnit();
+  const unit = S.tab === 'geo' ? 1 : currentUnit();   // 地理位置模块直接用格数，数字更友好
   const ox = S.ox, oy = S.oy;
   const matX = new THREE.MeshBasicMaterial({ color: C_X });
   const matY = new THREE.MeshBasicMaterial({ color: C_Y });
@@ -790,7 +1171,13 @@ function setPointerFromEvent(e) {
 function currentDraggables() {
   if (S.tab === 'geo') return [originHandle].concat(homeGroups);
   if (S.tab === 'bearing') return [boatB, islandGroup, lightGroup];
-  if (S.tab === 'move') return [moveHandle].concat(activeBuilt().ghost.verts);
+  if (S.tab === 'move') {
+    if (MV.stage !== 'free') return [];          // 示范/出题阶段先不给拖
+    if (MV.draw.on) {                            // ③ 自己画：拖的是待放的蓝色小球
+      return activeBuilt().solid.verts.filter((v) => !MV.draw.pts[v.userData.drawIndex].done);
+    }
+    return [moveHandle].concat(activeBuilt().ghost.verts);
+  }
   return [];
 }
 
@@ -817,6 +1204,39 @@ function showDragTip(text) {
   tipTimer = setTimeout(() => dragTip.classList.remove('show'), 2400);
 }
 
+/* 拿起 / 放下小球（点选模式：拖不动也能用点击完成） */
+function pickBall(i) {
+  MV.draw.carry = i;
+  controls.enabled = false;
+  renderer.domElement.style.cursor = 'crosshair';
+  showDragTip('已选中这个蓝球 · 再点一下目标格点就落下去');
+  syncMove(false);
+  const p = MV.draw.pts[i];
+  showPreview(p.x, p.y);        // 预览先落在球原来的位置
+}
+
+function dropBall(hit, cell) {
+  const i = MV.draw.carry;
+  if (i == null) return;
+  const dp = MV.draw.pts[i];
+  if (cell) { dp.x = cell.x; dp.y = cell.y; }
+  else if (hit) {
+    dp.x = Math.max(-R + 1, Math.min(R - 1, Math.round(hit.x)));
+    dp.y = Math.max(-R + 1, Math.min(R - 1, Math.round(-hit.z)));
+  }
+  MV.draw.carry = null;
+  hidePreview();
+  checkDrawPoint(i);
+  dragState.hovered = null;
+  controls.enabled = true;
+  renderer.domElement.style.cursor = 'grab';
+  syncMove(false);
+  updateDrawUI();
+  updateCoordTable(MV.draw.dx, MV.draw.dy);
+  updateDirSent(MV.draw.dx, MV.draw.dy);
+  if (dp.done) showDragTip('✓ 这个点放对了');
+}
+
 renderer.domElement.addEventListener('pointermove', (e) => {
   if (dragState.active) {
     setPointerFromEvent(e);
@@ -827,10 +1247,20 @@ renderer.domElement.addEventListener('pointermove', (e) => {
   }
 
   setPointerFromEvent(e);
+
+  /* 点选模式：落点预览跟着鼠标走（不用按住） */
+  if (S.tab === 'move' && MV.stage === 'free' && MV.draw.carry !== null) {
+    if (raycaster.ray.intersectPlane(dragPlane, dragHit)) {
+      showPreview(Math.round(dragHit.x), Math.round(-dragHit.z));
+    }
+    return;
+  }
+
   const obj = findDraggable();
   if (obj !== dragState.hovered) {
     dragState.hovered = obj;
-    renderer.domElement.style.cursor = obj ? 'grab' : 'default';
+    const drawing = S.tab === 'move' && MV.stage === 'free' && MV.draw.on;
+    renderer.domElement.style.cursor = obj ? (drawing ? 'pointer' : 'grab') : 'default';
     controls.enabled = !obj;
   }
 }, { passive: true });
@@ -841,6 +1271,30 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
   dragState.downT = performance.now();
 
   setPointerFromEvent(e);
+
+  /* ---- 自己画：纯点击式，不靠拖拽 ---- */
+  if (S.tab === 'move' && MV.stage === 'free' && MV.draw.on) {
+    const hitObj = findDraggable();
+
+    if (MV.draw.carry !== null) {
+      // 已经选了球：点另一个蓝球 = 改选它；点别处 = 把这个球放下去
+      if (hitObj && hitObj.userData.drawIndex !== undefined &&
+          hitObj.userData.drawIndex !== MV.draw.carry) {
+        pickBall(hitObj.userData.drawIndex);
+      } else if (raycaster.ray.intersectPlane(dragPlane, dragHit)) {
+        dropBall(dragHit);
+      }
+      return;
+    }
+
+    if (hitObj && hitObj.userData.drawIndex !== undefined) {
+      pickBall(hitObj.userData.drawIndex);      // 第一次点：选中这个球
+    } else {
+      showDragTip('先点一下蓝色小球选中它，再点目标格点');
+    }
+    return;
+  }
+
   const obj = findDraggable();
   if (obj) {
     dragState.active = true;
@@ -856,12 +1310,20 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
 
 renderer.domElement.addEventListener('pointerup', (e) => {
   const wasActive = dragState.active;
+  const pickedObj = dragState.object;
   dragState.active = false;
   dragState.object = null;
   renderer.domElement.style.cursor = dragState.hovered ? 'grab' : 'default';
   if (!dragState.hovered) controls.enabled = true;
   if (wasActive) {
     try { renderer.domElement.releasePointerCapture(e.pointerId); } catch (err) {}
+
+    /* 蓝色小球：按住没怎么动 = "点选拿起"，之后跟着鼠标走、再点一下放下 */
+    if (S.tab === 'move' && MV.stage === 'free' && MV.draw.on &&
+        pickedObj && pickedObj.userData.drawIndex !== undefined &&
+        Math.hypot(e.clientX - dragState.downX, e.clientY - dragState.downY) < 6) {
+      pickBall(pickedObj.userData.drawIndex);
+    }
     return;
   }
   if (Math.hypot(e.clientX - dragState.downX, e.clientY - dragState.downY) > 6) return;
@@ -986,11 +1448,11 @@ function drawPath(cfg) {
   m.position.copy(B);
   pathGroup.add(m);
 
-  const lbl1 = makeLabel((x >= 0 ? '东 ' : '西 ') + Math.abs(x * UNIT_GEO) + ' m', 'lbl-path');
+  const lbl1 = makeLabel((x >= 0 ? '东 ' : '西 ') + fmt(Math.abs(x)) + ' 格', 'lbl-path');
   lbl1.position.copy(M2W(x / 2, 0, 0.62));
   pathGroup.add(lbl1);
 
-  const lbl2 = makeLabel((y >= 0 ? '北 ' : '南 ') + Math.abs(y * UNIT_GEO) + ' m', 'lbl-path');
+  const lbl2 = makeLabel((y >= 0 ? '北 ' : '南 ') + fmt(Math.abs(y)) + ' 格', 'lbl-path');
   lbl2.position.copy(M2W(x, y / 2, 0.62));
   pathGroup.add(lbl2);
 }
@@ -1033,8 +1495,8 @@ function updateGeo() {
   originHandle.position.set(S.ox, 0, -S.oy);
 
   placeObjs.forEach((o) => {
-    const x = (o.cfg.gx - S.ox) * UNIT_GEO;
-    const y = (o.cfg.gy - S.oy) * UNIT_GEO;
+    const x = o.cfg.gx - S.ox;
+    const y = o.cfg.gy - S.oy;
     o.label.element.textContent = o.cfg.name + ' (' + fmt(x) + ', ' + fmt(y) + ')';
   });
 
@@ -1046,8 +1508,8 @@ const coordListEl = document.getElementById('coordList');
 
 function renderCoordList() {
   coordListEl.innerHTML = placeObjs.map((o) => {
-    const x = (o.cfg.gx - S.ox) * UNIT_GEO;
-    const y = (o.cfg.gy - S.oy) * UNIT_GEO;
+    const x = o.cfg.gx - S.ox;
+    const y = o.cfg.gy - S.oy;
     const hex = '#' + o.cfg.color.toString(16).padStart(6, '0');
     const on = S.selected === o.cfg ? ' class="on"' : '';
     return '<li' + on + ' data-id="' + o.cfg.id + '"><i style="background:' + hex + '"></i>' +
@@ -1084,32 +1546,42 @@ scene.add(bearingRoot);
 const BEAR = { dist: 7, bd: 60 };     // 距离（格）、方位角（度）
 const ARC_MAX = 1.5;
 
-function makeThickArrow(color, shaftR = 0.055, headR = 0.18, headH = 0.44) {
+function makeThickArrow(color, shaftR = 0.055, headR = 0.18, headH = 0.44, opts) {
+  const o = opts || {};
   const g = new THREE.Group();
-  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.05 });
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(shaftR, shaftR, 1, 10), mat);
-  const head = new THREE.Mesh(new THREE.ConeGeometry(headR, headH, 14), mat);
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.3,
+    metalness: 0.14,
+    emissive: new THREE.Color(color).multiplyScalar(0.2),
+    transparent: !!o.opacity,
+    opacity: o.opacity || 1
+  });
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(shaftR, shaftR, 1, 16), mat);
+  const head = new THREE.Mesh(new THREE.ConeGeometry(headR, headH, 24), mat);
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(shaftR * 1.45, 16, 12), mat);
   shaft.castShadow = true;
   head.castShadow = true;
-  g.add(shaft, head);
-  g.userData = { shaft, head, headH };
+  g.add(shaft, head, dot);
+  g.userData = { shaft, head, dot, headH, mat };
   return g;
 }
 
 function setThickArrow(g, from, to) {
-  const { shaft, head, headH } = g.userData;
+  const { shaft, head, dot, headH } = g.userData;
   const dir = to.clone().sub(from);
   const len = dir.length();
   if (len < 0.06) { g.visible = false; return; }
   g.visible = true;
   dir.normalize();
-  const headLen = Math.min(headH, len * 0.45);
+  const headLen = Math.min(headH, len * 0.5);
   const shaftLen = Math.max(0.01, len - headLen);
   shaft.scale.set(1, shaftLen, 1);
   shaft.position.copy(from).addScaledVector(dir, shaftLen / 2);
   shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
   head.position.copy(from).addScaledVector(dir, shaftLen + headLen / 2);
   head.quaternion.copy(shaft.quaternion);
+  dot.position.copy(from);
 }
 
 function makeBoat(sailColor) {
@@ -1395,7 +1867,7 @@ function updateBearing() {
     const nx = Math.cos(br), nz = Math.sin(br);
     rayLabels[k].position.set(fx + tx * 0.55 + nx * 0.8, 0.56, fz - ty * 0.55 + nz * 0.8);
     rayLabels[k].element.textContent =
-      bearingText(showBd) + ' · ' + Math.round(d * UNIT_SEA) + ' n mile';
+      bearingText(showBd) + ' · ' + Math.round(d * UNIT_SEA) + ' 米';
   });
 
   /* 选中的目标：扇形角度弧 + 大字距离标签 */
@@ -1431,7 +1903,7 @@ function updateBearing() {
 
   const br2 = (eyeBd * Math.PI) / 180;
   distLabel.position.set(ox + vx * 0.55 + Math.cos(br2) * 0.72, 0.62, oz - vy * 0.55 + Math.sin(br2) * 0.72);
-  distLabel.element.textContent = Math.round(sel.d * UNIT_SEA) + ' n mile';
+  distLabel.element.textContent = Math.round(sel.d * UNIT_SEA) + ' 米';
 
   // 面板：选中目标的完整表述
   const miles = Math.round(sel.d * UNIT_SEA);
@@ -1439,15 +1911,15 @@ function updateBearing() {
   const obj = fromIsA ? t.other : t.name;
   document.getElementById('sent').innerHTML =
     subj + ' 在 ' + obj + ' 的 <b>' + bearingText(eyeBd) + '</b> 方向，' +
-    '距离 <b>' + miles + ' n mile</b> 处。';
+    '距离 <b>' + miles + ' 米</b>处。';
   document.getElementById('cmpDir').textContent = bearingText(eyeBd);
-  document.getElementById('cmpDist').textContent = miles + ' n mile';
+  document.getElementById('cmpDist').textContent = miles + ' 米';
 
   // 目标列表三行同时更新
   const rowIds = { B: 'rowB', island: 'rowIsland', light: 'rowLight' };
   ['B', 'island', 'light'].forEach((k) => {
     document.getElementById(rowIds[k]).textContent =
-      bearingText(info[k].showBd) + ' · ' + Math.round(info[k].d * UNIT_SEA) + ' n mile';
+      bearingText(info[k].showBd) + ' · ' + Math.round(info[k].d * UNIT_SEA) + ' 米';
   });
   document.querySelectorAll('#targetList li').forEach((li) =>
     li.classList.toggle('on', li.dataset.target === S.target)
@@ -1491,39 +1963,43 @@ scene.add(moveRoot);
 const FIGS = {
   tri: {
     label: '三角形 ABC',
+    short: '△ABC',
+    suffix: '₁',
     badge: '用坐标表示平移 · 探究',
     pts: [
       { name: 'A', x: 4, y: 3 },
       { name: 'B', x: 3, y: 1 },
       { name: 'C', x: 1, y: 2 }
-    ],
-    presets: [
-      [-6, 0, '横坐标都减 6（探究）'],
-      [0, -5, '纵坐标都减 5（探究）'],
-      [-6, -5, '横减 6、纵减 5'],
-      [0, 0, '回到原位置']
     ]
   },
   rect: {
     label: '长方形 ABCD',
+    short: '长方形 ABCD',
+    suffix: '′',
     badge: '用坐标表示平移 · 例 2',
     pts: [
       { name: 'A', x: -3, y: 2 },
       { name: 'B', x: -3, y: -2 },
       { name: 'C', x: 3, y: -2 },
       { name: 'D', x: 3, y: 2 }
-    ],
-    presets: [
-      [3, 2, '横加 3、纵加 2（例 2）'],
-      [-6, 0, '横坐标都减 6'],
-      [0, -5, '纵坐标都减 5'],
-      [0, 0, '回到原位置']
+    ]
+  },
+  diamond: {
+    label: '菱形 ABCD',
+    short: '菱形 ABCD',
+    suffix: '′',
+    badge: '用坐标表示平移 · 练习',
+    pts: [
+      { name: 'A', x: 0, y: 3 },
+      { name: 'B', x: 3, y: 0 },
+      { name: 'C', x: 0, y: -3 },
+      { name: 'D', x: -3, y: 0 }
     ]
   }
 };
 S.fig = 'rect';
 
-const TRI_H = 0.13;
+const TRI_H = 0.095;
 const TRI_BASE = 0.016;
 const TRI_TOP = TRI_BASE + TRI_H;
 
@@ -1535,12 +2011,42 @@ function ptsCentroid(pts) {
   return { x: sx / pts.length, y: sy / pts.length };
 }
 
+const CORNER_R = 0.2;   // 图形圆角，观感更柔和
+
 function polyShape(pts) {
+  const n = pts.length;
+  const inset = (v, from) => {
+    const dx = v.x - from.x, dy = v.y - from.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const t = Math.min(CORNER_R, len * 0.42) / len;
+    return { x: from.x + dx * t, y: from.y + dy * t };
+  };
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
   const shape = new THREE.Shape();
-  shape.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i].x, pts[i].y);
+  const m0 = mid(pts[0], pts[1]);
+  shape.moveTo(m0.x, m0.y);
+  for (let i = 1; i <= n; i++) {
+    const v = pts[i % n];
+    const prev = pts[(i - 1) % n];
+    const next = pts[(i + 1) % n];
+    const a = inset(v, prev);
+    const b = inset(v, next);
+    shape.lineTo(a.x, a.y);
+    shape.quadraticCurveTo(v.x, v.y, b.x, b.y);
+    const m = mid(v, next);
+    shape.lineTo(m.x, m.y);
+  }
   shape.closePath();
   return shape;
+}
+
+/* 圆角形状的轮廓采样点 */
+function polyOutlinePts(points, y) {
+  const raw = polyShape(points).getPoints(8);
+  const arr = raw.map((p) => new THREE.Vector3(p.x, y, -p.y));
+  arr.push(arr[0].clone());
+  return arr;
 }
 
 function buildPolygon(points, cfg) {
@@ -1565,19 +2071,18 @@ function buildPolygon(points, cfg) {
   mesh.receiveShadow = true;
   g.add(mesh);
 
-  const pts = points.map((p) => new THREE.Vector3(p.x, TRI_TOP + 0.003, -p.y));
-  pts.push(pts[0].clone());
+  const pts = polyOutlinePts(points, TRI_TOP + 0.003);
   const outlineGeo = new THREE.BufferGeometry().setFromPoints(pts);
   const outlineMat = cfg.dashed
     ? new THREE.LineDashedMaterial({ color: cfg.edge, dashSize: 0.26, gapSize: 0.17 })
-    : new THREE.LineBasicMaterial({ color: cfg.edge });
+    : new THREE.LineBasicMaterial({ color: cfg.edge, linewidth: 2 });
   const outline = new THREE.Line(outlineGeo, outlineMat);
   if (cfg.dashed) outline.computeLineDistances();
   g.add(outline);
 
   const verts = points.map((p, i) => {
     const s = new THREE.Mesh(
-      new THREE.SphereGeometry(cfg.handle ? 0.2 : 0.14, 20, 14),
+      new THREE.SphereGeometry(cfg.handle ? 0.155 : 0.115, 20, 14),
       new THREE.MeshStandardMaterial({ color: cfg.vertColor || cfg.edge, roughness: 0.3 })
     );
     s.position.set(p.x, TRI_TOP, -p.y);
@@ -1607,8 +2112,7 @@ function refreshPoly(built, points) {
   built.mesh.geometry.dispose();
   built.mesh.geometry = geo;
 
-  const wpts = points.map((p) => new THREE.Vector3(p.x, TRI_TOP + 0.003, -p.y));
-  wpts.push(wpts[0].clone());
+  const wpts = polyOutlinePts(points, TRI_TOP + 0.003);
   built.outline.geometry.dispose();
   built.outline.geometry = new THREE.BufferGeometry().setFromPoints(wpts);
   if (built.outline.material.isLineDashedMaterial) built.outline.computeLineDistances();
@@ -1620,10 +2124,10 @@ function refreshPoly(built, points) {
 }
 
 const GHOST_CFG = {
-  color: 0x9fb2c9, edge: 0x64748b, vertColor: 0xd97706,
-  opacity: 0.3, dashed: true, shadow: false, handle: true
+  color: 0xc9d7ea, edge: 0x8a9ab0, vertColor: 0xf59e0b,
+  opacity: 0.38, dashed: true, shadow: false, handle: true
 };
-const SOLID_CFG = { color: 0x3b82f6, edge: 0x1d4ed8, opacity: 1, dashed: false };
+const SOLID_CFG = { color: 0x5a9cf8, edge: 0x2563eb, opacity: 0.95, dashed: false };
 
 const built = {
   tri: {
@@ -1633,19 +2137,40 @@ const built = {
   rect: {
     ghost: buildPolygon(FIGS.rect.pts, Object.assign({ fig: 'rect' }, GHOST_CFG)),
     solid: buildPolygon(FIGS.rect.pts, Object.assign({ fig: 'rect' }, SOLID_CFG))
+  },
+  diamond: {
+    ghost: buildPolygon(FIGS.diamond.pts, Object.assign({ fig: 'diamond' }, GHOST_CFG)),
+    solid: buildPolygon(FIGS.diamond.pts, Object.assign({ fig: 'diamond' }, SOLID_CFG))
   }
 };
 moveRoot.add(built.tri.ghost.group, built.tri.solid.group,
-             built.rect.ghost.group, built.rect.solid.group);
+             built.rect.ghost.group, built.rect.solid.group,
+             built.diamond.ghost.group, built.diamond.solid.group);
 
 const activeBuilt = () => built[S.fig];
+
+/* 蓝色图形的顶点 = 学生自己画时要拖的小球 */
+['tri', 'rect', 'diamond'].forEach((k) => {
+  built[k].solid.verts.forEach((v, i) => {
+    v.userData.drawIndex = i;
+    v.userData.drawFig = k;
+    // 放大的隐形命中球：小球本身太小不好点，用一个大球当"抓取范围"
+    const proxy = new THREE.Mesh(
+      new THREE.SphereGeometry(0.62, 10, 8),
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    proxy.scale.setScalar(0.55);
+    proxy.userData.drawProxy = true;
+    v.add(proxy);
+  });
+});
 
 function setFig(f) {
   S.fig = f;
   document.querySelectorAll('#figBtns button').forEach((b) =>
     b.classList.toggle('is-active', b.dataset.fig === f)
   );
-  ['tri', 'rect'].forEach((k) => {
+  ['tri', 'rect', 'diamond'].forEach((k) => {
     const on = k === f;
     built[k].ghost.group.visible = on;
     built[k].solid.group.visible = on;
@@ -1654,8 +2179,11 @@ function setFig(f) {
   });
   TAB_CONF.move.badge = FIGS[f].badge;
   if (S.tab === 'move') sceneBadge.textContent = TAB_CONF.move.badge;
-  renderPresets();
-  applyMove(1);
+  // 换图形：示范重来，出题阶段重出一题
+  if (MV.stage === 'teach') { MV.step = 0; refreshTeach(); }
+  else if (MV.stage === 'task') { makeTask(); }
+  else { MV.checked = false; startDraw(MV.dirX * MV.numX, MV.dirY * MV.numY); }
+  syncMove(false);
 }
 
 document.getElementById('figBtns').addEventListener('click', (e) => {
@@ -1688,112 +2216,812 @@ moveHandle.add(mhLbl);
 
 moveRoot.add(moveHandle);
 
+/* 每个顶点各走一段「一样的路」：细一点，不抢主箭头 */
 const arrows = [0, 1, 2, 3].map(() => {
-  const a = makeThickArrow(0xea580c);
+  const a = makeThickArrow(0xfb923c, 0.026, 0.095, 0.25, { opacity: 0.7 });
   moveRoot.add(a);
   return a;
 });
 
-const coordTableEl = document.getElementById('coordTable');
+/* 主箭头：先横后竖两段，每段贴一个「向右 3 格」的标签 */
+const dispX = makeThickArrow(0xea580c, 0.062, 0.21, 0.48);
+const dispY = makeThickArrow(0xea580c, 0.062, 0.21, 0.48);
+moveRoot.add(dispX, dispY);
 
-function updateCoordTable(dx, dy) {
-  const head = '<div class="tr head"><span>顶点</span><span>原坐标</span><span></span><span>平移后</span></div>';
-  const rows = activePts().map((p) => {
-    return '<div class="tr"><span class="vname">' + p.name + '</span>' +
-      '<span>(' + p.x + ', ' + p.y + ')</span>' +
-      '<span class="arrow">→</span>' +
-      '<span class="vnew">' + p.name + '₁(' + fmt(p.x + dx) + ', ' + fmt(p.y + dy) + ')</span></div>';
-  }).join('');
-  coordTableEl.innerHTML = head + rows;
+const dispXLbl = makeLabel('', 'lbl-disp');
+const dispYLbl = makeLabel('', 'lbl-disp');
+moveRoot.add(dispXLbl, dispYLbl);
+
+/* ---- 自己画：跟随鼠标的「落点预览」 ---- */
+const drawPreview = new THREE.Group();
+const dpRing = new THREE.Mesh(
+  new THREE.RingGeometry(0.34, 0.46, 28),
+  new THREE.MeshBasicMaterial({ color: 0x2563eb, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+);
+dpRing.rotation.x = -Math.PI / 2;
+dpRing.position.y = TRI_BASE + 0.03;
+drawPreview.add(dpRing);
+
+const dpBall = new THREE.Mesh(
+  new THREE.SphereGeometry(0.19, 20, 14),
+  new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.42 })
+);
+dpBall.position.y = TRI_TOP + 0.34;
+drawPreview.add(dpBall);
+
+drawPreview.visible = false;
+moveRoot.add(drawPreview);
+
+let previewCell = null;      // 预览当前落在哪一格（坐标写在图上方横幅里，不塞进图内）
+
+function showPreview(x, y) {
+  const nx = Math.max(-R + 1, Math.min(R - 1, x));
+  const ny = Math.max(-R + 1, Math.min(R - 1, y));
+  drawPreview.position.set(nx, 0, -ny);
+  const changed = !previewCell || previewCell.x !== nx || previewCell.y !== ny;
+  previewCell = { x: nx, y: ny };
+  drawPreview.visible = true;
+  if (changed) updateDrawBanner();
 }
 
-function updateDirSent(dx, dy) {
-  const el = document.getElementById('dirSent');
-  const h = dx === 0 ? '' :
-    (dx > 0 ? '<b>向右平移 ' + dx + ' 个单位长度</b>' : '<b>向左平移 ' + (-dx) + ' 个单位长度</b>');
-  const v = dy === 0 ? '' :
-    (dy > 0 ? '<b>向上平移 ' + dy + ' 个单位长度</b>' : '<b>向下平移 ' + (-dy) + ' 个单位长度</b>');
-  const words = [h, v].filter(Boolean).join('，');
-  if (!words) {
-    el.innerHTML = FIGS[S.fig].label + ' 没有移动（各点坐标不变）';
+function hidePreview() {
+  drawPreview.visible = false;
+  previewCell = null;
+}
+
+const coordTableEl = document.getElementById('coordTable');
+const dirSentEl = document.getElementById('dirSent');
+const drawBannerEl = document.getElementById('drawBanner');
+const drawBannerTextEl = document.getElementById('drawBannerText');
+const drawBannerHintEl = document.getElementById('drawBannerHint');
+
+/* 图形上方的「平移要求」横幅：三个阶段都显示，一行字说清往哪走几格 */
+function updateDrawBanner() {
+  const onTab = S.tab === 'move';
+  const onDraw = onTab && MV.stage === 'free' && MV.draw.on;
+  if (!onTab || (MV.stage === 'free' && !MV.draw.on)) {
+    drawBannerEl.classList.remove('show', 'done');
     return;
   }
-  const cx = dx === 0 ? '横坐标不变' : '横坐标都' + (dx > 0 ? '加 ' : '减 ') + Math.abs(dx);
-  const cy = dy === 0 ? '纵坐标不变' : '纵坐标都' + (dy > 0 ? '加 ' : '减 ') + Math.abs(dy);
-  el.innerHTML = '把' + FIGS[S.fig].label + ' 上的每一点' + words +
-    '<br><span style="font-weight:500;color:#3c5a7d">' + cx + '，' + cy + '</span>';
+
+  let dx = 0, dy = 0, hint = '', done = false;
+
+  if (MV.stage === 'teach') {
+    dx = DEMO_DX; dy = DEMO_DY;
+    hint = DEMO[MV.step].title.replace(/^第 \d+ 步 · /, '');
+  } else if (MV.stage === 'task') {
+    dx = MV.taskDx; dy = MV.taskDy;
+    hint = '① 选方向　② 填单位　③ 对照答案';
+  } else {
+    dx = MV.draw.dx; dy = MV.draw.dy;
+    done = drawAllDone();
+    if (done) hint = '✓ 画好了：每个顶点都走了同样的路';
+    else if (MV.draw.carry !== null) {
+      hint = previewCell
+        ? '点一下放下 → (' + num(previewCell.x) + ', ' + num(previewCell.y) + ')'
+        : '点一个目标格点放下';
+    } else {
+      hint = '① 点蓝球选中　② 点格点放下';
+    }
+  }
+
+  const parts = [];
+  if (dx !== 0) {
+    parts.push('<span class="db-ar">' + (dx > 0 ? '→' : '←') + '</span><b>' +
+      (dx > 0 ? '向右' : '向左') + '平移 ' + Math.abs(dx) + ' 个单位</b>');
+  }
+  if (dy !== 0) {
+    parts.push('<span class="db-ar">' + (dy > 0 ? '↑' : '↓') + '</span><b>' +
+      (dy > 0 ? '向上' : '向下') + '平移 ' + Math.abs(dy) + ' 个单位</b>');
+  }
+
+  drawBannerTextEl.innerHTML = FIGS[S.fig].short + '　' + (parts.join('，') || '不移动');
+  drawBannerHintEl.textContent = hint;
+  drawBannerEl.classList.toggle('done', done);
+  drawBannerEl.classList.add('show');
 }
 
-function applyMove(t) {
-  const pts = activePts();
-  const b = activeBuilt();
-  const dx = S.a * t;
-  const dy = S.b * t;
+/* ---- 算式拼装 ---- */
+const num = (n) => String(fmt(n)).replace('-', '−');
+const wrapN = (v) => (v < 0 ? '(' + num(v) + ')' : num(v));
 
-  b.solid.group.position.set(dx, 0, -dy);
+function fwdExpr(v, d) {          // x + a（a<0 写成 x − |a|）
+  if (d === 0) return wrapN(v);
+  return d > 0 ? wrapN(v) + ' + ' + d : wrapN(v) + ' − ' + (-d);
+}
+
+function moveWords(dx, dy) {
+  const h = dx === 0 ? '' :
+    (dx > 0 ? '向右平移 ' + dx + ' 个单位' : '向左平移 ' + (-dx) + ' 个单位');
+  const v = dy === 0 ? '' :
+    (dy > 0 ? '向上平移 ' + dy + ' 个单位' : '向下平移 ' + (-dy) + ' 个单位');
+  return [h, v].filter(Boolean).join('，');
+}
+
+/* =========================================================
+   10.1 三阶段状态：示范 / 出题 / 自由画
+   ========================================================= */
+const MV = {
+  stage: 'teach',
+  step: 0,
+  dirX: 1, numX: 3,
+  dirY: 1, numY: 2,
+  checked: false,
+  ok: false,
+  taskNo: 0,
+  taskDx: 3, taskDy: 2,
+  // ③ 自己画：学生一个个把顶点拖到位（carry = 正被"点选拿起"的小球下标）
+  draw: { on: false, dx: 3, dy: 2, no: 0, pts: [], carry: null }
+};
+
+const DEMO_DX = 3, DEMO_DY = 2;
+
+const DEMO = [
+  {
+    prog: 0, table: false, arrows: false,
+    title: '第 1 步 · 读懂指令',
+    body: '要把 <b>{F}</b> <b>向右平移 3 个单位</b>，再 <b>向上平移 2 个单位</b>。<br>' +
+          '动手之前先问自己两件事：往<b>哪个方向</b>走？走<b>几个单位</b>？'
+  },
+  {
+    prog: 0, table: true, arrows: false,
+    title: '第 2 步 · 算出每个顶点的新坐标',
+    body: '向右 3 → 横坐标 <span class="mono">+3</span>；向上 2 → 纵坐标 <span class="mono">+2</span>。<br>' +
+          '每个顶点都照着同一组算式算一遍，结果看下面的表格。'
+  },
+  {
+    prog: 1, table: true, arrows: false,
+    title: '第 3 步 · 在图上描点',
+    body: '把算出来的新坐标在网格上一点一点点出来，写上带 <b>{S}</b> 的新名字。<br>' +
+          '描点的时候要数格子：横着数几格、竖着数几格。'
+  },
+  {
+    prog: 2, table: true, arrows: false,
+    title: '第 4 步 · 顺次连线',
+    body: '按原来的顶点顺序，把新点依次连起来，就得到平移后的图形。<br>' +
+          '连线的顺序要和原来一样，形状才会一模一样。'
+  },
+  {
+    prog: 2, table: true, arrows: true,
+    title: '第 5 步 · 检查',
+    body: '看看每个顶点是不是都朝<b>同一个方向</b>、走了<b>同样的距离</b>？<br>' +
+          '图中的橙色箭头就是每个顶点各走的那段路——长度完全一样，所以图形不会变形。'
+  },
+  {
+    prog: 2, table: true, arrows: true,
+    title: '第 6 步 · 小结',
+    body: '图形平移，就是<b>每个顶点按同一组算式平移</b>。<br>' +
+          '所以形状、大小都不变，只是整体换了地方。<br>' +
+          '看懂了吗？点上面的 <b>② 出题练一练</b>，自己试一次。'
+  }
+];
+
+/* 当前该显示什么：目标平移量 + 画到第几步 */
+function moveState() {
+  if (MV.stage === 'teach') {
+    const d = DEMO[MV.step];
+    return { dx: DEMO_DX, dy: DEMO_DY, prog: d.prog, arrows: d.arrows };
+  }
+  if (MV.stage === 'task') {
+    if (!MV.checked) return { dx: 0, dy: 0, prog: 0, arrows: false };
+    return { dx: MV.taskDx, dy: MV.taskDy, prog: 2, arrows: true };
+  }
+  return { dx: MV.dirX * MV.numX, dy: MV.dirY * MV.numY, prog: 2, arrows: true };
+}
+
+/* ---- 只负责 3D 位移 ---- */
+const DISP_Y = TRI_TOP + 1.34;      // 主箭头飞在图形上方
+
+function dispVisible() {
+  if (S.tab !== 'move') return false;
+  if (MV.stage === 'teach') return !!DEMO[MV.step].arrows;
+  if (MV.stage === 'task') return MV.checked;
+  return true;
+}
+
+/* ---- 主箭头：先横走、再竖走，每段贴一条「走几格」 ---- */
+function showDispArrows(ax, az, bx, bz, dx, dy) {
+  const tgX = Math.round(dx), tgY = Math.round(dy);
+
+  if (Math.abs(bx - ax) > 0.01) {
+    setThickArrow(dispX,
+      new THREE.Vector3(ax, DISP_Y, az),
+      new THREE.Vector3(bx, DISP_Y, az));
+    dispXLbl.position.set((ax + bx) / 2, DISP_Y + 0.66, az);
+    dispXLbl.element.innerHTML = '<span class="dir-ar">' + (tgX > 0 ? '→' : '←') + '</span>' +
+      Math.abs(tgX) + ' 格';
+    dispXLbl.visible = true;
+  } else {
+    dispX.visible = false;
+    dispXLbl.visible = false;
+  }
+
+  if (Math.abs(bz - az) > 0.01) {
+    setThickArrow(dispY,
+      new THREE.Vector3(bx, DISP_Y, az),
+      new THREE.Vector3(bx, DISP_Y, bz));
+    dispYLbl.position.set(bx + 1.15, DISP_Y + 0.38, (az + bz) / 2);
+    dispYLbl.element.innerHTML = '<span class="dir-ar">' + (tgY > 0 ? '↑' : '↓') + '</span>' +
+      Math.abs(tgY) + ' 格';
+    dispYLbl.visible = true;
+  } else {
+    dispY.visible = false;
+    dispYLbl.visible = false;
+  }
+}
+
+function hideDispArrows() {
+  dispX.visible = false;
+  dispY.visible = false;
+  dispXLbl.visible = false;
+  dispYLbl.visible = false;
+}
+
+function applyMove(px, py) {
+  const b = activeBuilt();
+  const pts = activePts();
+  const sfx = FIGS[S.fig].suffix;
+
+  b.solid.group.position.set(px, 0, -py);
   const c = ptsCentroid(pts);
-  moveHandle.position.set(c.x + dx, 0, -(c.y + dy));
+  moveHandle.position.set(c.x + px, 0, -(c.y + py));
 
   pts.forEach((p, i) => {
     b.solid.labels[i].element.textContent =
-      p.name + '₁(' + fmt(p.x + dx) + ', ' + fmt(p.y + dy) + ')';
-    b.ghost.labels[i].element.textContent =
-      p.name + '(' + p.x + ', ' + p.y + ')';
+      p.name + sfx + '(' + fmt(p.x + px) + ', ' + fmt(p.y + py) + ')';
+    b.ghost.labels[i].element.textContent = p.name + '(' + p.x + ', ' + p.y + ')';
   });
-  updateCoordTable(dx, dy);
-  updateDirSent(dx, dy);
 
   const flyY = TRI_TOP + 0.5;
   arrows.forEach((arr, i) => {
     if (i >= pts.length) { arr.visible = false; return; }
-    arr.visible = true;
     setThickArrow(
       arr,
       new THREE.Vector3(pts[i].x, flyY, -pts[i].y),
-      new THREE.Vector3(pts[i].x + dx, flyY, -(pts[i].y + dy))
+      new THREE.Vector3(pts[i].x + px, flyY, -(pts[i].y + py))
     );
   });
+
+  if (dispVisible()) {
+    showDispArrows(c.x, -c.y, c.x + px, -(c.y + py), S.a, S.b);
+  } else {
+    hideDispArrows();
+  }
 }
 
-/* ---- 预设与滑块 ---- */
-const presetBtns = document.getElementById('presetBtns');
-const rangeA = document.getElementById('rangeA');
-const rangeB = document.getElementById('rangeB');
-const valA = document.getElementById('valA');
-const valB = document.getElementById('valB');
+/* ---- 「画到第几步」：0 未动 / 1 已描点 / 2 已连线 ---- */
+function applyProg(prog, withArrows) {
+  const b = activeBuilt();
+  const pts = activePts();
+  const face = prog >= 2;
+  const vert = prog >= 1;
 
-function renderPresets() {
-  presetBtns.innerHTML = FIGS[S.fig].presets.map((p) =>
-    '<button data-a="' + p[0] + '" data-b="' + p[1] + '"' +
-    (p[0] === S.a && p[1] === S.b ? ' class="is-active"' : '') +
-    '>' + p[2] + '</button>'
-  ).join('');
+  // 从「自己画」切回来时，把小球恢复成跟着图形走
+  b.solid.verts.forEach((v, i) => {
+    v.position.set(pts[i].x, TRI_TOP, -pts[i].y);
+    v.material.color.set(0x2563eb);
+    if (v.material.emissive) v.material.emissive.set(0x000000);
+    v.scale.setScalar(1);
+  });
+
+  b.solid.mesh.visible = face;
+  b.solid.outline.visible = face;
+  b.solid.verts.forEach((v) => { v.visible = vert; });
+  b.solid.labels.forEach((l) => { l.visible = vert; });
+
+  arrows.forEach((a) => { a.visible = !!withArrows && prog >= 2; });
+  moveHandle.visible = MV.stage === 'free' && S.tab === 'move' && !MV.draw.on;
+  mhLbl.visible = moveHandle.visible;   // CSS2D 标签不继承父级显隐
+  hidePreview();
 }
 
-function syncPresetHighlight() {
-  [...presetBtns.querySelectorAll('button')].forEach((b) => {
-    b.classList.toggle('is-active', Number(b.dataset.a) === S.a && Number(b.dataset.b) === S.b);
+let mvAnim = 0;
+
+function animateMove(dx, dy) {
+  const b = activeBuilt();
+  const fromX = b.solid.group.position.x;
+  const fromZ = b.solid.group.position.z;
+  const toX = dx, toZ = -dy;
+  const t0 = performance.now();
+  const dur = 720;
+
+  if (mvAnim) cancelAnimationFrame(mvAnim);
+
+  const tick = () => {
+    const k = Math.min(1, (performance.now() - t0) / dur);
+    const e = easeInOut(k);
+    applyMove(fromX + (toX - fromX) * e, -(fromZ + (toZ - fromZ) * e));
+    if (k < 1) mvAnim = requestAnimationFrame(tick);
+    else { mvAnim = 0; applyMove(dx, dy); }
+  };
+  tick();
+}
+
+/* ---- 显隐同步：只留当前图形 ---- */
+function syncMoveVisibility() {
+  const tabOn = S.tab === 'move';
+  ['tri', 'rect', 'diamond'].forEach((k) => {
+    const on = tabOn && k === S.fig;
+    built[k].ghost.group.visible = on;
+    setLabelsVisible(built[k].ghost.group, on);
+    built[k].solid.group.visible = on;
+    setLabelsVisible(built[k].solid.group, on);
   });
 }
 
-function setMove(a, b) {
-  S.a = a; S.b = b;
-  rangeA.value = a;
-  rangeB.value = b;
-  valA.textContent = a === 0 ? '不动' : (a > 0 ? '向右 ' + a : '向左 ' + (-a));
-  valB.textContent = b === 0 ? '不动' : (b > 0 ? '向上 ' + b : '向下 ' + (-b));
-  applyMove(1);
-  syncPresetHighlight();
+/* ---- 统一刷新 ---- */
+function syncMove(animate) {
+  /* ③ 自己画：图形不由系统摆放，交给学生拖动顶点 */
+  if (MV.stage === 'free' && MV.draw.on) {
+    S.a = MV.draw.dx;
+    S.b = MV.draw.dy;
+    syncMoveVisibility();
+    renderDraw();
+    updateCoordTable(MV.draw.dx, MV.draw.dy);
+    updateDirSent(MV.draw.dx, MV.draw.dy);
+    updateDrawUI();
+    return;
+  }
+
+  const st = moveState();
+  S.a = st.dx;
+  S.b = st.dy;
+
+  syncMoveVisibility();
+  if (animate) animateMove(st.dx, st.dy);
+  else applyMove(st.dx, st.dy);
+  applyProg(st.prog, st.arrows);
+
+  updateCoordTable(st.dx, st.dy);
+  updateDirSent(st.dx, st.dy);
+  updateDrawBanner();      // 不在画图阶段就把横幅收起来
 }
 
-presetBtns.addEventListener('click', (e) => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  setMove(Number(btn.dataset.a), Number(btn.dataset.b));
+/* =========================================================
+   10.6 ③ 自己画：学生逐个拖顶点
+   ========================================================= */
+function startDraw(dx, dy) {
+  const pts = activePts();
+  MV.draw.on = true;
+  MV.draw.dx = dx;
+  MV.draw.dy = dy;
+  MV.draw.carry = null;
+  MV.draw.pts = pts.map((p) => ({ x: p.x, y: p.y, done: false }));
+  hidePreview();
+  MV.checked = false;
+
+  // 让方向和格数控件跟题目对上
+  MV.dirX = dx === 0 ? 0 : Math.sign(dx);
+  if (dx !== 0) MV.numX = Math.min(9, Math.abs(dx));
+  MV.dirY = dy === 0 ? 0 : Math.sign(dy);
+  if (dy !== 0) MV.numY = Math.min(9, Math.abs(dy));
+  paintCtl();
+
+  const box = document.getElementById('taskCard');
+  box.style.display = '';
+  document.getElementById('taskTag').textContent =
+    '自己画 · 第 ' + (MV.draw.no || 1) + ' 题';
+
+  const fb = document.getElementById('taskFb');
+  fb.className = 'task-fb info';
+  fb.innerHTML = '';
+
+  syncMove(false);
+}
+
+/* 学生放好一个点，就地判定 */
+function checkDrawPoint(i) {
+  const p = MV.draw.pts[i];
+  const t = activePts()[i];
+  p.done = (p.x === t.x + MV.draw.dx && p.y === t.y + MV.draw.dy);
+}
+
+function drawAllDone() {
+  return MV.draw.pts.length > 0 && MV.draw.pts.every((p) => p.done);
+}
+
+/* 只画「学生已经摆好的东西」 */
+function renderDraw() {
+  const b = activeBuilt();
+  const pts = activePts();
+  const sfx = FIGS[S.fig].suffix;
+  const d = MV.draw;
+
+  b.solid.group.position.set(0, 0, 0);
+
+  b.solid.verts.forEach((v, i) => {
+    const p = d.pts[i];
+    const carried = d.carry === i;
+    v.position.set(p.x, carried ? TRI_TOP + 0.75 : (p.done ? TRI_TOP : TRI_TOP + 0.4), -p.y);
+    v.material.color.set(p.done ? 0x16a34a : 0x2563eb);
+    if (v.material.emissive) {
+      v.material.emissive.set(carried ? 0x3b82f6 : (p.done ? 0x14532d : 0x1e3a8a));
+    }
+    v.scale.setScalar(p.done ? 1 : (carried ? 2.2 : 1.9));
+    v.visible = true;
+  });
+
+  // 没放对的点先不写坐标，免得替学生算
+  b.solid.labels.forEach((l, i) => {
+    const p = d.pts[i];
+    l.position.set(p.x, TRI_TOP + 0.74, -p.y);
+    if (p.done) {
+      l.element.textContent = pts[i].name + sfx + '(' + fmt(p.x) + ', ' + fmt(p.y) + ')';
+      l.visible = true;
+    } else {
+      l.visible = false;
+    }
+  });
+
+  const all = drawAllDone();
+  b.solid.mesh.visible = all;          // 全部摆对，连线成图
+  b.solid.outline.visible = all;
+
+  arrows.forEach((a) => { a.visible = false; });
+  moveHandle.visible = false;
+  mhLbl.visible = false;
+
+  // 画好了，再把「走了几格」标出来
+  if (all) {
+    const c0 = ptsCentroid(pts);
+    const c1 = ptsCentroid(d.pts);
+    showDispArrows(c0.x, -c0.y, c1.x, -c1.y, d.dx, d.dy);
+  } else {
+    hideDispArrows();
+  }
+}
+
+/* 题卡与按钮文字 */
+function updateDrawUI() {
+  const d = MV.draw;
+  const done = d.pts.filter((p) => p.done).length;
+  const total = d.pts.length;
+  const all = done === total;
+
+  document.getElementById('taskQ').innerHTML =
+    '把 <b>' + FIGS[S.fig].short + '</b> <b>' +
+    (moveWords(d.dx, d.dy) || '不移动') + '</b>。<br>' +
+    '<span style="color:#8494ac;font-size:11px">' +
+    '图上方写着平移要求。先<b>点一个蓝球</b>选中它，再<b>点目标格点</b>放下（共 ' + total + ' 个点）。</span>';
+
+  const fb = document.getElementById('taskFb');
+  if (all) {
+    fb.className = 'task-fb ok';
+    fb.innerHTML = '✓ 全部放对了！把点顺次连起来，就是平移后的图形。' +
+      '<span class="quiz-cal">每个顶点都朝同一个方向走了 ' +
+      Math.abs(d.dx) + ' / ' + Math.abs(d.dy) + ' 格，形状不变。</span>';
+  } else {
+    fb.className = 'task-fb info';
+    fb.innerHTML = '已放对 <b>' + done + ' / ' + total + '</b>' +
+      (done ? '' : '——先数格子：横着走几格、竖着走几格。');
+  }
+
+  const btn = document.getElementById('checkBtn');
+  btn.textContent = all ? '再画一题 →' : '重画一次';
+  btn.classList.toggle('gray', !all);
+
+  updateDrawBanner();
+}
+
+function resetDraw() {
+  startDraw(MV.draw.dx, MV.draw.dy);
+}
+
+/* ---- 算式表 ---- */
+function updateCoordTable(dx, dy) {
+  // 学生还没画完，先不给答案
+  if (MV.stage === 'free' && MV.draw.on && !drawAllDone()) {
+    coordTableEl.style.display = 'none';
+    return;
+  }
+
+  const showTable = MV.stage === 'teach'
+    ? DEMO[MV.step].table
+    : (MV.stage === 'task' ? MV.checked : true);
+
+  coordTableEl.style.display = showTable ? '' : 'none';
+  if (!showTable) return;
+
+  const head = '<div class="tr head"><span>顶点</span><span>原坐标 → 新坐标（代入算式）</span></div>';
+  const rows = activePts().map((p) => {
+    const nx = p.x + dx, ny = p.y + dy;
+    return '<div class="tr"><span class="vname">' + p.name + '</span>' +
+      '<span class="vnew">(' + fwdExpr(p.x, dx) + ', ' + fwdExpr(p.y, dy) + ') = (' +
+      num(nx) + ', ' + num(ny) + ')</span></div>';
+  }).join('');
+  coordTableEl.innerHTML = head + rows;
+}
+
+/* ---- 规则条 ---- */
+function updateDirSent(dx, dy) {
+  const words = moveWords(dx, dy);
+  if (!words) {
+    dirSentEl.innerHTML = '没有平移，各点坐标都不变';
+    return;
+  }
+  // 还没画出结果时只报指令，不报算式
+  const onlyWords = (MV.stage === 'teach' && MV.step === 0) ||
+    (MV.stage === 'free' && MV.draw.on && !drawAllDone());
+  if (onlyWords) {
+    dirSentEl.innerHTML = FIGS[S.fig].short + ' ' + words;
+    return;
+  }
+  const cx = dx === 0 ? '横坐标不变' : '横坐标都' + (dx > 0 ? '加 ' : '减 ') + Math.abs(dx);
+  const cy = dy === 0 ? '纵坐标不变' : '纵坐标都' + (dy > 0 ? '加 ' : '减 ') + Math.abs(dy);
+  dirSentEl.innerHTML =
+    '<span style="display:block;font-size:11px;font-weight:600;color:#5f7392;margin-bottom:3px">' +
+    FIGS[S.fig].short + ' ' + words + '</span>' + cx + '，' + cy;
+}
+
+/* =========================================================
+   10.2 示范流程
+   ========================================================= */
+function refreshTeach() {
+  const d = DEMO[MV.step];
+  const F = FIGS[S.fig].short;
+  const SFX = FIGS[S.fig].suffix;
+
+  document.getElementById('teachStepNum').textContent =
+    '第 ' + (MV.step + 1) + ' 步 / 共 ' + DEMO.length + ' 步';
+  document.getElementById('teachDots').innerHTML = DEMO.map((_, i) =>
+    '<i class="' + (i <= MV.step ? 'on' : '') + '">●</i>').join('');
+  document.getElementById('teachTitle').textContent = d.title;
+  document.getElementById('teachBody').innerHTML =
+    d.body.split('{F}').join(F).split('{S}').join(SFX);
+
+  const prev = document.getElementById('teachPrev');
+  const next = document.getElementById('teachNext');
+  prev.disabled = MV.step === 0;
+  next.textContent = MV.step === DEMO.length - 1 ? '再看一遍 ↻' : '下一步 →';
+}
+
+document.getElementById('teachPrev').addEventListener('click', () => {
+  if (MV.step === 0) return;
+  MV.step--;
+  refreshTeach();
+  syncMove(false);
 });
 
-rangeA.addEventListener('input', () => setMove(Number(rangeA.value), S.b));
-rangeB.addEventListener('input', () => setMove(S.a, Number(rangeB.value)));
+document.getElementById('teachNext').addEventListener('click', () => {
+  MV.step = (MV.step + 1) % DEMO.length;
+  refreshTeach();
+  syncMove(false);
+});
+
+/* =========================================================
+   10.3 出题
+   ========================================================= */
+const DIR_COMBOS = [
+  [1, 0], [-1, 0], [0, 1], [0, -1],
+  [1, 1], [-1, 1], [1, -1], [-1, -1]
+];
+
+function randomMove(single) {
+  const pool = single ? DIR_COMBOS.slice(0, 4) : DIR_COMBOS;
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  const n = 2 + Math.floor(Math.random() * 4);      // 2 ~ 5
+  const m = 1 + Math.floor(Math.random() * 4);      // 1 ~ 4
+
+  const dx = picked[0] * n;
+  const dy = picked[1] !== 0 ? picked[1] * m : 0;
+  return { dx: dx === 0 && dy === 0 ? 3 : dx, dy };
+}
+
+function makeTask() {
+  MV.taskNo++;
+  MV.checked = false;
+  MV.ok = false;
+
+  // 前两题先只考一个方向，后面才出两个方向的
+  const r = randomMove(MV.taskNo <= 2);
+  MV.taskDx = r.dx;
+  MV.taskDy = r.dy;
+
+  document.getElementById('taskTag').textContent = '第 ' + MV.taskNo + ' 题 · 按指令画图';
+  document.getElementById('taskQ').innerHTML =
+    '把 <b>' + FIGS[S.fig].short + '</b> <b>' + moveWords(MV.taskDx, MV.taskDy) + '</b>，' +
+    '画出平移后的图形。<br>' +
+    '<span style="color:#8494ac;font-size:11px">在下面自己选方向、填单位，再点「对照答案」。</span>';
+
+  const fb = document.getElementById('taskFb');
+  fb.className = 'task-fb';
+  fb.innerHTML = '';
+
+  const btn = document.getElementById('checkBtn');
+  btn.textContent = '对照答案';
+  btn.classList.remove('gray');
+
+  syncMove(false);
+}
+
+function checkTask() {
+  const btn = document.getElementById('checkBtn');
+
+  if (MV.checked) {          // 已经对过答案 → 出下一题
+    makeTask();
+    return;
+  }
+
+  const gotDx = MV.dirX * MV.numX;
+  const gotDy = MV.dirY * MV.numY;
+  const okX = gotDx === MV.taskDx;
+  const okY = gotDy === MV.taskDy;
+
+  MV.checked = true;
+  MV.ok = okX && okY;
+
+  const fb = document.getElementById('taskFb');
+  fb.className = 'task-fb ' + (MV.ok ? 'ok' : 'no');
+
+  const mine = moveWords(gotDx, gotDy) || '没有平移';
+  const right = moveWords(MV.taskDx, MV.taskDy);
+
+  if (MV.ok) {
+    fb.innerHTML = '✓ 画对了！就是 <b style="color:#15803d">' + right + '</b>。' +
+      '<span class="quiz-cal">每个顶点都朝同一个方向走了同样的距离，形状、大小都不变。</span>';
+  } else {
+    let why = '横向、纵向都不对。';
+    if (!okX && okY) why = '横向的方向或单位数不对。';
+    else if (okX && !okY) why = '纵向的方向或单位数不对。';
+    fb.innerHTML = '✗ 还差一点。' + why +
+      '<span class="quiz-cal">你填的是：' + mine + '</span>' +
+      '<span class="quiz-cal">正确答案：' + right + '</span>' +
+      '<span class="quiz-cal">看图上的橙色箭头：每个顶点都要走这么远。</span>';
+  }
+
+  btn.textContent = '下一题 →';
+  btn.classList.add('gray');
+
+  syncMove(true);
+}
+
+document.getElementById('checkBtn').addEventListener('click', () => {
+  if (MV.stage === 'free') {
+    if (drawAllDone()) {                 // 画完了 → 换一题
+      MV.draw.no = (MV.draw.no || 1) + 1;
+      const r = randomMove(false);
+      startDraw(r.dx, r.dy);
+    } else {
+      resetDraw();                       // 没画完 → 重新摆一遍
+    }
+    return;
+  }
+  checkTask();
+});
+
+/* =========================================================
+   10.4 方向 + 单位控件
+   ========================================================= */
+const ctlEl = document.getElementById('mvCtrl');
+const dirXEl = document.getElementById('dirX');
+const dirYEl = document.getElementById('dirY');
+const numXEl = document.getElementById('numX');
+const numYEl = document.getElementById('numY');
+
+function paintCtl() {
+  dirXEl.querySelectorAll('button').forEach((b) =>
+    b.classList.toggle('is-active', Number(b.dataset.d) === MV.dirX));
+  dirYEl.querySelectorAll('button').forEach((b) =>
+    b.classList.toggle('is-active', Number(b.dataset.d) === MV.dirY));
+
+  numXEl.value = MV.numX;
+  numYEl.value = MV.numY;
+  numXEl.parentNode.style.opacity = MV.dirX === 0 ? '.4' : '1';
+  numYEl.parentNode.style.opacity = MV.dirY === 0 ? '.4' : '1';
+}
+
+function clampNum(v) {
+  const n = Math.round(Number(v) || 1);
+  return Math.max(1, Math.min(9, n));
+}
+
+function onCtlChange() {
+  if (MV.stage === 'teach') return;
+
+  if (MV.stage === 'task' && MV.checked) {   // 一改控件 = 重新作答
+    MV.checked = false;
+    const fb = document.getElementById('taskFb');
+    fb.className = 'task-fb';
+    fb.innerHTML = '';
+    const btn = document.getElementById('checkBtn');
+    btn.textContent = '对照答案';
+    btn.classList.remove('gray');
+  }
+
+  paintCtl();
+
+  // ③ 自己画：改方向/格数 = 给自己换一道题，重摆小球
+  if (MV.stage === 'free') {
+    startDraw(MV.dirX * MV.numX, MV.dirY * MV.numY);
+    return;
+  }
+
+  syncMove(false);
+}
+
+dirXEl.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  MV.dirX = Number(b.dataset.d);
+  onCtlChange();
+});
+
+dirYEl.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  MV.dirY = Number(b.dataset.d);
+  onCtlChange();
+});
+
+numXEl.addEventListener('input', () => { MV.numX = clampNum(numXEl.value); onCtlChange(); });
+numYEl.addEventListener('input', () => { MV.numY = clampNum(numYEl.value); onCtlChange(); });
+numXEl.addEventListener('blur', () => { numXEl.value = MV.numX; });
+numYEl.addEventListener('blur', () => { numYEl.value = MV.numY; });
+
+ctlEl.addEventListener('click', (e) => {
+  const b = e.target.closest('.nstep');
+  if (!b) return;
+  const isX = b.parentNode.contains(numXEl);
+  const d = Number(b.dataset.n);
+  if (isX) MV.numX = clampNum(MV.numX + d);
+  else MV.numY = clampNum(MV.numY + d);
+  onCtlChange();
+});
+
+/* =========================================================
+   10.5 阶段切换
+   ========================================================= */
+function setStage(st) {
+  MV.stage = st;
+
+  document.querySelectorAll('#stageBtns button').forEach((b) =>
+    b.classList.toggle('is-active', b.dataset.stage === st));
+
+  document.getElementById('teachCard').style.display = st === 'teach' ? '' : 'none';
+  document.getElementById('taskCard').style.display = st === 'teach' ? 'none' : '';
+  document.getElementById('checkBtn').style.display = st === 'teach' ? 'none' : '';
+  ctlEl.classList.toggle('locked', st === 'teach');
+
+  numXEl.disabled = st === 'teach';
+  numYEl.disabled = st === 'teach';
+
+  document.getElementById('ctrlHead').textContent =
+    st === 'teach' ? '示范中 · 先跟着走一遍，等下自己动手'
+    : st === 'task' ? '按题目要求：先选方向，再填单位'
+    : '想练哪个方向、几格？改这里，图会重新摆好';
+
+  if (st === 'teach') {
+    MV.step = 0;
+    MV.dirX = 1; MV.numX = DEMO_DX;
+    MV.dirY = 1; MV.numY = DEMO_DY;
+    MV.checked = false;
+    MV.draw.on = false;
+    refreshTeach();
+  } else if (st === 'task') {
+    MV.dirX = 1; MV.numX = 3;
+    MV.dirY = 0; MV.numY = 1;
+    MV.taskNo = 0;
+    MV.draw.on = false;
+    makeTask();
+    paintCtl();
+    return;
+  } else {
+    MV.checked = false;
+    if (MV.dirX === 0 && MV.dirY === 0) { MV.dirX = 1; MV.numX = 3; }
+    MV.draw.no = 1;
+    startDraw(MV.dirX * MV.numX, MV.dirY * MV.numY);
+    paintCtl();
+    return;
+  }
+
+  paintCtl();
+  syncMove(false);
+}
+
+document.getElementById('stageBtns').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (b && b.dataset.stage !== MV.stage) setStage(b.dataset.stage);
+});
 
 /* =========================================================
    11. 拖拽处理
@@ -1833,7 +3061,7 @@ handleDragMove = function (p) {
       const gy = -p.z;
       let dist = Math.hypot(gx, gy);
       dist = Math.max(1.2, Math.min(R - 0.8, dist));
-      dist = Math.round(dist * 5) / 5;        // 吸附到 1 n mile
+      dist = Math.round(dist * 5) / 5;        // 吸附到 1 米
 
       let ang = (Math.atan2(gx, gy) * 180) / Math.PI;
       if (ang < 0) ang += 360;
@@ -1847,7 +3075,31 @@ handleDragMove = function (p) {
   }
 
   if (S.tab === 'move') {
+    if (MV.stage !== 'free') return;
+
     const dragged = dragState.object;
+
+    /* ③ 自己画：学生拖动蓝色小球描点 */
+    if (dragged && dragged.userData.drawIndex !== undefined) {
+      const i = dragged.userData.drawIndex;
+      const dp = MV.draw.pts[i];
+      if (!MV.draw.on || dp.done) return;
+
+      const nx = Math.max(-R + 1, Math.min(R - 1, Math.round(p.x)));
+      const ny = Math.max(-R + 1, Math.min(R - 1, Math.round(-p.z)));
+
+      if (nx !== dp.x || ny !== dp.y) {
+        dp.x = nx;
+        dp.y = ny;
+        checkDrawPoint(i);
+        renderDraw();
+        updateDrawUI();
+        updateCoordTable(MV.draw.dx, MV.draw.dy);
+        updateDirSent(MV.draw.dx, MV.draw.dy);
+      }
+      return;
+    }
+
     if (dragged && dragged.userData.isQuadVertex) {
       const fig = dragged.userData.fig;
       const pts = FIGS[fig].pts;
@@ -1859,16 +3111,25 @@ handleDragMove = function (p) {
         pts[i].y = ny;
         refreshPoly(built[fig].ghost, pts);
         refreshPoly(built[fig].solid, pts);
-        applyMove(1);
+        syncMove(false);
       }
       return;
     }
+
+    // 拖橙色把手 = 整体平移，回写到方向控件上
     const c = ptsCentroid(activePts());
-    const a = Math.round(p.x - c.x);
-    const b = Math.round(-p.z - c.y);
-    const ca = Math.max(-R, Math.min(R, a));
-    const cb = Math.max(-R, Math.min(R, b));
-    if (ca !== S.a || cb !== S.b) setMove(ca, cb);
+    let a = Math.round(p.x - c.x);
+    let b = Math.round(-p.z - c.y);
+    a = Math.max(-9, Math.min(9, a));
+    b = Math.max(-9, Math.min(9, b));
+
+    MV.dirX = a === 0 ? 0 : Math.sign(a);
+    MV.numX = a === 0 ? MV.numX : Math.abs(a);
+    MV.dirY = b === 0 ? 0 : Math.sign(b);
+    MV.numY = b === 0 ? MV.numY : Math.abs(b);
+
+    paintCtl();
+    syncMove(false);
   }
 };
 
@@ -1894,13 +3155,19 @@ handleClick = function (e) {
    ========================================================= */
 const sceneBadge = document.getElementById('sceneBadge');
 
+const quizRoot = new THREE.Group();
+quizRoot.visible = false;
+scene.add(quizRoot);
+
 const TAB_CONF = {
   geo:     { pane: 'pane-geo',     root: geoRoot,     badge: '用坐标表示地理位置 · 例 1' },
   bearing: { pane: 'pane-bearing', root: bearingRoot, badge: '用方向和距离表示位置' },
-  move:    { pane: 'pane-move',    root: moveRoot,    badge: '用坐标表示平移 · 例 2' }  // badge 由 setFig 动态更新
+  move:    { pane: 'pane-move',    root: moveRoot,    badge: '用坐标表示平移 · 例 2' },  // badge 由 setFig 动态更新
+  quiz:    { pane: 'pane-quiz',    root: quizRoot,    badge: '闯关练习' }
 };
 
 function setTab(tab) {
+  const prevTab = S.tab;
   S.tab = tab;
   document.querySelectorAll('.tab').forEach((t) =>
     t.classList.toggle('is-active', t.dataset.tab === tab)
@@ -1917,15 +3184,24 @@ function setTab(tab) {
   originHandle.visible = tab === 'geo';
   northLabel.visible = tab === 'bearing';
 
-  lblX.element.textContent = tab === 'geo' ? 'x/m' : 'x';
-  lblY.element.textContent = tab === 'geo' ? 'y/m' : 'y';
+  lblX.element.textContent = tab === 'geo' ? 'x（格）' : 'x';
+  lblY.element.textContent = tab === 'geo' ? 'y（格）' : 'y';
 
   sceneBadge.textContent = TAB_CONF[tab].badge;
 
   rebuildTicks();
   if (tab === 'geo') updateGeo();
   if (tab === 'bearing') updateBearing();
-  if (tab === 'move') applyMove(1);
+  if (tab === 'move') syncMove(false);
+  else syncMoveVisibility();
+  updateDrawBanner();
+
+  // 平移模块把镜头拉近，图形看着更大
+  if (tab === 'move' && prevTab !== 'move') {
+    tweenCamera(CAM_MOVE, new THREE.Vector3(0, 0.6, 0));
+  } else if (tab !== 'move' && prevTab === 'move') {
+    tweenCamera(CAM_ISO, new THREE.Vector3(0, 0.6, 0));
+  }
 
   dragState.hovered = null;
   renderer.domElement.style.cursor = 'default';
@@ -2001,6 +3277,7 @@ function loop() {
    17. 初始化
    ========================================================= */
 setFig('rect');
+setStage('teach');
 setLabelsVisible(moveRoot, false);
 setLabelsVisible(bearingRoot, false);
 updateGeo();
@@ -2008,8 +3285,132 @@ updateBearing();
 selectPlace(PLACES[1]);
 rebuildTicks();
 
+/* =========================================================
+   15. 模块④：闯关练习
+   ========================================================= */
+const QUIZ = [
+  {
+    tag: '用坐标表示地理位置',
+    q: '以学校为原点。小刚家出校门向东走 3 格，再向北走 4 格。小刚家的坐标是？',
+    opts: ['(4, 3)', '(3, 4)', '(−3, 4)', '(3, −4)'],
+    ans: 1,
+    exp: '向东是 x 轴正方向、向北是 y 轴正方向：横坐标记 3、纵坐标记 4，所以是 (3, 4)。注意先写横坐标、再写纵坐标。'
+  },
+  {
+    tag: '用坐标表示地理位置',
+    q: '点 (−2, 3) 在第几象限？',
+    opts: ['第一象限', '第二象限', '第三象限', '第四象限'],
+    ans: 1,
+    exp: '横坐标 −2 < 0、纵坐标 3 > 0，在左上区域——第二象限。可以回模块①把原点拖一拖，看看坐标怎么变。'
+  },
+  {
+    tag: '用方向和距离表示位置',
+    q: '救生船在遇险船的北偏东 60° 方向、35 米处。那么遇险船在救生船的什么位置？',
+    opts: ['北偏东 60°，35 米', '南偏西 60°，35 米', '南偏东 60°，35 米', '南偏西 30°，35 米'],
+    ans: 1,
+    exp: '两人互相看，方向正好相反：北偏东 60° 的反方向是南偏西 60°，距离不变。可以到模块②选中救生船、切"以 B 为参照"验证。'
+  },
+  {
+    tag: '用坐标表示平移',
+    q: '把点 A(4, 3) 向左平移 6 个单位长度，得到的点是？',
+    opts: ['(−2, 3)', '(4, −3)', '(10, 3)', '(−2, −3)'],
+    ans: 0,
+    exp: '向左平移：横坐标减 6、纵坐标不变。4 − 6 = −2，得 (−2, 3)。口诀"左减"。'
+  },
+  {
+    tag: '用坐标表示平移',
+    q: '长方形 ABCD 的四个顶点横坐标都加 3、纵坐标都加 2。平移后的长方形和原来相比？',
+    opts: ['形状、大小都变了', '形状大小不变，整体向右上方移动', '位置不变，形状变扁了', '变成长原来的两倍大'],
+    ans: 1,
+    exp: '每个点都按同样的量平移，图形就整体移动：向右 3 格、向上 2 格，形状、大小都不变。'
+  },
+  {
+    tag: '用坐标表示平移 · 逆向',
+    q: '已知 A′(−2, 3) 是把点 A 向左平移 6 个单位长度后得到的。点 A 原来的坐标是？',
+    opts: ['(−8, 3)', '(4, 3)', '(−2, −3)', '(4, −3)'],
+    ans: 1,
+    exp: '逆向就反着算：横坐标加回去。−2 + 6 = 4，得 A(4, 3)——"加变减、减变加"。可以到模块③看右下角的平移规律卡，再自己推一遍。'
+  }
+];
+
+let qIdx = 0, qScore = 0, qLocked = false;
+
+function renderQ() {
+  qLocked = false;
+  const item = QUIZ[qIdx];
+  document.getElementById('qCount').textContent = '第 ' + (qIdx + 1) + ' / ' + QUIZ.length + ' 题';
+  document.getElementById('qFill').style.width = (qIdx / QUIZ.length * 100) + '%';
+  document.getElementById('qTag').textContent = item.tag;
+  document.getElementById('qText').textContent = item.q;
+  document.getElementById('qOpts').innerHTML = item.opts.map((o, i) =>
+    '<button data-i="' + i + '"><span class="qletter">' + 'ABCD'[i] + '</span>' + o + '</button>'
+  ).join('');
+  const fb = document.getElementById('qFb');
+  fb.style.display = 'none';
+  fb.className = 'qfb';
+  fb.innerHTML = '';
+  document.getElementById('qNext').style.display = 'none';
+}
+
+function answerQ(idx) {
+  if (qLocked) return;
+  qLocked = true;
+  const item = QUIZ[qIdx];
+  const ok = idx === item.ans;
+  if (ok) qScore++;
+
+  document.querySelectorAll('#qOpts button').forEach((b, i) => {
+    if (i === item.ans) b.classList.add('right');
+    else if (i === idx) b.classList.add('wrong');
+    b.disabled = true;
+  });
+
+  const fb = document.getElementById('qFb');
+  fb.className = 'qfb ' + (ok ? 'ok' : 'no');
+  fb.innerHTML = (ok ? '✓ 答对了！' : '✗ 正确答案是 ' + 'ABCD'[item.ans]) +
+    '<span>' + item.exp + '</span>';
+  fb.style.display = 'block';
+
+  const nxt = document.getElementById('qNext');
+  nxt.style.display = 'block';
+  nxt.textContent = qIdx === QUIZ.length - 1 ? '查看成绩 →' : '下一题 →';
+}
+
+function nextQ() {
+  if (qIdx < QUIZ.length - 1) {
+    qIdx++;
+    renderQ();
+    return;
+  }
+  document.getElementById('qCard').style.display = 'none';
+  document.getElementById('qResult').style.display = 'block';
+  document.getElementById('qScore').textContent = qScore + ' / ' + QUIZ.length;
+  document.getElementById('qMsg').textContent =
+    qScore === QUIZ.length ? '满分！三个知识点都掌握了。' :
+    qScore >= QUIZ.length - 2 ? '很不错！错题的解析再看一遍，然后回对应模块拖一拖、算一算。' :
+    '别急，回对应模块看一看，再挑战一次。';
+  document.getElementById('qFill').style.width = '100%';
+  document.getElementById('qCount').textContent = '已完成';
+}
+
+function restartQ() {
+  qIdx = 0;
+  qScore = 0;
+  document.getElementById('qCard').style.display = '';
+  document.getElementById('qResult').style.display = 'none';
+  renderQ();
+}
+
+document.getElementById('qOpts').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (btn) answerQ(Number(btn.dataset.i));
+});
+document.getElementById('qNext').addEventListener('click', nextQ);
+document.getElementById('qRestart').addEventListener('click', restartQ);
+renderQ();
+
 /* 供自动化测试/调试使用（不影响页面） */
-window.__wb = { S, FIGS, built, PLACES, homeGroups, islandGroup, lightGroup, boatB, dragState, handleDragMove, applyMove, updateGeo, updateBearing, setFig };
+window.__wb = { S, MV, DEMO, FIGS, built, PLACES, homeGroups, islandGroup, lightGroup, boatB, dragState, handleDragMove, applyMove, syncMove, updateGeo, updateBearing, setFig, setStage, makeTask, checkTask, startDraw, camera, renderer, THREE, QUIZ, renderQ, answerQ, nextQ, restartQ };
 
 requestAnimationFrame(loop);
 </script>

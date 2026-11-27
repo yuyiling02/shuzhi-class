@@ -31,19 +31,25 @@
   }
   h1{font-size:28px;line-height:1.3;margin:12px 0 6px;letter-spacing:.01em;}
   .sub{margin:0;color:var(--ink-2);font-size:14.5px;}
-  main{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;align-items:start;}
+  main{
+    display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;align-items:start;
+    height:calc(100vh - 210px);min-height:430px;
+  }
   .stage{
-    position:relative;background:var(--card);border:1px solid var(--line);
+    position:sticky;top:18px;align-self:start;
+    display:flex;align-items:center;justify-content:center;
+    height:100%;
+    background:var(--card);border:1px solid var(--line);
     border-radius:18px;box-shadow:0 10px 30px -18px rgba(30,41,59,.35);overflow:hidden;
   }
-  .stage svg{display:block;width:100%;height:auto;touch-action:none;}
+  .stage svg{display:block;width:100%;height:100%;touch-action:none;}
   .stage .bar{cursor:pointer;transition:fill .12s ease;}
   .hint{
     position:absolute;left:16px;bottom:12px;font-size:12.5px;color:var(--muted);
     background:rgba(255,255,255,.9);padding:5px 10px;border-radius:8px;border:1px solid var(--line);
     pointer-events:none;
   }
-  .panel{display:flex;flex-direction:column;gap:14px;max-height:720px;overflow-y:auto;padding-right:2px;}
+  .panel{display:flex;flex-direction:column;gap:14px;height:100%;max-height:100%;overflow-y:auto;padding-right:2px;}
   .panel::-webkit-scrollbar{width:6px;}
   .panel::-webkit-scrollbar-thumb{background:#d7dde8;border-radius:3px;}
   .card{
@@ -202,11 +208,12 @@
   .slider-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:1px;}
 
   /* 频率求和条 */
-  .sumwrap{margin-top:12px;}
   .sumlabel{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:6px;}
-  .sum-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#eef1f7;}
-  .sum-seg{cursor:pointer;transition:background .12s,transform .12s;}
-  .sum-seg:hover{transform:scaleY(1.15);}
+  .sum-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:#eef1f7;}
+  .sum-seg{cursor:pointer;transition:filter .12s;}
+  .sum-seg + .sum-seg{border-left:2px solid #fff;}
+  .sum-seg:hover{filter:brightness(1.12) saturate(1.15);}
+  .sum-seg.sel{box-shadow:inset 0 0 0 2px #fff;}
 
   /* 频率分布表 */
   .tbl-wrap{max-height:214px;overflow:auto;margin-top:2px;}
@@ -223,11 +230,11 @@
   table.freq tbody tr{cursor:pointer;}
   table.freq tbody tr:hover td{background:#f8fafc;}
   table.freq tbody tr.sel td{background:var(--amber-soft);color:var(--ink);}
-  footer{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.85;}
-  footer b{color:var(--ink-2);font-weight:600;}
   @media (max-width:1020px){
-    main{grid-template-columns:minmax(0,1fr);}
-    .panel{max-height:none;flex-direction:row;flex-wrap:wrap;overflow:visible;}
+    main{grid-template-columns:minmax(0,1fr);height:auto;min-height:0;}
+    .stage{position:relative;top:auto;height:auto;display:block;}
+    .stage svg{height:auto;}
+    .panel{max-height:none;height:auto;flex-direction:row;flex-wrap:wrap;overflow:visible;}
     .panel .card{flex:1 1 340px;}
     h1{font-size:23px;}
   }
@@ -255,14 +262,21 @@
 
     <aside class="panel">
       <div class="card">
-        <div class="card-title"><span class="dot indigo"></span>数据概况</div>
-        <div class="vline"><span class="vlabel">样本容量</span><span class="vval" id="nVal">100</span></div>
+        <div class="card-title"><span class="dot amber"></span><span id="grpTitle">最高的一组</span> · 面积就是频率</div>
+        <div class="vline"><span class="vlabel">分组</span><span class="vval small" id="grpRange">[1.5, 2.0)</span></div>
         <div class="map">
-          <span class="chip">最小值 <b id="minVal">0.3</b></span>
-          <span class="chip">最大值 <b id="maxVal">4.3</b></span>
-          <span class="chip amber">极差 R <b id="rVal">4.0</b></span>
+          <span class="chip">频数 <b id="grpCount">26</b></span>
+          <span class="chip">频率 <b id="grpFreq">0.26</b></span>
+          <span class="chip indigo">频率/组距 <b id="grpDensity">0.52</b></span>
         </div>
-        <div class="note" id="dsNote">100 户居民某月月均用水量（单位：t）。极差 R = x<sub>max</sub> − x<sub>min</sub>，它决定分组能覆盖的范围。</div>
+        <div class="formula sm" id="grpArea" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot teal"></span>各组的频率</div>
+        <div class="sumlabel"><span>每段长度 = 该组频率</span><span>Σ 频率 = <b id="sumF">1</b> · Σ 面积 = <b id="sumA">1</b></span></div>
+        <div class="sum-bar" id="sumBar"></div>
+        <div style="margin-top:10px;"><span class="badge ok" id="areaBadge"></span></div>
       </div>
 
       <div class="card">
@@ -279,22 +293,6 @@
         </div>
         <div class="formula sm" id="kFormula" style="margin-top:10px;"></div>
         <div class="note">起点 a 取不超过最小值、且是组距 d 的整数倍的位置；组数 k = ⌈(最大值 − a)/d⌉（若整除则再加上边界组）。</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="dot amber"></span><span id="grpTitle">最高的一组</span> · 面积就是频率</div>
-        <div class="vline"><span class="vlabel">分组</span><span class="vval small" id="grpRange">[1.5, 2.0)</span></div>
-        <div class="map">
-          <span class="chip">频数 <b id="grpCount">26</b></span>
-          <span class="chip">频率 <b id="grpFreq">0.26</b></span>
-          <span class="chip indigo">频率/组距 <b id="grpDensity">0.52</b></span>
-        </div>
-        <div class="formula sm" id="grpArea" style="margin-top:10px;"></div>
-        <div class="sumwrap">
-          <div class="sumlabel"><span>各组的频率（横向长度）</span><span>Σ 频率 = <b id="sumF">1</b> · Σ 面积 = <b id="sumA">1</b></span></div>
-          <div class="sum-bar" id="sumBar"></div>
-        </div>
-        <div><span class="badge ok" id="areaBadge"></span></div>
       </div>
 
       <div class="card">
@@ -354,13 +352,6 @@
   </main>
 
   <div class="toast" id="toast"></div>
-
-  <footer>
-    <b>教材原话（9.2.1 用样本的频率分布估计总体分布）：</b>求极差 → 决定组距与组数 → 将数据分组 → 列频率分布表 → 画频率分布直方图。<br>
-    <b>纵轴为什么是频率/组距：</b>若直接用频率作高，当各组组距不同时，高的矩形未必代表更大的频率；取 <b>频率/组距</b> 作高，则每个小矩形的面积 = (频率/组距) × 组距 = <b>频率</b>，既可比，又能保证所有矩形面积之和 = 1。<br>
-    <b>组距的影响：</b>组距过小 → 组数多、图形出现锯齿，样本的随机波动盖过分布规律；组距过大 → 组数少、各组的差别被抹平。样本容量越大，可适当取更小的组距。<br>
-    <b>折线图与密度曲线：</b>连接各小矩形上端中点得到频率分布折线图；当样本容量不断增大、组距不断缩小时，折线趋于一条光滑曲线——总体密度曲线。
-  </footer>
 </div>
 
 <script>
@@ -374,7 +365,6 @@ var DATASETS = {
     name: '100 户居民月均用水量',
     unit: 't',
     axisName: '月均用水量 / t',
-    note: '100 户居民某月月均用水量（单位：t）。极差 R = x<sub>max</sub> − x<sub>min</sub>，它决定分组能覆盖的范围。',
     values: [0.3, 0.8, 0.8, 0.9, 0.9, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3, 1.3, 1.3, 1.3, 1.4, 1.4, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6, 1.6, 1.7, 1.7, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 1.8, 1.8, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 2.2, 2.3, 2.3, 2.3, 2.3, 2.4, 2.4, 2.4, 2.5, 2.5, 2.5, 2.6, 2.7, 2.7, 2.7, 2.7, 2.7, 2.8, 2.8, 2.8, 2.9, 3.0, 3.0, 3.0, 3.1, 3.2, 3.3, 3.4, 3.4, 3.4, 3.5, 3.7, 3.8, 3.8, 4.3],
     dMin: 0.2, dMax: 1.5, dStep: 0.1, d0: 0.5, dec: 1
   },
@@ -383,7 +373,6 @@ var DATASETS = {
     name: '120 名高一学生身高',
     unit: 'cm',
     axisName: '身高 / cm',
-    note: '120 名高一学生的身高（单位：cm）。同一组数据，极差与单位不同，滑块范围与图形也随之改变。',
     values: [151, 152, 153, 154, 154, 154, 154, 155, 156, 156, 156, 158, 159, 159, 161, 162, 162, 162, 162, 162, 162, 163, 163, 164, 164, 164, 165, 165, 165, 165, 165, 166, 166, 166, 166, 166, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 167, 168, 168, 168, 168, 168, 168, 169, 169, 169, 169, 169, 169, 169, 170, 170, 170, 170, 170, 170, 170, 170, 171, 171, 171, 171, 171, 171, 171, 171, 171, 171, 172, 172, 172, 172, 172, 173, 173, 174, 174, 174, 174, 174, 174, 174, 175, 175, 176, 176, 176, 176, 177, 177, 177, 177, 179, 179, 179, 179, 180, 180, 180, 180, 181, 182, 182, 183, 185, 186, 186],
     dMin: 2, dMax: 10, dStep: 1, d0: 5, dec: 0
   }
@@ -595,11 +584,6 @@ function drawTag(idx, lay){
 /* ---------------- 面板 ---------------- */
 function updatePanel(lay){
   var D = lay.ds;
-  document.getElementById('nVal').textContent = lay.n;
-  document.getElementById('minVal').textContent = trim(lay.min, lay.ldec);
-  document.getElementById('maxVal').textContent = trim(lay.max, lay.ldec);
-  document.getElementById('rVal').textContent = lay.R.toFixed(lay.ldec);
-  document.getElementById('dsNote').innerHTML = D.note;
 
   document.getElementById('dVal').textContent = num(lay.d);
   document.getElementById('startVal').textContent = trim(lay.start, lay.ldec);
@@ -631,10 +615,10 @@ function buildSumBar(lay){
   box.innerHTML = s;
 }
 function segColor(lay, i, sel){
-  if (i === sel) return '#d97706';
-  var mx = 1;
-  for (var j = 0; j < lay.bins.length; j++) mx = Math.max(mx, lay.bins[j].freq);
-  return 'rgba(99,102,241,' + (0.26 + 0.62 * (lay.bins[i].freq / mx)).toFixed(2) + ')';
+  if (i === sel) return '#b45309';
+  var k = lay.bins.length;
+  var t = k > 1 ? i / (k - 1) : 0;
+  return 'hsl(' + (238 - 226 * t).toFixed(1) + ', 72%, 56%)';
 }
 
 function buildTable(lay){
@@ -677,6 +661,7 @@ function highlight(lay){
   for (var s = 0; s < segs.length; s++){
     var j = +segs[s].getAttribute('data-i');
     segs[s].style.background = segColor(lay, j, sel);
+    segs[s].classList.toggle('sel', j === sel);
   }
   drawTag(sel, lay);
   updateDetail(sel >= 0 ? sel : lay.tallest, lay, sel >= 0);
@@ -926,8 +911,6 @@ document.getElementById('btnApplyData').addEventListener('click', function(){
 
   DATASETS.custom = {
     id:'custom', name:'自定义频率表', unit:'', axisName:'变量取值',
-    note:'按频率表录入：数据量 n = <b>' + n + '</b>，起点 ' + trim(lay.start, lay.ldec) + '，组距 d = ' + num(d) +
-         '，共 ' + lay.k + ' 组，Σ频率 = 1。频数 = 频率 × n，每个矩形的面积 = 该组频率。',
     values:vals, dMin:dMin, dMax:dMax, dStep:dStep, d0:d, dec:lay.ldec,
     n:n, freqInputs:freqs.slice()
   };

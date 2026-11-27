@@ -122,6 +122,67 @@
   }
   .stage-tip.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* ---------- 闯关练习 ---------- */
+  .quiz-layer{
+    position:absolute;inset:0;display:none;overflow:auto;padding:20px 20px 58px;z-index:3;
+    background:radial-gradient(120% 95% at 18% 0%, #ffffff 0%, #f8fbff 42%, #eaf0fb 100%);
+  }
+  .quiz-layer.on{display:block}
+  .qz-card{
+    max-width:720px;margin:0 auto;background:#fff;border:1px solid #e5ecf7;border-radius:18px;
+    box-shadow:0 26px 60px -42px rgba(15,23,42,.55);padding:17px 21px 18px;
+  }
+  .qz-top{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+  .qz-lv{font-size:12.5px;font-weight:700;color:#1d4ed8;letter-spacing:.3px;white-space:nowrap}
+  .qz-lv span{color:#94a3b8;font-weight:600}
+  .qz-dots{display:flex;gap:6px;align-items:center;margin-left:auto}
+  .qz-dot{width:9px;height:9px;border-radius:50%;background:#e3ebf7;display:block;transition:.2s}
+  .qz-dot.now{background:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.16)}
+  .qz-dot.ok{background:#10b981}
+  .qz-dot.no{background:#ef4444}
+  .qz-score{font-size:12px;color:#64748b;white-space:nowrap}
+  .qz-score b{color:#f59e0b;font-size:16px;font-variant-numeric:tabular-nums}
+  .qz-q{font-size:16px;line-height:1.8;color:#1e293b;font-weight:600;margin:6px 0 10px}
+  .qz-q em{font-style:normal;color:#1d4ed8;font-weight:700}
+  .qz-fig{display:flex;justify-content:center;margin:0 0 12px}
+  .qz-fig svg{max-width:100%;height:auto}
+  .qz-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .qz-opt{
+    display:flex;align-items:center;gap:9px;font:inherit;font-size:14px;color:#334155;
+    background:#f8fbff;border:1.5px solid #e3ebf7;border-radius:12px;padding:11px 13px;cursor:pointer;
+    text-align:left;transition:.16s;line-height:1.5;
+  }
+  .qz-opt:hover:not(.lock){border-color:#bfd3f7;background:#eef4ff;transform:translateY(-1px)}
+  .qz-opt .k{
+    width:22px;height:22px;flex-shrink:0;border-radius:7px;background:#e8f0fe;color:#1d4ed8;
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .qz-opt.lock{cursor:default}
+  .qz-opt.ok{border-color:#86e0bc;background:#ecfdf5;color:#065f46}
+  .qz-opt.ok .k{background:#10b981;color:#fff}
+  .qz-opt.no{border-color:#fca5a5;background:#fef2f2;color:#991b1b}
+  .qz-opt.no .k{background:#ef4444;color:#fff}
+  .qz-fb{margin-top:12px;border-radius:12px;padding:10px 13px;font-size:13px;line-height:1.85}
+  .qz-fb.good{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46}
+  .qz-fb.bad{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+  .qz-fb b{font-weight:700}
+  .qz-foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:13px;min-height:38px}
+  .qz-hint{font-size:12px;color:#94a3b8;margin-right:auto}
+  .qz-btn{
+    font:inherit;font-size:13px;font-weight:700;color:#fff;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#4f7cf7,#6d5cf6);padding:9px 20px;border-radius:10px;
+    box-shadow:0 10px 20px -14px rgba(79,124,247,1);transition:.16s;
+  }
+  .qz-btn:hover{filter:brightness(1.05)}
+  .qz-btn.ghost{background:#fff;color:#475569;border:1px solid #e3ebf7;box-shadow:none;font-weight:600}
+  .qz-btn.ghost:hover{color:#1d4ed8;border-color:#c9d7ee}
+  .qz-result{text-align:center;padding:14px 0 6px}
+  .qz-result .big{font-size:42px;font-weight:700;color:#1d4ed8;line-height:1.15;font-variant-numeric:tabular-nums}
+  .qz-result .big small{font-size:17px;color:#94a3b8;font-weight:600}
+  .qz-result p{font-size:13.5px;color:#52627a;margin-top:10px;line-height:1.9}
+  .stage-tools{position:absolute;right:14px;bottom:14px;display:flex;gap:6px;z-index:6}
+  .stage-tools .view-btn{position:static}
+
   /* ---------- 右侧面板 ---------- */
   .panel{
     width:352px;flex-shrink:0;overflow-y:auto;display:flex;flex-direction:column;gap:11px;
@@ -253,7 +314,7 @@
       </div>
     </div>
     <div class="top-actions">
-      <span class="tag">拖动圆点改变角的大小 · 拖空白处转视角 · 滚轮缩放</span>
+      <span class="tag">拖动圆点改角的大小 · 拖空白处转视角 · 滚轮缩放 · ← → 切换模块</span>
       <button class="icon-btn" id="fsBtn">全屏演示</button>
     </div>
   </header>
@@ -265,7 +326,12 @@
       <div class="stage-title"><span class="st-no" id="stNo">01</span><span class="st-tx" id="stTx">角的概念</span></div>
       <div class="legend" id="legend"></div>
       <div class="stage-tip" id="stageTip"></div>
-      <button class="view-btn" id="resetView">重置视角</button>
+      <div class="quiz-layer" id="quizLayer"></div>
+      <div class="stage-tools">
+        <button class="view-btn" id="prevMod" title="上一节（←）">‹ 上一节</button>
+        <button class="view-btn" id="nextMod" title="下一节（→）">下一节 ›</button>
+        <button class="view-btn" id="resetView">重置视角</button>
+      </div>
     </main>
     <aside class="panel" id="panel"></aside>
   </div>
@@ -2947,6 +3013,270 @@
   }
 
   /* ==========================================================
+     模块 07 —— 闯关练习（8 关，覆盖本节的考点）
+     ========================================================== */
+  function buildQuiz() {
+    var S = newScene({ cam: [0, 0, 9], target: [0, 0, 0], grid: false, fov: 40 });
+    var scene = S.scene;
+
+    // ---- 题目配图（2D SVG，考场上画的就是这个样） ----
+    var FIG = {};
+    FIG.three = '<svg viewBox="0 0 320 168" xmlns="http://www.w3.org/2000/svg">'
+      + '<line x1="58" y1="138" x2="288" y2="138" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<line x1="58" y1="138" x2="232" y2="34" stroke="#f97316" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<line x1="58" y1="138" x2="266" y2="74" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5"/>'
+      + '<path d="M104 138 A46 46 0 0 0 97.5 114.4" fill="none" stroke="#f59e0b" stroke-width="2"/>'
+      + '<circle cx="58" cy="138" r="3.8" fill="#1e293b"/>'
+      + '<text x="292" y="144" font-size="14" font-weight="700" fill="#1d4ed8">A</text>'
+      + '<text x="236" y="28" font-size="14" font-weight="700" fill="#ea580c">B</text>'
+      + '<text x="270" y="68" font-size="14" font-weight="700" fill="#64748b">C</text>'
+      + '<text x="36" y="150" font-size="14" font-weight="700" fill="#334155">O</text>'
+      + '</svg>';
+
+    FIG.bis = '<svg viewBox="0 0 320 168" xmlns="http://www.w3.org/2000/svg">'
+      + '<line x1="66" y1="140" x2="284" y2="140" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<line x1="66" y1="140" x2="140" y2="20" stroke="#f97316" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<line x1="66" y1="140" x2="202" y2="64" stroke="#10b981" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<path d="M108 140 A42 42 0 0 0 102 118.4" fill="none" stroke="#10b981" stroke-width="2"/>'
+      + '<path d="M114 140 A48 48 0 0 0 107.1 115.3" fill="none" stroke="#10b981" stroke-width="2"/>'
+      + '<path d="M102 118.4 A42 42 0 0 0 85.7 102.9" fill="none" stroke="#f59e0b" stroke-width="2"/>'
+      + '<path d="M107.1 115.3 A48 48 0 0 0 88.5 97.6" fill="none" stroke="#f59e0b" stroke-width="2"/>'
+      + '<path d="M151 140 A85 85 0 0 0 105.9 64.9" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="4 4"/>'
+      + '<circle cx="66" cy="140" r="3.8" fill="#1e293b"/>'
+      + '<text x="288" y="146" font-size="14" font-weight="700" fill="#1d4ed8">A</text>'
+      + '<text x="144" y="14" font-size="14" font-weight="700" fill="#ea580c">B</text>'
+      + '<text x="206" y="58" font-size="14" font-weight="700" fill="#0d9488">C</text>'
+      + '<text x="44" y="152" font-size="14" font-weight="700" fill="#334155">O</text>'
+      + '<text x="120" y="134" font-size="11.5" fill="#64748b">68°</text>'
+      + '</svg>';
+
+    FIG.compass = '<svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg">'
+      + '<circle cx="160" cy="92" r="66" fill="#f8fbff" stroke="#e3ebf7" stroke-width="1.5"/>'
+      + '<line x1="160" y1="22" x2="160" y2="162" stroke="#2563eb" stroke-width="2.4"/>'
+      + '<line x1="90" y1="92" x2="230" y2="92" stroke="#2563eb" stroke-width="2.4"/>'
+      + '<path d="M160 22 l-4.2 9 h8.4 z" fill="#2563eb"/>'
+      + '<path d="M160 162 l-4.2 -9 h8.4 z" fill="#2563eb"/>'
+      + '<path d="M90 92 l9 -4.2 v8.4 z" fill="#2563eb"/>'
+      + '<path d="M230 92 l-9 -4.2 v8.4 z" fill="#2563eb"/>'
+      + '<text x="160" y="16" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">北</text>'
+      + '<text x="160" y="182" font-size="14" font-weight="700" fill="#334155" text-anchor="middle">南</text>'
+      + '<text x="82" y="97" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="end">西</text>'
+      + '<text x="238" y="97" font-size="14" font-weight="700" fill="#1d4ed8">东</text>'
+      + '<line x1="160" y1="92" x2="135" y2="146" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>'
+      + '<circle cx="135" cy="146" r="4.6" fill="#1e293b"/>'
+      + '<path d="M160 122 A30 30 0 0 1 147 119" fill="none" stroke="#f59e0b" stroke-width="2"/>'
+      + '<text x="147" y="133" font-size="11.5" fill="#b45309">25°</text>'
+      + '<text x="103" y="158" font-size="11" fill="#64748b" text-anchor="middle">轮船 A</text>'
+      + '<circle cx="160" cy="92" r="4" fill="#1e293b"/>'
+      + '<text x="168" y="86" font-size="12" fill="#475569">灯塔 O</text>'
+      + '</svg>';
+
+    var QS = [
+      {
+        tag: '角的表示',
+        q: '如图，以点 O 为顶点的角一共有 3 个。下面哪种表示<em>不能</em>准确指出其中一个角？',
+        fig: '<div class="qz-fig">' + FIG.three + '</div>',
+        opts: ['∠AOB', '∠AOC', '∠O', '∠BOC'],
+        a: 2,
+        why: '当顶点处<strong>只有一个角</strong>时，才能用顶点字母简记成 ∠O。图中以 O 为顶点的角有 3 个，写 ∠O 就不知道指哪一个了。'
+      },
+      {
+        tag: '角的比较',
+        q: '已知 ∠1 = 48°36′，∠2 = 48.6°，比较两个角的大小，结论是：',
+        opts: ['∠1 > ∠2', '∠1 < ∠2', '∠1 = ∠2', '无法比较'],
+        a: 2,
+        why: '把 48.6° 化成度分秒：0.6° = 0.6 × 60′ = 36′，所以 48.6° = 48°36′，与 ∠1 一样大。比较角的大小时，单位要统一。'
+      },
+      {
+        tag: '度分秒换算',
+        q: '把 32.25° 化成用度、分表示，结果是：',
+        opts: ['32°25′', '32°15′', '32°2′5″', '32°25″'],
+        a: 1,
+        why: '0.25° = 0.25 × 60′ = 15′，所以 32.25° = 32°15′。记住：度化分<strong>乘 60</strong>，分化度<strong>除以 60</strong>。'
+      },
+      {
+        tag: '度分秒换算',
+        q: '把 45.36° 化成度、分、秒，结果是：',
+        opts: ['45°36′', '45°3′6″', '45°21′36″', '45°2′16″'],
+        a: 2,
+        why: '0.36° = 21.6′；再把 0.6′ = 36″。所以 45.36° = 45°21′36″。小数部分要<strong>一层一层</strong>往分、秒换算。'
+      },
+      {
+        tag: '角的和差',
+        q: '计算 18°20′ + 26°45′，结果是：',
+        opts: ['45°5′', '44°65′', '45°65′', '44°5′'],
+        a: 0,
+        why: '度与度相加、分与分相加：18°20′ + 26°45′ = 44°65′。因为 65′ = 1°5′，所以要进位，得 <strong>45°5′</strong>。'
+      },
+      {
+        tag: '角平分线',
+        q: '如图，OC 平分 ∠AOB，且 ∠AOB = 68°，那么 ∠BOC 等于：',
+        fig: '<div class="qz-fig">' + FIG.bis + '</div>',
+        opts: ['34°', '68°', '136°', '112°'],
+        a: 0,
+        why: '角平分线把角<strong>平均分成两份</strong>：∠AOC = ∠BOC = ½ × 68° = 34°。注意问的是 ∠BOC，不是整个 ∠AOB。'
+      },
+      {
+        tag: '余角与补角',
+        q: '一个角的补角是它的 3 倍，这个角是多少度？',
+        opts: ['30°', '45°', '60°', '135°'],
+        a: 1,
+        why: '设这个角为 x，则它的补角是 3x。互补两角之和为 180°，得 x + 3x = 180°，x = <strong>45°</strong>（它的补角是 135°）。'
+      },
+      {
+        tag: '方位角',
+        q: '从灯塔观察轮船，轮船在灯塔的<em>南偏西 25°</em> 方向。若用“从正北方向顺时针旋转的角”来表示，是多少度？',
+        fig: '<div class="qz-fig">' + FIG.compass + '</div>',
+        opts: ['25°', '155°', '205°', '335°'],
+        a: 2,
+        why: '南偏西 25° 是<strong>从正南往西</strong>转 25°，也就是从正北顺时针转 180° + 25° = <strong>205°</strong>。'
+      }
+    ];
+
+    var st = { i: 0, picked: -1, score: 0, res: [], done: false };
+    var root = null;
+
+    function reset() { st = { i: 0, picked: -1, score: 0, res: [], done: false }; }
+
+    function dotsHTML() {
+      var h = '';
+      for (var k = 0; k < QS.length; k++) {
+        var c = 'qz-dot';
+        if (k < st.res.length) c += ' ' + (st.res[k] || '');
+        else if (k === st.i && !st.done) c += ' now';
+        h += '<i class="' + c + '"></i>';
+      }
+      return h;
+    }
+
+    function renderStage() {
+      if (!root) return;
+      if (st.done) {
+        var n = st.score, tot = QS.length;
+        var msg = n === tot
+          ? '全部答对！角的概念、度量、和差、余补和方位角都掌握了 🎉'
+          : (n >= tot - 2
+            ? '不错！把标记成红点的错题再对照左边 1–6 关的演示看一遍，就更稳了。'
+            : '别急，先回到左边 1–6 关把演示过一遍，再来挑战一次。');
+        root.innerHTML = '<div class="qz-card">'
+          + '<div class="qz-top"><div class="qz-lv">闯关结束 <span>· 共 ' + tot + ' 关</span></div>' + dotsHTML() + '</div>'
+          + '<div class="qz-result"><div class="big">' + n + '<small> / ' + tot + ' 分</small></div><p>' + msg + '</p></div>'
+          + '<div class="qz-foot"><button class="qz-btn ghost" data-act="restart">再来一次</button>'
+          + '<button class="qz-btn" data-act="review">回看错题</button></div></div>';
+        bindStage();
+        return;
+      }
+
+      var q = QS[st.i];
+      var opts = '';
+      q.opts.forEach(function (o, k) {
+        var cls = 'qz-opt';
+        if (st.picked >= 0) {
+          cls += ' lock';
+          if (k === q.a) cls += ' ok';
+          else if (k === st.picked) cls += ' no';
+        }
+        opts += '<button class="' + cls + '" data-opt="' + k + '">'
+          + '<span class="k">' + 'ABCD'.charAt(k) + '</span><span>' + o + '</span></button>';
+      });
+
+      var fb = '';
+      if (st.picked >= 0) {
+        var ok = st.picked === q.a;
+        fb = '<div class="qz-fb ' + (ok ? 'good' : 'bad') + '"><b>'
+          + (ok ? '✓ 答对了！' : '✗ 正确答案是 ' + 'ABCD'.charAt(q.a) + '。') + '</b><br>' + q.why + '</div>';
+      }
+
+      root.innerHTML = '<div class="qz-card">'
+        + '<div class="qz-top"><div class="qz-lv">第 ' + (st.i + 1) + ' / ' + QS.length + ' 关 <span>· ' + q.tag + '</span></div>'
+        + dotsHTML() + '<div class="qz-score">已得 <b>' + st.score + '</b> 分</div></div>'
+        + '<div class="qz-q">' + q.q + '</div>'
+        + (q.fig || '')
+        + '<div class="qz-opts">' + opts + '</div>'
+        + fb
+        + '<div class="qz-foot">'
+        + (st.picked >= 0
+          ? '<button class="qz-btn" data-act="next">' + (st.i === QS.length - 1 ? '查看成绩 ›' : '下一关 ›') + '</button>'
+          : '<span class="qz-hint">选一个答案（也可以按键盘 1–4）</span>')
+        + '</div></div>';
+      bindStage();
+    }
+
+    function choose(k) {
+      if (st.picked >= 0 || st.done) return;
+      st.picked = k;
+      var ok = k === QS[st.i].a;
+      st.res[st.i] = ok ? 'ok' : 'no';
+      if (ok) st.score++;
+      renderStage();
+    }
+
+    function next() {
+      if (st.picked < 0) return;
+      if (st.i === QS.length - 1) st.done = true;
+      else { st.i++; st.picked = -1; }
+      renderStage();
+    }
+
+    function bindStage() {
+      if (!root) return;
+      root.querySelectorAll('[data-opt]').forEach(function (b) {
+        b.addEventListener('click', function () { choose(+b.dataset.opt); });
+      });
+      root.querySelectorAll('[data-act]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var act = b.dataset.act;
+          if (act === 'next') next();
+          else if (act === 'restart') { reset(); renderStage(); }
+          else if (act === 'review') {
+            var bad = st.res.indexOf('no');
+            reset();
+            if (bad >= 0) st.i = bad;
+            renderStage();
+          }
+        });
+      });
+    }
+
+    var html = ''
+      + '<div class="sec"><div class="sec-h"><i class="dot"></i>闯关玩法</div>'
+      + '<div class="kp"><p>共 <b>8 关</b>，覆盖本节全部考点：角的表示、大小比较、度分秒换算、角的和差、角平分线、余角补角、方位角。</p>'
+      + '<p>每关 4 个选项，答对 1 关得 1 分；答完立刻显示解析。答错不要紧，正好对照左边 1–6 关的三维演示再看一遍。</p></div>'
+      + '<div class="btns"><button class="btn primary" id="qzRestart">从第 1 关重新开始</button></div>'
+      + '</div>'
+      + '<div class="sec"><div class="sec-h"><i class="dot green"></i>闯关小抄</div>'
+      + '<div class="kp">'
+      + '<p><b>换算</b>　1° = 60′，1′ = 60″；度化分乘 60，分化度除以 60。</p>'
+      + '<p><b>表示</b>　顶点处只有一个角时才能写成 ∠O。</p>'
+      + '<p><b>余补</b>　互余两角和 90°，互补两角和 180°。</p>'
+      + '<p><b>平分线</b>　∠AOC = ∠BOC = ½∠AOB。</p>'
+      + '<p><b>方位</b>　先南北、后偏东偏西；南偏西 25° 从正北顺时针数是 205°。</p>'
+      + '</div></div>'
+      + '<div class="sec ask"><div class="sec-h"><i class="dot amber"></i>课堂追问</div>'
+      + '<ul class="qs">'
+      + '<li>哪几关是“单位不统一”设的陷阱？</li>'
+      + '<li>角的和差算完为什么要“进位”或“借位”？</li>'
+      + '<li>“南偏西 25°”和“西偏南 25°”是同一个方向吗？</li>'
+      + '</ul></div>';
+
+    function bind(el) {
+      var b = el.querySelector('#qzRestart');
+      if (b) b.addEventListener('click', function () { reset(); renderStage(); });
+    }
+
+    return {
+      scene: scene, camera: S.camera, controls: S.controls, view: S.view,
+      html: html, bind: bind, legend: [],
+      stage: function (layer) { root = layer; renderStage(); layer.scrollTop = 0; },
+      onKey: function (e) {
+        if (e.key >= '1' && e.key <= '4') { choose(+e.key - 1); return true; }
+        if (e.key === 'Enter' || e.key === ' ') { if (st.picked >= 0) { next(); return true; } }
+        return false;
+      }
+    };
+  }
+
+  /* ==========================================================
      外壳：导航 / 切换 / 渲染循环
      ========================================================== */
   var MODS = [
@@ -2955,14 +3285,18 @@
     { no: '03', title: '角的比较', sub: '度量法 · 叠合法', build: buildCompare },
     { no: '04', title: '角的和差', sub: '和差关系 · 角平分线', build: buildSum },
     { no: '05', title: '余角与补角', sub: '互余 · 互补', build: buildComplement },
-    { no: '06', title: '方位角', sub: '拓展 · 用角度表示方向', build: buildBearing }
+    { no: '06', title: '方位角', sub: '拓展 · 用角度表示方向', build: buildBearing },
+    { no: '07', title: '闯关练习', sub: '8 关 · 检测与巩固', build: buildQuiz }
   ];
 
   var navEl = document.getElementById('nav');
   var panelEl = document.getElementById('panel');
   var legendEl = document.getElementById('legend');
+  var quizEl = document.getElementById('quizLayer');
+  var resetBtn = document.getElementById('resetView');
   var built = {};
   var active = null;
+  var curIdx = 0;
 
   MODS.forEach(function (m, i) {
     var b = document.createElement('button');
@@ -2976,6 +3310,7 @@
 
   function activate(i) {
     var m = MODS[i];
+    curIdx = i;
     MODS.forEach(function (x) { x.el.classList.toggle('on', x === m); });
     document.getElementById('stNo').textContent = m.no;
     document.getElementById('stTx').textContent = m.title;
@@ -2994,6 +3329,16 @@
     mod.controls.enabled = true;
     active = mod;
 
+    // 闯关练习：用 HTML 层覆盖画布
+    if (mod.stage) {
+      quizEl.classList.add('on');
+      mod.stage(quizEl);
+    } else {
+      quizEl.classList.remove('on');
+      quizEl.innerHTML = '';
+    }
+    resetBtn.style.display = mod.stage ? 'none' : '';
+
     panelEl.innerHTML = mod.html || '';
     panelEl.scrollTop = 0;
     if (mod.bind) mod.bind(panelEl);
@@ -3001,6 +3346,22 @@
     mod.camera.aspect = W / H;
     mod.camera.updateProjectionMatrix();
   }
+
+  // 上一节 / 下一节
+  function step(d) {
+    var n = MODS.length;
+    activate((curIdx + d + n) % n);
+  }
+  document.getElementById('prevMod').addEventListener('click', function () { step(-1); });
+  document.getElementById('nextMod').addEventListener('click', function () { step(1); });
+
+  window.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    if (active && active.onKey && active.onKey(e)) { e.preventDefault(); return; }
+    if (e.key === 'ArrowRight') { step(1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { step(-1); e.preventDefault(); }
+  });
 
   function resize() {
     var r = stageEl.getBoundingClientRect();

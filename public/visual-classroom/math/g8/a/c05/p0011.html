@@ -2,277 +2,258 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>17.2 公式法 · 课堂演示</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17.2 公式法 · 面积逆推分解</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-    background:#f4f7fb; color:#1e293b; padding:18px 24px;
-  }
-  h1 { font-size:30px; text-align:center; margin-bottom:4px; }
-  .subtitle { text-align:center; color:#64748b; font-size:17px; margin-bottom:14px; }
-
-  /* 知识点卡片区 */
-  .formulas { display:flex; gap:14px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
-  .fcard {
-    background:#fff; border-radius:12px; padding:10px 18px; min-width:260px;
-    box-shadow:0 2px 8px rgba(15,23,42,.08); border-top:4px solid #3b82f6;
-    text-align:center;
-  }
-  .fcard:nth-child(2){ border-top-color:#10b981; }
-  .fcard:nth-child(3){ border-top-color:#f59e0b; }
-  .fcard .t { font-size:15px; color:#64748b; }
-  .fcard .f { font-size:21px; font-weight:bold; margin-top:2px; }
-  .fcard .f i { font-family:"Times New Roman", serif; font-style:italic; }
-
-  /* 主体布局 */
-  .main { display:flex; gap:20px; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
-  .panel {
-    background:#fff; border-radius:14px; box-shadow:0 2px 10px rgba(15,23,42,.08);
-    padding:16px 20px;
-  }
-  .panel h2 { font-size:19px; margin-bottom:8px; color:#334155; }
-  .panel h2 span { color:#3b82f6; }
-
-  /* 控制按钮 */
-  .controls { display:flex; gap:10px; justify-content:center; margin:14px 0 6px; flex-wrap:wrap; }
-  button {
-    font-size:17px; padding:9px 20px; border:none; border-radius:9px;
-    background:#3b82f6; color:#fff; cursor:pointer; transition:.2s;
-    font-family:inherit;
-  }
-  button:hover { filter:brightness(1.1); transform:translateY(-1px); }
-  button:disabled { background:#cbd5e1; cursor:not-allowed; transform:none; }
-  button.ghost { background:#fff; color:#3b82f6; border:2px solid #3b82f6; }
-  button.play { background:#10b981; }
-  button.play.playing { background:#f59e0b; }
-  .stepbar { text-align:center; font-size:16px; color:#475569; margin-bottom:8px; }
-  .stepbar b { color:#ef4444; font-size:18px; }
-  .dots { display:flex; gap:8px; justify-content:center; margin-bottom:6px; }
-  .dot { width:12px; height:12px; border-radius:50%; background:#cbd5e1; transition:.3s; }
-  .dot.on { background:#3b82f6; transform:scale(1.25); }
-
-  /* SVG 拼图 */
-  svg text { font-family:"Times New Roman", Georgia, serif; }
-  .tile { transition: fill .6s, stroke .6s, opacity .6s; stroke-width:2.5; }
-  .tile-label { transition: fill .6s, opacity .6s; font-size:26px; font-weight:bold; }
-  .dim { opacity:0; transition: opacity .8s; font-size:24px; font-weight:bold; }
-  .dim.show { opacity:1; }
-  .brace { opacity:0; transition: opacity .8s; }
-  .brace.show { opacity:1; }
-
-  /* 代数推导区 */
-  .alg { font-size:23px; line-height:2.2; font-family:"Times New Roman","Microsoft YaHei",serif; }
-  .alg .ln { opacity:.35; transition:opacity .6s, background .6s; padding:2px 8px; border-radius:6px; display:block; }
-  .alg .ln.on { opacity:1; background:#fef9c3; }
-  .hl-b { color:#2563eb; font-weight:bold; }
-  .hl-g { color:#059669; font-weight:bold; }
-  .hl-o { color:#d97706; font-weight:bold; }
-  .hl-p { color:#7c3aed; font-weight:bold; }
-
-  /* 最终答案 */
-  .answer {
-    margin-top:10px; text-align:center; font-size:32px; font-weight:bold;
-    color:#fff; background:linear-gradient(90deg,#ef4444,#f97316);
-    border-radius:12px; padding:10px 16px; opacity:0; transform:scale(.9);
-    transition:.8s; font-family:"Times New Roman","Microsoft YaHei",serif;
-  }
-  .answer.show { opacity:1; transform:scale(1); animation:pulse 1.6s ease-in-out .8s infinite; }
-  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(239,68,68,.45);} 50%{ box-shadow:0 0 0 14px rgba(239,68,68,0);} }
-
-  .stepdesc {
-    min-height:52px; background:#f1f5f9; border-left:5px solid #3b82f6;
-    border-radius:8px; padding:9px 14px; font-size:17px; line-height:1.55;
-    transition:.3s; margin-bottom:6px;
-  }
-  .tip { text-align:center; color:#94a3b8; font-size:14px; margin-top:10px; }
+  :root{--blue:#3b82f6;--blueL:#dbeafe;--green:#10b981;--greenL:#d1fae5;--purple:#8b5cf6;--purpleL:#ede9fe;--orange:#f97316;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f4f7fb;color:var(--ink);padding:14px 12px 30px;}
+  .wrap{max-width:960px;margin:0 auto;}
+  header{text-align:center;margin-bottom:10px;}
+  header h1{font-size:21px;}
+  header p{color:var(--sub);font-size:13px;margin-top:2px;}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+  .tab{padding:9px 18px;border-radius:999px;border:2px solid var(--line);background:#fff;font-size:15px;font-weight:700;color:var(--sub);cursor:pointer;}
+  .tab.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.05);margin-bottom:12px;}
+  svg{display:block;width:100%;height:auto;}
+  .caption{text-align:center;font-size:17px;font-weight:700;min-height:28px;margin:6px 0;}
+  .caption .em{color:var(--orange);}
+  .dots{display:flex;gap:7px;justify-content:center;margin:8px 0 2px;}
+  .dots i{width:11px;height:11px;border-radius:50%;background:#cbd5e1;transition:.3s;}
+  .dots i.on{background:var(--blue);transform:scale(1.2);}
+  .ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .ctrl button{padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  .ctrl button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ctrl button.play{background:var(--green);border-color:var(--green);color:#fff;}
+  .ctrl button.play.on{background:var(--orange);border-color:var(--orange);}
+  .ctrl button:disabled{opacity:.4;cursor:default;}
+  .alg{font-family:"Cambria Math",Georgia,serif;font-size:22px;line-height:2;text-align:center;}
+  .alg .ln{opacity:.25;transition:.4s;display:block;border-radius:6px;}
+  .alg .ln.on{opacity:1;background:#fef9c3;}
+  .alg sup{font-size:.6em;}
+  .answer{margin-top:8px;text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:26px;font-weight:bold;color:#fff;background:linear-gradient(90deg,#ef4444,#f97316);border-radius:12px;padding:10px;opacity:0;transform:scale(.9);transition:.6s;}
+  .answer.show{opacity:1;transform:scale(1);}
+  .answer sup{font-size:.6em;}
+  .pick{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;font-size:15px;font-weight:700;}
+  .pick label{display:flex;align-items:center;gap:8px;}
+  .pick b{color:var(--purple);min-width:16px;text-align:center;font-size:17px;}
+  .pick input{width:130px;accent-color:var(--purple);}
+  .expr{text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:24px;font-weight:bold;margin:4px 0 8px;}
+  .expr sup{font-size:.6em;}
+  .goal{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .goal .g{padding:8px 16px;border-radius:10px;font-size:15px;font-weight:700;border:2px solid var(--line);background:#f8fafc;color:var(--sub);transition:.3s;}
+  .goal .g.ok{border-color:var(--green);background:var(--greenL);color:#047857;}
+  .goal .g.no{border-color:#fca5a5;background:#fef2f2;color:#b91c1c;}
+  .fcards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .fcard{background:#f8fafc;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:12px;padding:10px 16px;text-align:center;min-width:220px;}
+  .fcard:nth-child(2){border-top-color:var(--green);}
+  .fcard:nth-child(3){border-top-color:var(--orange);}
+  .fcard .t{font-size:13px;color:var(--sub);}
+  .fcard .f{font-family:"Cambria Math",Georgia,serif;font-size:18px;font-weight:bold;margin-top:2px;}
+  .fcard .f sup{font-size:.6em;}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.alg{font-size:18px;}.answer{font-size:20px;}.caption{font-size:15px;}.expr{font-size:20px;}}
 </style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <h1>17.2 公式法 · 用面积拼图做因式分解</h1>
+    <p>把一个多项式拼成一个大矩形，长 × 宽 就是分解结果</p>
+  </header>
 
-<h1>17.2 公式法 —— 用公式法解一元二次方程</h1>
-<div class="subtitle">矩形面积逆推分解 · 阅读与思考（人教版八年级下 / 因式分解公式法）</div>
-
-<!-- 核心知识点 -->
-<div class="formulas">
-  <div class="fcard"><div class="t">平方差公式</div><div class="f"><i>a</i>² − <i>b</i>² = (<i>a</i>+<i>b</i>)(<i>a</i>−<i>b</i>)</div></div>
-  <div class="fcard"><div class="t">完全平方公式</div><div class="f"><i>a</i>² ± 2<i>ab</i> + <i>b</i>² = (<i>a</i>±<i>b</i>)²</div></div>
-  <div class="fcard"><div class="t">十字相乘（面积逆推）</div><div class="f"><i>x</i>²+(<i>p</i>+<i>q</i>)<i>x</i>+<i>pq</i> = (<i>x</i>+<i>p</i>)(<i>x</i>+<i>q</i>)</div></div>
-</div>
-
-<div class="controls">
-  <button id="btnPrev" class="ghost">◀ 上一步</button>
-  <button id="btnNext">下一步 ▶</button>
-  <button id="btnPlay" class="play">▶ 自动播放</button>
-  <button id="btnReset" class="ghost">↺ 重置</button>
-</div>
-<div class="dots">
-  <div class="dot" data-s="1"></div><div class="dot" data-s="2"></div>
-  <div class="dot" data-s="3"></div><div class="dot" data-s="4"></div>
-</div>
-<div class="stepbar">当前步骤：<b id="stepNum">0</b> / 4　<span id="stepName">初始状态</span></div>
-
-<div class="main">
-  <!-- 面积拼图 -->
-  <div class="panel">
-    <h2>矩形面积逆推分解：<span>x² + 5x + 6</span></h2>
-    <svg id="svg" width="560" height="420" viewBox="0 0 560 420">
-      <!-- 尺寸标注（第4步显示） -->
-      <text id="dimTop"    class="dim" x="290" y="52"  text-anchor="middle" fill="#ef4444">x + 3</text>
-      <text id="dimLeft"   class="dim" x="120" y="250" text-anchor="middle" fill="#ef4444" transform="rotate(-90 120 250)">x + 2</text>
-      <text id="dimTopX"   class="dim" x="215" y="52"  text-anchor="middle" fill="#334155" opacity="0"></text>
-
-      <!-- 4 块拼图：宽(x+3)=150+... 用 x=130px, 2=40px, 3=60px -->
-      <!-- 左上：x² (130x130) 起点(160,70) -->
-      <rect id="t1" class="tile" x="160" y="70" width="130" height="130" rx="6"
-            fill="#dbeafe" stroke="#93c5fd"/>
-      <text class="tile-label" x="225" y="145" text-anchor="middle" fill="#1d4ed8">x²</text>
-
-      <!-- 右上：3x (60x130) -->
-      <rect id="t2" class="tile" x="294" y="70" width="60" height="130" rx="6"
-            fill="#d1fae5" stroke="#6ee7b7"/>
-      <text class="tile-label" x="324" y="145" text-anchor="middle" fill="#047857" font-size="24">3x</text>
-
-      <!-- 左下：2x (130x40) -->
-      <rect id="t3" class="tile" x="160" y="204" width="130" height="40" rx="6"
-            fill="#d1fae5" stroke="#6ee7b7"/>
-      <text class="tile-label" x="225" y="232" text-anchor="middle" fill="#047857" font-size="22">2x</text>
-
-      <!-- 右下：6 (60x40) -->
-      <rect id="t4" class="tile" x="294" y="204" width="60" height="40" rx="6"
-            fill="#ede9fe" stroke="#c4b5fd"/>
-      <text class="tile-label" x="324" y="232" text-anchor="middle" fill="#6d28d9" font-size="22">6 = 2×3</text>
-
-      <!-- 5x 大括号（第2步显示） -->
-      <g id="brace5x" class="brace">
-        <path d="M 294 262 Q 324 286 354 262" stroke="#059669" stroke-width="2.5" fill="none"/>
-        <text x="324" y="300" text-anchor="middle" fill="#059669" font-size="24" font-weight="bold">5x = 3x + 2x</text>
-      </g>
-
-      <!-- 分组框（第4步显示）：右列一组 x+3，下行一组 x+2 -->
-      <rect id="grpCol" x="286" y="62" width="76" height="190" rx="10"
-            fill="none" stroke="#f97316" stroke-width="3.5" stroke-dasharray="8 5" opacity="0" style="transition:opacity .8s"/>
-      <rect id="grpRow" x="152" y="196" width="210" height="56" rx="10"
-            fill="none" stroke="#7c3aed" stroke-width="3.5" stroke-dasharray="8 5" opacity="0" style="transition:opacity .8s"/>
-
-      <!-- 面积说明 -->
-      <text x="280" y="345" text-anchor="middle" fill="#475569" font-size="17" font-family="Microsoft YaHei">
-        大矩形面积 = x² + 3x + 2x + 6 = x² + 5x + 6
-      </text>
-      <text x="280" y="374" text-anchor="middle" fill="#475569" font-size="17" font-family="Microsoft YaHei">
-        逆推：长 (x+3) × 宽 (x+2) ⇒ 因式分解
-      </text>
-    </svg>
+  <div class="tabs">
+    <button class="tab on" data-t="demo">看演示</button>
+    <button class="tab" data-t="play">自己拼</button>
+    <button class="tab" data-t="ref">公式卡</button>
   </div>
 
-  <!-- 代数推导 -->
-  <div class="panel" style="max-width:440px;">
-    <h2>代数推导（同步高亮）</h2>
-    <div class="stepdesc" id="stepDesc">点击「下一步」或「自动播放」，观察面积拼图如何逆推出因式分解。</div>
-    <div class="alg">
-      <span class="ln" id="l1">x² + 5x + 6</span>
-      <span class="ln" id="l2">= x² + <span class="hl-g">3x</span> + <span class="hl-g">2x</span> + <span class="hl-p">6</span></span>
-      <span class="ln" id="l3">= <span class="hl-b">x</span>(x+3) + <span class="hl-b">2</span>(x+3)</span>
-      <span class="ln" id="l4">= (x+<span class="hl-o">2</span>)(x+<span class="hl-o">3</span>)</span>
+  <!-- 演示 -->
+  <div id="secDemo">
+    <div class="card">
+      <svg id="svg" viewBox="0 0 560 400"></svg>
+      <div class="caption" id="cap"></div>
+      <div class="dots" id="dots"></div>
+      <div class="ctrl">
+        <button id="prev">◀ 上一步</button>
+        <button id="next" class="primary">下一步 ▶</button>
+        <button id="play" class="play">▶ 自动播放</button>
+        <button id="reset">↺ 重置</button>
+      </div>
     </div>
-    <div class="answer" id="answer">x² + 5x + 6 = (x + 2)(x + 3) ✔</div>
-    <div class="tip">对应教材「阅读与思考」：x²+(p+q)x+pq = (x+p)(x+q)，此处 p=2, q=3</div>
+    <div class="card">
+      <div class="alg" id="alg"></div>
+      <div class="answer" id="answer">x² + 5x + 6 = (x + 2)(x + 3) ✔</div>
+    </div>
   </div>
+
+  <!-- 自己拼 -->
+  <div id="secPlay" class="hide">
+    <div class="card">
+      <div class="pick">
+        <label>p <input type="range" id="sp" min="1" max="4" value="2"><b id="vp">2</b></label>
+        <label>q <input type="range" id="sq" min="1" max="4" value="3"><b id="vq">3</b></label>
+      </div>
+      <div class="expr" id="expr"></div>
+      <svg id="svg2" viewBox="0 0 560 380"></svg>
+      <div class="goal">
+        <span class="g" id="gSum"></span>
+        <span class="g" id="gProd"></span>
+        <span class="g ok" id="gAns"></span>
+      </div>
+      <div class="caption">调整 p 和 q：两个数<b>相加</b>等于一次项系数、<b>相乘</b>等于常数项，就拼对了</div>
+    </div>
+  </div>
+
+  <!-- 公式卡 -->
+  <div id="secRef" class="hide">
+    <div class="card">
+      <div class="fcards">
+        <div class="fcard"><div class="t">平方差公式</div><div class="f">a² − b² = (a+b)(a−b)</div></div>
+        <div class="fcard"><div class="t">完全平方公式</div><div class="f">a² ± 2ab + b² = (a±b)²</div></div>
+        <div class="fcard"><div class="t">十字相乘（面积逆推）</div><div class="f">x²+(p+q)x+pq = (x+p)(x+q)</div></div>
+      </div>
+      <div class="caption" style="margin-top:12px;">因式分解 = 把"和"变成"积"，和整式乘法方向相反</div>
+    </div>
+  </div>
+
+  <footer>人教版八年级上册 · 17.2 公式法 · 阅读与思考 x²+(p+q)x+pq</footer>
 </div>
 
 <script>
-// 状态与颜色
-const S = 4; // 总步数
-let cur = 0, timer = null;
+"use strict";
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||$('svg')).appendChild(e);return e;}
+function T(x,y,s,fill,size,op,extra){const at={x,y,'text-anchor':'middle','font-size':size||16,fill:fill||'#334155','font-weight':'bold','paint-order':'stroke',stroke:'#fff','stroke-width':5,opacity:op===undefined?1:op};if(extra)for(const k in extra)at[k]=extra[k];const t=el('text',at);t.textContent=s;return t;}
 
-const stepInfo = {
-  0:{name:"初始状态", desc:"点击「下一步」或「自动播放」，观察面积拼图如何逆推出因式分解。"},
-  1:{name:"① 二次项 x²", desc:"蓝色大正方形：边长为 x 的正方形，面积 = <b class='hl-b'>x²</b>（二次项）。"},
-  2:{name:"② 一次项 5x", desc:"绿色两块：把一次项 <b class='hl-g'>5x</b> 拆成 <b class='hl-g'>3x + 2x</b>（寻找 p+q=5）。"},
-  3:{name:"③ 常数项 6", desc:"紫色小矩形：面积 <b class='hl-p'>6 = 2×3</b>（寻找 p·q=6，p=2、q=3）。"},
-  4:{name:"④ 分组提取 ⇒ (x+2)(x+3)", desc:"按虚线框分组：右列公共因式 (x+3)，上行宽 (x+3)、高 (x+2)，逆推得 <b class='hl-o'>(x+2)(x+3)</b>！"}
-};
+/* ---------- 演示 ---------- */
+const X=130,U=20,OX=150,OY=70;
+const CAP=[
+  '目标：把 <span class="em">x² + 5x + 6</span> 拼成一个大矩形',
+  '蓝色正方形：边长 x，面积 <span class="em">x²</span>',
+  '一次项 5x 拆成 <span class="em">3x + 2x</span> 两条',
+  '常数项 <span class="em">6 = 2 × 3</span>，补上右下角',
+  '看长和宽：长 (x+3)，宽 (x+2) → 分解完成！'
+];
+const ALG=[
+  'x² + 5x + 6',
+  '= x² + <span style="color:#059669">3x</span> + <span style="color:#059669">2x</span> + <span style="color:#7c3aed">6</span>',
+  '= <span style="color:#2563eb">x</span>(x+3) + <span style="color:#2563eb">2</span>(x+3)',
+  '= (x+<span style="color:#ea580c">2</span>)(x+<span style="color:#ea580c">3</span>)'
+];
+let target=0,cur=0,raf=null,playTimer=null;
+function ensureAnim(){if(raf==null)raf=requestAnimationFrame(tick);}
+function tick(){cur+=(target-cur)*0.16;if(Math.abs(target-cur)<0.002)cur=target;render(cur);if(cur!==target)raf=requestAnimationFrame(tick);else raf=null;}
+function setTarget(n){target=clamp(n,0,4);ensureAnim();updateUI();}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}$('play').textContent='▶ 自动播放';$('play').classList.remove('on');}
+function startPlay(){if(target>=4)setTarget(0);$('play').textContent='⏸ 暂停';$('play').classList.add('on');playTimer=setInterval(()=>{if(target<4)setTarget(target+1);else stopPlay();},1700);}
 
-const tiles = {
-  1:["#2563eb","#3b82f6","#bfdbfe"],   // x² 蓝
-  2:["#059669","#10b981","#a7f3d0"],   // 3x,2x 绿
-  3:["#7c3aed","#8b5cf6","#ddd6fe"],   // 6 紫
-  4:["#ea580c","#f97316","#ffedd5"]    // 分组 橙
-};
-const rest = {s:"#94a3b8", st:"#cbd5e1", f:"#f1f5f9"};
-
-function setTile(id, c){
-  const el = document.getElementById(id);
-  el.style.fill = c ? c[2] : rest.f;
-  el.style.stroke = c ? c[1] : rest.st;
-  const lb = el.nextElementSibling;
-  lb.style.fill = c ? c[0] : "#64748b";
-}
-
-function render(){
-  // 拼图颜色
-  setTile("t1", cur>=1 && cur<4 ? tiles[1] : (cur===4?tiles[4]:null));
-  setTile("t2", (cur===2||cur===4) ? tiles[2] : null);
-  setTile("t3", (cur===2||cur===4) ? tiles[2] : null);
-  setTile("t4", (cur===3||cur===4) ? tiles[3] : null);
-
+function render(t){
+  const s=$('svg');s.innerHTML='';
+  const o1=clamp(t,0,1),o2=clamp(t-1,0,1),o3=clamp(t-2,0,1),o4=clamp(t-3,0,1);
+  const w3=3*U,h2=2*U;
+  // x²
+  el('rect',{x:OX,y:OY,width:X,height:X,rx:6,fill:'#dbeafe',stroke:'#93c5fd','stroke-width':2.5,opacity:o1});
+  if(o1>0.3)T(OX+X/2,OY+X/2+8,'x²','#1d4ed8',26,o1);
+  // 3x 右上
+  el('rect',{x:OX+X+4,y:OY,width:w3,height:X,rx:6,fill:'#d1fae5',stroke:'#6ee7b7','stroke-width':2.5,opacity:o2});
+  if(o2>0.3)T(OX+X+4+w3/2,OY+X/2+8,'3x','#047857',22,o2);
+  // 2x 左下
+  el('rect',{x:OX,y:OY+X+4,width:X,height:h2,rx:6,fill:'#d1fae5',stroke:'#6ee7b7','stroke-width':2.5,opacity:o2});
+  if(o2>0.3)T(OX+X/2,OY+X+4+h2/2+7,'2x','#047857',20,o2);
+  // 6 右下
+  el('rect',{x:OX+X+4,y:OY+X+4,width:w3,height:h2,rx:6,fill:'#ede9fe',stroke:'#c4b5fd','stroke-width':2.5,opacity:o3});
+  if(o3>0.3)T(OX+X+4+w3/2,OY+X+4+h2/2+7,'6','#6d28d9',18,o3);
   // 5x 括号
-  document.getElementById("brace5x").classList.toggle("show", cur>=2);
-  // 分组框
-  document.getElementById("grpCol").style.opacity = cur>=4?1:0;
-  document.getElementById("grpRow").style.opacity = cur>=4?1:0;
-  // 尺寸标注
-  document.getElementById("dimTop").classList.toggle("show", cur>=4);
-  document.getElementById("dimLeft").classList.toggle("show", cur>=4);
-
-  // 代数行
-  for(let i=1;i<=4;i++){
-    document.getElementById("l"+i).classList.toggle("on", cur>=i);
+  if(o2>0.5)T(OX+X+4+w3/2,OY+X+h2+40,'5x = 3x + 2x','#059669',18,o2);
+  // 分组框 + 尺寸
+  if(o4>0){
+    el('rect',{x:OX-8,y:OY-8,width:X+w3+20,height:X+h2+20,rx:10,fill:'none',stroke:'#f97316','stroke-width':3.5,'stroke-dasharray':'8 5',opacity:o4});
+    T(OX+(X+w3)/2,OY-20,'x + 3','#ef4444',22,o4);
+    T(OX-30,OY+(X+h2)/2,'x + 2','#ef4444',22,o4,{transform:'rotate(-90 '+(OX-30)+' '+(OY+(X+h2)/2)+')'});
+    T(280,OY+X+h2+70,'大矩形面积 = (x+3)(x+2)','#ea580c',17,o4);
   }
-  // 最终答案
-  document.getElementById("answer").classList.toggle("show", cur>=4);
-
-  // 步骤条
-  document.getElementById("stepNum").textContent = cur;
-  document.getElementById("stepName").textContent = stepInfo[cur].name;
-  document.getElementById("stepDesc").innerHTML = stepInfo[cur].desc;
-  document.querySelectorAll(".dot").forEach(d=>d.classList.toggle("on", +d.dataset.s<=cur));
-  document.getElementById("btnPrev").disabled = (cur===0);
-  document.getElementById("btnNext").disabled = (cur===S);
 }
-
-function go(n){
-  cur = Math.max(0, Math.min(S, n));
-  render();
+function updateUI(){
+  $('cap').innerHTML=CAP[target];
+  $('dots').innerHTML=CAP.map((_,i)=>'<i class="'+(i<=target?'on':'')+'"></i>').join('');
+  const on=target>=4?4:target;
+  $('alg').innerHTML=ALG.map((l,i)=>'<span class="ln'+(i<on?' on':'')+'">'+l+'</span>').join('');
+  $('answer').classList.toggle('show',target>=4);
+  $('prev').disabled=target===0;$('next').disabled=target===4;
 }
-function next(){ if(cur<S) go(cur+1); else stopPlay(); }
-function prev(){ go(cur-1); }
-
-function startPlay(){
-  if(cur>=S) go(0);
-  timer = setInterval(()=>{
-    if(cur<S) go(cur+1); else stopPlay();
-  }, 2000);
-  const b = document.getElementById("btnPlay");
-  b.textContent = "⏸ 暂停播放"; b.classList.add("playing");
-}
-function stopPlay(){
-  clearInterval(timer); timer=null;
-  const b = document.getElementById("btnPlay");
-  b.textContent = "▶ 自动播放"; b.classList.remove("playing");
-}
-
-document.getElementById("btnNext").onclick = ()=>{ stopPlay(); next(); };
-document.getElementById("btnPrev").onclick = ()=>{ stopPlay(); prev(); };
-document.getElementById("btnReset").onclick = ()=>{ stopPlay(); go(0); };
-document.getElementById("btnPlay").onclick = ()=> timer ? stopPlay() : startPlay();
-document.addEventListener("keydown", e=>{
-  if(e.key==="ArrowRight"){ stopPlay(); next(); }
-  if(e.key==="ArrowLeft"){ stopPlay(); prev(); }
-  if(e.key===" "){ e.preventDefault(); timer ? stopPlay() : startPlay(); }
+$('next').onclick=()=>{stopPlay();setTarget(target+1);};
+$('prev').onclick=()=>{stopPlay();setTarget(target-1);};
+$('reset').onclick=()=>{stopPlay();setTarget(0);};
+$('play').onclick=()=>playTimer?stopPlay():startPlay();
+document.addEventListener('keydown',e=>{
+  if($('secDemo').classList.contains('hide'))return;
+  if(e.key==='ArrowRight'){stopPlay();setTarget(target+1);}
+  if(e.key==='ArrowLeft'){stopPlay();setTarget(target-1);}
+  if(e.key===' '){e.preventDefault();playTimer?stopPlay():startPlay();}
 });
 
-render();
+/* ---------- 自己拼 ---------- */
+let P=2,Q=3;
+function renderPlay(){
+  const s=$('svg2');s.innerHTML='';
+  const p=P,q=Q,X2=120,u=22,ox=150,oy=60;
+  const wq=q*u,hp=p*u;
+  const put=(x,y,w,h,fill,stroke,label,tc,fs)=>{
+    const g=document.createElementNS(NS,'g');s.appendChild(g);
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
+    r.setAttribute('rx',6);r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);r.setAttribute('stroke-width',2.5);
+    g.appendChild(r);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x+w/2);t.setAttribute('y',y+h/2+fs*0.35);t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size',fs);t.setAttribute('font-weight','bold');t.setAttribute('fill',tc);
+    t.setAttribute('paint-order','stroke');t.setAttribute('stroke','#fff');t.setAttribute('stroke-width',4);
+    t.textContent=label;g.appendChild(t);
+    return g;
+  };
+  put(ox,oy,X2,X2,'#dbeafe','#93c5fd','x²','#1d4ed8',26);
+  put(ox+X2+4,oy,wq,X2,'#d1fae5','#6ee7b7',q+'x','#047857',20);
+  put(ox,oy+X2+4,X2,hp,'#d1fae5','#6ee7b7',p+'x','#047857',20);
+  put(ox+X2+4,oy+X2+4,wq,hp,'#ede9fe','#c4b5fd',String(p*q),'#6d28d9',18);
+  const gA=put(ox-8,oy-8,X2+wq+20,X2+hp+20,'none','#f97316','',  '#ea580c',1);
+  gA.querySelector('rect').setAttribute('fill','none');
+  gA.querySelector('rect').setAttribute('stroke-dasharray','8 5');
+  gA.querySelector('rect').setAttribute('stroke-width',3.5);
+  gA.querySelector('text').remove();
+  const tt=document.createElementNS(NS,'text');
+  tt.setAttribute('x',ox+(X2+wq)/2);tt.setAttribute('y',oy-18);tt.setAttribute('text-anchor','middle');
+  tt.setAttribute('font-size',20);tt.setAttribute('font-weight','bold');tt.setAttribute('fill','#ef4444');
+  tt.textContent='x + '+q;s.appendChild(tt);
+  const tl=document.createElementNS(NS,'text');
+  tl.setAttribute('x',ox-28);tl.setAttribute('y',oy+(X2+hp)/2);tl.setAttribute('text-anchor','middle');
+  tl.setAttribute('font-size',20);tl.setAttribute('font-weight','bold');tl.setAttribute('fill','#ef4444');
+  tl.setAttribute('transform','rotate(-90 '+(ox-28)+' '+(oy+(X2+hp)/2)+')');
+  tl.textContent='x + '+p;s.appendChild(tl);
+  $('expr').innerHTML='x² + '+(p+q)+'x + '+(p*q);
+  $('gSum').textContent='p + q = '+(p+q);
+  $('gProd').textContent='p × q = '+(p*q);
+  $('gAns').textContent='= (x+'+p+')(x+'+q+')';
+}
+$('sp').oninput=e=>{P=+e.target.value;$('vp').textContent=P;renderPlay();};
+$('sq').oninput=e=>{Q=+e.target.value;$('vq').textContent=Q;renderPlay();};
+
+/* ---------- 页签 ---------- */
+function setTab(t){
+  stopPlay();
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  $('secDemo').classList.toggle('hide',t!=='demo');
+  $('secPlay').classList.toggle('hide',t!=='play');
+  $('secRef').classList.toggle('hide',t!=='ref');
+  if(t==='play')renderPlay();
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+
+render(0);updateUI();renderPlay();
 </script>
 </body>
 </html>
