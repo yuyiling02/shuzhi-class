@@ -1,586 +1,3733 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>三角恒等变换 · 动态演示教具（人教A版 必修第一册 5.5）</title>
-<style>
-:root{
-  --bg:#f5f7fa; --card:#ffffff; --ink:#1e293b; --ink2:#334155; --muted:#64748b;
-  --line:#e2e8f0; --line2:#eef2f7;
-  --brand:#2563eb; --brand2:#1d4ed8; --brandsoft:#eff6ff;
-  --green:#0f9d58; --greenSoft:#eaf7f0;
-  --orange:#ea8a00; --orangeSoft:#fff5e6;
-  --purple:#7c3aed; --purpleSoft:#f3edff;
-  --red:#ef4444; --redSoft:#fdeceb;
-  --teal:#0e8f9e;
-  --shadow:0 1px 3px rgba(0,0,0,.05);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070b14'/><circle cx='16' cy='16' r='9' stroke='%2338bdf8' stroke-width='2' fill='none'/><circle cx='22' cy='11' r='2.6' fill='%23fbbf24'/><circle cx='10' cy='21' r='2.6' fill='%23a78bfa'/><path d='M10 21 L22 11' stroke='%2334d399' stroke-width='1.8'/></svg>" />
+  <title>三角恒等变换 · 动态演示实验室（人教A版 必修第一册 5.5）</title>
+  <style>
+:root {
+  --bg: #070b14;
+  --bg-radial: radial-gradient(1200px 600px at 20% 0%, rgba(56, 189, 248, 0.12), transparent 60%),
+               radial-gradient(900px 500px at 85% 100%, rgba(167, 139, 250, 0.10), transparent 60%);
+  --surface: rgba(15, 23, 42, 0.78);
+  --surface-solid: #0f172a;
+  --surface-2: rgba(30, 41, 59, 0.65);
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(56, 189, 248, 0.42);
+  --ink: #f1f5f9;
+  --ink-2: #94a3b8;
+  --ink-3: #64748b;
+  --cyan: #38bdf8;
+  --cyan-glow: rgba(56, 189, 248, 0.35);
+  --purple: #a78bfa;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --red: #fb7185;
+  --grid-line: rgba(148, 163, 184, 0.16);
+  --grid-axis: rgba(226, 232, 240, 0.68);
+  --canvas-bg: #050912;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{
-  background:var(--bg); color:var(--ink);
-  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",system-ui,sans-serif;
-  font-size:15px; line-height:1.7;
+
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-radial: radial-gradient(1100px 520px at 15% 0%, rgba(37, 99, 235, 0.08), transparent 60%),
+               radial-gradient(900px 500px at 90% 100%, rgba(124, 58, 237, 0.06), transparent 60%);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --surface-2: rgba(241, 245, 249, 0.9);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(37, 99, 235, 0.4);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #94a3b8;
+  --cyan: #0284c7;
+  --cyan-glow: rgba(2, 132, 199, 0.22);
+  --purple: #7c3aed;
+  --amber: #d97706;
+  --green: #059669;
+  --red: #e11d48;
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --grid-axis: rgba(15, 23, 42, 0.28);
+  --canvas-bg: #ffffff;
+  --shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
 }
-header.top{background:linear-gradient(120deg,#1e3a8a,#2563eb 60%,#0ea5e9); color:#fff;
-  box-shadow:0 1px 3px rgba(0,0,0,.08); padding:18px 20px 14px}
-.top-in{max-width:1320px;margin:0 auto}
-header.top h1{margin:0;font-size:24px;letter-spacing:.5px;color:#fff;font-weight:700}
-header.top .sub{margin:4px 0 0;color:#fff;opacity:.88;font-size:15px}
 
-.layout{max-width:1320px;margin:0 auto;padding:22px 20px 40px}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-nav.tabs{display:flex;gap:6px;margin:12px auto 0;overflow-x:auto;padding-bottom:2px}
-.ni{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:999px;
-  padding:8px 18px;font-size:16px;cursor:pointer;transition:.15s;font-family:inherit;white-space:nowrap}
-.ni:hover{border-color:var(--brand);color:var(--brand);background:var(--brandsoft)}
-.ni.active{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:700}
-.ni .n{opacity:.6;margin-right:2px}
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image: var(--bg-radial);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
 
-main{min-width:0}
-.sec{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px 24px 26px}
-.sec.active{display:block}
-.sec h2{margin:0 0 4px;font-size:19px;display:flex;align-items:center;gap:10px}
-.sec h2 .tag{font-size:12px;font-weight:600;color:var(--brand);background:var(--brandsoft);border:1px solid #d7e6ff;padding:2px 9px;border-radius:999px}
-.sec .lead{color:var(--muted);font-size:13.5px;margin:0 0 16px}
-.sec h3{font-size:15px;margin:18px 0 8px;padding-left:9px;border-left:3px solid var(--brand);line-height:1.4}
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
 
-.grid2{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px}
-@media (max-width:1000px){.grid2{grid-template-columns:1fr}}
+/* Header */
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  z-index: 20;
+}
 
-.cv{background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:6px}
-canvas{width:100%;height:480px;display:block}
-canvas.short{height:330px}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
 
-.panel{display:flex;flex-direction:column;gap:12px;min-width:0}
-.ctrl{background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
-.slider-row label{flex:0 0 96px;font-size:13.5px;color:var(--ink2)}
-.slider-row .val{font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
-input[type=range]{flex:1;min-width:0;accent-color:var(--brand);height:22px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chips button{border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:8px;
-  padding:3px 10px;font-size:12.5px;cursor:pointer;font-family:inherit}
-.chips button:hover{border-color:var(--brand);color:var(--brand);background:var(--brandsoft)}
-.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--brand);background:#fff;color:var(--brand);
-  border-radius:9px;padding:7px 14px;font-size:13.5px;cursor:pointer;font-family:inherit;transition:.12s}
-.btn:hover{background:var(--brandsoft)}
-.btn.ghost{background:#fff;color:var(--brand)}
-.btn.ghost:hover{background:var(--brandsoft)}
-.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 15px;
+  transition: 0.16s;
+}
+.back-link:hover {
+  border-color: var(--border-strong);
+  color: var(--cyan);
+}
 
-.fml{background:var(--brandsoft);border:1px solid #dbe8ff;border-radius:11px;padding:12px 14px;text-align:center;
-  font-size:16.5px;color:#12306e;overflow-x:auto}
-.fml.alt{background:var(--orangeSoft);border-color:#ffe0b3;color:#7a4700}
-.fml.gr{background:var(--greenSoft);border-color:#c9ecd7;color:#0b5c37}
-.fml.pu{background:var(--purpleSoft);border-color:#e2d7ff;color:#4c2a94}
-.fml small{display:block;font-size:12.5px;color:var(--muted);margin-top:5px}
+.grade-pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: var(--cyan);
+  white-space: nowrap;
+}
 
-.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .18em;font-size:.92em}
-.frac .num{border-bottom:1px solid currentColor;padding:0 .35em;line-height:1.35}
-.frac .den{padding:0 .35em;line-height:1.35}
-.sqrt{display:inline-flex;align-items:stretch;vertical-align:-0.12em;line-height:1;white-space:nowrap}
-.sqrt .rad{display:flex;align-items:center;font-size:1.18em;line-height:1;transform:translateX(.06em)}
-.sqrt .sbody{border-top:1.6px solid currentColor;padding:.06em .22em 0 .28em}
+.title-group h1 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-table.tbl{width:100%;border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums}
-table.tbl th{background:#f3f6fb;color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-table.tbl td{padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
-table.tbl tr:last-child td{border-bottom:0}
-.ok{color:var(--green);font-weight:700}
-.no{color:var(--red);font-weight:700}
-.num{font-variant-numeric:tabular-nums}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
-.note{font-size:13.5px;color:var(--ink2);background:#fff;border:1px dashed var(--line);border-radius:11px;padding:11px 14px}
-.note b{color:var(--brand)}
-.tip{font-size:13px;color:#7a4a00;background:var(--orangeSoft);border:1px solid #ffe0b3;border-radius:10px;padding:9px 13px}
-.steps{counter-reset:s;margin:0;padding-left:0;list-style:none}
-.steps li{counter-increment:s;position:relative;padding:7px 0 7px 36px;font-size:15.5px;color:var(--ink)}
-.steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:23px;height:23px;border-radius:50%;
-  background:var(--brandsoft);color:var(--brand);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.seg-tabs {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  gap: 2px;
+}
 
-/* 公式总览网格（知识点总结页） */
-.fmlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
-.warn{font-size:15px;line-height:1.9;color:var(--ink2);background:var(--redSoft);border:1px solid #f2c4c0;border-radius:11px;padding:13px 17px}
-.warn b{color:var(--red)}
+.seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.16s;
+  white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active {
+  background: var(--cyan);
+  color: #061220;
+  font-weight: 700;
+  box-shadow: 0 2px 10px var(--cyan-glow);
+}
+[data-theme="light"] .seg-btn.active { color: #fff; }
+.seg-btn:disabled { cursor: not-allowed; }
 
-footer{text-align:center;color:var(--muted);font-size:12.5px;padding:18px 0 26px}
-</style>
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.16s;
+  white-space: nowrap;
+}
+.icon-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+.icon-btn.on {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--cyan);
+}
+
+/* Main workspace */
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  padding: 12px;
+  gap: 12px;
+}
+
+.stage-shell {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--canvas-bg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+canvas.lab-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* Floating HUD inside stage */
+.hud-top-left {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 5;
+  max-width: min(600px, calc(100% - 28px));
+}
+.hud-top-left > * { pointer-events: auto; }
+
+.formula-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  font-family: "Cambria Math", "Times New Roman", "PingFang SC", serif;
+  font-size: clamp(15px, 1.8vw, 23px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  white-space: nowrap;
+}
+
+.formula-pill .hl-a { color: var(--cyan); }
+.formula-pill .hl-w { color: var(--purple); }
+.formula-pill .hl-p { color: var(--amber); }
+.formula-pill .pm { color: var(--ink-3); }
+.formula-pill .pm.eq { margin: 0 9px; }
+
+.fn-tabs { backdrop-filter: blur(12px); }
+
+.hud-bottom-left {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  flex-wrap: wrap;
+}
+
+.hud-bottom-right {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 5;
+  font-size: 12px;
+  color: var(--ink-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Alert banner */
+.alert-banner {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  max-width: 330px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(225, 29, 72, 0.16);
+  border: 1px solid rgba(251, 113, 133, 0.55);
+  color: #fecdd3;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.6;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(225, 29, 72, 0.22);
+  display: none;
+  animation: shakeIn 0.32s ease;
+}
+[data-theme="light"] .alert-banner {
+  background: rgba(255, 241, 242, 0.95);
+  color: #be123c;
+}
+.alert-banner.show { display: block; }
+.alert-banner.info {
+  background: rgba(56, 189, 248, 0.13);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #bae6fd;
+  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.18);
+}
+[data-theme="light"] .alert-banner.info {
+  background: rgba(240, 249, 255, 0.96);
+  color: #0c4a6e;
+}
+
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Side drawer */
+.side-drawer {
+  width: 360px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 2px;
+  transition: width 0.22s ease, opacity 0.2s ease;
+}
+.side-drawer::-webkit-scrollbar { width: 6px; }
+.side-drawer::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+.app.presentation .side-drawer { display: none; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 15px;
+  backdrop-filter: blur(12px);
+  flex: none;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--cyan);
+  border: 1px solid var(--border);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Sliders */
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 11px;
+}
+.slider-row:last-child { margin-bottom: 0; }
+.slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+}
+.slider-head .name { color: var(--ink-2); font-weight: 600; }
+.slider-head .val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--cyan);
+}
+
+input[type="range"].lab-range {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].lab-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px var(--cyan-glow);
+  cursor: grab;
+  transition: transform 0.12s;
+}
+input[type="range"].lab-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.btn.primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #061220;
+  font-weight: 700;
+  box-shadow: 0 4px 16px var(--cyan-glow);
+}
+[data-theme="light"] .btn.primary { color: #fff; }
+.btn.amber {
+  background: rgba(251, 191, 36, 0.16);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: var(--amber);
+}
+.btn.active {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.18);
+  color: var(--cyan);
+}
+.btn.sm {
+  flex: 1 1 45%;
+  font-size: 12px;
+  padding: 7px 8px;
+  font-weight: 600;
+}
+
+/* Predict-Observe-Explain */
+.predict-q {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.predict-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 11px;
+}
+.predict-opt {
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.predict-opt:hover { border-color: var(--border-strong); }
+.predict-opt.picked {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.16);
+  font-weight: 700;
+}
+.predict-opt.correct {
+  border-color: var(--green);
+  background: rgba(52, 211, 153, 0.18);
+  color: var(--green);
+}
+.predict-opt.wrong {
+  border-color: var(--red);
+  background: rgba(251, 113, 133, 0.15);
+  color: var(--red);
+}
+.predict-feedback {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--cyan);
+  margin-top: 10px;
+  display: none;
+}
+.predict-feedback.show { display: block; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-box {
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+.stat-box .k { font-size: 11.5px; color: var(--ink-3); }
+.stat-box .v {
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.stat-box .v.sm { font-size: 13px; }
+
+/* 公式选择按钮 */
+.fbtn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.fbtn {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: 0.15s;
+}
+.fbtn b { display: block; font-size: 12.5px; font-weight: 700; }
+.fbtn em {
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  font-family: "Cambria Math", "Times New Roman", serif;
+}
+.fbtn:hover { border-color: var(--border-strong); }
+.fbtn.on {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-glow);
+}
+.fbtn.on em { color: var(--cyan); }
+
+/* 数值验证表 */
+.vt {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.vt th {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  font-weight: 700;
+  text-align: left;
+  padding: 0 4px 5px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.vt td {
+  font-size: 12.5px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.vt tr:last-child td { border-bottom: none; }
+.vt td b { color: var(--ink); font-weight: 700; }
+.vt td .sub { display: block; font-size: 10.5px; color: var(--ink-3); font-weight: 500; }
+.vt td.ok { color: var(--green); font-weight: 700; font-size: 11.5px; }
+.vt tr.hi td { background: rgba(56, 189, 248, 0.07); }
+.vt tr.hi td b { color: var(--cyan); }
+
+.legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-top: 11px;
+  line-height: 1.7;
+}
+.legend i {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.toast {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  z-index: 30;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 1000px) {
+  .workspace { flex-direction: column; }
+  .side-drawer { width: 100%; max-height: 46%; }
+  .hud-bottom-right { display: none; }
+}
+  </style>
+  <style>
+    .quiz-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(3, 7, 18, 0.72);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .quiz-backdrop.open { display: flex; }
+    .quiz-modal {
+      width: min(560px, 100%);
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 22px;
+      padding: 24px 26px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+      animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.94) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .quiz-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .quiz-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink-2);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .quiz-close:hover { color: var(--ink); border-color: var(--border-strong); }
+    .quiz-stem {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .quiz-formula {
+      display: inline-block;
+      margin: 8px 0 4px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan);
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 21px;
+      font-weight: 800;
+    }
+    .quiz-opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 520px) { .quiz-opts { grid-template-columns: 1fr; } }
+    .quiz-opt {
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .quiz-opt:hover:not(:disabled) {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+    .quiz-opt.correct {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, 0.18);
+      color: var(--green);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25);
+    }
+    .quiz-opt.wrong {
+      border-color: var(--red);
+      background: rgba(251, 113, 133, 0.16);
+      color: var(--red);
+      animation: optShake 0.34s ease;
+    }
+    @keyframes optShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .quiz-explain {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border-left: 3px solid var(--cyan);
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--ink-2);
+      margin-bottom: 14px;
+    }
+    .quiz-explain.show { display: block; }
+    .quiz-foot {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* ===== 答对反馈：飘起来的"✓ 答对了"印章 ===== */
+    .quiz-stamp {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 22px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #34d399, #10b981);
+      color: #fff;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      box-shadow: 0 18px 46px rgba(16, 185, 129, 0.42), 0 0 0 6px rgba(52, 211, 153, 0.16);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -55%) scale(0.6);
+    }
+    .quiz-stamp .s-ico {
+      font-size: 24px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+    }
+    .quiz-stamp .s-sub {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0.9;
+      letter-spacing: 0;
+      margin-top: 1px;
+    }
+    .quiz-stamp.gold {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      box-shadow: 0 18px 46px rgba(245, 158, 11, 0.45), 0 0 0 6px rgba(251, 191, 36, 0.18);
+    }
+    .quiz-stamp.show { animation: stampPop 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes stampPop {
+      0%   { opacity: 0; transform: translate(-50%, -42%) scale(0.5) rotate(-7deg); }
+      16%  { opacity: 1; transform: translate(-50%, -58%) scale(1.12) rotate(2deg); }
+      26%  { transform: translate(-50%, -55%) scale(0.98) rotate(0deg); }
+      34%  { transform: translate(-50%, -55%) scale(1); }
+      74%  { opacity: 1; transform: translate(-50%, -62%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -95%) scale(1.04); }
+    }
+
+    .quiz-opt.correct {
+      position: relative;
+      animation: optWin 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes optWin {
+      0%   { transform: scale(1); box-shadow: 0 0 0 rgba(52, 211, 153, 0); }
+      32%  { transform: scale(1.045); box-shadow: 0 0 26px rgba(52, 211, 153, 0.55); }
+      62%  { transform: scale(0.994); }
+      100% { transform: scale(1); box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); }
+    }
+    .opt-tick {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-left: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #04120c;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      vertical-align: -2px;
+      animation: tickIn 0.42s 0.1s backwards cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes tickIn {
+      0% { opacity: 0; transform: scale(0.2) rotate(-40deg); }
+      70% { opacity: 1; transform: scale(1.18) rotate(4deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    .quiz-opt.correct::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 12px;
+      border: 2px solid rgba(52, 211, 153, 0.85);
+      pointer-events: none;
+      animation: ringPulse 0.95s ease-out forwards;
+    }
+    @keyframes ringPulse {
+      0% { opacity: 0.9; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.16); }
+    }
+
+    .badge.bump { animation: scoreBump 0.62s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes scoreBump {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.22); }
+      60% { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    .badge.gain {
+      color: #34d399;
+      border-color: rgba(52, 211, 153, 0.55);
+      background: rgba(52, 211, 153, 0.16);
+    }
+
+    .quiz-modal.okFlash { animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1), modalOk 0.9s ease-out; }
+    @keyframes modalOk {
+      0%   { box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(52, 211, 153, 0.5); }
+      40%  { box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 10px rgba(52, 211, 153, 0.12); }
+      100% { box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(52, 211, 153, 0); }
+    }
+
+    .fx-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: none;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .quiz-stamp.show { animation: stampFade 1s ease forwards; }
+      @keyframes stampFade {
+        0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; }
+      }
+      .quiz-opt.correct, .quiz-opt.correct::before, .opt-tick,
+      .badge.bump, .quiz-modal.okFlash { animation: none; }
+    }
+  </style>
+  <style>
+    /* ===== 对称变换连续演示（在画布内进行，不另开窗口） ===== */
+    .morph-hud {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 62px;
+      z-index: 6;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      pointer-events: none;
+    }
+    .morph-hud.show { display: flex; }
+    .morph-steps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .morph-step {
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink-3);
+      backdrop-filter: blur(10px);
+      transition: 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    }
+    .morph-step.active { color: #061220; border-color: transparent; }
+    [data-theme="light"] .morph-step.active { color: #fff; }
+    .morph-hint {
+      font-size: 12.5px;
+      line-height: 1.7;
+      text-align: center;
+      color: var(--ink-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+      max-width: min(780px, 100%);
+    }
+    .morph-hint b { color: var(--cyan); font-weight: 800; }
+    .morph-hint .path-tag { color: var(--ink-3); font-weight: 600; }
+
+    #morphControls .seg-btn { font-size: 12px; padding: 7px 12px; }
+    @media (max-width: 720px) {
+      .morph-hud { bottom: 56px; }
+      .morph-hint { font-size: 12px; padding: 7px 12px; }
+    }
+  </style>
+
+  <style>
+    /* ===== 恒等变换新增：三列读数 / 更宽的公式列 / 公式总览弹窗 ===== */
+    .stat-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .stat-grid.three .stat-box { padding: 8px 9px; }
+    .stat-grid.three .stat-box .v { font-size: 15px; }
+
+    .param-note {
+      margin-top: 8px; font-size: 11.5px; line-height: 1.7;
+      color: var(--ink-3);
+    }
+    .param-note b { color: var(--cyan); font-weight: 700; }
+
+    /* ===== 数学排版：根号横线 / 【】高亮 ===== */
+    /* 横线用 ::before 绝对定位在“开方数”盒子顶端，位置随字号按 em 缩放；
+       margin-left 让横线压住 √ 斜钩的尖端，接缝看起来是连续的。 */
+    .mth-sq { white-space: nowrap; }
+    .mth-rad {
+      display: inline-block;
+      position: relative;
+      padding: .11em .15em 0 .02em;
+      margin-left: -.15em;
+    }
+    .mth-rad::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: .01em;
+      border-top: max(1.4px, .08em) solid currentColor;
+    }
+    .mth-hl { color: var(--amber); font-weight: 800; }
+
+    /* 公式里的中文（令、设……）要有中文字体兜底，否则会回落到日文字形 */
+    .dv-fx, .fx-item, .quiz-formula, .formula-pill {
+      font-family: "Cambria Math", "Times New Roman", "SimSun", "Microsoft YaHei", serif;
+    }
+
+    /* ===== 公式推导窗口 ===== */
+    .deriv-backdrop { z-index: 70; }
+    .deriv-win {
+      width: min(880px, 100%);
+      min-height: min(480px, calc(100vh - 40px));
+      max-height: calc(100vh - 40px);
+      display: flex; flex-direction: column;
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 20px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .6);
+      overflow: hidden;
+      animation: popIn .24s cubic-bezier(.22, 1, .36, 1);
+    }
+    .deriv-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+    }
+    .deriv-dots { display: flex; gap: 6px; }
+    .deriv-dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .deriv-dots i:nth-child(1) { background: #fb7185; }
+    .deriv-dots i:nth-child(2) { background: #fbbf24; }
+    .deriv-dots i:nth-child(3) { background: #34d399; }
+    .deriv-wintitle { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--ink-3); }
+    .deriv-badge {
+      margin-left: auto;
+      font-size: 11.5px; font-weight: 800;
+      padding: 3px 9px; border-radius: 999px;
+      color: var(--cyan); background: rgba(56, 189, 248, .14);
+      border: 1px solid rgba(56, 189, 248, .3);
+    }
+    .deriv-bar .quiz-close { margin-left: 6px; width: 28px; height: 28px; }
+    .deriv-head {
+      padding: 16px 26px 12px;
+      border-bottom: 1px solid var(--border-strong);
+    }
+    .deriv-head h3 { font-size: 21px; font-weight: 800; letter-spacing: .01em; }
+    .deriv-lead { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.6; }
+    .deriv-steps {
+      position: relative;
+      list-style: none; margin: 0;
+      padding: 4px 26px 18px;
+      overflow-y: auto; flex: 1 1 auto;
+      scrollbar-width: thin;
+    }
+    .deriv-steps.scrolled {
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 6px), transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 6px), transparent 100%);
+    }
+    .dv-step {
+      display: flex; gap: 13px;
+      padding: 13px 0;
+      border-bottom: 1px dashed var(--border);
+      animation: dvIn .34s ease both;
+    }
+    .dv-step:last-child { border-bottom: 0; }
+    @keyframes dvIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .dv-no {
+      flex: none; width: 26px; height: 26px; margin-top: 1px;
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      font-size: 12.5px; font-weight: 800;
+    }
+    .dv-step.done .dv-no { color: var(--green); background: rgba(52, 211, 153, .14); }
+    .dv-step.on .dv-no { color: var(--amber); background: rgba(251, 191, 36, .16); }
+    .dv-step.done { opacity: .72; }
+    .dv-step.done:hover { opacity: 1; }
+    .dv-body { min-width: 0; flex: 1 1 auto; }
+    .dv-t { font-size: 12.5px; font-weight: 800; color: var(--ink-2); letter-spacing: .03em; }
+    .dv-fx {
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 21px; font-weight: 800; color: var(--ink);
+      line-height: 1.85; margin-top: 4px;
+      overflow-wrap: break-word;
+    }
+    .dv-step.on .dv-fx { font-size: 23px; }
+    .dv-note { font-size: 12.5px; color: var(--ink-3); line-height: 1.75; margin-top: 5px; }
+    .dv-more {
+      padding: 16px 0 0 39px;
+      font-size: 12px; color: var(--ink-3);
+      letter-spacing: .02em;
+    }
+    .dv-more b { color: var(--cyan); }
+
+    /* 推导窗口顶部的💡提示（原来压在画布上的那句“弦长有两套算法”） */
+    .dv-hint {
+      display: none;
+      margin: 12px 26px 2px;
+      padding: 10px 13px;
+      border-radius: 11px;
+      background: rgba(251, 191, 36, .1);
+      border: 1px solid rgba(251, 191, 36, .32);
+      font-size: 12.5px; line-height: 1.8; color: var(--ink-2);
+    }
+    .dv-hint.show { display: block; }
+    .dv-hint b { color: var(--amber); font-weight: 800; }
+    [data-theme="light"] .dv-hint { background: rgba(217, 119, 6, .09); }
+
+    /* 课堂悬念卡底部的“详细推导”入口 */
+    .predict-deriv {
+      display: none;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--amber);
+      border-color: rgba(251, 191, 36, .38);
+      background: rgba(251, 191, 36, .08);
+    }
+    .predict-deriv.show { display: inline-flex; }
+    [data-theme="light"] .predict-deriv { background: rgba(217, 119, 6, .07); }
+
+    /* ① 揭晓后按钮变成状态条，不要被 :disabled 的 45% 透明度弄灰 */
+    .btn.predict-status {
+      opacity: 1;
+      cursor: default;
+      color: var(--green);
+      border-color: rgba(52, 211, 153, .42);
+      background: rgba(52, 211, 153, .12);
+    }
+    .deriv-foot {
+      display: flex; align-items: center; gap: 9px;
+      padding: 11px 20px; border-top: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .deriv-foot .btn.on { color: var(--amber); border-color: rgba(251, 191, 36, .5); }
+    .deriv-foot .btn { flex: 0 0 auto; }
+    .deriv-foot #btnDerivNext { min-width: 118px; }
+    .deriv-progress {
+      margin-left: auto; font-size: 12.5px; color: var(--ink-3);
+      font-variant-numeric: tabular-nums;
+    }
+    @media (max-width: 720px) {
+      .deriv-fx { font-size: 17px; }
+      .dv-step.on .dv-fx { font-size: 19px; }
+      .deriv-head { padding: 14px 18px 2px; }
+      .deriv-steps { padding: 2px 18px 14px; }
+      .deriv-foot { padding: 9px 12px; flex-wrap: wrap; }
+    }
+
+    .title-group { min-width: 0; }
+    .title-group h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (max-width: 1200px) { .title-group h1 { font-size: 15px; } }
+
+    .vt th { padding: 0 3px 5px; }
+    .vt td { padding: 6px 3px; font-size: 12px; }
+    .vt td:first-child { white-space: normal; line-height: 1.35; }
+    .vt td:first-child b { font-size: 12px; }
+
+    .formula-pill { flex-wrap: wrap; row-gap: 2px; }
+    .formula-pill.long { font-size: clamp(12.5px, 1.5vw, 18px); }
+    .formula-pill #pRes { white-space: normal; }
+
+    /* 公式总览：抬头（含 ✕）固定，只有正文滚动 —— 滚到最底下也随时能关 */
+    .formula-modal {
+      width: min(920px, 100%);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+    }
+    .formula-modal .quiz-head {
+      flex: none;
+      margin: 0;
+      padding: 16px 24px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-solid);
+    }
+    .formula-modal #formulaBody {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px 24px 20px;
+      scrollbar-width: thin;
+      overscroll-behavior: contain;
+    }
+    .fx-group { margin-bottom: 16px; }
+    .fx-group h4 {
+      font-size: 12.5px; color: var(--cyan); letter-spacing: .06em;
+      margin-bottom: 8px; font-weight: 800;
+    }
+    .fx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; }
+    .fx-item {
+      padding: 9px 12px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 14.5px; font-weight: 700; color: var(--ink);
+      line-height: 1.5;
+    }
+    .fx-item small {
+      display: block; font-family: inherit; font-size: 11.5px;
+      font-weight: 500; color: var(--ink-3); margin-top: 3px; line-height: 1.5;
+    }
+    .help-wrap h4 {
+      font-size: 12.5px; color: var(--cyan); letter-spacing: .06em;
+      margin: 4px 0 8px; font-weight: 800;
+    }
+    .help-steps { list-style: none; counter-reset: hs; margin: 0 0 16px; padding: 0; }
+    .help-steps li {
+      counter-increment: hs; position: relative;
+      padding: 5px 0 5px 34px; font-size: 13.5px; line-height: 1.7; color: var(--ink-2);
+    }
+    .help-steps li::before {
+      content: counter(hs); position: absolute; left: 0; top: 7px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(56, 189, 248, .16); color: var(--cyan);
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .help-steps li b { color: var(--ink); }
+    .help-tips { margin: 0 0 16px; padding-left: 18px; font-size: 13.5px; line-height: 1.85; color: var(--ink-2); }
+    .help-tips b { color: var(--cyan); }
+    .fx-warn {
+      padding: 12px 15px; border-radius: 12px;
+      background: rgba(251, 113, 133, .1);
+      border: 1px solid rgba(251, 113, 133, .35);
+      font-size: 13px; line-height: 1.85; color: var(--ink-2);
+      margin-top: 6px;
+    }
+    .fx-warn b { color: var(--red); }
+    [data-theme="light"] .fx-warn { background: rgba(225, 29, 72, .06); }
+    .side-drawer { min-width: 0; flex: 0 0 360px; }
+    @media (max-width: 1180px) {
+      .workspace { flex-direction: column; }
+      .side-drawer { flex: none; width: 100%; max-height: 48%; }
+      .hud-bottom-right { display: none; }
+      .stage-shell { min-height: 320px; }
+    }
+    @media (max-width: 720px) {
+      .formula-pill.long { font-size: 12px; }
+      .stat-grid.three { grid-template-columns: 1fr 1fr; }
+      .topbar { flex-wrap: wrap; }
+    }
+  </style>
 </head>
 <body>
-<header class="top">
-  <div class="top-in">
-    <h1>三角恒等变换 · 动态演示教具</h1>
-    <p class="sub">人教版高中数学 · 必修第一册 · 第五章 5.5 三角恒等变换 —— 和差角公式、二倍角公式与简单的三角恒等变换</p>
-    <nav class="tabs" id="nav">
-      <button class="ni active" data-go="s0">使用说明</button>
-      <button class="ni" data-go="s1"><span class="n">①</span>两角差的余弦</button>
-      <button class="ni" data-go="s2"><span class="n">②</span>和角·差角公式族</button>
-      <button class="ni" data-go="s3"><span class="n">③</span>二倍角公式</button>
-      <button class="ni" data-go="s7"><span class="n">★</span>知识点总结</button>
-    </nav>
-  </div>
-</header>
-
-<div class="layout">
-  <main id="main">
-    <!-- ============ S0 说明 ============ -->
-    <section class="sec active" id="s0">
-      <h2>使用说明与知识地图<span class="tag">5.5 三角恒等变换</span></h2>
-      <p class="lead">本教具按教材顺序组织：先由单位圆上的两点间距离推导出<b>两角差的余弦公式</b>（它是整套公式的"根"），再由此生长出和角、差角、倍角、半角、积和互化与辅助角公式。</p>
-      <div class="grid2">
-        <div>
-          <h3>整套公式的生长路径</h3>
-          <ol class="steps">
-            <li>单位圆 + 两点间距离公式 ⇒ <b>cos(α−β)</b>（本教具模块 1 动态演示）</li>
-            <li>用 −β 替换 β ⇒ cos(α+β)；用诱导公式 sinθ = cos(90°−θ) ⇒ sin(α±β)</li>
-            <li>同角关系相除 ⇒ tan(α±β)（注意分母不为 0）</li>
-            <li>令 β = α ⇒ 二倍角公式 sin2α、cos2α（三种形式）、tan2α</li>
-            <li>由 cos2α 变形 ⇒ 降幂公式与半角公式；两式相加减 ⇒ 积化和差、和差化积</li>
-            <li>逆向运用：a sinx + b cosx = <span class="sqrt"><span class="rad">√</span><span class="sbody">a²+b²</span></span>·sin(x+φ)（辅助角公式，为 5.6 做准备）</li>
-          </ol>
-          <div class="note" style="margin-top:12px">全部公式已汇总在顶部导航的<b>「知识点总结」</b>页，便于课堂收尾时整体回顾。</div>
-        </div>
-        <div>
-          <h3>操作提示</h3>
-          <ul class="steps">
-            <li>每个模块的滑块可拖动改变角 α、β，图形与右侧数值<b>实时同步</b>。</li>
-            <li>数值表里"左边/右边"若完全相等则显示绿色 ✓，可用来检验公式与定义域。</li>
-            <li>模块 1 的"旋转演示"按钮会把两点同时旋转 β，直观说明"旋转不改变距离"。</li>
-          </ul>
-        </div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <a class="back-link" href="#" title="回到原版教具">←</a>
+      <span class="grade-pill">高一 · 三角恒等变换</span>
+      <div class="title-group">
+        <h1>从两角差的余弦“长”出整套恒等变换</h1>
       </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="seg-tabs" id="modeTabs">
+        <button class="seg-btn active" data-mode="explore">🔬 自由探究</button>
+        <button class="seg-btn" data-mode="predict">🤔 先猜后验</button>
+        <button class="seg-btn" data-mode="challenge">🎮 闯关挑战</button>
+      </div>
+      <button class="icon-btn" id="btnFormulas" title="全部公式">📚 公式</button>
+      <button class="icon-btn" id="btnPresentation" title="快捷键 F">🖥 大屏模式</button>
+      <button class="icon-btn" id="btnTheme" title="快捷键 T">☀ 投影浅色</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage-shell">
+      <canvas id="canvas" class="lab-canvas"></canvas>
+
+      <div class="hud-top-left">
+        <div class="formula-pill" id="formulaPill">
+          <span class="hl-a" id="pFn">cos</span>
+          <span class="hl-w" id="pAng">(α − β)</span>
+          <span class="pm eq">=</span>
+          <span class="hl-p" id="pRes">cosα cosβ + sinα sinβ</span>
+        </div>
+        <div class="seg-tabs fn-tabs" id="vTabs"></div>
+      </div>
+
+      <div class="alert-banner" id="alertBanner"></div>
+      <div class="toast" id="toast"></div>
+
+      <div class="morph-hud" id="morphHud">
+        <div class="morph-steps" id="morphSteps"></div>
+        <div class="morph-hint" id="morphHint"></div>
+      </div>
+
+      <div class="hud-bottom-left" id="hudBottomLeft">
+        <button class="btn primary" id="btnPlay">⏸ 暂停旋转</button>
+        <button class="btn" id="btnReset">↺ 重置 α = 50°</button>
+      </div>
+
+      <div class="hud-bottom-left" id="demoControls" style="display:none;">
+        <button class="btn primary" id="btnDemoPlay">▶ 连续变换</button>
+        <button class="btn" id="btnDemoReplay">↺ 回到起点</button>
+        <button class="btn" id="btnDemoExit">✕ 退出演示</button>
+      </div>
+
+      <div class="hud-bottom-right">拖动圆上的点改 α 或 β · Space 播放 / F 大屏</div>
     </section>
 
-    <!-- ============ S1 两角差的余弦 ============ -->
-    <section class="sec" id="s1">
-      <h2>两角差的余弦公式<span class="tag">5.5.1 起点公式</span></h2>
-      <p class="lead">在单位圆上取角 α、β 的终边与圆的交点 P₁、P₂，用<b>两点间距离公式</b>算弦长；再把两终边一起旋转 −β，使 P₂ 落到 (1,0)。旋转不改变距离，两种算法必然相等。</p>
-      <div class="grid2">
-        <div>
-          <div class="cv"><canvas id="c1"></canvas></div>
-          <div class="ctrl" style="margin-top:12px">
-            <div class="slider-row"><label>α = <span class="val" id="a1v">60°</span></label><input type="range" id="a1" min="-180" max="180" step="1" value="60"></div>
-            <div class="slider-row"><label>β = <span class="val" id="b1v">30°</span></label><input type="range" id="b1" min="-180" max="180" step="1" value="30"></div>
-            <div class="btnrow">
-              <button class="btn" id="rot1">▶ 旋转演示</button>
-              <button class="btn ghost" id="reset1">复位</button>
-            </div>
-          </div>
+    <aside class="side-drawer">
+      <div class="card">
+        <div class="card-title">选择变换模块 <span class="badge" id="modTag">① 起点公式</span></div>
+        <div class="fbtn-grid" id="modBtns"></div>
+        <div class="legend">
+          <span><i style="background:var(--cyan)"></i>α 终边</span>
+          <span><i style="background:var(--purple)"></i>β 终边</span>
+          <span><i style="background:var(--amber)"></i>和差角 / 弦</span>
+          <span><i style="background:var(--green)"></i>余弦线</span>
         </div>
-        <div class="panel">
-          <div class="fml">cos(α − β) = cos α cos β + sin α sin β</div>
-          <h3>公式与数值验证</h3>
-          <table class="tbl" id="t1"></table>
-          <h3>推导过程</h3>
-          <ol class="steps">
-            <li>在单位圆 O 中，设角 α、β 的终边分别交圆于 P₁(cos α, sin α)、P₂(cos β, sin β)。<br>|P₁P₂|² = (cosα−cosβ)² + (sinα−sinβ)² = 2 − 2(cosαcosβ + sinαsinβ)</li>
-            <li>OP₁、OP₂ 同时旋转 −β：P₂ ↦ Q(1,0)，P₁ ↦ P(cos(α−β), sin(α−β))，<br>|PQ|² = (cos(α−β)−1)² + sin²(α−β) = 2 − 2cos(α−β)</li>
-            <li>由 |P₁P₂| = |PQ|：cos(α−β) = cosαcosβ + sinαsinβ</li>
-          </ol>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ S2 和差角公式族 ============ -->
-    <section class="sec" id="s2">
-      <h2>两角和与差的正弦、余弦、正切公式<span class="tag">5.5.1</span></h2>
-      <p class="lead">由 <b>cos(α−β)</b> 出发，用 −β 代 β 得 <b>cos(α+β)</b>，再用诱导公式 sinθ = cos(90° − θ) 得 <b>sin(α±β)</b>，最后两式相除得 <b>tan(α±β)</b>。</p>
-      <div class="grid2">
-        <div>
-          <div class="cv"><canvas id="c2"></canvas></div>
-          <div class="ctrl" style="margin-top:12px">
-            <div class="slider-row"><label>α = <span class="val" id="a2v">60°</span></label><input type="range" id="a2" min="-180" max="180" step="1" value="60"></div>
-            <div class="slider-row"><label>β = <span class="val" id="b2v">45°</span></label><input type="range" id="b2" min="-180" max="180" step="1" value="45"></div>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>公式与数值验证</h3>
-          <table class="tbl" id="t2"></table>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:14px">
-        <div class="fml">cos(α+β) = cos α cos β − sin α sin β<small>把 cos(α−β) 中的 β 换成 −β</small></div>
-        <div class="fml gr">sin(α+β) = sin α cos β + cos α sin β<small>由 cos(90°−(α+β)) 展开得到</small></div>
-        <div class="fml gr">sin(α−β) = sin α cos β − cos α sin β<small>把 β 换成 −β</small></div>
-        <div class="fml alt">tan(α+β) = <span class="frac"><span class="num">tan α + tan β</span><span class="den">1 − tan α tan β</span></span><small>由 sin(α+β) ÷ cos(α+β)，分母不为 0</small></div>
-        <div class="fml alt">tan(α−β) = <span class="frac"><span class="num">tan α − tan β</span><span class="den">1 + tan α tan β</span></span><small>把 β 换成 −β</small></div>
-        <div class="fml">cos(α−β) = cos α cos β + sin α sin β<small>整套公式的出发点</small></div>
-      </div>
-    </section>
-    <!-- ============ S3 二倍角 ============ -->
-    <section class="sec" id="s3">
-      <h2>二倍角公式<span class="tag">5.5.1</span></h2>
-      <p class="lead">在 <b>sin(α+β)</b>、<b>cos(α+β)</b>、<b>tan(α+β)</b> 中令 <b>β = α</b> 即得二倍角公式。</p>
-      <div class="grid2">
-        <div>
-          <div class="cv"><canvas id="c3"></canvas></div>
-          <div class="ctrl" style="margin-top:12px">
-            <div class="slider-row"><label>α = <span class="val" id="a3v">30°</span></label><input type="range" id="a3" min="0" max="90" step="1" value="30"></div>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>公式与数值验证</h3>
-          <table class="tbl" id="t3"></table>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;margin-top:14px">
-        <div class="fml gr">sin 2α = 2 sin α cos α</div>
-        <div class="fml">cos 2α = cos²α − sin²α</div>
-        <div class="fml">cos 2α = 2cos²α − 1 = 1 − 2sin²α<small>用 sin²α + cos²α = 1 消去一项得到，注意"1"的代换</small></div>
-        <div class="fml alt">tan 2α = <span class="frac"><span class="num">2 tan α</span><span class="den">1 − tan²α</span></span><small>要求 α、2α 都有正切且 1 − tan²α ≠ 0</small></div>
-        <div class="fml pu">1 + cos 2α = 2cos²α<br>1 − cos 2α = 2sin²α</div>
-      </div>
-    </section>
-
-    <!-- ============ S7 知识点总结 ============ -->
-    <section class="sec" id="s7">
-      <h2>知识点总结<span class="tag">5.5 全部公式一览</span></h2>
-      <p class="lead" style="font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.85">整套公式只有一个源头——<b style="color:var(--brand)">两角差的余弦公式</b>：由它替换 −β、用诱导公式、相除、令 β=α、相加减、逆向运用，即可依次得到下面所有公式。</p>
-
-      <h3>一、两角和与差的正弦、余弦、正切公式</h3>
-      <div class="fmlgrid">
-        <div class="fml">cos(α−β) = cosαcosβ + sinαsinβ<small>源头公式（单位圆 + 两点间距离）</small></div>
-        <div class="fml">cos(α+β) = cosαcosβ − sinαsinβ<small>把 cos(α−β) 中的 β 换成 −β</small></div>
-        <div class="fml gr">sin(α+β) = sinαcosβ + cosαsinβ<small>由 sinθ = cos(90°−θ) 展开得到</small></div>
-        <div class="fml gr">sin(α−β) = sinαcosβ − cosαsinβ<small>把 β 换成 −β</small></div>
-        <div class="fml alt">tan(α+β) = <span class="frac"><span class="num">tanα + tanβ</span><span class="den">1 − tanαtanβ</span></span><small>由 sin(α+β) ÷ cos(α+β)，分母不为 0</small></div>
-        <div class="fml alt">tan(α−β) = <span class="frac"><span class="num">tanα − tanβ</span><span class="den">1 + tanαtanβ</span></span><small>把 β 换成 −β</small></div>
+        <div class="param-note">✋ <b>点住圆上的圆点拖动</b>即可改角：青点是 α、紫点是 β。</div>
       </div>
 
-      <h3>二、二倍角公式</h3>
-      <div class="fmlgrid">
-        <div class="fml gr">sin 2α = 2 sinα cosα</div>
-        <div class="fml">cos 2α = cos²α − sin²α</div>
-        <div class="fml">cos 2α = 2cos²α − 1 = 1 − 2sin²α</div>
-        <div class="fml alt">tan 2α = <span class="frac"><span class="num">2tanα</span><span class="den">1 − tan²α</span></span></div>
+      <div class="card">
+        <div class="card-title">实时读数 <span class="badge" id="quadTag">第一象限</span></div>
+        <div class="stat-grid three" id="statBoxes"></div>
+        <div class="legend" style="margin-top:8px;"><span id="geoTag">单位圆 · 弦长法</span></div>
       </div>
 
-      <h3>三、降幂公式与半角公式</h3>
-      <div class="fmlgrid">
-        <div class="fml pu">sin²<span class="frac"><span class="num">θ</span><span class="den">2</span></span> = <span class="frac"><span class="num">1 − cosθ</span><span class="den">2</span></span></div>
-        <div class="fml pu">cos²<span class="frac"><span class="num">θ</span><span class="den">2</span></span> = <span class="frac"><span class="num">1 + cosθ</span><span class="den">2</span></span></div>
-        <div class="fml pu">tan²<span class="frac"><span class="num">θ</span><span class="den">2</span></span> = <span class="frac"><span class="num">1 − cosθ</span><span class="den">1 + cosθ</span></span></div>
-        <div class="fml gr">tan<span class="frac"><span class="num">θ</span><span class="den">2</span></span> = <span class="frac"><span class="num">sinθ</span><span class="den">1 + cosθ</span></span> = <span class="frac"><span class="num">1 − cosθ</span><span class="den">sinθ</span></span><small>有理形式，无需讨论正负号</small></div>
+      <div class="card">
+        <div class="card-title">数值验证 <span class="badge">左边 = 右边 ?</span></div>
+        <table class="vt">
+          <thead>
+            <tr><th>公式</th><th>左边</th><th>右边</th><th>判</th></tr>
+          </thead>
+          <tbody id="valBody"></tbody>
+        </table>
+        <div class="legend" style="margin-top:9px;">让 α 自动旋转，或直接拖动圆上的点，左右两列始终相等；tan 落在无定义处标 “—”。</div>
       </div>
 
-      <h3>四、积化和差与和差化积</h3>
-      <div class="fmlgrid">
-        <div class="fml">sinαcosβ = <span class="frac"><span class="num">1</span><span class="den">2</span></span>[sin(α+β) + sin(α−β)]</div>
-        <div class="fml">cosαsinβ = <span class="frac"><span class="num">1</span><span class="den">2</span></span>[sin(α+β) − sin(α−β)]</div>
-        <div class="fml">cosαcosβ = <span class="frac"><span class="num">1</span><span class="den">2</span></span>[cos(α+β) + cos(α−β)]</div>
-        <div class="fml">sinαsinβ = −<span class="frac"><span class="num">1</span><span class="den">2</span></span>[cos(α+β) − cos(α−β)]</div>
-        <div class="fml gr">sinα + sinβ = 2sin<span class="frac"><span class="num">α+β</span><span class="den">2</span></span>cos<span class="frac"><span class="num">α−β</span><span class="den">2</span></span></div>
-        <div class="fml gr">sinα − sinβ = 2cos<span class="frac"><span class="num">α+β</span><span class="den">2</span></span>sin<span class="frac"><span class="num">α−β</span><span class="den">2</span></span></div>
-        <div class="fml gr">cosα + cosβ = 2cos<span class="frac"><span class="num">α+β</span><span class="den">2</span></span>cos<span class="frac"><span class="num">α−β</span><span class="den">2</span></span></div>
-        <div class="fml gr">cosα − cosβ = −2sin<span class="frac"><span class="num">α+β</span><span class="den">2</span></span>sin<span class="frac"><span class="num">α−β</span><span class="den">2</span></span></div>
+      <div class="card" id="predictCard" style="display:none;">
+        <div class="card-title">课堂悬念 <span class="badge" id="predictBadge">先猜后验</span></div>
+        <div id="predictBody"></div>
       </div>
 
-      <h3>五、辅助角公式</h3>
-      <div class="fmlgrid">
-        <div class="fml alt">a sinx + b cosx = <span class="sqrt"><span class="rad">√</span><span class="sbody">a²+b²</span></span> · sin(x+φ)<br>cosφ = a / <span class="sqrt"><span class="rad">√</span><span class="sbody">a²+b²</span></span><br>sinφ = b / <span class="sqrt"><span class="rad">√</span><span class="sbody">a²+b²</span></span></div>
-        <div class="fml alt">sinx + cosx = <span class="sqrt"><span class="rad">√</span><span class="sbody">2</span></span> sin(x + 45°)<small>常用特例</small></div>
-        <div class="fml alt">sinx + <span class="sqrt"><span class="rad">√</span><span class="sbody">3</span></span>cosx = 2 sin(x + 60°)<small>常用特例</small></div>
+      <div class="card" id="challengeCard" style="display:none;">
+        <div class="card-title">随堂闯关题目 <span class="badge" id="chalScore">0 / 4</span></div>
+        <p id="quizBankInfo" style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:10px;"></p>
+        <button class="btn primary" id="btnOpenQuiz" style="width:100%;">🎯 打开闯关题目窗口</button>
       </div>
-
-      <h3>易错提醒</h3>
-      <div class="warn">
-        <b>① 定义域：</b>tan(α+β) 在 α+β = 90°+k·180° 时无意义；tan2α 在 2α = 90°+k·180° 时无意义（分母 1−tanαtanβ、1−tan²α 也不能为 0）。<br>
-        <b>② 开方定号：</b>半角公式开方时，根号前的正负号由 <b>α/2 所在象限</b>决定，不能默认取正。<br>
-        <b>③ 符号细节：</b>sinαsinβ = −½[cos(α+β)−cos(α−β)] 与 cosα−cosβ = −2sin((α+β)/2)sin((α−β)/2) 前面的<b>负号</b>容易漏写。<br>
-        <b>④ "1" 的代换：</b>1 + cos2α = 2cos²α、1 − cos2α = 2sin²α 是降幂与化简的关键桥梁，逆向使用即为升幂。
-      </div>
-    </section>
-
+    </aside>
   </main>
 </div>
 
-<footer>三角恒等变换动态演示教具 · 适配人教 A 版必修第一册第五章 5.5 · 建议配合投影或电子白板使用</footer>
+<div class="quiz-backdrop" id="quizModal">
+  <div class="quiz-modal">
+    <div class="quiz-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="grade-pill" id="quizProgress">第 1 / 4 题</span>
+        <span class="badge" id="quizScoreBadge">得分 0 / 4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn on" id="btnBgm" title="背景音乐开关">🔊 音乐开</button>
+        <button class="quiz-close" id="btnCloseQuiz" title="关闭">✕</button>
+      </div>
+    </div>
+    <div class="quiz-stamp" id="quizStamp" aria-live="polite"></div>
+    <div class="quiz-stem" id="quizStem"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnQuizDemo" style="display:none;">🧮 看公式推导</button>
+      <button class="btn primary" id="btnQuizNext" style="display:none;">下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<div class="quiz-backdrop deriv-backdrop" id="derivModal">
+  <div class="deriv-win" role="dialog" aria-modal="true" aria-labelledby="derivHead">
+    <div class="deriv-bar">
+      <span class="deriv-dots"><i></i><i></i><i></i></span>
+      <span class="deriv-wintitle">公式推导窗口</span>
+      <span class="deriv-badge" id="derivTag">① 起点公式</span>
+      <button class="quiz-close" id="btnCloseDeriv" title="关闭推导窗口">✕</button>
+    </div>
+    <div class="deriv-head">
+      <h3 id="derivHead">两角差的余弦公式</h3>
+      <p class="deriv-lead" id="derivLead"></p>
+    </div>
+    <div class="dv-hint" id="derivHint"></div>
+    <ol class="deriv-steps" id="derivSteps"></ol>
+    <div class="deriv-foot">
+      <button class="btn" id="btnDerivPrev">← 上一步</button>
+      <button class="btn primary" id="btnDerivNext">下一步 →</button>
+      <button class="btn" id="btnDerivAuto">▶ 自动推导</button>
+      <span class="deriv-progress" id="derivProgress">1 / 5</span>
+    </div>
+  </div>
+</div>
+
+<div class="quiz-backdrop" id="formulaModal">
+  <div class="quiz-modal formula-modal">
+    <div class="quiz-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="grade-pill">5.5 全部公式</span>
+        <span class="badge">一条链子长出一整套</span>
+      </div>
+      <button class="quiz-close" id="btnCloseFormulas" title="关闭">✕</button>
+    </div>
+    <div id="formulaBody"></div>
+  </div>
+</div>
+
+<canvas class="fx-canvas" id="fxCanvas"></canvas>
 
 <script>
-/* ================= 基础工具 ================= */
-const d2r = d => d * Math.PI / 180;
-const r2d = r => r * 180 / Math.PI;
-const fmt = (x, n = 4) => {
-  if (x === null || x === undefined || !isFinite(x)) return '无定义';
-  const v = Math.abs(x) < Math.pow(10, -(n + 2)) ? 0 : x;
-  return v.toFixed(n);
-};
-const near = (a, b, eps = 1e-9) => typeof a === 'number' && typeof b === 'number' && isFinite(a) && isFinite(b) && Math.abs(a - b) < eps;
+(() => {
+  'use strict';
 
-/* canvas 注册与高清渲染 */
-const CVS = [];
-function reg(id, draw) {
-  const rec = { el: document.getElementById(id), draw };
-  CVS.push(rec); return rec;
-}
-function render(rec) {
-  const c = rec.el; if (!c) return;
-  const w = c.clientWidth, h = c.clientHeight;
-  if (!w || !h) return;
-  const dpr = window.devicePixelRatio || 1;
-  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
-  const ctx = c.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-  ctx.font = '13px "Microsoft YaHei", sans-serif';
-  ctx.textBaseline = 'middle';
-  rec.draw(ctx, w, h);
-}
-function renderAll() { CVS.forEach(render); }
-window.addEventListener('resize', renderAll);
+  function getCssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
 
-/* 绘图小工具 */
-function line(ctx, x1, y1, x2, y2, color, w, dash) {
-  ctx.save(); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = color || '#9aa5b1'; ctx.lineWidth = w || 1;
-  if (dash) ctx.setLineDash(dash);
-  ctx.stroke(); ctx.restore();
-}
-function arrowLine(ctx, x1, y1, x2, y2, color, w) {
-  line(ctx, x1, y1, x2, y2, color, w);
-  const a = Math.atan2(y2 - y1, x2 - x1), s = 8;
-  ctx.save(); ctx.fillStyle = color || '#9aa5b1';
-  ctx.beginPath(); ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - s * Math.cos(a - 0.42), y2 - s * Math.sin(a - 0.42));
-  ctx.lineTo(x2 - s * Math.cos(a + 0.42), y2 - s * Math.sin(a + 0.42));
-  ctx.closePath(); ctx.fill(); ctx.restore();
-}
-function circle(ctx, cx, cy, r, color, w, dash) {
-  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = color || '#1e293b'; ctx.lineWidth = w || 1.6;
-  if (dash) ctx.setLineDash(dash);
-  ctx.stroke(); ctx.restore();
-}
-function dot(ctx, x, y, r, color) {
-  ctx.save(); ctx.beginPath(); ctx.arc(x, y, r || 4.5, 0, Math.PI * 2);
-  ctx.fillStyle = color; ctx.fill();
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
-}
-function label(ctx, x, y, text, color, align, size, bold) {
-  ctx.save(); ctx.fillStyle = color || '#334155';
-  ctx.font = (bold ? 'bold ' : '') + (size || 13) + 'px "Microsoft YaHei", sans-serif';
-  ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText(text, x, y); ctx.restore();
-}
-/* 数学角 a0→a1 的圆弧（y 轴向上为正） */
-function angleArc(ctx, cx, cy, r, a0, a1, color, w) {
-  ctx.save(); ctx.beginPath();
-  ctx.arc(cx, cy, r, -a0, -a1, a1 > a0);
-  ctx.strokeStyle = color; ctx.lineWidth = w || 1.6; ctx.stroke(); ctx.restore();
-}
-function axes(ctx, cx, cy, r, pad) {
-  arrowLine(ctx, cx - r - pad, cy, cx + r + pad, cy, '#94a3b8', 1.2);
-  arrowLine(ctx, cx, cy + r + pad, cx, cy - r - pad, '#94a3b8', 1.2);
-  label(ctx, cx + r + pad - 4, cy - 12, 'x', '#64748b', 'right');
-  label(ctx, cx - 12, cy - r - pad + 8, 'y', '#64748b', 'right');
-  label(ctx, cx - 8, cy + 14, 'O', '#64748b', 'right');
-}
+  class LabCanvas {
+    constructor(canvas, onDraw) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.onDraw = onDraw;
+      this.width = 800;
+      this.height = 500;
+      this.dpr = window.devicePixelRatio || 1;
+      this.particles = [];
+      this.ripples = [];
+      this._raf = null;
+      this._last = performance.now();
 
-/* 滑块绑定 */
-function slider(id, cb) {
-  const el = document.getElementById(id), v = document.getElementById(id + 'v');
-  const upd = () => { const x = parseFloat(el.value); if (v) v.textContent = x + '°'; cb(x); };
-  el.addEventListener('input', upd);
-  return { el, upd, get: () => parseFloat(el.value), set(x) { el.value = x; upd(); } };
-}
+      this._resize = () => {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.width = Math.max(300, Math.floor(rect.width));
+        this.height = Math.max(240, Math.floor(rect.height));
+        this.canvas.width = Math.floor(this.width * this.dpr);
+        this.canvas.height = Math.floor(this.height * this.dpr);
+      };
 
-/* 数值验证表 */
-function verifyTable(el, rows) {
-  let html = '<tr><th>公式</th><th>左边</th><th>右边</th><th>判定</th></tr>';
-  rows.forEach(r => {
-    let L = '—', R = '—', ok = false, cls = '', mark = '—';
-    if (r.L === null || r.R === null) { mark = '无定义'; cls = 'no'; }
-    else {
-      L = fmt(r.L); R = fmt(r.R); ok = near(r.L, r.R, 1e-8);
-      cls = ok ? 'ok' : 'no'; mark = ok ? '✓ 相等' : '✗ 不等';
+      const ro = new ResizeObserver(this._resize);
+      ro.observe(this.canvas.parentElement);
+      this._resize();
     }
-    html += '<tr><td>' + r.name + '</td><td class="num">' + L + '</td><td class="num">' + R + '</td><td class="' + cls + '">' + mark + '</td></tr>';
-  });
-  el.innerHTML = html;
-}
 
-/* ================= 模块 1：两角差的余弦 ================= */
-let S1 = { a: 60, b: 30, t: 0 };
-const rec1 = reg('c1', (ctx, w, h) => {
-  const cx = w * 0.46, cy = h * 0.52, r = Math.min(w * 0.42, h * 0.42);
-  const a = d2r(S1.a), b = d2r(S1.b), rot = -b * S1.t;
-  axes(ctx, cx, cy, r, 26);
-  circle(ctx, cx, cy, r, '#cbd5e1', 1.4);
+    start(tickFn) {
+      const ctx0 = this.ctx;
+      ctx0.save();
+      ctx0.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx0.clearRect(0, 0, this.width, this.height);
+      this.onDraw(ctx0, this.width, this.height, 0, performance.now());
+      ctx0.restore();
 
-  const A = { x: cx + r * Math.cos(a + rot), y: cy - r * Math.sin(a + rot) };
-  const B = { x: cx + r * Math.cos(b + rot), y: cy - r * Math.sin(b + rot) };
-  const A0 = { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) };
-  const B0 = { x: cx + r * Math.cos(b), y: cy - r * Math.sin(b) };
+      const loop = (now) => {
+        const dt = Math.min(0.05, (now - this._last) / 1000);
+        this._last = now;
+        if (tickFn) tickFn(dt, now);
+        this._updateEffects(dt);
 
-  if (S1.t > 0.02) { // 旋转前的虚影
-    line(ctx, cx, cy, A0.x, A0.y, '#cbd5e1', 1.2, [5, 4]);
-    line(ctx, cx, cy, B0.x, B0.y, '#cbd5e1', 1.2, [5, 4]);
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+        ctx.clearRect(0, 0, this.width, this.height);
+        this.onDraw(ctx, this.width, this.height, dt, now);
+        this._drawEffects(ctx);
+        ctx.restore();
+
+        this._raf = requestAnimationFrame(loop);
+      };
+      this._raf = requestAnimationFrame(loop);
+    }
+
+    burst(x, y, color = '#38bdf8', count = 26) {
+      const palette = [color, '#34d399', '#fbbf24', '#a78bfa', '#ffffff'];
+      for (let i = 0; i < count; i++) {
+        const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const spd = 80 + Math.random() * 210;
+        this.particles.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 40,
+          life: 1,
+          decay: 0.9 + Math.random() * 0.7,
+          size: 2.5 + Math.random() * 3.5,
+          color: palette[i % palette.length],
+        });
+      }
+      this.ripple(x, y, color);
+    }
+
+    ripple(x, y, color = '#38bdf8') {
+      this.ripples.push({ x, y, r: 6, maxR: 58, life: 1, color });
+    }
+
+    _updateEffects(dt) {
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 260 * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) this.particles.splice(i, 1);
+      }
+      for (let i = this.ripples.length - 1; i >= 0; i--) {
+        const r = this.ripples[i];
+        r.r += (r.maxR - r.r) * Math.min(1, dt * 6);
+        r.life -= dt * 1.6;
+        if (r.life <= 0) this.ripples.splice(i, 1);
+      }
+    }
+
+    _drawEffects(ctx) {
+      for (const r of this.ripples) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, r.life * 0.75);
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      for (const p of this.particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
   }
-  // 终边
-  line(ctx, cx, cy, A.x, A.y, '#2563eb', 2.2);
-  line(ctx, cx, cy, B.x, B.y, '#0f9d58', 2.2);
-  // 弦
-  line(ctx, A.x, A.y, B.x, B.y, '#ea8a00', 2.6);
-  // 角弧
-  angleArc(ctx, cx, cy, r * 0.30, Math.min(a + rot, b + rot), Math.max(a + rot, b + rot), '#ea8a00', 2);
-  const mid = (a + rot + b + rot) / 2;
-  label(ctx, cx + r * 0.40 * Math.cos(mid), cy - r * 0.40 * Math.sin(mid), 'α−β', '#c2410c', 'center', 13, true);
-  if (S1.t < 0.02) {
-    angleArc(ctx, cx, cy, r * 0.66, 0, a, '#93b4f5', 1.8);
-    label(ctx, cx + r * 0.78 * Math.cos(a / 2), cy - r * 0.78 * Math.sin(a / 2), 'α', '#2563eb', 'center', 12, true);
-    angleArc(ctx, cx, cy, r * 0.52, 0, b, '#8fd3b0', 1.8);
-    label(ctx, cx + r * 0.63 * Math.cos(b / 2), cy - r * 0.63 * Math.sin(b / 2), 'β', '#0f9d58', 'center', 12, true);
+
+  function glowLine(ctx, x1, y1, x2, y2, color, width = 3, glow = 14) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = glow;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
   }
-  dot(ctx, A.x, A.y, 5, '#2563eb');
-  dot(ctx, B.x, B.y, 5, '#0f9d58');
-  const lblA = S1.t > 0.9 ? 'P(cos(α−β), sin(α−β))' : (S1.t > 0.02 ? 'P₁' : 'P₁(cos α, sin α)');
-  const lblB = S1.t > 0.9 ? 'Q(1, 0)' : (S1.t > 0.02 ? 'P₂' : 'P₂(cos β, sin β)');
-  // 标签放不下时自动换到点的左侧，避免超出画布
-  if (A.x + 10 + lblA.length * 12.5 <= w - 4) label(ctx, A.x + 9, A.y - 11, lblA, '#1d4ed8', 'left', 12.5, true);
-  else label(ctx, A.x - 9, A.y - 11, lblA, '#1d4ed8', 'right', 12.5, true);
-  if (B.x + 10 + lblB.length * 12.5 <= w - 4) label(ctx, B.x + 9, B.y + 13, lblB, '#0b7a45', 'left', 12.5, true);
-  else label(ctx, B.x - 9, B.y + 13, lblB, '#0b7a45', 'right', 12.5, true);
 
-  const d = Math.hypot(A.x - B.x, A.y - B.y) / r;
-  label(ctx, (A.x + B.x) / 2 + 8, (A.y + B.y) / 2 - 8, '|P₁P₂| = ' + fmt(d, 4), '#c2410c', 'left', 12.5, true);
+  function glowDot(ctx, x, y, radius, color, ringColor = '#ffffff') {
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = ringColor;
+    ctx.stroke();
+    ctx.restore();
+  }
 
-  label(ctx, 12, 20, S1.t > 0.98 ? '旋转完成：P₂ → Q(1, 0)，P₁ → P(cos(α−β), sin(α−β))'
-    : S1.t > 0.02 ? '正在把两条终边同时旋转 −β …' : '拖动滑块改变 α、β，点击「旋转演示」', '#475569', 'left', 13, false);
-});
+  function drawLabel(ctx, text, x, y, color = '#f1f5f9', size = 13, align = 'center') {
+    ctx.save();
+    ctx.font = `700 ${size}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = getCssVar('--canvas-bg') || '#050912';
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
 
-function upd1() {
-  const a = d2r(S1.a), b = d2r(S1.b);
-  verifyTable(document.getElementById('t1'), [
-    { name: 'cos(α−β) = cosαcosβ + sinαsinβ', L: Math.cos(a - b), R: Math.cos(a) * Math.cos(b) + Math.sin(a) * Math.sin(b) }
-  ]);
-  render(rec1);
-}
-const sl_a1 = slider('a1', v => { S1.a = v; S1.t = 0; upd1(); });
-const sl_b1 = slider('b1', v => { S1.b = v; S1.t = 0; upd1(); });
-document.getElementById('rot1').onclick = () => {
-  const t0 = performance.now(), dur = 1600;
-  (function step(now) {
-    const p = Math.min(1, (now - t0) / dur);
-    S1.t = p < 1 ? (1 - Math.cos(p * Math.PI)) / 2 : 1;
-    render(rec1);
-    if (p < 1) requestAnimationFrame(step);
-  })(t0);
-};
-document.getElementById('reset1').onclick = () => { S1.t = 0; sl_a1.set(60); sl_b1.set(30); render(rec1); };
+  function initShell({ onCommand } = {}) {
+    const app = document.querySelector('.app');
+    const themeBtn = document.getElementById('btnTheme');
+    const presBtn = document.getElementById('btnPresentation');
 
-/* ================= 模块 2：和差角公式族 ================= */
-let S2 = { a: 60, b: 45 };
-const rec2 = reg('c2', (ctx, w, h) => {
-  const cx = w * 0.46, cy = h * 0.52, r = Math.min(w * 0.40, h * 0.40);
-  const a = d2r(S2.a), b = d2r(S2.b);
-  axes(ctx, cx, cy, r, 26);
-  circle(ctx, cx, cy, r, '#cbd5e1', 1.4);
-  const rays = [
-    { ang: a, c: '#2563eb', t: 'α' },
-    { ang: b, c: '#0f9d58', t: 'β' },
-    { ang: a + b, c: '#ea8a00', t: 'α+β' },
-    { ang: a - b, c: '#7c3aed', t: 'α−β' }
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (themeBtn) themeBtn.textContent = theme === 'light' ? '🌙 深色实验室' : '☀ 投影浅色';
+      localStorage.setItem('math_lab_theme', theme);
+    }
+
+    const saved = localStorage.getItem('math_lab_theme') || 'dark';
+    setTheme(saved);
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        setTheme(cur);
+      });
+    }
+
+    function togglePresentation(force) {
+      const next = typeof force === 'boolean' ? force : !app.classList.contains('presentation');
+      app.classList.toggle('presentation', next);
+      if (presBtn) presBtn.classList.toggle('on', next);
+    }
+
+    if (presBtn) {
+      presBtn.addEventListener('click', () => togglePresentation());
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') togglePresentation();
+      if (e.key === 't' || e.key === 'T') {
+        const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        setTheme(cur);
+      }
+    });
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || data.type !== 'math-lab:command') return;
+      if (data.action === 'theme' && data.payload) setTheme(data.payload);
+      if (data.action === 'presentation') togglePresentation(Boolean(data.payload));
+      if (onCommand) onCommand(data.action, data.payload);
+    });
+
+    return { setTheme, togglePresentation };
+  }
+
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  let alertHoldUntil = 0;
+  let alertTimer = null;
+  function alertNow() {
+    return (window.performance && performance.now) ? performance.now() : Date.now();
+  }
+  function hideAlertSoon(delay) {
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+      alertTimer = null;
+      const el = document.getElementById('alertBanner');
+      if (!el) return;
+      const now = alertNow();
+      if (now >= alertHoldUntil) { alertHoldUntil = 0; el.classList.remove('show'); }
+      else hideAlertSoon(alertHoldUntil - now);
+    }, Math.max(0, delay));
+  }
+  function setAlert(msg, holdMs) {
+    const el = document.getElementById('alertBanner');
+    if (!el) return;
+    const now = alertNow();
+    if (!msg) {
+      if (now < alertHoldUntil) { hideAlertSoon(alertHoldUntil - now); return; }
+      el.classList.remove('show');
+      return;
+    }
+    alertHoldUntil = now + (holdMs || 0);
+    el.classList.toggle('info', msg.indexOf('💡') === 0);
+    if (el.textContent !== msg) {
+      el.textContent = msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+    } else if (!el.classList.contains('show')) {
+      el.classList.add('show');
+    }
+    if (holdMs && !alertTimer) hideAlertSoon(holdMs);
+  }
+
+  // 纯 Web Audio 合成音效，零外部文件
+  const sound = (() => {
+    let ctx = null;
+    let bgmTimer = null;
+    let bgmStep = 0;
+    let muted = false;
+
+    function ensureCtx() {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+
+    function tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+      if (muted) return;
+      const ac = ensureCtx();
+      if (!ac) return;
+      const t0 = ac.currentTime + delay;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    }
+
+    function playClick() { tone(660, 0.06, 'triangle', 0.08, 0); }
+
+    function playCorrect() {
+      tone(523.25, 0.14, 'triangle', 0.16, 0);
+      tone(659.25, 0.14, 'triangle', 0.16, 0.08);
+      tone(783.99, 0.16, 'triangle', 0.16, 0.16);
+      tone(1046.5, 0.32, 'sine', 0.18, 0.24);
+    }
+
+    function playWrong() {
+      tone(220, 0.16, 'sawtooth', 0.09, 0);
+      tone(164.81, 0.28, 'sawtooth', 0.10, 0.13);
+    }
+
+    function playVictory() {
+      const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+      const times = [0, 0.1, 0.2, 0.3, 0.44, 0.56];
+      notes.forEach((f, i) => tone(f, i === notes.length - 1 ? 0.45 : 0.14, 'triangle', 0.16, times[i]));
+    }
+
+    const MELODY = [
+      523.25, 659.25, 783.99, 659.25, 880.00, 783.99, 659.25, 587.33,
+      523.25, 659.25, 783.99, 1046.5, 880.00, 783.99, 659.25, 587.33,
+    ];
+    const BASS = [
+      130.81, 0, 196.00, 0, 174.61, 0, 196.00, 0,
+      130.81, 0, 196.00, 0, 146.83, 0, 196.00, 0,
+    ];
+
+    function startBgm() {
+      if (bgmTimer || muted) return;
+      ensureCtx();
+      bgmTimer = setInterval(() => {
+        if (muted) return;
+        const m = MELODY[bgmStep % MELODY.length];
+        const b = BASS[bgmStep % BASS.length];
+        if (m) tone(m, 0.18, 'sine', 0.045, 0);
+        if (b) tone(b, 0.22, 'triangle', 0.04, 0);
+        bgmStep += 1;
+      }, 240);
+    }
+
+    function stopBgm() {
+      if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+    }
+
+    function toggleBgm() {
+      if (bgmTimer) { stopBgm(); return false; }
+      muted = false;
+      startBgm();
+      return true;
+    }
+
+    function setMuted(val) {
+      muted = Boolean(val);
+      if (muted) stopBgm();
+    }
+
+    return {
+      playClick, playCorrect, playWrong, playVictory,
+      startBgm, stopBgm, toggleBgm, setMuted,
+      isPlaying: () => Boolean(bgmTimer) && !muted,
+    };
+  })();
+
+  window.MathLab = {
+    LabCanvas, getCssVar, glowLine, glowDot, drawLabel,
+    initShell, showToast, setAlert, sound,
+  };
+})();
+</script>
+<script>
+/* =========================================================
+   三角恒等变换 · 动态演示实验室
+   版式与交互外壳沿用《三角函数的诱导公式》教具
+   ========================================================= */
+(() => {
+  'use strict';
+
+  const { LabCanvas, getCssVar, glowLine, glowDot, drawLabel, initShell, showToast, setAlert, sound } = window.MathLab;
+
+  const D2R = Math.PI / 180;
+  const TAU = Math.PI * 2;
+  const SIN = (d) => Math.sin(d * D2R);
+  const COS = (d) => Math.cos(d * D2R);
+  const TAN = (d) => Math.tan(d * D2R);
+  const okCos = (d) => Math.abs(COS(d)) > 1e-9;
+  const num = (v, d = 3) => (v === null || v === undefined || !isFinite(v))
+    ? '不存在'
+    : (Math.abs(v) < 5e-4 ? 0 : v).toFixed(d).replace('-', '−');
+  const degNorm = (d) => { const r = ((d % 360) + 360) % 360; return Math.round(r) % 360; };
+  const qname = (d) => {
+    const x = degNorm(d);
+    return x % 90 === 0 ? '终边在轴上' : ['', '第一象限', '第二象限', '第三象限', '第四象限'][Math.floor(x / 90) + 1];
+  };
+
+  /* =========================================================
+     数学排版：给根号补上横线，并把【】渲染成高亮
+     ---------------------------------------------------------
+     纯文本里的 “√3/2” 只有一个勾号，看不出根号管到哪里；
+     这里把被开方数包进 .mth-rad，由 CSS 画一条上横线。
+     ========================================================= */
+  const escHTML = (s) => String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const radHTML = (inner) => '<span class="mth-sq">√<span class="mth-rad">' + inner + '</span></span>';
+
+  function mathHTML(str) {
+    let s = escHTML(str);
+    s = s.replace(/【([^】]*)】/g, (m, g) => '<span class="mth-hl">' + mathHTML(g) + '</span>');
+
+    let out = '';
+    let i = 0;
+    while (i < s.length) {
+      if (s[i] === '√') {
+        const j = i + 1;
+        if (s[j] === '(') {
+          let depth = 0, k = j;
+          for (; k < s.length; k++) {
+            if (s[k] === '(') depth++;
+            else if (s[k] === ')') { depth--; if (depth === 0) break; }
+          }
+          if (k < s.length) {
+            out += radHTML(mathHTML(s.slice(j + 1, k)));
+            i = k + 1;
+            continue;
+          }
+        }
+        /* 只吃一个数（√3、√2、√6），不能把 √3cosx 里的 cosx 也圈进根号 */
+        const m = /^[0-9]+(?:\.[0-9]+)?/.exec(s.slice(j));
+        if (m) {
+          out += radHTML(mathHTML(m[0]));
+          i = j + m[0].length;
+          continue;
+        }
+      }
+      out += s[i];
+      i++;
+    }
+    return out;
+  }
+
+  /* =========================================================
+     六个变换模块
+     ========================================================= */
+  const MODS = [
+    {
+      key: 'cd', badge: '① 起点公式', name: '两角差的余弦', geo: '单位圆 · 弦长法', dur: 2,
+      /* 这里的💡提示不再压在画布上，改为「课堂悬念」卡底部的按钮 → 新窗口里看 */
+      stages: [
+        { at: 0, label: '取两点 P₁、P₂', note: 'P₁(cosα, sinα)、P₂(cosβ, sinβ)：先用两点间距离公式写出 |P₁P₂|²。' },
+        { at: 0.42, label: '同时旋转 −β', note: '两条终边一起转 −β：P₂ 落到 Q(1,0)，P₁ 落到 P(cos(α−β), sin(α−β))。' },
+        { at: 0.82, label: '弦长不变 ⇒ 公式', note: '|P₁P₂| = |PQ| ⇒ 2 − 2(cosαcosβ + sinαsinβ) = 2 − 2cos(α−β)。' },
+      ],
+      variants: [
+        { k: 'cd', label: 'cos(α−β)', pill: { fn: 'cos', ang: '(α − β)', res: 'cosα cosβ + sinα sinβ' } },
+      ],
+      rows(a, b) {
+        return [{
+          k: 'cd', name: 'cos(α−β)', sub: 'cosαcosβ + sinαsinβ',
+          L: COS(a - b), R: COS(a) * COS(b) + SIN(a) * SIN(b),
+        }];
+      },
+      readout(a, b) {
+        return [
+          { k: '角 α', v: degNorm(a) + '°', c: '--cyan' },
+          { k: '角 β', v: degNorm(b) + '°', c: '--purple' },
+          { k: 'α − β', v: degNorm(a - b) + '°', c: '--amber' },
+        ];
+      },
+      predict: {
+        q: '把 OP₁、OP₂ 同时绕 O 旋转 −β 之后，弦 |P₁P₂| 的长度会怎么变？',
+        opts: [
+          { t: '变短（β 变小了）', ok: false },
+          { t: '变长（旋转会拉开两点）', ok: false },
+          { t: '不变 —— 旋转是刚体运动', ok: true },
+          { t: '变成 0（两点重合）', ok: false },
+        ],
+        fb: '<b>验证结论：</b>旋转只改变位置、不改变距离，所以 |P₁P₂| = |PQ|。左边用坐标算得 2 − 2(cosαcosβ + sinαsinβ)，右边算得 2 − 2cos(α−β)，两式相等即得 cos(α−β) = cosαcosβ + sinαsinβ。',
+      },
+    },
+    {
+      key: 'sum', badge: '② 生长', name: '和角 · 差角公式族', geo: '把 β 再旋转 α', dur: 7.5,
+      tip: '💡 一条链子长出一族公式：cos(α−β) →（β 换成 −β）cos(α+β) →（sinθ = cos(90°−θ)）sin(α±β) →（两式相除）tan(α±β)。',
+      stages: [
+        { at: 0, label: '固定 α、β', note: '先把 α、β 两条终边摆好，注意 α ± β 既不是两条边的长度相加，也不是角度的简单叠加。' },
+        { at: 0.38, label: '把 β 再转 α', note: '从 β 的终边出发，再逆时针（或顺时针）转过 α，落点就是 α ± β 的终边。' },
+        { at: 0.78, label: '读出坐标 ⇒ 展开', note: '落点坐标 (cos(α±β), sin(α±β)) 用 α、β 的正余弦展开，就是和角、差角公式。' },
+      ],
+      variants: [
+        { k: 'cos+', label: 'cos(α+β)', sign: 1, pill: { fn: 'cos', ang: '(α + β)', res: 'cosα cosβ − sinα sinβ' }, note: '💡 把 cos(α−β) 里的 β 换成 −β：cos(−β) = cosβ、sin(−β) = −sinβ，于是“+”号变成“−”号。' },
+        { k: 'sin+', label: 'sin(α+β)', sign: 1, pill: { fn: 'sin', ang: '(α + β)', res: 'sinα cosβ + cosα sinβ' }, note: '💡 先用诱导公式 sinθ = cos(90° − θ)，再套 cos(α−β)：函数名由 cos 变 sin，这是“互余”的功劳。' },
+        { k: 'sin-', label: 'sin(α−β)', sign: -1, pill: { fn: 'sin', ang: '(α − β)', res: 'sinα cosβ − cosα sinβ' }, note: '💡 把 sin(α+β) 里的 β 换成 −β：cos(−β) = cosβ、sin(−β) = −sinβ，中间变成减号。' },
+        { k: 'tan+', label: 'tan(α+β)', sign: 1, pill: { fn: 'tan', ang: '(α + β)', res: '(tanα + tanβ) / (1 − tanα tanβ)' }, note: '⚠️ 由 sin ÷ cos 得到，要求 α、β、α+β 的正切都存在，且分母 1 − tanαtanβ ≠ 0。' },
+        { k: 'tan-', label: 'tan(α−β)', sign: -1, pill: { fn: 'tan', ang: '(α − β)', res: '(tanα − tanβ) / (1 + tanα tanβ)' }, note: '⚠️ 分母 1 + tanαtanβ ≠ 0；若 tanαtanβ = 1，则 α+β = 90° + k·180°，公式右边分母为 0。' },
+      ],
+      rows(a, b) {
+        const ca = COS(a), sa = SIN(a), cb = COS(b), sb = SIN(b), ta = TAN(a), tb = TAN(b);
+        const tanBad = !okCos(a) || !okCos(b);
+        const t1 = tanBad || Math.abs(1 - ta * tb) < 1e-9 || !okCos(a + b);
+        const t2 = tanBad || Math.abs(1 + ta * tb) < 1e-9 || !okCos(a - b);
+        return [
+          { k: 'cos+', name: 'cos(α+β)', sub: 'cosαcosβ − sinαsinβ', L: COS(a + b), R: ca * cb - sa * sb },
+          { k: 'cos-', name: 'cos(α−β)', sub: 'cosαcosβ + sinαsinβ', L: COS(a - b), R: ca * cb + sa * sb },
+          { k: 'sin+', name: 'sin(α+β)', sub: 'sinαcosβ + cosαsinβ', L: SIN(a + b), R: sa * cb + ca * sb },
+          { k: 'sin-', name: 'sin(α−β)', sub: 'sinαcosβ − cosαsinβ', L: SIN(a - b), R: sa * cb - ca * sb },
+          { k: 'tan+', name: 'tan(α+β)', sub: '(tanα+tanβ)/(1−tanαtanβ)', L: t1 ? null : TAN(a + b), R: t1 ? null : (ta + tb) / (1 - ta * tb) },
+          { k: 'tan-', name: 'tan(α−β)', sub: '(tanα−tanβ)/(1+tanαtanβ)', L: t2 ? null : TAN(a - b), R: t2 ? null : (ta - tb) / (1 + ta * tb) },
+        ];
+      },
+      readout(a, b) {
+        const s = Math.sign(this.variants[state.v].sign || 1);
+        return [
+          { k: '角 α', v: degNorm(a) + '°', c: '--cyan' },
+          { k: '角 β', v: degNorm(b) + '°', c: '--purple' },
+          { k: s > 0 ? 'α + β' : 'α − β', v: degNorm(a + s * b) + '°', c: '--amber' },
+        ];
+      },
+      predict: {
+        q: '把 β 的终边再旋转 α 得到 α+β，则 <b>sin(α+β)</b> 展开后的第二项应该是？',
+        opts: [
+          { t: 'cosα sinβ（同名相乘、异名相乘）', ok: true },
+          { t: '−cosα sinβ', ok: false },
+          { t: 'sinα sinβ', ok: false },
+          { t: 'cosα cosβ', ok: false },
+        ],
+        fb: '<b>验证结论：</b>sin(α+β) = sinαcosβ + cosαsinβ；sin(α−β) = sinαcosβ − cosαsinβ。“正弦的和差 = 正余余正，符号同”；“余弦的和差 = 余余正正，符号反”。',
+      },
+    },
+    {
+      key: 'double', badge: '③ 令 β = α', name: '二倍角公式', geo: '再转一个 α', dur: 6.5,
+      tip: '💡 在 sin(α+β)、cos(α+β)、tan(α+β) 中令 β = α，就得到二倍角公式 —— 它不是新公式，只是和角公式的特例。',
+      stages: [
+        { at: 0, label: '先画出 α', note: '单位圆上 P(cosα, sinα)，圆心角为 α。' },
+        { at: 0.36, label: '再转一个 α', note: '从 α 的终边再转 α，落点对应的圆心角就是 2α。' },
+        { at: 0.78, label: '读出 P(cos2α, sin2α)', note: '把 2α 的坐标用 α 表示：cos2α = cos²α − sin²α，sin2α = 2sinαcosα。' },
+      ],
+      variants: [
+        { k: 'sin2', label: 'sin 2α', pill: { fn: 'sin 2α', ang: '', res: '2 sinα cosα' } },
+        { k: 'cos2', label: 'cos 2α', pill: { fn: 'cos 2α', ang: '', res: 'cos²α − sin²α' }, note: '💡 cos2α 有三种写法：cos²α − sin²α = 2cos²α − 1 = 1 − 2sin²α。要“降幂”用后两种，要“升幂”就倒过来用。' },
+        { k: 'tan2', label: 'tan 2α', pill: { fn: 'tan 2α', ang: '', res: '2 tanα / (1 − tan²α)' }, note: '⚠️ 要求 α、2α 的正切都存在，且 1 − tan²α ≠ 0（即 α ≠ 45° + k·90°）。' },
+      ],
+      rows(a) {
+        const ca = COS(a), sa = SIN(a), ta = TAN(a);
+        const tBad = !okCos(a) || !okCos(2 * a) || Math.abs(1 - ta * ta) < 1e-9;
+        return [
+          { k: 'sin2', name: 'sin 2α', sub: '2 sinα cosα', L: SIN(2 * a), R: 2 * sa * ca },
+          { k: 'cos2', name: 'cos 2α', sub: 'cos²α − sin²α', L: COS(2 * a), R: ca * ca - sa * sa },
+          { k: 'cos2', name: 'cos 2α', sub: '2cos²α − 1', L: COS(2 * a), R: 2 * ca * ca - 1 },
+          { k: 'cos2', name: 'cos 2α', sub: '1 − 2sin²α', L: COS(2 * a), R: 1 - 2 * sa * sa },
+          { k: 'tan2', name: 'tan 2α', sub: '2tanα/(1−tan²α)', L: tBad ? null : TAN(2 * a), R: tBad ? null : (2 * ta) / (1 - ta * ta) },
+          { k: 'cos2', name: '1 + cos2α', sub: '2cos²α', L: 1 + COS(2 * a), R: 2 * ca * ca },
+          { k: 'cos2', name: '1 − cos2α', sub: '2sin²α', L: 1 - COS(2 * a), R: 2 * sa * sa },
+        ];
+      },
+      readout(a) {
+        return [
+          { k: '角 α', v: degNorm(a) + '°', c: '--cyan' },
+          { k: '角 2α', v: degNorm(2 * a) + '°', c: '--amber' },
+          { k: 'cos 2α', v: num(COS(2 * a), 3), c: '--green' },
+        ];
+      },
+      predict: {
+        q: '已知 cos2α = 2cos²α − 1，那么 <b>2cos²α − 1</b> 还等于下面哪个式子？',
+        opts: [
+          { t: '1 − 2sin²α（用 sin²α + cos²α = 1 代换）', ok: true },
+          { t: '2sin²α − 1', ok: false },
+          { t: 'sin²α − cos²α', ok: false },
+          { t: '1 + 2sin²α', ok: false },
+        ],
+        fb: '<b>验证结论：</b>cos²α = 1 − sin²α，代入得 2cos²α − 1 = 1 − 2sin²α。三种形式各有用处：求值用第一种，降幂、配方用后两种。',
+      },
+    },
   ];
-  rays.forEach(o => {
-    const x = cx + r * Math.cos(o.ang), y = cy - r * Math.sin(o.ang);
-    line(ctx, cx, cy, x, y, o.c, 2);
-    dot(ctx, x, y, 4.5, o.c);
-    const lr = r * 1.18;
-    label(ctx, cx + lr * Math.cos(o.ang), cy - lr * Math.sin(o.ang), o.t, o.c, 'center', 13, true);
+
+  /* =========================================================
+     状态
+     ========================================================= */
+  const state = {
+    m: 0, v: 0,
+    a: 50, b: 30,
+    playing: true, speed: 20,
+    mode: 'explore',
+    picked: null, revealed: false,
+  };
+
+  const mod = () => MODS[state.m];
+  const variant = () => mod().variants[state.v] || mod().variants[0];
+
+  /* =========================================================
+     画布
+     ========================================================= */
+  const canvasEl = document.getElementById('canvas');
+  let meta = null;
+
+  const PX = (cx, R, d) => cx + R * COS(d);
+  const PY = (cy, R, d) => cy - R * SIN(d);
+
+  function drawGrid(ctx, W, H, cx, cy, R, color) {
+    const step = R / 4;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    for (let i = -16; i <= 16; i++) {
+      const x = cx + i * step;
+      if (x < 0 || x > W) continue;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let j = -16; j <= 16; j++) {
+      const y = cy + j * step;
+      if (y < 0 || y > H) continue;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawAxes(ctx, cx, cy, R, color, ink2, ratio) {
+    const axr = R * (ratio || 1.2);
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - axr, cy); ctx.lineTo(cx + axr, cy);
+    ctx.moveTo(cx, cy + axr); ctx.lineTo(cx, cy - axr);
+    ctx.stroke();
+    [[cx + axr, cy, 0], [cx, cy - axr, -Math.PI / 2], [cx - axr, cy, Math.PI], [cx, cy + axr, Math.PI / 2]].forEach(([px, py, ang]) => {
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px - 9 * Math.cos(ang - 0.42), py - 9 * Math.sin(ang - 0.42));
+      ctx.lineTo(px - 9 * Math.cos(ang + 0.42), py - 9 * Math.sin(ang + 0.42));
+      ctx.closePath();
+      ctx.fill();
+    });
+    ctx.restore();
+    drawLabel(ctx, 'x', cx + axr - 4, cy + 18, ink2, 12);
+    drawLabel(ctx, 'y', cx + 15, cy - axr + 12, ink2, 12);
+    drawLabel(ctx, 'O', cx - 12, cy + 15, ink2, 12);
+  }
+
+  function drawUnitCircle(ctx, cx, cy, R, isLight) {
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(15,23,42,0.55)' : 'rgba(203,213,225,0.62)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawRay(ctx, cx, cy, deg, len, color, lw, dash, glow, alpha) {
+    const px = cx + Math.cos(deg * D2R) * len;
+    const py = cy - Math.sin(deg * D2R) * len;
+    ctx.save();
+    if (alpha !== undefined) ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw || 2.6;
+    ctx.lineCap = 'round';
+    if (dash) ctx.setLineDash(dash);
+    if (glow) { ctx.shadowColor = color; ctx.shadowBlur = glow; }
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px, py);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawArc(ctx, cx, cy, r, d0, d1, color, lw, dash, alpha) {
+    ctx.save();
+    if (alpha !== undefined) ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw || 1.8;
+    if (dash) ctx.setLineDash(dash);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -d0 * D2R, -d1 * D2R, d1 > d0);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function dashed(ctx, x1, y1, x2, y2, color, lw, dash, alpha) {
+    ctx.save();
+    if (alpha !== undefined) ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw || 1.3;
+    ctx.setLineDash(dash || [4, 5]);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  const lab = new LabCanvas(canvasEl, (ctx, W, H) => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const cyan = getCssVar('--cyan');
+    const purple = getCssVar('--purple');
+    const amber = getCssVar('--amber');
+    const green = getCssVar('--green');
+    const ink2 = getCssVar('--ink-2');
+    const ink3 = getCssVar('--ink-3');
+    const gridC = getCssVar('--grid-line');
+    const axisC = getCssVar('--grid-axis');
+    const M = mod();
+    const V = variant();
+    const t = demo.active ? demo.t : 0;
+
+    const cx = Math.round(W * 0.5);
+    const cy = Math.round(H * 0.5);
+    const R = Math.max(62, Math.min(W * 0.295, H * 0.335));
+    meta = { cx, cy, R };
+
+    drawGrid(ctx, W, H, cx, cy, R, gridC);
+    drawAxes(ctx, cx, cy, R, axisC, ink2, 1.18);
+    drawUnitCircle(ctx, cx, cy, R, isLight);
+    [[1, '1'], [-1, '−1']].forEach(([u, s]) => drawLabel(ctx, s, cx + u * R, cy + 16, ink3, 11));
+    [[1, '1'], [-1, '−1']].forEach(([u, s]) => drawLabel(ctx, s, cx - 14, cy - u * R, ink3, 11, 'right'));
+
+    if (M.key === 'cd') {
+      /* ---------- 模块一：两角差的余弦 ---------- */
+      const a0 = state.a, b0 = state.b;
+      const rot = -b0 * t;
+      const a1 = a0 + rot, b1 = b0 + rot;
+
+      if (t > 0.015) {
+        drawRay(ctx, cx, cy, a0, R * 1.14, cyan, 1.6, [5, 6], 0, 0.45);
+        drawRay(ctx, cx, cy, b0, R * 1.14, purple, 1.6, [5, 6], 0, 0.45);
+        drawArc(ctx, cx, cy, R * 0.30, 0, a0, cyan, 1.4, [4, 5], 0.4);
+        drawArc(ctx, cx, cy, R * 0.44, 0, b0, purple, 1.4, [4, 5], 0.4);
+        drawLabel(ctx, '旋转前', PX(cx, R * 1.02, a0) + 10, PY(cy, R * 1.02, a0) - 10, ink3, 11.5, 'left');
+      }
+
+      const P = { x: PX(cx, R, a1), y: PY(cy, R, a1) };
+      const Q = { x: PX(cx, R, b1), y: PY(cy, R, b1) };
+
+      dashed(ctx, P.x, P.y, P.x, cy, ink3, 1.2, [3, 4], 0.65);
+      dashed(ctx, Q.x, Q.y, Q.x, cy, ink3, 1.2, [3, 4], 0.65);
+
+      drawArc(ctx, cx, cy, R * 0.24, 0, a1, cyan, 2);
+      drawArc(ctx, cx, cy, R * 0.38, 0, b1, purple, 2, [7, 5]);
+      drawRay(ctx, cx, cy, a1, R * 1.14, cyan, 2.8, null, 12);
+      drawRay(ctx, cx, cy, b1, R * 1.14, purple, 2.8, null, 12);
+
+      glowLine(ctx, P.x, P.y, Q.x, Q.y, amber, 2.6, 10);
+      drawArc(ctx, cx, cy, R * 0.52, Math.min(a1, b1), Math.max(a1, b1), amber, 2);
+      const mid = (a1 + b1) / 2;
+      drawLabel(ctx, 'α−β', PX(cx, R * 0.62, mid) + 6, PY(cy, R * 0.62, mid), amber, 12.5);
+
+      glowDot(ctx, P.x, P.y, 7, cyan);
+      glowDot(ctx, Q.x, Q.y, 7, purple);
+
+      const pTxt = t > 0.95 ? 'P(cos(α−β), sin(α−β))' : (t > 0.02 ? 'P₁' : 'P₁(cos α, sin α)');
+      const qTxt = t > 0.95 ? 'Q(1, 0)' : (t > 0.02 ? 'P₂' : 'P₂(cos β, sin β)');
+      /* 靠近右边界时把标签翻到左侧，避免窄屏被画布裁掉 */
+      const pRight = P.x < W - 168;
+      const qRight = Q.x < W - 168;
+      drawLabel(ctx, pTxt, P.x + (pRight ? 12 : -12), P.y - 16, cyan, 12, pRight ? 'left' : 'right');
+      drawLabel(ctx, qTxt, Q.x + (qRight ? 12 : -12), Q.y + 18, purple, 12, qRight ? 'left' : 'right');
+
+      const chord = 2 * Math.abs(SIN((a0 - b0) / 2));
+      drawLabel(ctx, '|P₁P₂| = ' + num(chord, 3), (P.x + Q.x) / 2 - 6, (P.y + Q.y) / 2 + 26, amber, 12.5, 'right');
+      drawLabel(ctx, 'α', PX(cx, R * 0.34, a1 + 12), PY(cy, R * 0.34, a1 + 12), cyan, 13);
+      if (t < 0.06) drawLabel(ctx, 'β', PX(cx, R * 0.34, b1 - 12), PY(cy, R * 0.34, b1 - 12), purple, 13);
+      return;
+    }
+
+    if (M.key === 'sum') {
+      /* ---------- 模块二：和角、差角公式族 ---------- */
+      const a = state.a, b = state.b, s = V.sign || 1;
+      const mv = b + s * a * t;
+      const half = (s > 0 ? 'α+β' : 'α−β');
+      /* 是否还在“起点”：起点时黄色终边与 β 完全重合，必须让位给 β，
+         否则学生看到的就是“黄线 = 角 β” */
+      const at0 = t <= 0.02;
+      const fade = Math.min(1, Math.max(0, (t - 0.02) * 5));
+      const T = { x: PX(cx, R, mv), y: PY(cy, R, mv) };
+
+      /* 角弧：α 与 β 都从 0° 起量；α±β 从 β 起量，只在旋转开始后出现 */
+      drawArc(ctx, cx, cy, R * 0.22, 0, a, cyan, 2);
+      drawArc(ctx, cx, cy, R * 0.34, 0, b, purple, 2, [7, 5]);
+      if (!at0) drawArc(ctx, cx, cy, R * 0.46, b, mv, amber, 2.2, [5, 4], fade);
+
+      /* 终边：先画转出的黄线（渐显），再画 β 与 α，保证动画开头紫线仍然清晰可辨 */
+      if (!at0) drawRay(ctx, cx, cy, mv, R * 1.14, amber, 2.8, null, 12, fade);
+      drawRay(ctx, cx, cy, b, R * 1.14, purple, 2.8, null, 12);
+      drawRay(ctx, cx, cy, a, R * 1.14, cyan, 2.8, null, 12);
+
+      /* 投影虚线：起点用紫色（属于 β），旋转后用黄色（属于落点） */
+      const dcol = at0 ? purple : amber;
+      dashed(ctx, T.x, T.y, T.x, cy, dcol, 2, [5, 5], at0 ? 0.6 : 0.8 * fade);
+      dashed(ctx, cx, cy, T.x, cy, green, 2, [5, 5], at0 ? 0.6 : 0.8 * fade);
+
+      glowDot(ctx, PX(cx, R, a), PY(cy, R, a), 6.5, cyan);
+      glowDot(ctx, PX(cx, R, b), PY(cy, R, b), 6.5, purple);
+      if (!at0) glowDot(ctx, T.x, T.y, 7, amber);
+
+      drawLabel(ctx, 'α', PX(cx, R * 0.22 + 14, a - 8), PY(cy, R * 0.22 + 14, a - 8), cyan, 13);
+      drawLabel(ctx, 'β', PX(cx, R * 0.34 + 16, b - 8), PY(cy, R * 0.34 + 16, b - 8), purple, 13);
+
+      if (at0) {
+        /* 起点：把 β 自己的正弦线、余弦线标出来，说明黄线此时还不存在 */
+        drawLabel(ctx, 'sin β', T.x + (COS(b) >= 0 ? 14 : -14), (T.y + cy) / 2, purple, 12, COS(b) >= 0 ? 'left' : 'right');
+        drawLabel(ctx, 'cos β', (cx + T.x) / 2, cy + (SIN(b) >= 0 ? 20 : -20), green, 12);
+      } else if (t > 0.72) {
+        const vy = (T.y + cy) / 2;
+        const sinY = Math.abs(vy - cy) < 34 ? cy - 34 : vy;
+        const cosY = Math.abs(T.x - cx) < 62 ? cy + 42 : cy + (SIN(mv) >= 0 ? 20 : -20);
+        drawLabel(ctx, 'sin(' + half + ')', T.x + (COS(mv) >= 0 ? 14 : -14), sinY, amber, 12, COS(mv) >= 0 ? 'left' : 'right');
+        const cosX = cx + (T.x - cx) * (Math.abs(T.x - cx) < 62 ? 0.5 : 0.74);
+        drawLabel(ctx, 'cos(' + half + ')', cosX, cosY, green, 12);
+      }
+
+      drawLabel(ctx, (at0 || a * t < 4) ? '紫线是 β 的终边（可拖动紫点改 β），点「连续变换」看它再转过 α'
+        : (t > 0.9 ? '落点即 ' + half + ' 的终边' : '黄线：把 β 的终边又转过 ' + Math.round(a * t) + '°'),
+        14, 152, ink2, 12.5, 'left');
+      return;
+    }
+
+    if (M.key === 'double') {
+      /* ---------- 模块三：二倍角 ---------- */
+      const a = state.a;
+      const ang = a + a * t;
+
+      if (t > 0.02) drawRay(ctx, cx, cy, 2 * a, R * 1.14, amber, 1.6, [5, 6], 0, 0.4);
+      drawArc(ctx, cx, cy, R * 0.24, 0, a, cyan, 2);
+      drawArc(ctx, cx, cy, R * 0.45, 0, ang, amber, 1.8, [5, 5], 0.7);
+      if (t > 0.03) drawArc(ctx, cx, cy, R * 0.36, a, ang, amber, 2.2);
+      drawRay(ctx, cx, cy, ang, R * 1.14, amber, 2.8, null, 12);
+      drawRay(ctx, cx, cy, a, R * 1.14, cyan, 2.8, null, 12);
+
+      const T = { x: PX(cx, R, ang), y: PY(cy, R, ang) };
+      dashed(ctx, T.x, T.y, T.x, cy, amber, 2, [5, 5], 0.8);
+      dashed(ctx, cx, cy, T.x, cy, green, 2, [5, 5], 0.8);
+      glowDot(ctx, PX(cx, R, a), PY(cy, R, a), 6.5, cyan);
+      glowDot(ctx, T.x, T.y, 7, amber);
+
+      drawLabel(ctx, 'α', PX(cx, R * 0.24 + 15, a / 2), PY(cy, R * 0.24 + 15, a / 2), cyan, 13);
+      if (t > 0.05) drawLabel(ctx, 'α', PX(cx, R * 0.36 + 16, (a + ang) / 2), PY(cy, R * 0.36 + 16, (a + ang) / 2), amber, 13);
+      drawLabel(ctx, '2α', PX(cx, R * 0.60, ang + 9), PY(cy, R * 0.60, ang + 9), amber, 13);
+      drawLabel(ctx, 'P(cos 2α, sin 2α)', T.x + (COS(ang) >= 0 ? 13 : -13), T.y - 16, amber, 12, COS(ang) >= 0 ? 'left' : 'right');
+      drawLabel(ctx, 'sin 2α', T.x + (COS(ang) >= 0 ? 14 : -14), (T.y + cy) / 2, amber, 12, COS(ang) >= 0 ? 'left' : 'right');
+      drawLabel(ctx, 'cos 2α', (cx + T.x) / 2, cy + (SIN(ang) >= 0 ? 20 : -20), green, 12);
+      return;
+    }
+
   });
-  // 三角函数线：α+β（橙）与 α−β（紫）都画出正弦线、余弦线
-  [[a + b, '#ea8a00', '(α+β)', 0], [a - b, '#7c3aed', '(α−β)', 1]].forEach(([ang, col, nm, idx]) => {
-    const P = { x: cx + r * Math.cos(ang), y: cy - r * Math.sin(ang) };
-    line(ctx, P.x, P.y, P.x, cy, col, 2);
-    line(ctx, cx, cy, P.x, cy, col, 2);
-    const right = Math.cos(ang) >= 0;
-    label(ctx, P.x + (right ? 8 : -8), (P.y + cy) / 2, 'sin' + nm, col, right ? 'left' : 'right', 13, true);
-    label(ctx, (cx + P.x) / 2, cy + (idx === 0 ? 18 : -12), 'cos' + nm, col, 'center', 13, true);
+
+  /* =========================================================
+     演示动画（连续变换）
+     ========================================================= */
+  const demo = { active: false, playing: false, t: 0, sig: '', resume: false, dur: 7.5 };
+
+  function stageIndex(t) {
+    const st = mod().stages;
+    let idx = 0;
+    for (let i = 0; i < st.length; i++) if (t >= st[i].at) idx = i;
+    return idx;
+  }
+
+  const stageHud = document.getElementById('morphHud');
+  const stageChips = document.getElementById('morphSteps');
+  const stageHint = document.getElementById('morphHint');
+  const hudBottomLeft = document.getElementById('hudBottomLeft');
+  const demoControls = document.getElementById('demoControls');
+  const btnDemoPlay = document.getElementById('btnDemoPlay');
+  const hintBar = document.querySelector('.hud-bottom-right');
+
+  function syncStageUI() {
+    const M = mod();
+    const t = demo.active ? demo.t : 0;
+    const idx = stageIndex(t);
+    const done = t >= 0.999;
+    const sig = state.m + '|' + state.v + '|' + idx + '|' + (done ? 'd' : 'a') + '|' + (demo.playing ? 'p' : 's') + '|' + (t <= 1e-6 ? '0' : '1');
+    if (btnDemoPlay) btnDemoPlay.textContent = demo.playing ? '⏸ 暂停变换' : (done ? '↻ 重放变换' : '▶ 连续变换');
+    if (sig === demo.sig) return;
+    demo.sig = sig;
+
+    let html = '';
+    M.stages.forEach((s, i) => {
+      const passed = done || idx > i;
+      const active = !done && idx === i;
+      const color = active ? getCssVar('--cyan') : (passed ? getCssVar('--green') : '');
+      let style = '';
+      if (active) style = ' style="background:' + color + ';box-shadow:0 6px 18px ' + color + '55"';
+      else if (passed) style = ' style="color:' + color + ';border-color:' + color + '55"';
+      html += '<div class="morph-step' + (active ? ' active' : '') + (passed ? ' done' : '') + '"' + style + '>' +
+        s.label + (passed ? ' ✓' : '') + (active ? ' …' : '') + '</div>';
+    });
+    stageChips.innerHTML = html;
+
+    let hint;
+    if (!demo.playing && t <= 1e-6) {
+      hint = '点击 <b>连续变换</b>：' + M.stages.map((s) => s.label).join(' → ') + '，看懂 <b>' +
+        variantText() + '</b>';
+    } else if (done) {
+      hint = '<b>变换完成</b>　·　' + variantText() + '　·　点「✕ 退出演示」交还自由探究';
+    } else {
+      hint = '<b>' + M.stages[idx].label + '</b>：' + M.stages[idx].note;
+    }
+    stageHint.innerHTML = hint;
+  }
+
+  function variantText() {
+    const p = variant().pill;
+    return p.fn + (p.ang || '') + (p.res ? ' = ' + p.res : '');
+  }
+
+  function startDemo(auto) {
+    const M = mod();
+    demo.active = true;
+    demo.t = 0;
+    demo.playing = auto !== false;
+    demo.dur = M.dur || 7.5;
+    demo.sig = '';
+    demo.resume = state.playing;
+    togglePlay(false);
+    hudBottomLeft.style.display = 'none';
+    demoControls.style.display = 'flex';
+    stageHud.classList.add('show');
+    hintBar.style.display = 'none';
+    if (stageHint.classList) stageHint.classList.remove('done');
+    syncStageUI();
+  }
+
+  function exitDemo() {
+    demo.active = false;
+    demo.playing = false;
+    demo.t = 0;
+    demo.sig = '';
+    stageHud.classList.remove('show');
+    demoControls.style.display = 'none';
+    hudBottomLeft.style.display = 'flex';
+    hintBar.style.display = '';
+    togglePlay(demo.resume);
+  }
+
+  /* =========================================================
+     UI 同步
+     ========================================================= */
+  const pillEl = document.getElementById('formulaPill');
+  const modBtnsEl = document.getElementById('modBtns');
+  const vTabsEl = document.getElementById('vTabs');
+  const statBoxes = document.getElementById('statBoxes');
+
+  function syncPill() {
+    const p = variant().pill;
+    document.getElementById('pFn').textContent = p.fn;
+    document.getElementById('pAng').textContent = p.ang || '';
+    document.getElementById('pRes').textContent = p.res || '';
+    const len = (p.fn + (p.ang || '') + (p.res || '')).length;
+    pillEl.classList.toggle('long', len > 30);
+  }
+
+  function syncReadout() {
+    const list = mod().readout(state.a, state.b);
+    statBoxes.innerHTML = list.map((o) =>
+      '<div class="stat-box"><div class="k">' + o.k + '</div>' +
+      '<div class="v" style="color:var(' + o.c + ')">' + o.v + '</div></div>').join('');
+    document.getElementById('quadTag').textContent = qname(state.a);
+    document.getElementById('geoTag').textContent = mod().geo;
+    document.getElementById('modTag').textContent = mod().badge;
+  }
+
+  function syncTable() {
+    const rows = mod().rows(state.a, state.b);
+    const cur = variant().k;
+    const html = rows.map((r) => {
+      let mark;
+      if (r.L === null || r.R === null) mark = '<span style="color:var(--ink-3)">—</span>';
+      else if (Math.abs(r.L - r.R) < 1e-6) mark = '<span class="ok">✓</span>';
+      else mark = '<span style="color:var(--red);font-weight:700">✗</span>';
+      return '<tr class="' + (r.k === cur ? 'hi' : '') + '"><td><b>' + r.name + '</b>' +
+        (r.sub ? '<span class="sub">' + r.sub + '</span>' : '') + '</td>' +
+        '<td>' + num(r.L) + '</td><td>' + num(r.R) + '</td><td>' + mark + '</td></tr>';
+    }).join('');
+    document.getElementById('valBody').innerHTML = html;
+  }
+
+  let lastAlert = '';
+  function syncAlert() {
+    const V = variant();
+    let msg = V.note || mod().tip || '';
+    if (mod().key === 'sum' && /^tan/.test(V.k) && (!okCos(state.a) || !okCos(state.b))) {
+      msg = '⚠️ α 或 β 的终边落在 y 轴上，tan 不存在 —— 分母 1 ∓ tanαtanβ 与 tan 本身都可能失效，这正是正切公式要标注定义域的原因。';
+    }
+    if (msg !== lastAlert) {
+      lastAlert = msg;
+      setAlert(msg);
+    }
+  }
+
+  function syncUI() {
+    syncPill();
+    syncReadout();
+    syncTable();
+    syncAlert();
+    syncStageUI();
+    syncPredict();
+    markModBtns();
+    markVTabs();
+  }
+
+  function syncLight() {
+    syncReadout();
+    syncTable();
+    syncAlert();
+  }
+
+  function markModBtns() {
+    document.querySelectorAll('#modBtns .fbtn').forEach((b) => {
+      b.classList.toggle('on', Number(b.dataset.i) === state.m);
+    });
+  }
+
+  function markVTabs() {
+    document.querySelectorAll('#vTabs .seg-btn').forEach((b) => {
+      b.classList.toggle('active', Number(b.dataset.v) === state.v);
+    });
+  }
+
+  function renderModBtns() {
+    modBtnsEl.innerHTML = MODS.map((m, i) =>
+      '<button class="fbtn' + (i === state.m ? ' on' : '') + '" data-i="' + i + '">' +
+      '<b>' + m.name + '</b><em>' + m.badge + '</em></button>').join('');
+  }
+
+  function renderVTabs() {
+    vTabsEl.innerHTML = mod().variants.map((v, i) =>
+      '<button class="seg-btn' + (i === state.v ? ' active' : '') + '" data-v="' + i + '">' +
+      v.label + '</button>').join('');
+  }
+
+  /* ---------- 模块 / 变式切换 ---------- */
+  function setModule(i) {
+    state.m = i;
+    state.v = 0;
+    const lim = MODS[i].aMax || 360;
+    if (state.a > lim) state.a = lim * 0.6;
+    demo.active = false;
+    demo.playing = false;
+    demo.t = 0;
+    demo.sig = '';
+    stageHud.classList.remove('show');
+    demoControls.style.display = 'none';
+    hudBottomLeft.style.display = 'flex';
+    hintBar.style.display = '';
+    renderModBtns();
+    renderVTabs();
+    lastAlert = '';
+    syncUI();
+  }
+
+  function setVariant(j) {
+    state.v = j;
+    demo.active = false;
+    demo.t = 0;
+    demo.playing = false;
+    demo.sig = '';
+    renderVTabs();
+    lastAlert = '';
+    syncUI();
+  }
+
+  modBtnsEl.addEventListener('click', (e) => {
+    const b = e.target.closest('.fbtn');
+    if (!b) return;
+    sound.playClick();
+    setModule(Number(b.dataset.i));
   });
-  angleArc(ctx, cx, cy, r * 0.26, Math.min(a, b), Math.max(a, b), '#94a3b8', 1.6);
-  label(ctx, 12, 20, '四条终边：α、β、α+β、α−β（橙、紫分别为 α+β、α−β 的正弦线与余弦线）', '#475569', 'left', 12.5, false);
-});
-function upd2() {
-  const a = d2r(S2.a), b = d2r(S2.b);
-  const ta = Math.tan(a), tb = Math.tan(b);
-  const okTan = (deg) => Math.abs(Math.cos(d2r(deg))) > 1e-9;
-  const rows = [
-    { name: 'cos(α+β) = cosαcosβ − sinαsinβ', L: Math.cos(a + b), R: Math.cos(a) * Math.cos(b) - Math.sin(a) * Math.sin(b) },
-    { name: 'cos(α−β) = cosαcosβ + sinαsinβ', L: Math.cos(a - b), R: Math.cos(a) * Math.cos(b) + Math.sin(a) * Math.sin(b) },
-    { name: 'sin(α+β) = sinαcosβ + cosαsinβ', L: Math.sin(a + b), R: Math.sin(a) * Math.cos(b) + Math.cos(a) * Math.sin(b) },
-    { name: 'sin(α−β) = sinαcosβ − cosαsinβ', L: Math.sin(a - b), R: Math.sin(a) * Math.cos(b) - Math.cos(a) * Math.sin(b) }
-  ];
-  // tan(α+β)
-  if (!okTan(S2.a) || !okTan(S2.b) || Math.abs(1 - ta * tb) < 1e-9 || !okTan(S2.a + S2.b))
-    rows.push({ name: 'tan(α+β) =(tanα+tanβ)/(1−tanαtanβ)', L: null, R: null });
-  else rows.push({ name: 'tan(α+β) =(tanα+tanβ)/(1−tanαtanβ)', L: Math.tan(a + b), R: (ta + tb) / (1 - ta * tb) });
-  if (!okTan(S2.a) || !okTan(S2.b) || Math.abs(1 + ta * tb) < 1e-9 || !okTan(S2.a - S2.b))
-    rows.push({ name: 'tan(α−β) =(tanα−tanβ)/(1+tanαtanβ)', L: null, R: null });
-  else rows.push({ name: 'tan(α−β) =(tanα−tanβ)/(1+tanαtanβ)', L: Math.tan(a - b), R: (ta - tb) / (1 + ta * tb) });
-  verifyTable(document.getElementById('t2'), rows);
-  render(rec2);
-}
-slider('a2', v => { S2.a = v; upd2(); });
-slider('b2', v => { S2.b = v; upd2(); });
-/* ================= 模块 3：二倍角公式 ================= */
-let S3 = { a: 30 };
-const rec3 = reg('c3', (ctx, w, h) => {
-  const cx = w * 0.44, cy = h * 0.52, r = Math.min(w * 0.40, h * 0.40);
-  const a = d2r(S3.a);
-  axes(ctx, cx, cy, r, 26);
-  circle(ctx, cx, cy, r, '#cbd5e1', 1.4);
-  const A = { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) };
-  const B = { x: cx + r * Math.cos(-a), y: cy - r * Math.sin(-a) };
-  line(ctx, cx, cy, A.x, A.y, '#2563eb', 2.2);
-  line(ctx, cx, cy, B.x, B.y, '#2563eb', 2.2);
-  // 角 2α 的终边（橙色）及其与圆的交点
-  const C = { x: cx + r * Math.cos(2 * a), y: cy - r * Math.sin(2 * a) };
-  line(ctx, cx, cy, C.x, C.y, '#ea8a00', 2.2);
-  dot(ctx, A.x, A.y, 4.5, '#2563eb'); dot(ctx, B.x, B.y, 4.5, '#2563eb'); dot(ctx, C.x, C.y, 5, '#ea8a00');
-  label(ctx, A.x + 8, A.y - 8, 'A(cos α, sin α)', '#1d4ed8', Math.cos(a) > 0.3 ? 'right' : 'left', 12.5, true);
-  label(ctx, B.x + 8, B.y + 10, 'B(cos α, −sin α)', '#1d4ed8', Math.cos(a) > 0.3 ? 'right' : 'left', 12.5, true);
-  label(ctx, C.x + 8, C.y - 10, 'C(cos 2α, sin 2α)', '#c2410c', Math.cos(2 * a) > 0.3 ? 'right' : 'left', 12.5, true);
-  // 角标
-  angleArc(ctx, cx, cy, r * 0.55, -a, a, '#ea8a00', 2);
-  label(ctx, cx + r * 0.66, cy, '2α', '#c2410c', 'center', 13, true);
-  angleArc(ctx, cx, cy, r * 0.30, 0, a, '#2563eb', 1.8);
-  label(ctx, cx + r * 0.40 * Math.cos(a / 2), cy - r * 0.40 * Math.sin(a / 2), 'α', '#2563eb', 'center', 12, true);
-  angleArc(ctx, cx, cy, r * 0.22, -a, 0, '#2563eb', 1.8);
-  label(ctx, cx + r * 0.32 * Math.cos(-a / 2), cy - r * 0.32 * Math.sin(-a / 2), 'α', '#2563eb', 'center', 12, true);
-  label(ctx, 12, 20, '圆心角 ∠AOB = 2α；C 为角 2α 终边与圆的交点', '#475569', 'left', 13, false);
-});
-function upd3() {
-  const a = d2r(S3.a), ta = Math.tan(a);
-  const okT = Math.abs(Math.cos(a)) > 1e-9 && Math.abs(Math.cos(2 * a)) > 1e-9 && Math.abs(1 - ta * ta) > 1e-9;
-  const rows = [
-    { name: 'sin 2α = 2 sin α cos α', L: Math.sin(2 * a), R: 2 * Math.sin(a) * Math.cos(a) },
-    { name: 'cos 2α = cos²α − sin²α', L: Math.cos(2 * a), R: Math.cos(a) ** 2 - Math.sin(a) ** 2 },
-    { name: 'cos 2α = 2cos²α − 1', L: Math.cos(2 * a), R: 2 * Math.cos(a) ** 2 - 1 },
-    { name: 'cos 2α = 1 − 2sin²α', L: Math.cos(2 * a), R: 1 - 2 * Math.sin(a) ** 2 },
-    { name: '1 + cos2α = 2cos²α', L: 1 + Math.cos(2 * a), R: 2 * Math.cos(a) ** 2 },
-    { name: '1 − cos2α = 2sin²α', L: 1 - Math.cos(2 * a), R: 2 * Math.sin(a) ** 2 }
-  ];
-  if (okT) rows.push({ name: 'tan 2α = 2tanα /(1−tan²α)', L: Math.tan(2 * a), R: 2 * ta / (1 - ta * ta) });
-  else rows.push({ name: 'tan 2α = 2tanα /(1−tan²α)', L: null, R: null });
-  verifyTable(document.getElementById('t3'), rows);
-  render(rec3);
-}
-slider('a3', v => { S3.a = v; upd3(); });
 
-/* ================= 导航与初始化 ================= */
-function go(id) {
-  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('active', s.id === id));
-  document.querySelectorAll('.ni').forEach(b => b.classList.toggle('active', b.dataset.go === id));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  requestAnimationFrame(renderAll);
-}
-document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); });
+  vTabsEl.addEventListener('click', (e) => {
+    const b = e.target.closest('.seg-btn');
+    if (!b) return;
+    sound.playClick();
+    setVariant(Number(b.dataset.v));
+  });
 
-upd1(); upd2(); upd3();
-renderAll();
-window.addEventListener('load', renderAll);
+  /* ---------- 播放 / 重置 / 演示按钮 ---------- */
+  const btnPlay = document.getElementById('btnPlay');
+  function togglePlay(force) {
+    state.playing = typeof force === 'boolean' ? force : !state.playing;
+    btnPlay.textContent = state.playing ? '⏸ 暂停旋转' : '▶ 继续旋转';
+  }
+  btnPlay.addEventListener('click', () => togglePlay());
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    if (demo.active) exitDemo();
+    state.a = 50;
+    state.b = 30;
+    setModule(0);
+    showToast('↺ 已回到 α = 50°、β = 30°、模块一');
+  });
+
+  btnDemoPlay.addEventListener('click', () => {
+    if (demo.playing) {
+      demo.playing = false;
+    } else {
+      if (demo.t >= 0.999) demo.t = 0;
+      demo.playing = true;
+    }
+    demo.sig = '';
+    syncStageUI();
+  });
+
+  document.getElementById('btnDemoReplay').addEventListener('click', () => {
+    demo.t = 0;
+    demo.playing = false;
+    demo.sig = '';
+    syncStageUI();
+  });
+
+  document.getElementById('btnDemoExit').addEventListener('click', exitDemo);
+
+  /* ---------- 画布拖拽改角（α、β 各自可拖） ---------- */
+  let dragging = false;
+  let dragKey = 'a';
+
+  /* 当前图形上“可以下手”的点：p(角度, 要改的状态, 是否按一半折算) */
+  function handles() {
+    const M = mod();
+    const a = state.a, b = state.b;
+    const t = demo.active ? demo.t : 0;
+    if (M.key === 'double') return [{ key: 'a', deg: a }, { key: 'dbl', deg: a + a * t }];
+    return [{ key: 'a', deg: a }, { key: 'b', deg: b }];
+  }
+
+  function hitHandle(px, py) {
+    if (!meta) return null;
+    let best = null, bestD = 30;
+    handles().forEach((h) => {
+      const hx = PX(meta.cx, meta.R, h.deg);
+      const hy = PY(meta.cy, meta.R, h.deg);
+      const d = Math.hypot(px - hx, py - hy);
+      if (d < bestD) { bestD = d; best = h; }
+    });
+    return best;
+  }
+
+  function angleAt(px, py) {
+    const dx = px - meta.cx;
+    const dy = meta.cy - py;
+    let d = Math.atan2(dy, dx) / D2R;
+    return d < 0 ? d + 360 : d;
+  }
+
+  function setAngleFromPointer(px, py) {
+    if (!meta) return;
+    const M = mod();
+    const aMax = M.aMax || 360;
+    const raw = angleAt(px, py);
+
+    if (dragKey === 'b') {
+      /* β 的取值范围是 −180°~180° */
+      const v = raw > 180 ? raw - 360 : raw;
+      state.b = Math.round(v);
+    } else if (dragKey === 'dbl') {
+      /* 抓住的点在 2α 上，折算回 α */
+      let half = raw / 2;
+      if (half > aMax) half = aMax;
+      state.a = Math.round(half);
+    } else {
+      state.a = Math.min(Math.round(raw), aMax);
+    }
+
+    syncLight();
+  }
+
+  canvasEl.addEventListener('pointerdown', (e) => {
+    if (demo.active) return;
+    const rect = canvasEl.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    const h = hitHandle(px, py);
+    dragKey = h ? h.key : 'a';
+    dragging = true;
+    togglePlay(false);
+    canvasEl.style.cursor = 'grabbing';
+    setAngleFromPointer(px, py);
+    if (canvasEl.setPointerCapture) {
+      try { canvasEl.setPointerCapture(e.pointerId); } catch (err) { /* 合成事件没有真实 pointerId 时会抛错，忽略 */ }
+    }
+  });
+
+  canvasEl.addEventListener('pointermove', (e) => {
+    const rect = canvasEl.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    if (dragging) { setAngleFromPointer(px, py); return; }
+    if (demo.active) { canvasEl.style.cursor = ''; return; }
+    canvasEl.style.cursor = hitHandle(px, py) ? 'grab' : 'crosshair';
+  });
+
+  window.addEventListener('pointerup', () => {
+    if (dragging) canvasEl.style.cursor = '';
+    dragging = false;
+  });
+
+  /* =========================================================
+     答对特效（撒花 / 印章）
+     ========================================================= */
+  const fxCanvas = document.getElementById('fxCanvas');
+  const quizStamp = document.getElementById('quizStamp');
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  const fx = (() => {
+    const ctx = fxCanvas.getContext('2d');
+    const COLORS = ['#34d399', '#22d3ee', '#fbbf24', '#a78bfa', '#f472b6', '#38bdf8', '#ffffff'];
+    let parts = [];
+    let raf = 0;
+    let last = 0;
+
+    function fit() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const w = window.innerWidth, h = window.innerHeight;
+      fxCanvas.width = Math.round(w * dpr);
+      fxCanvas.height = Math.round(h * dpr);
+      fxCanvas.style.width = w + 'px';
+      fxCanvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    fit();
+    window.addEventListener('resize', () => { if (parts.length) fit(); });
+
+    function paper(x, y, ang, spd, power) {
+      parts.push({
+        kind: 'paper', x, y,
+        vx: Math.cos(ang) * spd * power, vy: Math.sin(ang) * spd * power,
+        w: 6 + Math.random() * 7, h: 5 + Math.random() * 5,
+        rot: Math.random() * 6.2832, vr: (Math.random() - 0.5) * 15,
+        color: COLORS[(Math.random() * COLORS.length) | 0],
+        life: 1, decay: 0.5 + Math.random() * 0.26, swing: Math.random() * 6.2832,
+      });
+    }
+
+    function confetti(x, y, count, power) {
+      for (let i = 0; i < count; i++) {
+        const ang = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.95;
+        paper(x + (Math.random() - 0.5) * 36, y + (Math.random() - 0.5) * 10, ang, 170 + Math.random() * 320, power || 1);
+      }
+    }
+
+    function sparks(x, y, count) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * 6.2832;
+        const spd = 90 + Math.random() * 250;
+        parts.push({
+          kind: 'spark', x, y,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+          r: 1.6 + Math.random() * 2.6,
+          color: COLORS[(Math.random() * COLORS.length) | 0],
+          life: 1, decay: 1.1 + Math.random() * 0.9,
+        });
+      }
+    }
+
+    function cannons(count) {
+      const w = window.innerWidth, h = window.innerHeight;
+      for (let i = 0; i < count; i++) {
+        const left = i % 2 === 0;
+        parts.push({
+          kind: 'paper', x: left ? -8 : w + 8, y: h - 16,
+          vx: (left ? 1 : -1) * (360 + Math.random() * 240), vy: -(620 + Math.random() * 320),
+          w: 7 + Math.random() * 7, h: 5 + Math.random() * 5,
+          rot: Math.random() * 6.2832, vr: (Math.random() - 0.5) * 16,
+          color: COLORS[(Math.random() * COLORS.length) | 0],
+          life: 1, decay: 0.34 + Math.random() * 0.2, swing: Math.random() * 6.2832,
+        });
+      }
+    }
+
+    function tick(t) {
+      const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
+      last = t;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const p = parts[i];
+        p.life -= p.decay * dt;
+        if (p.life <= 0) { parts.splice(i, 1); continue; }
+        if (p.kind === 'paper') {
+          p.vy += 1150 * dt;
+          p.vx *= 1 - 1.1 * dt;
+          p.vy *= 1 - 0.5 * dt;
+          p.swing += dt * 9;
+          p.x += (p.vx + Math.sin(p.swing) * 34) * dt;
+          p.y += p.vy * dt;
+          p.rot += p.vr * dt;
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, p.life * 1.7);
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, Math.max(1, p.h * Math.abs(Math.cos(p.swing * 0.7))));
+          ctx.restore();
+        } else {
+          p.vy += 420 * dt;
+          p.vx *= 1 - 2.2 * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, Math.max(0.4, p.r * p.life), 0, 6.2832);
+          ctx.fill();
+          ctx.restore();
+        }
+        if (p.y > window.innerHeight + 80) parts.splice(i, 1);
+      }
+      if (!parts.length) { cancel(); return; }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      if (raf) return;
+      fit();
+      fxCanvas.style.display = 'block';
+      last = 0;
+      raf = requestAnimationFrame(tick);
+    }
+
+    function cancel() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      last = 0;
+      parts = [];
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      fxCanvas.style.display = 'none';
+    }
+
+    return {
+      clear: cancel,
+      burstAt(el, big) {
+        if (reduceMotion || !el) return;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + 8;
+        confetti(cx, cy, big ? 84 : 42, big ? 1.25 : 1);
+        sparks(cx, cy, big ? 22 : 12);
+        start();
+      },
+      finale() {
+        if (reduceMotion) return;
+        cannons(64);
+        start();
+        [0, 1, 2].forEach((i) => {
+          setTimeout(() => {
+            confetti(window.innerWidth * (0.3 + i * 0.2), window.innerHeight * 0.66, 30, 1.12);
+            start();
+          }, 240 * (i + 1));
+        });
+      },
+    };
+  })();
+
+  function showQuizStamp(icon, main, sub, gold) {
+    if (!quizStamp) return;
+    quizStamp.className = 'quiz-stamp' + (gold ? ' gold' : '');
+    quizStamp.innerHTML = '<span class="s-ico">' + icon + '</span><span>' + main +
+      (sub ? '<span class="s-sub">' + sub + '</span>' : '') + '</span>';
+    void quizStamp.offsetWidth;
+    quizStamp.classList.add('show');
+  }
+
+  function bumpBadge(el) {
+    if (!el) return;
+    el.classList.remove('bump', 'gain');
+    void el.offsetWidth;
+    el.classList.add('bump', 'gain');
+    clearTimeout(el._bumpT);
+    el._bumpT = setTimeout(() => el.classList.remove('bump', 'gain'), 1500);
+  }
+
+  const quizModal = document.getElementById('quizModal');
+
+  function flashModal() {
+    const m = quizModal.querySelector('.quiz-modal');
+    if (!m) return;
+    m.classList.remove('okFlash');
+    void m.offsetWidth;
+    m.classList.add('okFlash');
+  }
+
+    /* =========================================================
+     公式推导窗口
+     ---------------------------------------------------------
+     题目答完后点「看公式推导」：不再跳到画布上播动画，
+     而是弹出一个独立的推导窗口，一条一条把公式推出来。
+     ========================================================= */
+  const DERIV = {
+    cd: {
+      tag: '① 起点公式',
+      title: '两角差的余弦公式',
+      lead: '一条弦，两种算法 —— 整套恒等变换的“根”',
+      hintLead: '弦长有两套算法：',
+      hint: '直接写 |P₁P₂|²，或把两条终边一起旋转 −β 后再写 |PQ|²。旋转不改变距离，两式必然相等 —— 这就是整套公式的“根”。',
+      steps: [
+        {
+          t: '在单位圆上取两个点',
+          fx: 'P₁(cos α, sin α)　　P₂(cos β, sin β)',
+          note: '两点都在半径为 1 的圆上，它们到圆心的张角之差就是 α − β。',
+        },
+        {
+          t: '算法一：直接用两点间距离公式',
+          fx: '|P₁P₂|² = (cos α − cos β)² + (sin α − sin β)²',
+          note: '展开后 sin²、cos² 各自配对，每组都能用 sin²θ + cos²θ = 1 收拢。',
+        },
+        {
+          t: '收拢成一个常数减一个整体',
+          fx: '|P₁P₂|² = 2 − 2【(cos α cos β + sin α sin β)】',
+          note: '这一步只是代数整理：2 − 2cosαcosβ − 2sinαsinβ。',
+        },
+        {
+          t: '算法二：把两条终边一起旋转 −β',
+          fx: 'P₂ → Q(1, 0)　　　P₁ → P(cos(α−β), sin(α−β))',
+          note: '旋转是刚体运动，弦长不变：|P₁P₂| = |PQ|。此时弦两端对应的圆心角正好是 α − β。',
+        },
+        {
+          t: '同一个弦长的第二种写法',
+          fx: '|PQ|² = 2 − 2【cos(α − β)】',
+          note: '两点分别是 (1,0) 与 (cos(α−β), sin(α−β))，再代一次两点间距离公式。',
+        },
+        {
+          t: '两式相等 ⇒ 起点公式',
+          fx: 'cos(α − β) = 【cos α cos β + sin α sin β】',
+          note: '弦长只有一个值，两种写法必然相等。这就是后面所有公式的源头。',
+        },
+      ],
+    },
+
+    sum: {
+      tag: '② 和角 · 差角',
+      title: '和角、差角公式族',
+      lead: '从 cos(α−β) 出发，只做两件事：换 −β、换 sin',
+      steps: [
+        {
+          t: '把 β 换成 −β',
+          fx: 'cos(α + β) = cos α cos(−β) + sin α sin(−β)',
+          note: '余弦是偶函数、正弦是奇函数：cos(−β) = cos β，sin(−β) = − sin β。',
+        },
+        {
+          t: '余弦和角',
+          fx: 'cos(α + β) = 【cos α cos β − sin α sin β】',
+          note: '只有第二项变号 —— 和角余弦最容易写成“全加”。',
+        },
+        {
+          t: '借诱导公式把余弦换成正弦',
+          fx: 'sin θ = cos(90° − θ)',
+          note: '把 θ 换成 α + β：sin(α + β) = cos(90° − α − β) = cos【(90° − α) − β】。',
+        },
+        {
+          t: '对新出现的差角用起点公式',
+          fx: 'sin(α+β) = cos(90°−α)cos β + sin(90°−α)sin β',
+          note: 'cos(90°−α) = sin α，sin(90°−α) = cos α。',
+        },
+        {
+          t: '正弦和角',
+          fx: 'sin(α + β) = 【sin α cos β + cos α sin β】',
+          note: '“同名相乘、异名相乘”：第二项是 cosαsinβ，不是 sinαsinβ。',
+        },
+        {
+          t: 'β 再换成 −β ⇒ 正弦差角',
+          fx: 'sin(α − β) = sin α cos β − cos α sin β',
+          note: '四条展开式到这里就齐了：余弦两项同号，正弦两项异号。',
+        },
+        {
+          t: '两式相除 ⇒ 正切和差角',
+          fx: 'tan(α ± β) = (tan α ± tan β) / (1 ∓ tan α tan β)',
+          note: '分子同号、分母反号。先保证 tanα、tanβ、tan(α±β) 都存在，且分母不为 0。',
+        },
+        {
+          t: '顺带：把两式相加、相减',
+          fx: 'sin(α+β) + sin(α−β) = 2 sin α cos β\nsin(α+β) − sin(α−β) = 【2 cos α sin β】',
+          note: '这就是积化和差的前两式 —— 和角公式的“副产品”，下一组公式从这里长出来。',
+        },
+      ],
+    },
+
+    double: {
+      tag: '③ 二倍角',
+      title: '二倍角公式',
+      lead: '在和角公式里让 β = α，角就翻了一倍',
+      steps: [
+        {
+          t: '令 β = α',
+          fx: 'cos 2α = cos α cos α − sin α sin α',
+          note: '把 cos(α+β) 里的 β 直接写成 α。',
+        },
+        {
+          t: '余弦二倍角（平方差形式）',
+          fx: 'cos 2α = cos² α − sin² α',
+          note: '三种形式里最“对称”的一支，符号判断最直观。',
+        },
+        {
+          t: '用 sin²α = 1 − cos²α 换掉正弦',
+          fx: 'cos 2α = 【2 cos² α − 1】',
+          note: '已知 cosα 时用这一支，只算一个平方。',
+        },
+        {
+          t: '用 cos²α = 1 − sin²α 换掉余弦',
+          fx: 'cos 2α = 【1 − 2 sin² α】',
+          note: '已知 sinα 时用这一支。三支等价，选“已知条件里的那个函数”最省事。',
+        },
+        {
+          t: '正弦二倍角',
+          fx: 'sin 2α = 2 sin α cos α',
+          note: '令 β = α 代入 sin(α+β)，两项相同就合并成 2sinαcosα。',
+        },
+        {
+          t: '正切二倍角',
+          fx: 'tan 2α = 2 tan α / (1 − tan² α)',
+          note: '同样由 tan(α+β) 令 β = α 得到；分母为 0 时 tan2α 不存在。',
+        },
+        {
+          t: '倒过来用 ⇒ 降幂公式',
+          fx: 'cos² α = (1 + cos 2α) / 2　　sin² α = (1 − cos 2α) / 2',
+          note: '“降幂”就是二倍角的逆用：次数降一半、角翻一倍，开方后就是半角公式。',
+        },
+      ],
+    },
+
+    half: {
+      tag: '④ 降幂 · 半角',
+      title: '降幂公式与半角公式',
+      lead: '把二倍角倒过来：角除以 2，次数降一半',
+      steps: [
+        {
+          t: '从 cos2α 的变形出发',
+          fx: '2 cos² α = 1 + cos 2α',
+          note: '由 cos2α = 2cos²α − 1 移项即得。',
+        },
+        {
+          t: '两边除以 2 ⇒ 降幂公式',
+          fx: 'cos² α = (1 + cos 2α) / 2',
+          note: '平方项被“降”成一次，代价是角翻倍 —— 化简与积分里都靠它。',
+        },
+        {
+          t: '把 α 换成 θ/2',
+          fx: 'cos²(θ/2) = (1 + cos θ) / 2',
+          note: '同一个式子的两种读法：从 α 看是降幂，从 θ/2 看是半角。',
+        },
+        {
+          t: '开方，符号要单独判',
+          fx: 'cos(θ/2) = 【±】√((1 + cos θ)/2)',
+          note: '正负由 θ/2 落在哪个象限决定；只有知道 θ 的范围才能定号，不能默认取正。',
+        },
+        {
+          t: '同法得正弦半角',
+          fx: 'sin²(θ/2) = (1 − cos θ) / 2\nsin(θ/2) = ±√((1 − cos θ)/2)',
+          note: '由 cos2α = 1 − 2sin²α 倒过来即可。',
+        },
+        {
+          t: '有理形式：免去定号',
+          fx: 'tan(θ/2) = sin θ / (1 + cos θ) = (1 − cos θ) / sin θ',
+          note: '分母不含根号，符号自动包含在分子分母里 —— 半角里最常用的一支。',
+        },
+        {
+          t: '几何解释（画布上的那条弦）',
+          fx: '|AP| = 2 cos(θ/2)　　|AP|² = 2(1 + cos θ)',
+          note: '把 |AP| 用两种方式算出来再相等，就是半角公式的几何来源。',
+        },
+      ],
+    },
+
+    prod2sum: {
+      tag: '⑤ 积化和差',
+      title: '积化和差与和差化积',
+      lead: '把和角、差角两式加加减减，就得到乘积与和差的互换',
+      steps: [
+        {
+          t: '把正弦和角、差角相加',
+          fx: 'sin(α+β) + sin(α−β) = 2 sin α cos β',
+          note: '展开后 cosαsinβ 一正一负，正好抵消。',
+        },
+        {
+          t: '两边除以 2 ⇒ 积化和差第一式',
+          fx: 'sin α cos β = ½[sin(α+β) + sin(α−β)]',
+          note: '乘积变成和差，次数降下来了。',
+        },
+        {
+          t: '其余三式：相减、换余弦',
+          fx: 'cos α sin β = ½[sin(α+β) − sin(α−β)]\ncos α cos β = ½[cos(α+β) + cos(α−β)]\nsin α sin β = −½[cos(α+β) − cos(α−β)]',
+          note: '最后一式带负号，因为 cos 的差角公式里第二项本身就是负的。',
+        },
+        {
+          t: '反过来设：A = (α+β)/2，B = (α−β)/2',
+          fx: 'α = A + B　　β = A − B',
+          note: '把“两角和差的一半”当新变量，原来的 α、β 就变成 A±B。',
+        },
+        {
+          t: '代回第一式 ⇒ 和差化积',
+          fx: 'sin α + sin β = 2 sin((α+β)/2) cos((α−β)/2)',
+          note: '口诀：正弦加正弦，二倍正弦乘余弦。',
+        },
+        {
+          t: '四条一起记',
+          fx: 'sin α − sin β = 2 cos((α+β)/2) sin((α−β)/2)\ncos α + cos β = 2 cos((α+β)/2) cos((α−β)/2)\ncos α − cos β = 【−2 sin((α+β)/2) sin((α−β)/2)】',
+          note: '只有“余弦减余弦”带负号，这是最容易漏的一条。',
+        },
+      ],
+    },
+
+    aux: {
+      tag: '⑥ 辅助角',
+      title: '辅助角公式',
+      lead: 'a sinx + b cosx 一定能合成一个正弦，振幅是 √(a²+b²)',
+      steps: [
+        {
+          t: '先提出振幅 R',
+          fx: 'a sin x + b cos x = R (a/R · sin x + b/R · cos x)',
+          note: '只要 R = √(a²+b²)，括号里的两个系数就满足“平方和 = 1”。',
+        },
+        {
+          t: '把系数看成一个角的余弦与正弦',
+          fx: '令 cos φ = a/R，sin φ = b/R',
+          note: '因为 (a/R)² + (b/R)² = 1，所以这样的 φ 一定存在，且 tan φ = b/a。',
+        },
+        {
+          t: '逆用正弦和角公式',
+          fx: 'a sin x + b cos x = R【sin(x + φ)】',
+          note: 'sinx cosφ + cosx sinφ = sin(x+φ)，正好把两项并成一项。',
+        },
+        {
+          t: '两个常用特例',
+          fx: 'sin x + cos x = √2 sin(x + 45°)\nsin x + √3 cos x = 2 sin(x + 60°)',
+          note: 'R 是“斜边”，φ 由系数比确定：这道题的 φ 就是 60°。',
+        },
+        {
+          t: '用途：直接读出最值',
+          fx: 'y = a sin x + b cos x 的值域是 【[−R, R]】',
+          note: '合成之后，振幅、周期、最值、单调区间都能一眼看出，这是辅助角公式最主要的用途。',
+        },
+      ],
+    },
+  };
+
+  const derivModal = document.getElementById('derivModal');
+  const derivStepsEl = document.getElementById('derivSteps');
+  const derivHead = document.getElementById('derivHead');
+  const derivLead = document.getElementById('derivLead');
+  const derivTag = document.getElementById('derivTag');
+  const derivHint = document.getElementById('derivHint');
+  const derivProgress = document.getElementById('derivProgress');
+  const btnDerivPrev = document.getElementById('btnDerivPrev');
+  const btnDerivNext = document.getElementById('btnDerivNext');
+  const btnDerivAuto = document.getElementById('btnDerivAuto');
+
+  let derivKey = '';
+  let derivIdx = 0;
+  let derivTimer = null;
+
+  /* 滚动后才淡出顶部，避免刚打开时第一步的标题被遮罩吃掉 */
+  derivStepsEl.addEventListener('scroll', () => {
+    derivStepsEl.classList.toggle('scrolled', derivStepsEl.scrollTop > 6);
+  });
+
+  function stopDerivAuto() {
+    if (derivTimer) { clearInterval(derivTimer); derivTimer = null; }
+    if (btnDerivAuto) {
+      btnDerivAuto.textContent = '▶ 自动推导';
+      btnDerivAuto.classList.remove('on');
+    }
+  }
+
+  function renderDerivSteps() {
+    const D = DERIV[derivKey];
+    if (!D) return;
+    const upto = Math.min(derivIdx, D.steps.length - 1);
+    derivStepsEl.innerHTML = D.steps.slice(0, upto + 1).map((s, i) => {
+      const isNew = i === upto;
+      return '<li class="dv-step ' + (isNew ? 'on' : 'done') + '">' +
+        '<span class="dv-no">' + (isNew ? (i + 1) : '✓') + '</span>' +
+        '<div class="dv-body">' +
+        '<div class="dv-t">' + s.t + '</div>' +
+        '<div class="dv-fx">' + s.fx.split('\n').map(mathHTML).join('<br>') + '</div>' +
+        (s.note ? '<div class="dv-note">' + mathHTML(s.note) + '</div>' : '') +
+        '</div></li>';
+    }).join('') + (upto < D.steps.length - 1
+      ? '<li class="dv-more">▾ 点 <b>下一步</b> 继续推导　·　共 ' + D.steps.length + ' 步</li>'
+      : '');
+
+    derivProgress.textContent = (upto + 1) + ' / ' + D.steps.length;
+    btnDerivPrev.disabled = upto === 0;
+    btnDerivNext.textContent = upto === D.steps.length - 1 ? '↺ 从头再推' : '下一步 →';
+    const cur = derivStepsEl.querySelector('.dv-step.on');
+    if (cur) {
+      const bottom = cur.offsetTop + cur.offsetHeight;
+      const viewBottom = derivStepsEl.scrollTop + derivStepsEl.clientHeight;
+      if (bottom > viewBottom - 14) {
+        derivStepsEl.scrollTo({ top: Math.max(0, bottom - derivStepsEl.clientHeight + 14), behavior: 'smooth' });
+      }
+    }
+  }
+
+  function openDeriv(key) {
+    const D = DERIV[key];
+    if (!D) return;
+    derivKey = key;
+    derivIdx = 0;
+    derivHead.textContent = D.title;
+    derivLead.textContent = D.lead;
+    derivTag.textContent = D.tag;
+    if (derivHint) {
+      const hasHint = !!(D.hint || D.hintLead);
+      derivHint.innerHTML = hasHint
+        ? '💡 ' + (D.hintLead ? '<b>' + D.hintLead + '</b>' : '') + mathHTML(D.hint || '')
+        : '';
+      derivHint.classList.toggle('show', hasHint);
+    }
+    stopDerivAuto();
+    derivModal.classList.add('open');
+    derivStepsEl.scrollTop = 0;
+    derivStepsEl.classList.remove('scrolled');
+    renderDerivSteps();
+    sound.playClick();
+  }
+
+  function closeDeriv() {
+    derivModal.classList.remove('open');
+    stopDerivAuto();
+  }
+
+  function derivStep(dir) {
+    const D = DERIV[derivKey];
+    if (!D) return;
+    stopDerivAuto();
+    if (dir > 0 && derivIdx >= D.steps.length - 1) derivIdx = 0;
+    else derivIdx = Math.min(D.steps.length - 1, Math.max(0, derivIdx + dir));
+    sound.playClick();
+    renderDerivSteps();
+  }
+
+  function toggleDerivAuto() {
+    if (derivTimer) { stopDerivAuto(); return; }
+    const D = DERIV[derivKey];
+    if (!D) return;
+    if (derivIdx >= D.steps.length - 1) { derivIdx = 0; renderDerivSteps(); }
+    btnDerivAuto.textContent = '⏸ 暂停推导';
+    btnDerivAuto.classList.add('on');
+    derivTimer = setInterval(() => {
+      const cur = DERIV[derivKey];
+      if (!cur || derivIdx >= cur.steps.length - 1) { stopDerivAuto(); return; }
+      derivIdx += 1;
+      renderDerivSteps();
+    }, 2600);
+  }
+
+  btnDerivPrev.addEventListener('click', () => derivStep(-1));
+  btnDerivNext.addEventListener('click', () => derivStep(1));
+  btnDerivAuto.addEventListener('click', toggleDerivAuto);
+  document.getElementById('btnCloseDeriv').addEventListener('click', closeDeriv);
+  derivModal.addEventListener('click', (e) => { if (e.target === derivModal) closeDeriv(); });
+
+
+  /* =========================================================
+     题库
+     ========================================================= */
+  const QUIZ_BANK = [
+    { id: 1, stem: 'cos 75° 的值是？', formula: 'cos 75° = cos(45° + 30°)',
+      opts: ['(√6 − √2)/4', '(√6 + √2)/4', '(√2 − √6)/4', '1/4'], ans: 0,
+      explain: 'cos(45°+30°) = cos45°cos30° − sin45°sin30° = (√2/2)(√3/2) − (√2/2)(1/2) = (√6 − √2)/4。',
+      deriv: 'sum' },
+    { id: 2, stem: 'sin 75° 的值是？', formula: 'sin 75° = sin(45° + 30°)',
+      opts: ['(√6 − √2)/4', '(√6 + √2)/4', '(√2 − √6)/4', '1/2'], ans: 1,
+      explain: 'sin(45°+30°) = sin45°cos30° + cos45°sin30° = (√6 + √2)/4。注意和角的正弦两项都是加号。',
+      deriv: 'sum' },
+    { id: 3, stem: 'tan 75° 的值是？', formula: 'tan 75° = tan(45° + 30°)',
+      opts: ['2 − √3', '2 + √3', '−2 + √3', '√3/3'], ans: 1,
+      explain: 'tan(45°+30°) = (1 + √3/3)/(1 − √3/3) = 2 + √3。第三象限外，75° 在第一象限，正切为正。',
+      deriv: 'sum' },
+    { id: 4, stem: '化简 cos(α+β)cosβ + sin(α+β)sinβ = ?', formula: 'cos(α+β)cosβ + sin(α+β)sinβ',
+      opts: ['cos α', 'sin α', 'cos(α+2β)', 'sin(α+2β)'], ans: 0,
+      explain: '这是 cos(α−β) 的逆用：把 (α+β) 与 β 看成两个角，cos[(α+β) − β] = cos α。',
+      deriv: 'cd' },
+    { id: 5, stem: '化简 sin(α−β)cosβ + cos(α−β)sinβ = ?', formula: 'sin(α−β)cosβ + cos(α−β)sinβ',
+      opts: ['sin α', 'cos α', 'sin(α−2β)', '2sin α'], ans: 0,
+      explain: '逆用 sin(α+β)：sin[(α−β) + β] = sin α。',
+      deriv: 'sum' },
+    { id: 6, stem: '若 sinα = 3/5，α 为第二象限角，则 sin2α = ?', formula: 'sin2α = 2sinαcosα',
+      opts: ['−24/25', '24/25', '−7/25', '7/25'], ans: 0,
+      explain: '第二象限 cosα = −4/5，所以 sin2α = 2 × (3/5) × (−4/5) = −24/25。',
+      deriv: 'double' },
+    { id: 7, stem: '若 sinα = 1/3，则 cos2α = ?', formula: 'cos2α = 1 − 2sin²α',
+      opts: ['7/9', '−7/9', '1/9', '2/3'], ans: 0,
+      explain: '用 1 − 2sin²α 最快：1 − 2/9 = 7/9，无需知道象限。',
+      deriv: 'double' },
+    { id: 8, stem: '化简 (1 + cos2α) / 2 = ?', formula: '(1 + cos2α) / 2',
+      opts: ['cos²α', 'sin²α', 'tan²α', 'cos α'], ans: 0,
+      explain: '1 + cos2α = 2cos²α，除以 2 得 cos²α —— 这就是降幂公式。',
+      deriv: 'half' },
+    { id: 9, stem: '化简 (1 − cos2α) / (1 + cos2α) = ?', formula: '(1 − cos2α)/(1 + cos2α)',
+      opts: ['tan²α', 'cot²α', 'sin²α', 'cos²α'], ans: 0,
+      explain: '分子 2sin²α、分母 2cos²α，相除得 tan²α。',
+      deriv: 'half' },
+    { id: 10, stem: 'sin15°cos15° 的值是？', formula: 'sin15°cos15°',
+      opts: ['1/4', '1/2', '√3/4', '√3/2'], ans: 0,
+      explain: '2sin15°cos15° = sin30° = 1/2，所以原式 = 1/4。',
+      deriv: 'double' },
+    { id: 11, stem: 'cos²15° − sin²15° 的值是？', formula: 'cos²15° − sin²15° = cos30°',
+      opts: ['1/2', '√3/2', '−√3/2', '√2/2'], ans: 1,
+      explain: '直接是 cos2α 的形式：cos(2×15°) = cos30° = √3/2。',
+      deriv: 'double' },
+    { id: 12, stem: '把 sinα + sinβ 化为积的形式，结果是？', formula: 'sinα + sinβ',
+      opts: ['2 sin((α+β)/2) cos((α−β)/2)', '2 cos((α+β)/2) sin((α−β)/2)', '2 sin((α+β)/2) sin((α−β)/2)', '2 cos((α+β)/2) cos((α−β)/2)'], ans: 0,
+      explain: '“正弦加正弦，二倍正弦乘余弦”：sinα + sinβ = 2sin(m)cos(d)，其中 m = (α+β)/2、d = (α−β)/2。',
+      deriv: 'prod2sum' },
+    { id: 13, stem: 'cosα − cosβ 化为积的形式，结果是？', formula: 'cosα − cosβ',
+      opts: ['−2 sin((α+β)/2) sin((α−β)/2)', '2 sin((α+β)/2) sin((α−β)/2)', '−2 cos((α+β)/2) cos((α−β)/2)', '2 sin((α+β)/2) cos((α−β)/2)'], ans: 0,
+      explain: '“余弦减余弦，负二倍正弦乘正弦”，这个负号最容易漏掉。',
+      deriv: 'prod2sum' },
+    { id: 14, stem: '把 sinx + √3cosx 化为一个正弦式，结果是？', formula: 'sinx + √3cosx',
+      opts: ['2 sin(x + 60°)', '2 sin(x + 30°)', '√3 sin(x + 45°)', '2 cos(x − 60°)'], ans: 0,
+      explain: 'R = √(1+3) = 2，cosφ = 1/2、sinφ = √3/2 ⇒ φ = 60°。',
+      deriv: 'aux' },
+    { id: 15, stem: '函数 y = sinx + √3cosx 的最大值是？', formula: 'y = sinx + √3cosx = 2sin(x + 60°)',
+      opts: ['2', '1', '√3', '√3 + 1'], ans: 0,
+      explain: '合成后振幅为 2，所以最大值 2、最小值 −2 —— 这就是辅助角公式最主要的用途。',
+      deriv: 'aux' },
+    { id: 16, stem: 'sinx + cosx 可以化为？', formula: 'sinx + cosx',
+      opts: ['√2 sin(x + 45°)', '√2 sin(x + 90°)', '2 sin(x + 45°)', '√2 cos(x + 45°)'], ans: 0,
+      explain: 'R = √2，φ 满足 cosφ = sinφ = √2/2，故 φ = 45°。',
+      deriv: 'aux' },
+    { id: 17, stem: '若 tanα = 2，tanβ = 3，则 tan(α+β) = ?', formula: 'tan(α+β)',
+      opts: ['−1', '1', '−5/7', '5/7'], ans: 0,
+      explain: '(2+3)/(1 − 2×3) = 5/(−5) = −1。',
+      deriv: 'sum' },
+    { id: 18, stem: 'tan(α+β) = (tanα+tanβ)/(1−tanαtanβ) 在什么情况下右边没有意义？', formula: '1 − tanα tanβ = 0',
+      opts: ['tanαtanβ = 1，即 α+β = 90° + k·180°', 'tanα + tanβ = 0', 'α = β', 'α 或 β 为锐角'], ans: 0,
+      explain: '分母为 0 时公式失效；此时 α+β = π/2 + kπ，tan(α+β) 本身也不存在。',
+      deriv: 'sum' },
+    { id: 19, stem: '化简 sin(α+β) − sin(α−β) = ?', formula: 'sin(α+β) − sin(α−β)',
+      opts: ['2cosα sinβ', '2sinα cosβ', '2sinα sinβ', '2cosα cosβ'], ans: 0,
+      explain: '两式相减，sinαcosβ 抵消，剩 2cosαsinβ。',
+      deriv: 'prod2sum' },
+    { id: 20, stem: '化简 sin²α − cos²α = ?', formula: 'sin²α − cos²α',
+      opts: ['−cos2α', 'cos2α', '−sin2α', '1'], ans: 0,
+      explain: 'sin²α − cos²α = −(cos²α − sin²α) = −cos2α。符号容易错，可代 α=30° 检验。',
+      deriv: 'double' },
+  ];
+
+  const QUIZ_SIZE = 4;
+  let quizSet = [];
+  let lastIds = [];
+  let quizIndex = 0;
+  let quizScore = 0;
+  let quizAnswered = false;
+  let quizStreak = 0;
+
+  (function syncQuizInfo() {
+    const el = document.getElementById('quizBankInfo');
+    if (el) {
+      el.innerHTML = '题库共 <b>' + QUIZ_BANK.length + '</b> 道，每轮随机抽 <b>' + QUIZ_SIZE +
+        '</b> 道（选项顺序也打乱）。覆盖和差角、倍角、降幂与半角。';
+    }
+    const badge = document.getElementById('quizScoreBadge');
+    if (badge) badge.textContent = '得分 0 / ' + QUIZ_SIZE;
+    const chal = document.getElementById('chalScore');
+    if (chal) chal.textContent = '0 / ' + QUIZ_SIZE;
+  })();
+
+  function shuffleArr(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function newQuizSet() {
+    const fresh = QUIZ_BANK.filter((q) => lastIds.indexOf(q.id) === -1);
+    const pool = fresh.length >= QUIZ_SIZE ? fresh : QUIZ_BANK;
+    const picked = shuffleArr(pool).slice(0, QUIZ_SIZE);
+    lastIds = picked.map((q) => q.id);
+    quizSet = picked.map((q) => {
+      const texts = shuffleArr(q.opts);
+      return Object.assign({}, q, { opts: texts, ans: texts.indexOf(q.opts[q.ans]) });
+    });
+    quizIndex = 0;
+    quizScore = 0;
+    quizAnswered = false;
+    quizStreak = 0;
+  }
+
+  const btnQuizDemo = document.getElementById('btnQuizDemo');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+  const btnBgm = document.getElementById('btnBgm');
+  let bgmEnabled = true;
+
+  function syncBgmBtn() {
+    const playing = sound.isPlaying();
+    btnBgm.textContent = playing ? '🔊 音乐开' : '🔇 音乐关';
+    btnBgm.classList.toggle('on', playing);
+  }
+
+  btnBgm.addEventListener('click', () => {
+    bgmEnabled = !bgmEnabled;
+    if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); }
+    else { sound.stopBgm(); }
+    syncBgmBtn();
+  });
+
+  function openQuizModal() {
+    newQuizSet();
+    quizModal.classList.add('open');
+    if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); }
+    syncBgmBtn();
+    renderQuizQuestion();
+  }
+
+  function closeQuizModal() {
+    quizModal.classList.remove('open');
+    fx.clear();
+    sound.stopBgm();
+    syncBgmBtn();
+  }
+
+  function renderQuizQuestion() {
+    const q = quizSet[quizIndex];
+    quizAnswered = false;
+    fx.clear();
+    if (quizStamp) quizStamp.classList.remove('show');
+    document.getElementById('quizProgress').textContent = '第 ' + (quizIndex + 1) + ' / ' + quizSet.length + ' 题';
+    document.getElementById('quizScoreBadge').textContent = '得分 ' + quizScore + ' / ' + quizSet.length;
+    document.getElementById('chalScore').textContent = quizScore + ' / ' + quizSet.length;
+    document.getElementById('quizStem').innerHTML = mathHTML(q.stem) +
+      '<br><span class="quiz-formula">' + mathHTML(q.formula) + '</span>';
+
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.classList.remove('show');
+    explainEl.innerHTML = '';
+    btnQuizDemo.style.display = 'none';
+    btnQuizNext.style.display = 'none';
+
+    const optsEl = document.getElementById('quizOpts');
+    optsEl.innerHTML = '';
+    q.opts.forEach((label, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.innerHTML = 'ABCD'[idx] + '. ' + mathHTML(label);
+      btn.addEventListener('click', () => handleQuizPick(idx));
+      optsEl.appendChild(btn);
+    });
+  }
+
+  function handleQuizPick(pickedIdx) {
+    if (quizAnswered) return;
+    quizAnswered = true;
+    const q = quizSet[quizIndex];
+    const buttons = document.querySelectorAll('#quizOpts .quiz-opt');
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.ans) {
+        b.classList.add('correct');
+        const tick = document.createElement('span');
+        tick.className = 'opt-tick';
+        tick.textContent = '✓';
+        b.appendChild(tick);
+      } else if (i === pickedIdx) {
+        b.classList.add('wrong');
+      }
+    });
+
+    if (pickedIdx === q.ans) {
+      quizScore += 1;
+      quizStreak += 1;
+      const isLast = quizIndex === quizSet.length - 1;
+      const scoreBadge = document.getElementById('quizScoreBadge');
+      scoreBadge.textContent = '得分 ' + quizScore + ' / ' + quizSet.length;
+      document.getElementById('chalScore').textContent = quizScore + ' / ' + quizSet.length;
+
+      fx.burstAt(buttons[q.ans], isLast);
+      flashModal();
+      bumpBadge(scoreBadge);
+      bumpBadge(document.getElementById('chalScore'));
+
+      if (isLast) {
+        fx.finale();
+        const full = quizScore === quizSet.length;
+        showQuizStamp(full ? '🏆' : '🎉',
+          full ? '满分通关！' : '闯关完成',
+          '总得分 ' + quizScore + ' / ' + quizSet.length, true);
+        sound.playVictory();
+        showToast(full ? '🏆 全对通关！' + quizScore + ' / ' + quizSet.length : '🏆 闯关完成！总得分 ' + quizScore + ' / ' + quizSet.length);
+      } else {
+        showQuizStamp('✓', '答对了 +1', quizStreak >= 2 ? '🔥 连对 ' + quizStreak + ' 题' : '保持这个节奏', false);
+        sound.playCorrect();
+        showToast(quizStreak >= 2 ? '🔥 连对 ' + quizStreak + ' 题了！' : '🎉 回答正确！+1 分');
+      }
+    } else {
+      quizStreak = 0;
+      sound.playWrong();
+      showToast('❌ 答错了，看看解析再去画布上验证一下');
+    }
+
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.innerHTML = '<b>解析：</b>' + mathHTML(q.explain);
+    explainEl.classList.add('show');
+
+    btnQuizDemo.style.display = (q.deriv && DERIV[q.deriv]) ? 'inline-flex' : 'none';
+    btnQuizNext.style.display = 'inline-flex';
+    btnQuizNext.textContent = quizIndex < quizSet.length - 1 ? '下一题 →' : '🔄 换一批新题';
+  }
+
+  document.getElementById('btnOpenQuiz').addEventListener('click', openQuizModal);
+  document.getElementById('btnCloseQuiz').addEventListener('click', closeQuizModal);
+  quizModal.addEventListener('click', (e) => { if (e.target === quizModal) closeQuizModal(); });
+
+  btnQuizDemo.addEventListener('click', () => {
+    const q = quizSet[quizIndex];
+    if (!q.deriv || !DERIV[q.deriv]) return;
+    openDeriv(q.deriv);
+  });
+
+  btnQuizNext.addEventListener('click', () => {
+    sound.playClick();
+    if (quizIndex < quizSet.length - 1) quizIndex += 1;
+    else newQuizSet();
+    renderQuizQuestion();
+  });
+
+  /* =========================================================
+     先猜后验
+     ========================================================= */
+  const predictBody = document.getElementById('predictBody');
+  let predictData = null;
+  let predictKey = '';
+
+  function renderPredict() {
+    const M = mod();
+    predictData = M.predict;
+    state.picked = null;
+    state.revealed = false;
+    document.getElementById('predictBadge').textContent = M.name;
+    const tag = ['A', 'B', 'C', 'D'];
+    predictBody.innerHTML =
+      '<div class="predict-q">' + predictData.q + '</div>' +
+      '<div class="predict-opts" id="predictOpts">' +
+      predictData.opts.map((o, i) =>
+        '<button class="predict-opt" data-idx="' + i + '"><b>' + tag[i] + '.</b> ' + o.t + '</button>').join('') +
+      '</div>' +
+      '<button class="btn amber" id="btnReveal" style="width:100%;" disabled>✨ 请先选择一个猜想</button>' +
+      /* ① 的“弦长两套算法”原本压在画布上，改为这里的一个按钮，点开才在新窗口里推 */
+      (M.key === 'cd'
+        ? '<button class="btn predict-deriv" id="btnDerivTip">💡 弦长两套算法 · 看详细推导（新窗口）</button>'
+        : '') +
+      '<div class="predict-feedback" id="predictFeedback">' + predictData.fb + '</div>';
+  }
+
+  function syncPredict() {
+    const key = state.m + '|' + state.v;
+    if (key === predictKey) return;
+    predictKey = key;
+    renderPredict();
+  }
+
+  function pickPredict(idx) {
+    if (!predictData || state.revealed) return;
+    predictBody.querySelectorAll('.predict-opt').forEach((o) => {
+      o.classList.toggle('picked', Number(o.dataset.idx) === idx);
+    });
+    state.picked = idx;
+    const btn = predictBody.querySelector('#btnReveal');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '✨ 揭晓答案';
+    }
+    sound.playClick();
+  }
+
+  function revealPredict() {
+    if (!predictData || state.revealed || state.picked === null) return;
+    state.revealed = true;
+    if (demo.active) exitDemo();
+    const isCD = mod().key === 'cd';
+    predictBody.querySelectorAll('.predict-opt').forEach((o) => {
+      const i = Number(o.dataset.idx);
+      if (predictData.opts[i].ok) o.classList.add('correct');
+      else if (i === state.picked) o.classList.add('wrong');
+    });
+    const fb = predictBody.querySelector('#predictFeedback');
+    if (fb) fb.classList.add('show');
+    const btn = predictBody.querySelector('#btnReveal');
+    if (btn) {
+      /* ① 揭晓后按钮变成“正在演示”的状态条；②③ 揭晓后按钮仍可点，用来打开推导窗口 */
+      btn.disabled = isCD;
+      btn.textContent = isCD ? '✓ 已揭晓 · 看画布上的演示动画' : '🧮 看这个公式怎么推（新窗口）';
+      if (isCD) { btn.classList.remove('amber'); btn.classList.add('predict-status'); }
+    }
+    if (isCD) {
+      const tipBtn = predictBody.querySelector('#btnDerivTip');
+      if (tipBtn) tipBtn.classList.add('show');
+      startDemo(true);
+    }
+    if (predictData.opts[state.picked].ok) {
+      lab.burst(lab.width * 0.5, lab.height * 0.28, '#34d399', 26);
+      showToast('👏 猜想正确：' + variantText());
+    } else {
+      showToast('再想一想：' + variantText());
+    }
+  }
+
+  predictBody.addEventListener('click', (e) => {
+    const opt = e.target.closest('.predict-opt');
+    if (opt) { pickPredict(Number(opt.dataset.idx)); return; }
+    if (e.target.closest('#btnDerivTip')) { openDeriv(mod().key); return; }
+    const rv = e.target.closest('#btnReveal');
+    if (!rv) return;
+    if (state.revealed) {
+      /* ②③：揭晓后这个按钮就是“看公式推导”的入口；① 用下面的💡按钮 */
+      if (mod().key !== 'cd') openDeriv(mod().key);
+    } else if (!rv.disabled) revealPredict();
+  });
+
+  /* =========================================================
+     公式总览弹窗
+     ========================================================= */
+  const FX_GROUPS = [
+    {
+      title: '一、两角差的余弦（源头公式）',
+      items: [
+        { fx: 'cos(α − β) = cosα cosβ + sinα sinβ', sub: '单位圆 + 两点间距离；旋转不改变距离' },
+      ],
+    },
+    {
+      title: '二、和角与差角公式',
+      items: [
+        { fx: 'cos(α + β) = cosα cosβ − sinα sinβ', sub: '把 β 换成 −β' },
+        { fx: 'sin(α + β) = sinα cosβ + cosα sinβ', sub: '由 sinθ = cos(90° − θ) 展开' },
+        { fx: 'sin(α − β) = sinα cosβ − cosα sinβ', sub: '把 β 换成 −β' },
+        { fx: 'tan(α + β) = (tanα + tanβ) / (1 − tanα tanβ)', sub: '分母不为 0' },
+        { fx: 'tan(α − β) = (tanα − tanβ) / (1 + tanα tanβ)', sub: '分母不为 0' },
+      ],
+    },
+    {
+      title: '三、二倍角公式（令 β = α）',
+      items: [
+        { fx: 'sin 2α = 2 sinα cosα', sub: '' },
+        { fx: 'cos 2α = cos²α − sin²α = 2cos²α − 1 = 1 − 2sin²α', sub: '三种形式，按需选用' },
+        { fx: 'tan 2α = 2tanα / (1 − tan²α)', sub: '1 − tan²α ≠ 0' },
+      ],
+    },
+    {
+      title: '四、降幂公式与半角公式',
+      items: [
+        { fx: 'sin²α = (1 − cos2α) / 2', sub: '降幂' },
+        { fx: 'cos²α = (1 + cos2α) / 2', sub: '降幂' },
+        { fx: 'sin²(θ/2) = (1 − cosθ) / 2', sub: '半角（平方形式）' },
+        { fx: 'cos²(θ/2) = (1 + cosθ) / 2', sub: '半角（平方形式）' },
+        { fx: 'tan(θ/2) = sinθ / (1 + cosθ) = (1 − cosθ) / sinθ', sub: '有理形式，免去定号' },
+      ],
+    },
+    {
+      title: '五、积化和差与和差化积',
+      items: [
+        { fx: 'sinα cosβ = ½[sin(α+β) + sin(α−β)]', sub: '' },
+        { fx: 'cosα sinβ = ½[sin(α+β) − sin(α−β)]', sub: '' },
+        { fx: 'cosα cosβ = ½[cos(α+β) + cos(α−β)]', sub: '' },
+        { fx: 'sinα sinβ = −½[cos(α+β) − cos(α−β)]', sub: '负号易漏' },
+        { fx: 'sinα + sinβ = 2sin((α+β)/2)cos((α−β)/2)', sub: '' },
+        { fx: 'sinα − sinβ = 2cos((α+β)/2)sin((α−β)/2)', sub: '' },
+        { fx: 'cosα + cosβ = 2cos((α+β)/2)cos((α−β)/2)', sub: '' },
+        { fx: 'cosα − cosβ = −2sin((α+β)/2)sin((α−β)/2)', sub: '负号易漏' },
+      ],
+    },
+    {
+      title: '六、辅助角公式',
+      items: [
+        { fx: 'a sinx + b cosx = R sin(x + φ)', sub: 'R = √(a²+b²)，cosφ = a/R，sinφ = b/R' },
+        { fx: 'sinx + cosx = √2 sin(x + 45°)', sub: '常用特例' },
+        { fx: 'sinx + √3cosx = 2 sin(x + 60°)', sub: '常用特例' },
+      ],
+    },
+  ];
+
+  const formulaModal = document.getElementById('formulaModal');
+  (function buildFormulaModal() {
+    const body = document.getElementById('formulaBody');
+    body.innerHTML = FX_GROUPS.map((g) =>
+      '<div class="fx-group"><h4>' + g.title + '</h4><div class="fx-grid">' +
+      g.items.map((it) => '<div class="fx-item">' + mathHTML(it.fx) +
+        (it.sub ? '<small>' + mathHTML(it.sub) + '</small>' : '') + '</div>').join('') +
+      '</div></div>').join('') +
+      '<div class="fx-warn"><b>易错提醒　</b>① tan 公式先看定义域：α、β、α±β 的正切都要存在，分母也不能为 0；' +
+      '② 半角开方时根号前的正负号由 α/2 所在象限决定，不能默认取正（用 tan(θ/2) = sinθ/(1+cosθ) 可回避定号）；' +
+      '③ sinα sinβ 与 cosα − cosβ 化积时前面的<b>负号</b>最容易漏；' +
+      '④ “1”的代换（1 ± cos2α）是降幂与化简的桥梁，正反两个方向都要熟。</div>';
+  })();
+
+  document.getElementById('btnFormulas').addEventListener('click', () => {
+    formulaModal.classList.add('open');
+    sound.playClick();
+  });
+  document.getElementById('btnCloseFormulas').addEventListener('click', () => formulaModal.classList.remove('open'));
+  formulaModal.addEventListener('click', (e) => { if (e.target === formulaModal) formulaModal.classList.remove('open'); });
+
+  /* =========================================================
+     模式切换 / 快捷键 / 启动
+     ========================================================= */
+  document.querySelectorAll('#modeTabs .seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeTabs .seg-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      document.getElementById('predictCard').style.display = state.mode === 'predict' ? 'block' : 'none';
+      document.getElementById('challengeCard').style.display = state.mode === 'challenge' ? 'block' : 'none';
+      if (state.mode === 'predict') {
+        document.getElementById('predictCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (state.mode === 'challenge') openQuizModal();
+    });
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (derivModal.classList.contains('open')) { closeDeriv(); return; }
+      if (demo.active) exitDemo();
+      if (formulaModal.classList.contains('open')) formulaModal.classList.remove('open');
+    }
+    if (e.code === 'Space' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+      if (derivModal.classList.contains('open')) return;
+      e.preventDefault();
+      if (demo.active) btnDemoPlay.click();
+      else togglePlay();
+    }
+  });
+
+  initShell({
+    onCommand: (action, payload) => {
+      if (action === 'setAngle' && payload && typeof payload.a === 'number') {
+        state.a = payload.a;
+        syncUI();
+      }
+      if (action === 'play') togglePlay(Boolean(payload));
+      if (action === 'reveal' && state.mode === 'predict') revealPredict();
+    },
+  });
+
+  /* =========================================================
+     动画主循环
+     ========================================================= */
+  let lastA = -1;
+  lab.start((dt) => {
+    if (demo.active && demo.playing) {
+      demo.t += dt / demo.dur;
+      if (demo.t >= 1) {
+        demo.t = 1;
+        demo.playing = false;
+        demo.sig = '';
+        syncStageUI();
+      } else {
+        syncStageUI();
+      }
+    }
+    if (state.playing && !demo.active) {
+      const lim = mod().aMax || 360;
+      state.a = (state.a + dt * state.speed) % lim;
+      const ai = Math.floor(state.a);
+      if (ai !== lastA) {
+        lastA = ai;
+        syncLight();
+      }
+    }
+  });
+
+  /* =========================================================
+     启动
+     ========================================================= */
+  const q = new URLSearchParams(location.search);
+  const qm = parseInt(q.get('m'), 10);
+  const qv = parseInt(q.get('v'), 10);
+  if (!isNaN(qm) && qm >= 0 && qm < MODS.length) state.m = qm;
+  if (!isNaN(qv) && qv >= 0 && qv < mod().variants.length) state.v = qv;
+  if (q.get('a')) state.a = parseFloat(q.get('a')) || state.a;
+  if (state.a > (mod().aMax || 360)) state.a = (mod().aMax || 360) * 0.6;
+
+  renderModBtns();
+  renderVTabs();
+  syncUI();
+  togglePlay(true);
+
+  /* 便于课堂直接跳到某个状态的参数（可选） */
+  if (q.get('open') === 'formula') formulaModal.classList.add('open');
+  if (q.get('deriv')) openDeriv(q.get('deriv'));
+  if (q.get('demo') === '1') startDemo(true);
+  if (q.get('t') !== null) {
+    /* 深链：直接停在动画的某一帧（0~1），方便课堂定格讲解 */
+    const tv = Math.min(1, Math.max(0, parseFloat(q.get('t')) || 0));
+    if (!demo.active) startDemo(false);
+    demo.t = tv;
+    demo.playing = false;
+    demo.sig = '';
+    syncStageUI();
+  }
+  const qmode = q.get('mode');
+  if (qmode === 'predict' || qmode === 'challenge') {
+    const btn = document.querySelector('#modeTabs .seg-btn[data-mode="' + qmode + '"]');
+    if (btn) btn.click();
+  }
+})();
+
 </script>
 </body>
 </html>

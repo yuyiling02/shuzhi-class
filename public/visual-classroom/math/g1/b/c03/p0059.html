@@ -3,747 +3,1737 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>球的体积与表面积 · 祖暅原理 · 三维交互模型</title>
+<title>球的体积与表面积 · 祖暅原理 · 探究版</title>
 <style>
   :root{
-    --ink:#1e293b;--ink-2:#475569;--muted:#94a3b8;--line:#e2e8f0;
-    --bg:#f4f6fb;--card:#ffffff;
-    --indigo:#4f46e5;--indigo-soft:#eef0ff;
-    --teal:#0d9488;--teal-soft:#e6fffa;
-    --rose:#e11d48;--rose-soft:#fff1f2;
-    --amber:#d97706;--amber-soft:#fffbeb;
+    --ink:#17263c;--ink2:#5a6b81;--muted:#93a3b8;--line:#e6ecf5;
+    --bg:#fff;--navy:#10314f;--navy-2:#1b4570;
+    --blue:#2563eb;--blue-soft:#eff4ff;
+    --red:#d43b2c;--red-soft:#fef4f2;
+    --teal:#0e8f83;--teal-soft:#eefaf7;
+    --amber:#b45309;--amber-soft:#fffbeb;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
   body{
-    background:radial-gradient(1200px 600px at 20% -10%, #e9edff 0%, rgba(233,237,255,0) 60%),var(--bg);
-    color:var(--ink);
-    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
-    min-height:100vh;padding:28px 24px 40px;
+    min-height:100vh;padding:20px 26px 26px;color:var(--ink);background:#fff;
+    background-image:linear-gradient(#f0f4fa 1px,transparent 1px),linear-gradient(90deg,#f0f4fa 1px,transparent 1px);
+    background-size:28px 28px;background-position:-1px -1px;
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
   }
-  .app{max-width:1240px;margin:0 auto;}
-  header{margin-bottom:20px;}
+  .app{max-width:1420px;margin:0 auto}
+
+  /* ---------- 头部 ---------- */
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:16px;flex-wrap:wrap}
+  .hleft{min-width:280px}
   .tag{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:12px;letter-spacing:.06em;color:var(--indigo);
-    background:var(--indigo-soft);border:1px solid #dfe3ff;
-    padding:5px 12px;border-radius:999px;font-weight:600;
+    display:inline-block;font-size:11px;letter-spacing:.02em;color:#7b8ba1;background:#f5f8fc;
+    border:1px solid var(--line);padding:3px 9px;border-radius:6px;font-weight:500;
   }
-  h1{font-size:28px;line-height:1.3;margin:12px 0 6px;letter-spacing:.01em;}
-  .sub{margin:0;color:var(--ink-2);font-size:14.5px;}
-  main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start;}
-  .stage{
-    position:relative;background:var(--card);border:1px solid var(--line);
-    border-radius:18px;box-shadow:0 10px 30px -18px rgba(30,41,59,.35);overflow:hidden;
-  }
-  .tabs{
-    display:flex;gap:6px;padding:12px 14px 0;background:linear-gradient(#f8fafc,#ffffff);
-    border-bottom:1px solid var(--line);position:relative;z-index:2;
-  }
+  h1{font-size:27px;line-height:1.25;margin:10px 0 6px;letter-spacing:-.01em;font-weight:700;color:var(--navy)}
+  .sub{margin:0;color:#6b7b91;font-size:12.5px;line-height:1.75;max-width:760px}
+  .sub b{color:var(--navy);font-weight:600}
+
+  .hright{display:flex;align-items:center;gap:8px;padding-bottom:2px}
+  .tabs{display:flex;gap:2px;background:#f3f6fb;border:1px solid var(--line);border-radius:11px;padding:4px}
   .tab{
-    appearance:none;border:1px solid transparent;background:transparent;color:var(--ink-2);
-    font:inherit;font-size:13px;font-weight:600;padding:9px 15px;border-radius:10px 10px 0 0;
-    cursor:pointer;transition:all .15s;
+    appearance:none;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;
+    color:#6b7b91;padding:8px 14px;cursor:pointer;border-radius:8px;display:inline-flex;align-items:center;gap:7px;
+    transition:color .15s,background .15s;white-space:nowrap;
   }
-  .tab:hover{color:var(--indigo);background:var(--indigo-soft);}
-  .tab.active{color:var(--indigo);background:#fff;border-color:var(--line);border-bottom-color:#fff;margin-bottom:-1px;}
-  #scene{
-    display:block;width:100%;height:auto;aspect-ratio:920 / 620;
-    touch-action:none;cursor:grab;
-    background:linear-gradient(180deg,#fbfcff 0%,#f4f6fb 62%,#eef1f8 100%);
+  .tab:hover{color:var(--navy);background:#fff}
+  .tab.active{background:var(--navy);color:#fff}
+  .tab .no{
+    display:inline-block;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:5px;
+    background:#e2e9f3;color:#5a6b81;font-size:10px;font-weight:700;padding:0 3px;
   }
-  #scene.grabbing{cursor:grabbing;}
-  .readout{
-    position:absolute;right:16px;top:74px;display:flex;gap:8px;align-items:center;
-    flex-wrap:wrap;pointer-events:none;
+  .tab.active .no{background:rgba(255,255,255,.22);color:#fff}
+  .btnWide{
+    appearance:none;border:1px solid var(--line);background:#fff;color:#6b7b91;font:inherit;font-size:12.5px;
+    padding:10px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;font-weight:500;
   }
+  .btnWide:hover{color:var(--navy);border-color:#cfdcec}
+
+  /* ---------- 主体 ---------- */
+  main{display:grid;grid-template-columns:minmax(0,1fr) 306px;gap:16px;align-items:start}
+  .stage{
+    position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 18px 46px -38px rgba(16,49,79,.55);
+  }
+  #scene{display:block;width:100%;height:auto;aspect-ratio:16/10;touch-action:none;cursor:grab;background:#fdfeff}
+  #scene.grabbing{cursor:grabbing}
+  .readout{position:absolute;right:14px;top:14px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;pointer-events:none;max-width:66%}
   .pill{
-    display:inline-flex;align-items:baseline;gap:6px;font-size:12px;
-    background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
-    padding:5px 11px;box-shadow:0 4px 14px -10px rgba(30,41,59,.5);
+    display:inline-flex;align-items:baseline;gap:5px;font-size:11px;color:var(--ink2);
+    background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:8px;padding:4px 9px;
+    white-space:nowrap;backdrop-filter:blur(4px);
   }
-  .pill b{font-family:"Cambria Math","Times New Roman",serif;font-size:14px;font-weight:600;}
-  .pill.rose{color:var(--rose);border-color:#fecdd3;background:rgba(255,241,242,.94);}
-  .pill.teal{color:var(--teal);border-color:#99f6e4;background:rgba(230,255,250,.94);}
-  .pill.eq{color:var(--indigo);border-color:#c7d2fe;background:rgba(238,240,255,.94);font-weight:600;}
+  .pill b{font-family:"Cambria Math","Times New Roman",serif;font-size:12.5px;font-weight:600}
+  .pill.rose{color:var(--red);border-color:#f6d6d1;background:rgba(254,244,242,.94)}
+  .pill.teal{color:var(--teal);border-color:#c9e8e2;background:rgba(238,250,247,.94)}
+  .pill.eq{color:var(--navy);border-color:#d8e3f0;background:rgba(245,249,255,.94);font-weight:600}
+  .pill.amber{color:var(--amber);border-color:#f2e2c4;background:rgba(255,251,235,.94)}
   .hint{
-    position:absolute;left:16px;bottom:14px;font-size:12.5px;color:var(--muted);
-    background:rgba(255,255,255,.9);padding:5px 10px;border-radius:8px;border:1px solid var(--line);
-    pointer-events:none;
+    position:absolute;left:14px;bottom:13px;font-size:11px;color:#93a3b8;
+    background:rgba(255,255,255,.86);padding:4px 9px;border-radius:7px;border:1px solid var(--line);pointer-events:none;
   }
-  .panel{display:flex;flex-direction:column;gap:14px;max-height:720px;overflow-y:auto;padding-right:2px;}
-  .panel::-webkit-scrollbar{width:6px;}
-  .panel::-webkit-scrollbar-thumb{background:#d7dde8;border-radius:3px;}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:16px 16px 15px;box-shadow:0 8px 24px -20px rgba(30,41,59,.45);flex:none;
+
+  /* ---------- 侧栏 ---------- */
+  .panel{display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 168px);overflow-y:auto;padding-right:2px}
+  .panel::-webkit-scrollbar{width:5px}.panel::-webkit-scrollbar-thumb{background:#dfe8f2;border-radius:3px}
+  .pane{display:none;flex-direction:column;gap:12px}
+  .pane.on{display:flex}
+  .card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px 14px;
+    box-shadow:0 10px 26px -26px rgba(16,49,79,.5)}
+  .card h3{margin:0 0 10px;font-size:11.5px;font-weight:700;color:#7b8ba1;letter-spacing:.06em;display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;flex:none}
+  .dot.i{background:var(--navy)}.dot.r{background:var(--red)}.dot.t{background:var(--teal)}.dot.a{background:#d97706}
+
+  .seg{display:flex;background:#f3f6fb;border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
+  .seg button{flex:1;border:0;background:transparent;font:inherit;font-size:12.5px;font-weight:600;color:#6b7b91;
+    padding:8px 4px;border-radius:8px;cursor:pointer;transition:.15s}
+  .seg button.on{background:var(--navy);color:#fff}
+
+  .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
+  .row span{font-size:12.5px;color:#5a6b81}
+  .row b{font-family:"Cambria Math","Times New Roman",serif;font-size:13.5px;font-weight:600;color:var(--navy)}
+  .range{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;display:block}
+  .range::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:#e4ebf4}
+  .range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+    background:var(--navy);border:2px solid #fff;box-shadow:0 1px 4px rgba(16,49,79,.35);margin-top:-5.5px}
+  .range::-moz-range-track{height:3px;border-radius:2px;background:#e4ebf4}
+  .range::-moz-range-thumb{width:12px;height:12px;border:2px solid #fff;border-radius:50%;background:var(--navy)}
+
+  .act{
+    appearance:none;border:1px solid var(--navy);background:var(--navy);color:#fff;font:inherit;font-size:12.5px;
+    font-weight:600;padding:10px 12px;border-radius:9px;cursor:pointer;transition:filter .15s;
   }
-  .card-title{
-    display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
-    color:var(--ink-2);letter-spacing:.04em;margin-bottom:12px;
+  .act:hover{filter:brightness(1.12)}
+  .act.ghost{background:#fff;color:var(--navy);border-color:#cfdcec;font-weight:600}
+  .act.ghost:hover{background:#f5f9ff;border-color:#b8cde6;filter:none}
+  .act.wide{width:100%;display:block;padding:9px 6px}
+  .act[disabled]{opacity:.42;cursor:not-allowed;filter:none}
+
+  /* ---------- 猜想 ---------- */
+  .qhead{display:flex;align-items:center;justify-content:space-between}
+  .qprog{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.05em}
+  .qtext{font-size:14px;line-height:1.78;margin:10px 0 12px;font-weight:600;color:var(--ink)}
+  .qtext em{font-style:normal;color:var(--red);font-weight:700}
+  .opts{display:flex;flex-direction:column;gap:6px}
+  .opt{
+    display:flex;gap:9px;align-items:flex-start;padding:9px 11px;border:1px solid var(--line);border-radius:9px;
+    background:#fff;font:inherit;font-size:12.5px;line-height:1.55;text-align:left;color:#3d4d63;cursor:pointer;
+    transition:border-color .12s,background .12s;
   }
-  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
-  .dot.indigo{background:var(--indigo);}.dot.teal{background:var(--teal);}
-  .dot.rose{background:var(--rose);}.dot.amber{background:var(--amber);}
-  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0;}
-  .row-label{font-size:13px;color:var(--ink-2);}
-  .vval.small{font-size:15px;color:var(--ink);font-family:"Cambria Math","Times New Roman",serif;}
-  .range{
-    -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;
+  .opt:hover{border-color:#b8cde6;background:#f8fbff}
+  .opt .mk{width:15px;height:15px;border-radius:50%;border:1.5px solid #cbd5e1;flex:none;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:9.5px;color:#fff;line-height:1}
+  .opt.cb .mk{border-radius:4px}
+  .opt.sel{border-color:var(--navy);background:#f3f8ff;color:#0f2b48;font-weight:600}
+  .opt.sel .mk{background:var(--navy);border-color:var(--navy)}
+  .opt.good{border-color:#8fd6c9;background:var(--teal-soft);color:#0b5b52}
+  .opt.good .mk{background:var(--teal);border-color:var(--teal)}
+  .opt.bad{border-color:#efc0b8;background:var(--red-soft);color:#9a2c1f}
+  .opt.bad .mk{background:var(--red);border-color:var(--red)}
+  .opt .tagx{font-size:10.5px;color:var(--muted);font-weight:500;margin-left:4px}
+  .qnav{display:flex;gap:8px;margin-top:2px}
+  .qnav2{display:flex;align-items:center;gap:6px}
+  .miniBtn{width:24px;height:24px;border-radius:7px;border:1px solid var(--line);background:#fff;
+    color:#6b7b91;font:inherit;font-size:12px;line-height:1;cursor:pointer;padding:0}
+  .miniBtn:hover{border-color:#b8cde6;background:#f5f9ff;color:var(--navy)}
+  .miniBtn:disabled{opacity:.32;cursor:not-allowed}
+
+  .verdict{border:1px solid;border-radius:10px;padding:10px 11px;font-size:12.5px;line-height:1.72;margin-top:10px}
+  .verdict.ok{background:var(--teal-soft);border-color:#c9e8e2;color:#0b5b52}
+  .verdict.no{background:var(--red-soft);border-color:#f3d3cd;color:#9a2c1f}
+  .verdict h4{margin:0 0 5px;font-size:11.5px;letter-spacing:.04em}
+  .verdict p{margin:0}
+  .verdict .k{margin-top:8px;padding-top:8px;border-top:1px solid rgba(16,49,79,.12);color:#5a6b81;font-size:11.5px}
+  .verdict .k b{color:var(--navy)}
+
+  .qextra{margin-top:10px;display:flex;flex-direction:column;gap:9px}
+  .qextra:empty{display:none}
+  .chart{width:100%;height:auto;display:block;border-radius:8px;background:#fcfdff;border:1px solid var(--line)}
+  .legend{display:flex;gap:11px;flex-wrap:wrap;margin:1px 0 2px}
+  .lg{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#7b8ba1}
+  .lg i{width:9px;height:3px;border-radius:2px;display:inline-block}
+  .kv{display:flex;justify-content:space-between;font-size:12px;color:#5a6b81;padding:3px 0}
+  .kv b{font-family:"Cambria Math","Times New Roman",serif;font-size:13px}
+  .kv b.r{color:var(--red)}.kv b.t{color:var(--teal)}
+  .switch{position:relative;width:36px;height:20px;border-radius:999px;background:#dfe7f1;cursor:pointer;flex:none;transition:background .2s}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;
+    box-shadow:0 1px 3px rgba(16,49,79,.28);transition:transform .2s}
+  .switch.on{background:var(--navy)}
+  .switch.on::after{transform:translateX(16px)}
+
+  .mini{font-size:11.5px;color:#93a3b8;line-height:1.75;margin:6px 0 0}
+  .mini b{color:#5a6b81;font-weight:600}
+  .formula{font-family:"Cambria Math","Times New Roman",serif;font-size:13.5px;line-height:1.95;color:var(--ink)}
+  .formula .r{color:var(--red);font-weight:600}
+  .formula .t{color:var(--teal);font-weight:600}
+  .formula .v{color:var(--navy);font-weight:600}
+  .formula .res{color:var(--amber);font-weight:700}
+  .formula .dim{color:#5a6b81;font-size:12px}
+  .lvlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+  .lvlist li{font-size:11.5px;color:#6b7b91;display:flex;gap:7px;align-items:center}
+  .lvlist li::before{content:"";width:4px;height:4px;border-radius:50%;background:#c3d2e4;flex:none}
+  .bar{height:5px;border-radius:3px;background:#eef3f9;margin:12px 0 0;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--navy);border-radius:3px;transition:width .35s}
+  .badge{display:inline-block;font-size:11.5px;font-weight:600;color:var(--teal);background:var(--teal-soft);
+    border:1px solid #c9e8e2;border-radius:7px;padding:3px 9px;margin-top:6px}
+  [hidden]{display:none!important}
+
+
+  /* ---------- 题目弹层 ---------- */
+  .qmodal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:rgba(13,38,64,.42);backdrop-filter:blur(2px)}
+  .qbox{box-sizing:border-box;width:min(760px,94vw);max-height:88vh;overflow-y:auto;background:#fff;border-radius:18px;
+    padding:16px 22px 18px;box-shadow:0 34px 90px -34px rgba(8,28,52,.7)}
+  .qbox::-webkit-scrollbar{width:5px}.qbox::-webkit-scrollbar-thumb{background:#dfe8f2;border-radius:3px}
+  .qtop{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .qb{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid #d9e6f7;background:#f2f7fd;color:#1a4b8c;white-space:nowrap}
+  .qb.score{border-color:#e5ecf5;background:#f7fafd;color:#7b8ba1}
+  .qtop .sp{flex:1}
+  .mbtn{appearance:none;border:1px solid var(--line);background:#fff;color:#6b7b91;font:inherit;font-size:12px;
+    padding:6px 11px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .mbtn:hover{color:var(--navy);border-color:#b8cde6;background:#f5f9ff}
+  .mbtn.x{padding:6px 10px;font-size:13px;line-height:1}
+  .mbtn:disabled{opacity:.35;cursor:not-allowed}
+  .qmodal .card{border:0;box-shadow:none;padding:0;background:transparent}
+  .qmodal .qhead{display:none}
+  .qmodal .bar{display:none}
+  @media (max-width:560px){
+    .qmodal .qbox{padding:14px 16px 16px}
+    .qmodal .opts{grid-template-columns:1fr}
+    .qtop .sp{flex:1 1 100%;height:0}
   }
-  .range::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:#e4e9f2;}
-  .range::-webkit-slider-thumb{
-    -webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
-    background:var(--indigo);border:2px solid #fff;box-shadow:0 1px 4px rgba(30,41,59,.35);margin-top:-6px;
-  }
-  .range::-moz-range-track{height:5px;border-radius:3px;background:#e4e9f2;}
-  .range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--indigo);border:2px solid #fff;}
-  .cut-row{
-    display:flex;justify-content:space-between;align-items:baseline;gap:8px;
-    padding:7px 10px;border-radius:9px;background:#fbfcfe;border:1px solid var(--line);margin-bottom:7px;
-  }
-  .cut-row .k{font-size:12.5px;color:var(--ink-2);}
-  .cut-row .k b{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-weight:600;}
-  .cut-row .val{
-    font-size:15px;font-weight:600;color:var(--ink);
-    font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
-  }
-  .cut-row.ball{border-color:#fecdd3;background:var(--rose-soft);}
-  .cut-row.ball .val{color:var(--rose);}
-  .cut-row.cyl{border-color:#99f6e4;background:var(--teal-soft);}
-  .cut-row.cyl .val{color:var(--teal);}
-  .badge{
-    display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;
-    border:1px solid var(--line);margin-top:4px;
-  }
-  .badge.ok{color:var(--teal);background:var(--teal-soft);border-color:#99f6e4;}
-  .formula{
-    font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
-    font-size:15px;line-height:2.05;color:var(--ink);word-break:break-word;
-  }
-  .formula i{font-style:italic;}
-  .formula .l1{color:var(--rose);font-weight:600;}
-  .formula .l2{color:var(--teal);font-weight:600;}
-  .formula .va{color:var(--indigo);font-weight:600;}
-  .formula .dim{color:var(--ink-2);}
-  .formula .res{color:var(--amber);font-weight:700;}
-  .note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.75;}
-  .note b{color:var(--ink-2);font-weight:600;}
-  .note em{font-style:normal;color:var(--ink-2);}
-  .switch{
-    position:relative;width:40px;height:22px;border-radius:999px;background:#dbe1ea;
-    cursor:pointer;transition:background .2s;flex:none;
-  }
-  .switch::after{
-    content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
-    background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25);transition:transform .2s;
-  }
-  .switch.on{background:var(--indigo);}
-  .switch.on::after{transform:translateX(18px);}
-  .btn{
-    appearance:none;border:1px solid var(--line);background:#fbfcfe;color:var(--ink-2);
-    font:inherit;font-size:12.5px;padding:9px 10px;border-radius:9px;cursor:pointer;
-    transition:all .15s;
-  }
-  .btn:hover{border-color:#c7cffb;background:var(--indigo-soft);color:var(--indigo);}
-  .btn.wide{grid-column:1 / -1;width:100%;}
-  .btn.playing{background:var(--indigo-soft);color:var(--indigo);border-color:#c7cffb;}
-  [hidden]{display:none !important;}
-  footer{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.85;}
-  footer b{color:var(--ink-2);font-weight:600;}
-  @media (max-width:960px){
-    main{grid-template-columns:minmax(0,1fr);}
-    .panel{max-height:none;flex-direction:row;flex-wrap:wrap;overflow:visible;}
-    .panel .card{flex:1 1 320px;}
-    h1{font-size:23px;}
+  .qmodal .qtext{font-size:17px;line-height:1.66;margin:2px 0 16px}
+  .qmodal .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .qmodal .opt{padding:13px 14px;font-size:13.5px;border-radius:11px;background:#f8fafd}
+  .qmodal .opt:hover{background:#f2f7ff}
+  .qmodal .verdict{margin-top:16px;font-size:13px}
+  .qmodal .qextra{margin-top:14px}
+  .qmodal .act.wide{margin-top:14px;padding:10px 8px;font-size:13.5px}
+  body.modalOn .panel{display:none}
+
+  /* 大屏：收起侧栏，画布铺满 */
+  body.wide .panel,body.wide .hright .tabs{display:none}
+  body.wide .app{max-width:none}
+  body.wide main{grid-template-columns:minmax(0,1fr)}
+  body.wide .stage{box-shadow:none;border-radius:10px}
+  body.wide #scene{max-width:calc((100vh - 190px) * 1.6);margin:0 auto}
+
+  @media (max-width:980px){
+    body{padding:14px 12px}
+    main{grid-template-columns:minmax(0,1fr)}
+    h1{font-size:21px}
+    header{align-items:flex-start}
+    .hright{width:100%;justify-content:space-between;order:3}
+    .tabs{flex:1}
+    .tab{flex:1;justify-content:center;padding:8px 8px}
+    .panel{flex-direction:row;flex-wrap:wrap;max-height:none;overflow:visible}
+    .readout{display:none}
+    .pane{flex:1 1 300px}
   }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="tag">人教A版 · 必修第二册 · 第八章 立体几何初步 · 8.3.2</div>
-    <h1>球的体积与表面积 · 祖暅原理</h1>
-    <p class="sub">「夹在两个平行平面之间的几何体，被平行于这两个平面的任意平面所截，若截面总面积总相等，则体积相等」</p>
+    <div class="hleft">
+      <div class="tag">人教A版 · 必修二 · 8.3.2</div>
+      <h1>球的体积与表面积 · 祖暅原理</h1>
+      <p class="sub"><b>祖暅原理</b>：夹在两平行平面之间的几何体，被平行于这两平面的任一平面所截，若截面面积总相等，则体积相等。</p>
+    </div>
+    <div class="hright">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="free"><span class="no">1</span>自由探究</button>
+        <button class="tab" data-tab="guess"><span class="no">2</span>先猜后验</button>
+        <button class="tab" data-tab="boss"><span class="no">3</span>闯关挑战</button>
+      </div>
+      <button class="btnWide" id="btnWide" title="收起侧栏，放大画布">⤢ 大屏</button>
+    </div>
   </header>
 
   <main>
     <section class="stage">
-      <div class="tabs">
-        <button class="tab active" data-mode="vol">① 体积 · 祖暅原理</button>
-        <button class="tab" data-mode="area">② 表面积 · 环带法</button>
-      </div>
-      <canvas id="scene" width="920" height="620" aria-label="祖暅原理三维交互图"></canvas>
+      <canvas id="scene" width="920" height="600" aria-label="祖暅原理三维交互图"></canvas>
       <div class="readout" id="readout"></div>
-      <div class="hint" id="hint">拖拽旋转 ｜ 滚轮缩放 ｜ 拖动滑块同步剖切</div>
+      <div class="hint" id="hint"></div>
     </section>
 
     <aside class="panel">
-      <div class="card">
-        <div class="card-title"><span class="dot indigo"></span>几何参数</div>
-        <div class="row"><span class="row-label">球半径 <i style="font-family:'Cambria Math',serif;">R</i></span><span class="vval small" id="rOut"></span></div>
-        <input type="range" class="range" id="rRange" min="80" max="150" value="120">
-        <div class="row" id="hRow" style="margin-top:14px"><span class="row-label">剖切高度 <i style="font-family:'Cambria Math',serif;">h</i></span><span class="vval small" id="hOut"></span></div>
-        <input type="range" class="range" id="hRange" min="0" max="1000" value="450">
-        <button class="btn wide" id="btnScan" style="margin-top:12px;">▶ 播放剖切动画</button>
+      <!-- 自由探究 -->
+      <div class="pane on" data-pane="free">
+        <div class="seg" id="segFree">
+          <button class="on" data-m="vol">体积 · 祖暅原理</button>
+          <button data-m="area">表面积 · 环带法</button>
+        </div>
+        <div class="card">
+          <div class="row"><span>球半径 R</span><b id="rOut"></b></div>
+          <input type="range" class="range" id="rRange" min="80" max="150" value="120">
+          <div id="volCtl">
+            <div class="row" style="margin-top:12px"><span>剖切高度 h</span><b id="hOut"></b></div>
+            <input type="range" class="range" id="hRange" min="0" max="1000" value="450">
+            <button class="act wide ghost" id="btnScan" style="margin-top:10px">▶ 播放剖切</button>
+          </div>
+          <div id="areaCtl" hidden>
+            <div class="row" style="margin-top:12px"><span>环带数 n</span><b id="nOut"></b></div>
+            <input type="range" class="range" id="nRange" min="4" max="36" step="2" value="16">
+            <div class="row" style="margin-top:10px"><span>高亮第 k 条</span><b id="kOut"></b></div>
+            <input type="range" class="range" id="kRange" min="0" max="15" step="1" value="7">
+            <div class="row" style="margin-top:10px"><span>压到外接圆柱上</span><div class="switch" id="swProj"></div></div>
+          </div>
+        </div>
+        <div class="card" id="freeCard1"></div>
+        <div class="card" id="freeCard2"></div>
       </div>
 
-      <div class="card" id="cardCut">
-        <div class="card-title"><span class="dot rose"></span>同一高度的两个截面</div>
-        <div class="cut-row ball"><span class="k">球截面 S₁ = π(<b>R</b>² − <b>h</b>²)</span><span class="val" id="aBall"></span></div>
-        <div class="cut-row cyl"><span class="k">柱挖锥后 S₂ = π<b>R</b>² − π<b>h</b>²</span><span class="val" id="aCyl"></span></div>
-        <div><span class="badge ok" id="cutBadge">S₁ ≡ S₂，与 h 无关</span></div>
-        <div class="note" id="cutNote">球截面半径 √(<i>R</i>²−<i>h</i>²)；右图是圆环，外半径 <i>R</i>、内半径 <i>h</i>，面积 π<i>R</i>²−π<i>h</i>²。<b>两式恒等</b>，所以逐层面积相等。</div>
+      <!-- 先猜后验 -->
+      <div class="pane" data-pane="guess">
+        <div class="card" id="qCard">
+          <div class="qhead">
+            <span class="qprog" id="qTag"></span>
+            <div class="qnav2">
+              <button class="miniBtn" id="qPrev" title="上一猜">←</button>
+              <span class="qprog" id="qProg"></span>
+              <button class="miniBtn" id="qNext" title="下一猜">→</button>
+              <button class="miniBtn" id="qPop" title="用大卡片作答">⤢</button>
+            </div>
+          </div>
+          <div class="qtext" id="qText"></div>
+          <div class="opts" id="qOpts"></div>
+          <button class="act wide" id="qReveal" style="margin-top:11px">揭晓并动画验证</button>
+          <div class="verdict" id="qVerdict" hidden></div>
+          <div class="qextra" id="qExtra"></div>
+        </div>
       </div>
 
-      <div class="card" id="cardVol">
-        <div class="card-title"><span class="dot amber"></span>由等截面 ⇒ 等体积</div>
-        <div class="formula" id="volF"></div>
-      </div>
-
-      <div class="card" id="cardR" hidden>
-        <div class="card-title"><span class="dot teal"></span>环带细分 · 同一高度对比</div>
-        <div class="row"><span class="row-label">环带数 <i style="font-family:'Cambria Math',serif;">n</i></span><span class="vval small" id="nOut"></span></div>
-        <input type="range" class="range" id="nRange" min="4" max="36" step="2" value="16">
-        <div class="row" style="margin-top:14px"><span class="row-label">高亮环带 <i style="font-family:'Cambria Math',serif;">k</i></span><span class="vval small" id="kOut"></span></div>
-        <input type="range" class="range" id="kRange" min="0" max="15" step="1" value="7">
-        <div class="cut-row" style="margin-top:10px"><span class="k">环带高 Δz = 2R / n</span><span class="val" id="dzOut"></span></div>
-        <div class="cut-row ball"><span class="k">球面环带 Σ2π<i>r</i>Δ<i>s</i></span><span class="val" id="bandBall"></span></div>
-        <div class="cut-row cyl"><span class="k">外接圆柱同高环带 2π<i>R</i>Δz</span><span class="val" id="bandCyl"></span></div>
-        <div><span class="badge ok" id="bandBadge">同一高度，面积恒等</span></div>
-      </div>
-
-      <div class="card" id="cardArea" hidden>
-        <div class="card-title"><span class="dot teal"></span>为什么与纬度无关（阿基米德）</div>
-        <div class="formula" id="areaF"></div>
-        <div class="note">环带半径 <i>r</i> = <i>R</i>cos<i>φ</i>，母线微元 Δ<i>s</i> = <i>R</i>Δ<i>φ</i>，而 Δ<i>z</i> = <i>R</i>cos<i>φ</i>Δ<i>φ</i>，所以 2π<i>r</i>·Δ<i>s</i> = 2π<i>R</i>·Δ<i>z</i>：cos<i>φ</i> 被抵消，环带面积只与它的高度有关，与所处纬度无关。</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="dot indigo"></span>视图控制</div>
-        <div class="row"><span class="row-label">截平面</span><div class="switch on" id="swPlane" role="switch" tabindex="0"></div></div>
-        <div class="row"><span class="row-label">截面高亮</span><div class="switch on" id="swSection" role="switch" tabindex="0"></div></div>
-        <div class="row"><span class="row-label">地面网格</span><div class="switch on" id="swFloor" role="switch" tabindex="0"></div></div>
-        <button class="btn wide" id="btnReset" style="margin-top:10px;">复位视角</button>
+      <!-- 闯关挑战 -->
+      <div class="pane" data-pane="boss">
+        <div class="card" id="bossIntro">
+          <div class="qhead"><span class="qprog">闯关挑战</span><span class="qprog">4 关</span></div>
+          <div class="qtext" style="font-size:13.5px;margin-bottom:8px">先作答，再看解析。最后一关是多选。</div>
+          <ul class="lvlist">
+            <li>第 1 关 · 斜棱柱与直棱柱</li>
+            <li>第 2 关 · “等体积 ⇒ 等截面”的反例</li>
+            <li>第 3 关 · 换了顶点还能不能用</li>
+            <li>第 4 关 · 多选：适用边界</li>
+          </ul>
+          <div class="bar"><i></i></div>
+          <div class="kv" style="margin-top:8px"><span>已完成</span><b>0 / 4</b></div>
+          <button class="act wide" id="bossStart" style="margin-top:10px">开始闯关</button>
+        </div>
+        <div class="card" id="bossCard" hidden>
+          <div class="qhead"><span class="qprog" id="bTag"></span><span class="qprog" id="bScore"></span>
+            <button class="miniBtn" id="bPop" title="用大卡片作答">⤢</button></div>
+          <div class="bar" style="margin-top:8px"><i id="bBarFill"></i></div>
+          <div class="qtext" id="bText"></div>
+          <div class="opts" id="bOpts"></div>
+          <button class="act wide" id="bSubmit" style="margin-top:11px">提交</button>
+          <div class="verdict" id="bVerdict" hidden></div>
+          <button class="act ghost wide" id="bNext" style="margin-top:10px" hidden>下一关 →</button>
+        </div>
+        <div class="card" id="bossEnd" hidden></div>
       </div>
     </aside>
   </main>
-
-  <footer>
-    <b>教材原话（8.3.2 祖暅原理）：</b>夹在两个平行平面之间的几何体，被平行于这两个平面的任意平面所截，若截面总面积总相等，则体积相等。<br>
-    <b>体积：</b>取半径 <i>R</i> 的半球与底面半径 <i>R</i>、高 <i>R</i> 的圆柱，从圆柱中挖去以圆柱上底面为底、下底面圆心为顶点的圆锥。在距底面 <i>h</i> 处，球截面 π(<i>R</i>²−<i>h</i>²)，剩余部分截面 π<i>R</i>²−π<i>h</i>²——恒等，故半球体积 = π<i>R</i>³ − ⅓π<i>R</i>³ = ⅔π<i>R</i>³，整个球为 <b>4/3 π<i>R</i>³</b>。<br>
-    <b>表面积：</b>切成 n 条等高环带，每条 2π<i>R</i>Δz，总和 2π<i>R</i>·2<i>R</i> = <b>4π<i>R</i>²</b>；也可由「分割成 n 个以球心为顶点的小锥体」得 V = ⅓<i>S R</i>，故 S = 3V/R = 4π<i>R</i>²。
-  </footer>
 </div>
+<div class="qmodal" id="qModal" hidden>
+  <div class="qbox">
+    <div class="qtop">
+      <span class="qb" id="qmTag">猜想</span>
+      <span class="qb score" id="qmScore">得分 0</span>
+      <span class="sp"></span>
+      <button class="mbtn" id="qmPrev" hidden>←</button>
+      <button class="mbtn" id="qmNext" hidden>下一题 →</button>
+      <button class="mbtn" id="qmSide" title="收起题目，回到画布与侧栏">活动探究</button>
+      <button class="mbtn x" id="qmClose" title="关闭">✕</button>
+    </div>
+    <div id="qmBody"></div>
+  </div>
+</div>
+
 
 <script>
 (function(){
 "use strict";
 
-const cv=document.getElementById("scene");
-const ctx=cv.getContext("2d");
-let W=920,H=620,dpr=1;
+/* ==================== 状态 ==================== */
+const GR=1.25;   // 猜想部分统一半径
 
-const SPH=[225,29,72];      // 球 / 半球：玫红
-const CYL=[13,148,136];     // 圆柱挖圆锥：墨绿
-const CYLL=[45,212,191];    // 浅绿环带
-const WIRE=[79,70,229];     // 线框：靛蓝
-const GRID=[160,174,192];
+const st={
+  tab:"free", freeMode:"vol", scene:"vol",
+  R:1.2, hFrac:0.50, yaw:0.62, pitch:0.26, zoom:1,
+  plane:true, section:true, playing:false, dir:1,
+  n:16, band:7, proj:false,
+  shear:0.42, anim:false, animT:0, oneSec:false,
+  step:0, ans:new Array(7).fill(-1), rev:new Array(7).fill(false),
+  choice:-1, apex:"bottom",
+  fillT:0,
+  lv:0, lvAns:[], lvDone:false, bossStarted:false,
+};
 
-const st={mode:"vol",R:1.2,hFrac:0.45,yaw:0.62,pitch:0.40,zoom:1,
-          plane:true,section:true,floor:true,playing:false,dir:1,n:16,band:7};
-
-const cxL=()=>-1.45*st.R;
-const cxR=()=> 1.45*st.R;
-const hNow=()=>st.hFrac*st.R;
+/* ==================== 画布 / 相机 ==================== */
+const cv=document.getElementById("scene"), ctx=cv.getContext("2d");
+let W=920,H=600,dpr=1;
 
 function fit(){
-  const rect=cv.getBoundingClientRect();
-  W=Math.max(300,Math.round(rect.width||920));
-  H=Math.round(W*620/920);
+  const r=cv.getBoundingClientRect();
+  W=Math.max(320,Math.round(r.width||920));
+  H=Math.round(W*0.625);
   dpr=Math.min(2,window.devicePixelRatio||1);
-  cv.width=Math.round(W*dpr);
-  cv.height=Math.round(H*dpr);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 
-/* ---------- 向量 / 相机 / 投影 ---------- */
 const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const LIGHT=(()=>{const v=[-0.36,0.86,0.38],m=Math.hypot(v[0],v[1],v[2]);return [v[0]/m,v[1]/m,v[2]/m];})();
 const cam={};
+
+function camSpec(){
+  const R=(st.scene==="stack")?GR:(st.scene==="vol"?st.R:GR);
+  const s=Math.pow(R/1.2,0.7)*st.zoom;
+  switch(st.scene){
+    case "vol":       return {ty:R*0.38, d:5.8*s};
+    case "stack":     return {ty:R*0.70, d:5.6*s};
+    case "principle": return {ty:R*0.58, d:7.1*s};
+    case "construct":
+    case "apex":      return {ty:R*0.58, d:7.1*s};
+    case "bands":
+    case "pyramid":   return {ty:R*1.0, d:5.2*s};
+    default:          return {ty:R*0.5, d:6.2*s};
+  }
+}
 function updCam(){
-  cam.t=[0, st.mode==="vol" ? st.R*0.26 : st.R, 0];
-  const dist=5.3*Math.pow(st.R/1.2,0.7)*st.zoom;
-  const cp=Math.cos(st.pitch),sp=Math.sin(st.pitch);
+  const sp=camSpec();
+  const PK=1.34;           // 拉远相机 + 同步加长焦距：物体大小不变，透视畸变更小
+  const dist=sp.d*PK;
+  const cp=Math.cos(st.pitch),sp2=Math.sin(st.pitch);
   const cy=Math.cos(st.yaw),sy=Math.sin(st.yaw);
-  cam.pos=[cam.t[0]+dist*cp*sy, cam.t[1]+dist*sp, cam.t[2]+dist*cp*cy];
+  cam.t=[0,sp.ty,0];
+  cam.pos=[dist*cp*sy, sp.ty+dist*sp2, dist*cp*cy];
   cam.right=[cy,0,-sy];
-  cam.up=[-sp*sy,cp,-sp*cy];
-  cam.fwd=[-cp*sy,-sp,-cp*cy];
-  cam.F=H*1.2;
+  cam.up=[-sp2*sy,cp,-sp2*cy];
+  cam.fwd=[-cp*sy,-sp2,-cp*cy];
+  cam.F=H*1.22*PK;
 }
 function project(p){
   const dx=p[0]-cam.pos[0],dy=p[1]-cam.pos[1],dz=p[2]-cam.pos[2];
   const xc=dx*cam.right[0]+dy*cam.right[1]+dz*cam.right[2];
   const yc=dx*cam.up[0]+dy*cam.up[1]+dz*cam.up[2];
   const dc=dx*cam.fwd[0]+dy*cam.fwd[1]+dz*cam.fwd[2];
-  const z=Math.max(0.08,dc);
+  const z=Math.max(0.06,dc);
   return [W/2+cam.F*xc/z, H/2-cam.F*yc/z, dc];
 }
 
-/* ---------- 几何构建：截断半球 ---------- */
-function buildHemisphere(cx,R){
-  const m=[], NLAT=14, NLON=32;
+/* ==================== 几何构建 ==================== */
+const CB={ball:[225,29,72], cup:[13,148,136], cupDark:[24,118,110], band:[45,212,191], amber:[250,178,90],
+          paper:[226,232,240], paperHi:[241,245,250], cone:[190,24,93]};
+
+function quad(v,n,c,both){return {v:v,n:n,c:c,both:!!both};}
+
+function buildHemisphere(cx,R,y0){
+  y0=y0||0;
+  const m=[],NLAT=12,NLON=28;
   for(let i=0;i<NLAT;i++){
-    const l0=i/NLAT*Math.PI/2, l1=(i+1)/NLAT*Math.PI/2;
+    const l0=i/NLAT*Math.PI/2,l1=(i+1)/NLAT*Math.PI/2;
     for(let j=0;j<NLON;j++){
-      const t0=j/NLON*Math.PI*2, t1=(j+1)/NLON*Math.PI*2;
-      const P=(l,t)=>[cx+R*Math.cos(l)*Math.cos(t), R*Math.sin(l), R*Math.cos(l)*Math.sin(t)];
-      m.push({
-        v:[P(l0,t0),P(l0,t1),P(l1,t1),P(l1,t0)],
-        n:[Math.cos(l0)*Math.cos(t0),Math.sin(l0),Math.cos(l0)*Math.sin(t0)],
-        c:SPH
-      });
+      const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+      const P=(l,t)=>[cx+R*Math.cos(l)*Math.cos(t), y0+R*Math.sin(l), R*Math.cos(l)*Math.sin(t)];
+      m.push(quad([P(l0,t0),P(l0,t1),P(l1,t1),P(l1,t0)],
+        [Math.cos(l0)*Math.cos(t0),Math.sin(l0),Math.cos(l0)*Math.sin(t0)],CB.ball));
     }
   }
-  // 底面圆盘（法向朝下，从上方看不到）
   for(let j=0;j<NLON;j++){
-    const t0=j/NLON*Math.PI*2, t1=(j+1)/NLON*Math.PI*2;
-    m.push({
-      v:[[cx,0,0],[cx+R*Math.cos(t0),0,R*Math.sin(t0)],[cx+R*Math.cos(t1),0,R*Math.sin(t1)]],
-      n:[0,-1,0], c:SPH
-    });
+    const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+    m.push(quad([[cx,y0,0],[cx+R*Math.cos(t0),y0,R*Math.sin(t0)],[cx+R*Math.cos(t1),y0,R*Math.sin(t1)]],
+      [0,-1,0],CB.ball));
   }
   return m;
 }
 
-/* ---------- 几何构建：圆柱挖去圆锥 ---------- */
-function buildCup(cx,R){
-  const m=[], NLON=32, NY=7;
-  // 外侧柱面
+function buildCylinder(cx,R){
+  const m=[],NLON=30,NY=10;
   for(let i=0;i<NY;i++){
-    const y0=R*i/NY, y1=R*(i+1)/NY;
+    const y0=R*i/NY,y1=R*(i+1)/NY;
     for(let j=0;j<NLON;j++){
-      const t0=j/NLON*Math.PI*2, t1=(j+1)/NLON*Math.PI*2;
+      const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
       const P=(y,t)=>[cx+R*Math.cos(t),y,R*Math.sin(t)];
-      m.push({
-        v:[P(y0,t0),P(y0,t1),P(y1,t1),P(y1,t0)],
-        n:[Math.cos((t0+t1)/2),0,Math.sin((t0+t1)/2)], c:CYL
-      });
+      const tm=(t0+t1)/2;
+      m.push(quad([P(y0,t0),P(y0,t1),P(y1,t1),P(y1,t0)],[Math.cos(tm),0,Math.sin(tm)],CB.cup));
     }
   }
-  // 内锥面（顶点在下底面圆心，母线到上底面圆周）
-  for(let i=1;i<NY;i++){
-    const y0=R*i/NY, y1=R*(i+1)/NY;
-    for(let j=0;j<NLON;j++){
-      const t0=j/NLON*Math.PI*2, t1=(j+1)/NLON*Math.PI*2;
-      const P=(y,t)=>[cx+y*Math.cos(t),y,y*Math.sin(t)];
-      const tm=(t0+t1)/2, s=Math.SQRT2;
-      m.push({
-        v:[P(y0,t0),P(y0,t1),P(y1,t1),P(y1,t0)],
-        n:[-Math.cos(tm)/s,1/s,-Math.sin(tm)/s], c:CYL, both:true
-      });
-    }
-  }
-  // 下底面圆盘（完整圆，因为锥顶在此处半径为零）
   for(let j=0;j<NLON;j++){
-    const t0=j/NLON*Math.PI*2, t1=(j+1)/NLON*Math.PI*2;
-    m.push({
-      v:[[cx,0,0],[cx+R*Math.cos(t0),0,R*Math.sin(t0)],[cx+R*Math.cos(t1),0,R*Math.sin(t1)]],
-      n:[0,-1,0], c:CYL
-    });
+    const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+    m.push(quad([[cx,R,0],[cx+R*Math.cos(t0),R,R*Math.sin(t0)],[cx+R*Math.cos(t1),R,R*Math.sin(t1)]],[0,1,0],CB.cup));
   }
   return m;
 }
 
-/* ---------- 几何构建：表面积模式的整球环带 ---------- */
-function buildAreaScene(){
-  const R=st.R, NLON=36, NB=Math.min(36,st.n), SUB=3, m=[];
-  for(let k=0;k<NB;k++){
-    const y0=-R+2*R*k/NB, y1=-R+2*R*(k+1)/NB;
+function buildCup(cx,R,mode){
+  const m=[],NLON=30,NY=10,rip=1/Math.SQRT2;
+  for(let i=0;i<NY;i++){
+    const y0=R*i/NY,y1=R*(i+1)/NY;
+    for(let j=0;j<NLON;j++){
+      const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+      const P=(y,t)=>[cx+R*Math.cos(t),y,R*Math.sin(t)];
+      const tm=(t0+t1)/2;
+      m.push(quad([P(y0,t0),P(y0,t1),P(y1,t1),P(y1,t0)],[Math.cos(tm),0,Math.sin(tm)],CB.cup));
+    }
+  }
+  // 内锥面
+  for(let i=1;i<NY;i++){
+    const y0=R*i/NY,y1=R*(i+1)/NY;
+    for(let j=0;j<NLON;j++){
+      const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+      const r=y=>mode==="bottom"?y:(R-y);
+      const P=(y,t)=>[cx+r(y)*Math.cos(t),y,r(y)*Math.sin(t)];
+      const tm=(t0+t1)/2;
+      m.push(quad([P(y0,t0),P(y0,t1),P(y1,t1),P(y1,t0)],[0,0,0],CB.cupDark,true));
+    }
+  }
+  // 端面：下锥尖模式补下底；上锥尖模式补上底
+  const yy=(mode==="bottom")?0:R;
+  const nn=(mode==="bottom")?[0,-1,0]:[0,1,0];
+  for(let j=0;j<NLON;j++){
+    const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+    m.push(quad([[cx,yy,0],[cx+R*Math.cos(t0),yy,R*Math.sin(t0)],[cx+R*Math.cos(t1),yy,R*Math.sin(t1)]],nn,CB.cup));
+  }
+  return m;
+}
+
+function buildCone(cx,R){
+  const m=[],NLON=30,NY=10;
+  for(let i=0;i<NY;i++){
+    const y0=R*i/NY,y1=R*(i+1)/NY;
+    for(let j=0;j<NLON;j++){
+      const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+      const P=(y,t)=>[cx+y*Math.cos(t),y,y*Math.sin(t)];
+      const tm=(t0+t1)/2;
+      m.push(quad([P(y0,t0),P(y0,t1),P(y1,t1),P(y1,t0)],
+        [Math.cos(tm)/Math.SQRT2,1/Math.SQRT2,Math.sin(tm)/Math.SQRT2],CB.cone));
+    }
+  }
+  for(let j=0;j<NLON;j++){
+    const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+    m.push(quad([[cx,R,0],[cx+R*Math.cos(t0),R,R*Math.sin(t0)],[cx+R*Math.cos(t1),R,R*Math.sin(t1)]],[0,1,0],CB.cone));
+  }
+  return m;
+}
+
+/* 怪形体：截面圆环（外 R，内 r(h)），整体被推歪 */
+function weirdOff(y,R,amp){
+  return [amp*R*(y/R), 0, amp*R*0.34*Math.sin(Math.PI*y/R)];
+}
+function buildWeird(cx,R,inner,amp){
+  const m=[],NLON=26,NY=26;
+  for(let i=0;i<NY;i++){
+    const y0=R*i/NY,y1=R*(i+1)/NY;
+    const o0=weirdOff(y0,R,amp),o1=weirdOff(y1,R,amp);
+    const ri0=Math.max(0.001,inner(y0)),ri1=Math.max(0.001,inner(y1));
+    for(let j=0;j<NLON;j++){
+      const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+      const tm=(t0+t1)/2;
+      m.push(quad([
+        [cx+o0[0]+R*Math.cos(t0),y0,o0[2]+R*Math.sin(t0)],
+        [cx+o0[0]+R*Math.cos(t1),y0,o0[2]+R*Math.sin(t1)],
+        [cx+o1[0]+R*Math.cos(t1),y1,o1[2]+R*Math.sin(t1)],
+        [cx+o1[0]+R*Math.cos(t0),y1,o1[2]+R*Math.sin(t0)]],[Math.cos(tm),0,Math.sin(tm)],CB.cup));
+      m.push(quad([
+        [cx+o0[0]+ri0*Math.cos(t0),y0,o0[2]+ri0*Math.sin(t0)],
+        [cx+o0[0]+ri0*Math.cos(t1),y0,o0[2]+ri0*Math.sin(t1)],
+        [cx+o1[0]+ri1*Math.cos(t1),y1,o1[2]+ri1*Math.sin(t1)],
+        [cx+o1[0]+ri1*Math.cos(t0),y1,o1[2]+ri1*Math.sin(t0)]],[0,0,0],CB.cup,true));
+    }
+  }
+  for(let j=0;j<NLON;j++){
+    const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
+    m.push(quad([[cx,0,0],[cx+R*Math.cos(t0),0,R*Math.sin(t0)],[cx+R*Math.cos(t1),0,R*Math.sin(t1)]],[0,-1,0],CB.cup));
+  }
+  return m;
+}
+
+/* 表面积环带 */
+function buildBands(R,n,highlight){
+  const NLON=34,SUB=2,m=[];
+  for(let k=0;k<n;k++){
+    const y0=-R+2*R*k/n,y1=-R+2*R*(k+1)/n;
     const f0=Math.asin(Math.max(-1,Math.min(1,y0/R)));
     const f1=Math.asin(Math.max(-1,Math.min(1,y1/R)));
-    const base=(k%2)?CYL:CYLL;
+    const base=(k%2)?CB.band:CB.cup;
     for(let s=0;s<SUB;s++){
-      const l0=f0+(f1-f0)*s/SUB, l1=f0+(f1-f0)*(s+1)/SUB;
-      const r0=R*Math.cos(l0), r1=R*Math.cos(l1);
+      const l0=f0+(f1-f0)*s/SUB,l1=f0+(f1-f0)*(s+1)/SUB;
+      const r0=R*Math.cos(l0),r1=R*Math.cos(l1);
       for(let j=0;j<NLON;j++){
-        const t0=j/NLON*Math.PI*2, t1=(j+1)/NLON*Math.PI*2;
+        const t0=j/NLON*Math.PI*2,t1=(j+1)/NLON*Math.PI*2;
         const P=(r,l,t)=>[r*Math.cos(t), R+R*Math.sin(l), r*Math.sin(t)];
-        m.push({
-          v:[P(r0,l0,t0),P(r0,l0,t1),P(r1,l1,t1),P(r1,l1,t0)],
-          n:[Math.cos(l0)*Math.cos(t0),Math.sin(l0),Math.cos(l0)*Math.sin(t0)],
-          c:base, band:k
-        });
+        m.push(quad([P(r0,l0,t0),P(r0,l0,t1),P(r1,l1,t1),P(r1,l1,t0)],
+          [Math.cos(l0)*Math.cos(t0),Math.sin(l0),Math.cos(l0)*Math.sin(t0)],
+          (k===highlight)?CB.amber:base));
       }
     }
   }
   return m;
 }
 
-/* ---------- 渲染 ---------- */
-const LIGHT=(function(){
-  const v=[-0.38,0.86,0.36], m=Math.hypot(v[0],v[1],v[2]);
-  return [v[0]/m,v[1]/m,v[2]/m];
-})();
-
+/* ==================== 绘制原语 ==================== */
 function poly(pts){
   const p=new Path2D();
   p.moveTo(pts[0][0],pts[0][1]);
   for(let i=1;i<pts.length;i++) p.lineTo(pts[i][0],pts[i][1]);
-  p.closePath();
-  return p;
+  p.closePath(); return p;
 }
 function circleWorld(cx,cy,cz,r,seg,rev){
   const pts=[];
   for(let i=0;i<=seg;i++){
     const t=(rev?-1:1)*i/seg*Math.PI*2;
     const q=project([cx+r*Math.cos(t),cy,cz+r*Math.sin(t)]);
-    if(q[2]>0.1) pts.push([q[0],q[1]]);
+    if(q[2]>0) pts.push([q[0],q[1]]);
   }
   return pts;
 }
-
-function drawMesh(mesh){
+function drawMesh(mesh,opt){
+  opt=opt||{};
+  const cut=(opt.cut===undefined)?null:opt.cut;
+  const ghostPts=[];
+  const alpha=(opt.alpha===undefined)?1:opt.alpha;
   const items=[];
   for(let k=0;k<mesh.length;k++){
-    const f=mesh[k], n=f.v.length;
+    const f=mesh[k],n=f.v.length;
     let sx=0,sy=0,sz=0;
-    for(const v of f.v){ sx+=v[0]; sy+=v[1]; sz+=v[2]; }
+    for(const v of f.v){sx+=v[0];sy+=v[1];sz+=v[2];}
     const c=[sx/n,sy/n,sz/n];
-    const toCam=[cam.pos[0]-c[0],cam.pos[1]-c[1],cam.pos[2]-c[2]];
-    if(!f.both && dot(f.n,toCam)<0) continue;
+    const to=[cam.pos[0]-c[0],cam.pos[1]-c[1],cam.pos[2]-c[2]];
+    if(!f.both&&dot(f.n,to)<0) continue;
     const P=f.v.map(project);
     let bad=false;
-    for(const p of P){ if(p[2]<0.12){ bad=true; break; } }
+    for(const p of P){ if(p[2]<0.08){bad=true;break;} }
     if(bad) continue;
     let d=0; for(const p of P) d+=p[2];
-    items.push({P:P,d:d/P.length,f:f,c:c});
+    items.push({P:P,d:d/n,f:f,c:c});
   }
   items.sort((a,b)=>b.d-a.d);
-
   for(const it of items){
     const f=it.f;
-    const lam=f.both ? Math.min(1,Math.abs(dot(f.n,LIGHT)))*0.95
-                     : Math.max(0,dot(f.n,LIGHT));
-    const kk=0.46+0.62*lam;
-    const base=(st.mode==="area"&&f.band===st.band)?[217,119,6]:f.c;
+    const lam=f.both?Math.min(1,Math.abs(dot(f.n,LIGHT)))*0.9:Math.max(0,dot(f.n,LIGHT));
+    const kk=0.52+0.6*lam;
+    const base=f.c;
     const r=Math.min(255,Math.round(base[0]*kk));
     const g=Math.min(255,Math.round(base[1]*kk));
     const b=Math.min(255,Math.round(base[2]*kk));
-    const ghost=(st.mode==="vol" && it.c[1]>hNow()+0.002);
+    const ghost=(cut!==null&&it.c[1]>cut+0.002);
+    if(cut!==null) for(const p of it.P) ghostPts.push([p[0],p[1],it.c[0]]);
     ctx.beginPath();
     ctx.moveTo(it.P[0][0],it.P[0][1]);
     for(let i=1;i<it.P.length;i++) ctx.lineTo(it.P[i][0],it.P[i][1]);
     ctx.closePath();
     if(ghost){
-      ctx.fillStyle=`rgba(${r},${g},${b},0.55)`;
+      // 剖切面以上：极淡灰体 + 一圈轮廓，保留整体外形
+      if(f.both) continue;
+      ctx.globalAlpha=.055;
+      ctx.fillStyle="#9db2c6";
       ctx.fill();
-    }else{
-      ctx.fillStyle=`rgb(${r},${g},${b})`;
-      ctx.fill();
-      ctx.lineWidth=0.8;
-      ctx.strokeStyle=`rgb(${r},${g},${b})`;
-      ctx.stroke();
+      ctx.globalAlpha=1;
+      continue;
     }
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle="rgb("+r+","+g+","+b+")";
+    ctx.fill();
+    // 用同色描边补住相邻面片之间的抗锯齿缝隙
+    ctx.strokeStyle="rgb("+r+","+g+","+b+")";
+    ctx.lineWidth=opt.edges===false?0.9:0.4;
+    ctx.stroke();
+    ctx.globalAlpha=1;
+  }
+  if(ghostPts.length>8){
+    // 左右两个体分别求轮廓，避免把两者包成一个大四边形
+    const split=ghostPts.filter(p=>p[2]<0).map(p=>[p[0],p[1]]);
+    const split2=ghostPts.filter(p=>p[2]>=0).map(p=>[p[0],p[1]]);
+    ctx.strokeStyle="rgba(96,124,156,.50)";
+    ctx.lineWidth=1.2;
+    [split,split2].forEach(g=>{
+      if(g.length<8) return;
+      const hh=hull2(g);
+      ctx.beginPath();
+      ctx.moveTo(hh[0][0],hh[0][1]);
+      for(let i=1;i<hh.length;i++) ctx.lineTo(hh[i][0],hh[i][1]);
+      ctx.closePath();
+      ctx.stroke();
+    });
   }
 }
-
+/* 同一高度的细实线标尺（替代原来的虚线椭圆） */
+function levelLine(x1,x2,y){
+  const a=project([x1,y,0]),b=project([x2,y,0]);
+  if(a[2]<=0||b[2]<=0) return;
+  ctx.strokeStyle="rgba(16,49,79,.24)";ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+  ctx.strokeStyle="rgba(16,49,79,.16)";
+  ctx.beginPath();ctx.moveTo(a[0],a[1]-5);ctx.lineTo(a[0],a[1]+5);
+  ctx.moveTo(b[0],b[1]-5);ctx.lineTo(b[0],b[1]+5);ctx.stroke();
+}
+/* 凸包：给“被切走的部分”勾一条清晰轮廓 */
+function hull2(pts){
+  if(pts.length<3) return pts;
+  const p=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+  const lo=[],up=[];
+  for(const q of p){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0)lo.pop();lo.push(q);}
+  for(const q of p.slice().reverse()){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],q)<=0)up.pop();up.push(q);}
+  return lo.slice(0,-1).concat(up.slice(0,-1));
+}
+function fillDisk(cx,cy,cz,r,rgb,srgb){
+  const p=circleWorld(cx,cy,cz,r,64,false);
+  if(p.length>2){
+    const path=poly(p);
+    ctx.fillStyle=rgb; ctx.fill(path);
+    if(srgb){ctx.strokeStyle=srgb;ctx.lineWidth=2;ctx.stroke(path);}
+  }
+}
+function fillRing(cx,cy,cz,rO,rI,rgb,srgb){
+  const o=circleWorld(cx,cy,cz,rO,64,false);
+  const i=circleWorld(cx,cy,cz,rI,64,true);
+  if(o.length>2&&i.length>2){
+    const p=new Path2D();
+    const add=a=>{a.forEach((q,k)=>{k?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1])});p.closePath();};
+    add(o);add(i);
+    ctx.fillStyle=rgb; ctx.fill(p,"evenodd");
+    if(srgb){ctx.strokeStyle=srgb;ctx.lineWidth=2;ctx.stroke(p);}
+  }
+}
 function drawFloor(){
-  const R=st.R, X=2.85*R, Z=1.6*R, step=0.38*R;
-  ctx.strokeStyle="rgba(148,163,184,.35)";
-  ctx.lineWidth=1;
+  const R=(st.scene==="vol"?st.R:GR);
+  const X=2.9*R,Z=1.7*R,step=0.42*R;
+  ctx.strokeStyle="rgba(148,163,184,.28)";ctx.lineWidth=1;
   for(let x=-X;x<=X+1e-6;x+=step){
-    const a=project([x,0,-Z]), b=project([x,0,Z]);
-    if(a[2]>0.1&&b[2]>0.1){
-      ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
-    }
+    const a=project([x,0,-Z]),b=project([x,0,Z]);
+    if(a[2]>0&&b[2]>0){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
   }
   for(let z=-Z;z<=Z+1e-6;z+=step){
-    const a=project([-X,0,z]), b=project([X,0,z]);
-    if(a[2]>0.1&&b[2]>0.1){
-      ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
+    const a=project([-X,0,z]),b=project([X,0,z]);
+    if(a[2]>0&&b[2]>0){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+  }
+}
+function text(str,x,y,color,size,weight){
+  ctx.font=(weight||"600")+" "+(size||12.5)+'px "PingFang SC","Microsoft YaHei",system-ui,sans-serif';
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.lineWidth=3.6;ctx.strokeStyle="rgba(255,255,255,.95)";
+  ctx.strokeText(str,x,y);ctx.fillStyle=color;ctx.fillText(str,x,y);
+}
+
+/* ==================== 各场景 ==================== */
+const CX2=1.56;   // 双体场景左右中心
+function cxL(){return -CX2*GR;}
+function cxR(){return  CX2*GR;}
+function hNow(){return st.hFrac*st.R;}
+function hG(){return st.hFrac*GR;}
+
+function drawStack(){
+  const R=GR,A=1.02*R,B=0.70*R,T=0.90*R,N=13,t=T/N;
+  const sh=st.anim?(0.42+0.40*Math.sin(st.animT*0.9)):st.shear;
+  const P=(o,y,x,z)=>project([x+o,y,z]);
+  function oneCard(o,y0,y1,tone){
+    const top=[P(o,y1,-A,-B),P(o,y1,A,-B),P(o,y1,A,B),P(o,y1,-A,B)];
+    const front=[P(o,y0,-A,B),P(o,y0,A,B),P(o,y1,A,B),P(o,y1,-A,B)];
+    const right=[P(o,y0,A,-B),P(o,y0,A,B),P(o,y1,A,B),P(o,y1,A,-B)];
+    const p1=poly(top),p2=poly(front),p3=poly(right);
+    if(tone==="lift"){
+      ctx.fillStyle="rgba(255,241,242,.96)";ctx.fill(p1);
+      ctx.strokeStyle="#e11d48";ctx.lineWidth=1.8;ctx.stroke(p1);
+      ctx.fillStyle="rgba(254,205,211,.92)";ctx.fill(p2);ctx.fill(p3);
+      ctx.strokeStyle="#fda4af";ctx.lineWidth=1;ctx.stroke(p2);ctx.stroke(p3);
+      return;
     }
+    ctx.fillStyle=tone;ctx.fill(p1);
+    ctx.strokeStyle="rgba(203,213,225,.9)";ctx.lineWidth=0.7;ctx.stroke(p1);
+    ctx.fillStyle="rgb(203,212,224)";ctx.fill(p2);
+    ctx.strokeStyle="rgba(226,232,240,.8)";ctx.lineWidth=0.5;ctx.stroke(p2);
+    ctx.fillStyle="rgb(174,187,205)";ctx.fill(p3);
+    ctx.strokeStyle="rgba(210,220,233,.8)";ctx.lineWidth=0.5;ctx.stroke(p3);
   }
+  for(let i=0;i<N;i++){
+    const o=sh*0.55*R*(i/(N-1));
+    oneCard(o,i*t,(i+1)*t,i%2?"rgb(240,244,250)":"rgb(248,250,253)");
+  }
+  const oTop=sh*0.55*R, gap=0.24*R;
+  oneCard(oTop,T+gap,T+gap+t*1.6,"lift");
+  const cQ=project([oTop,T+gap+t*1.6,0]);
+  text("每一层都是同一张纸",cQ[0],cQ[1]-34,"#be123c",12);
+  const tp=project([0,T+gap+t*1.6+0.12*R,0]);
+  text("层数不变 · 每层面积不变 ⇒ 体积不变",tp[0],tp[1]-62,"#475569",12.5);
 }
 
-function drawPlane(){
-  const R=st.R, h=hNow();
-  ctx.setLineDash([5,5]);
-  ctx.strokeStyle="rgba(79,70,229,.55)";
-  ctx.lineWidth=1.5;
-  [cxL(),cxR()].forEach(cx=>{
-    const p=circleWorld(cx,h,0,R*1.1,64,false);
-    if(p.length>2) ctx.stroke(poly(p));
-  });
-  ctx.beginPath();
-  const a=project([cxL(),h,0]), b=project([cxR(),h,0]);
-  ctx.moveTo(a[0],a[1]);
-  ctx.lineTo(b[0],b[1]);
-  ctx.stroke();
-  ctx.setLineDash([]);
+function secBall(h,R){return Math.PI*(R*R-h*h);}
+function weirdInner(f){ // f: 0..1 高度比例
+  return y=>{
+    let r=y;
+    if(f) r=y+0.24*GR*Math.sin(2*Math.PI*y/GR);
+    return Math.max(0,Math.min(GR,r));
+  };
+}
+function volBySlices(sec,R,n){
+  n=n||240; let v=0;
+  for(let i=0;i<n;i++){const h=(i+0.5)*R/n; v+=sec(h)*(R/n);}
+  return v;
 }
 
-function drawSections(){
-  const R=st.R, h=hNow(), rs=Math.sqrt(Math.max(0,R*R-h*h));
-  const a=circleWorld(cxL(),h,0,rs,72,false);
-  if(a.length>2){
-    const p=poly(a);
-    ctx.fillStyle="rgba(225,29,72,.8)";
-    ctx.fill(p);
-    ctx.strokeStyle="#9f1239";
-    ctx.lineWidth=2.2;
-    ctx.stroke(p);
+function drawPrinciple(){
+  const R=GR,h=hG();
+  const amp=st.anim?(0.30+0.16*Math.sin(st.animT*1.2)):0.42;
+  drawMesh(buildHemisphere(cxL(),R),{cut:h});
+  drawMesh(buildWeird(cxR(),R,weirdInner(st.oneSec),amp),{cut:h});
+
+  levelLine(cxL()-R*1.02,cxR()+R*1.02,h);
+
+  fillDisk(cxL(),h,0,Math.sqrt(Math.max(0,R*R-h*h)),"rgba(225,29,72,.55)","#9f1239");
+  const o=weirdOff(h,R,amp);
+  const ri=weirdInner(st.oneSec)(h);
+  fillRing(cxR()+o[0],h,o[2],R,ri,"rgba(13,148,136,.52)","#115e59");
+
+  const l1=project([cxL(),R,0]),l2=project([cxR()+weirdOff(R,R,amp)[0],R,0]);
+  text("半球",l1[0],l1[1]-24,"#be123c",12.5);
+  text("被推歪的等截面体",l2[0],l2[1]-24,"#0f766e",12.5);
+  if(st.section){
+    const p1=project([cxL(),h,0]),p2=project([cxR()+o[0],h,o[2]]);
+    text("S₁",p1[0],p1[1]-4,"#be123c",12.5,"700");
+    text("S₂",p2[0],p2[1]-4,"#0f766e",12.5,"700");
   }
-  const o=circleWorld(cxR(),h,0,R,72,false);
-  const iN=circleWorld(cxR(),h,0,h,72,true);
-  if(o.length>2&&iN.length>2){
-    const p=new Path2D();
-    const add=(arr)=>{ arr.forEach((q,i)=>{ i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]); }); p.closePath(); };
-    add(o); add(iN);
-    ctx.fillStyle="rgba(13,148,136,.75)";
-    ctx.fill(p,"evenodd");
-    ctx.strokeStyle="#115e59";
-    ctx.lineWidth=2.2;
-    ctx.stroke(p);
-  }
+  const hp=project([0,h,0]);
+  text("h",hp[0],hp[1]-12,"#4f46e5",12.5,"700");
 }
 
-function drawCylWire(){
-  const R=st.R;
-  ctx.strokeStyle="rgba(79,70,229,.45)";
-  ctx.lineWidth=1.2;
-  ctx.setLineDash([5,4]);
+/* 构造 / 顶点：左半球，右候选体 */
+function shapeName(){
+  return ["圆柱","圆柱挖圆锥","圆锥","另一个半球"][st.choice]||"";
+}
+function shapeSec(kind,h,R,apex){
+  switch(kind){
+    case 0: return Math.PI*R*R;
+    case 1: return Math.PI*(R*R-(apex==="bottom"?h:(R-h))*(apex==="bottom"?h:(R-h)));
+    case 2: return Math.PI*h*h;
+    case 3: return Math.PI*(R*R-h*h);
+    default: return 0;
+  }
+}
+function drawConstruct(){
+  const R=GR,h=hG();
+  const kind=(st.scene==="apex")?1:st.choice;
+  drawMesh(buildHemisphere(cxL(),R));
+  if(kind<0){
+    const c=project([cxR(),R*0.42,0]);
+    ctx.setLineDash([6,6]);ctx.strokeStyle="#c9d8e8";ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.ellipse(c[0],c[1],40,34,0,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+    text("？",c[0],c[1],"#a9bdd2",26,"700");
+  }else{
+    if(kind===0) drawMesh(buildCylinder(cxR(),R));
+    if(kind===1) drawMesh(buildCup(cxR(),R,st.apex));
+    if(kind===2) drawMesh(buildCone(cxR(),R));
+    if(kind===3) drawMesh(buildHemisphere(cxR(),R));
+  }
+  levelLine(cxL()-R*1.02,cxR()+R*1.02,h);
+
+  fillDisk(cxL(),h,0,Math.sqrt(Math.max(0,R*R-h*h)),"rgba(225,29,72,.55)","#9f1239");
+  if(kind>=0){
+    if(kind===0) fillDisk(cxR(),h,0,R,"rgba(13,148,136,.5)","#115e59");
+    if(kind===1){
+      const ri=(st.apex==="bottom"?h:(R-h));
+      fillRing(cxR(),h,0,R,ri,"rgba(13,148,136,.5)","#115e59");
+    }
+    if(kind===2) fillDisk(cxR(),h,0,h,"rgba(190,24,93,.65)","#9f1239");
+    if(kind===3) fillDisk(cxR(),h,0,Math.sqrt(Math.max(0,R*R-h*h)),"rgba(225,29,72,.5)","#9f1239");
+  }
+  const l1=project([cxL(),R,0]);
+  text("半球（目标）",l1[0],l1[1]-26,"#be123c",12.5);
+  if(kind>=0){
+    const l2=project([cxR(),R,0]);
+    text(kind===1?"圆柱挖圆锥":shapeName(),l2[0],l2[1]-34,"#0f766e",12.5);
+  }
+  const hp=project([0,h,0]);
+  text("h",hp[0],hp[1]-12,"#4f46e5",12.5,"700");
+}
+
+/* 表面环带 */
+function drawBandsScene(){
+  const R=GR;
+  drawMesh(buildBands(R,st.n,st.band),{edges:false});
+  // 外接圆柱线框
+  ctx.strokeStyle="rgba(122,152,184,.42)";ctx.lineWidth=1;
   [0,2*R].forEach(y=>{
     const p=circleWorld(0,y,0,R,64,false);
     if(p.length>2) ctx.stroke(poly(p));
   });
-  for(let k=0;k<8;k++){
-    const t=k*Math.PI/4;
+  for(let k=0;k<4;k++){
+    const t=k*Math.PI/2;
     const a=project([R*Math.cos(t),0,R*Math.sin(t)]);
-    const b=project([R*Math.cos(t),2*R,R*Math.sin(t)]);
-    if(a[2]>0.1&&b[2]>0.1){
-      ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
+    const b=project([R*Math.cos(t)+0.001,2*R,R*Math.sin(t)]);
+    if(a[2]>0&&b[2]>0){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+  }
+  // 高亮环带 → 投影到圆柱侧面
+  const k=Math.min(st.band,st.n-1);
+  const yA=2*R*k/st.n,yB=2*R*(k+1)/st.n;
+  if(st.proj){
+    for(let j=0;j<48;j++){
+      const t0=j/48*Math.PI*2,t1=(j+1)/48*Math.PI*2;
+      const q=[project([R*Math.cos(t0),yA,R*Math.sin(t0)]),project([R*Math.cos(t1),yA,R*Math.sin(t1)]),
+               project([R*Math.cos(t1),yB,R*Math.sin(t1)]),project([R*Math.cos(t0),yB,R*Math.sin(t0)])];
+      if(q.some(p=>p[2]<=0)) continue;
+      const path=poly(q);
+      ctx.fillStyle="rgba(217,119,6,.16)";ctx.fill(path);
+      ctx.strokeStyle="rgba(217,119,6,.35)";ctx.lineWidth=.7;ctx.stroke(path);
+    }
+    const p1=circleWorld(0,yA,0,R,56,false),p2=circleWorld(0,yB,0,R,56,false);
+    if(p1.length>2&&p2.length>2){
+      const p=new Path2D();
+      const add=a=>{a.forEach((q,i)=>{i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1])});p.closePath();};
+      add(p1);add(p2);
+      ctx.strokeStyle="rgba(217,119,6,.9)";ctx.lineWidth=1.5;ctx.stroke(p);
     }
   }
-  ctx.setLineDash([]);
-}
-
-/* 外接圆柱上与高亮球环带同高的一段侧面 */
-function drawBandCyl(){
-  const R=st.R, NB=Math.min(36,st.n);
-  const k=Math.min(st.band,NB-1);
-  const yA=2*R*k/NB, yB=2*R*(k+1)/NB;
-  const p1=circleWorld(0,yA,0,R,64,false);
-  const p2=circleWorld(0,yB,0,R,64,false);
-  if(p1.length>2&&p2.length>2){
-    const p=new Path2D();
-    const add=arr=>{ arr.forEach((q,i)=>{ i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]); }); p.closePath(); };
-    add(p1); add(p2);
-    ctx.fillStyle="rgba(217,119,6,.13)";
-    ctx.fill(p,"evenodd");
-    ctx.strokeStyle="rgba(217,119,6,.9)";
-    ctx.lineWidth=1.6;
-    ctx.stroke(p);
+  for(let k=1;k<st.n;k++){
+    const y=-R+2*R*k/st.n, r=Math.sqrt(Math.max(0,R*R-y*y));
+    const p=circleWorld(0,R+y,0,r,64,false);
+    if(p.length>2){ctx.strokeStyle="rgba(255,255,255,.26)";ctx.lineWidth=0.7;ctx.stroke(poly(p));}
   }
+  const pt=project([0,2*R,0]);
+  text("球面 = 等高环带之和",pt[0],pt[1]-40,"#0f766e",12.5);
+  text("每条环带 ≡ 圆柱同一高度的侧面",pt[0],pt[1]-22,"#b45309",11.5);
 }
 
-function text(str,x,y,color,size,weight){
-  ctx.font=`${weight||"600"} ${size||13}px "PingFang SC","Microsoft YaHei",system-ui,sans-serif`;
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.lineWidth=3.6;
-  ctx.strokeStyle="rgba(255,255,255,.94)";
-  ctx.strokeText(str,x,y);
-  ctx.fillStyle=color;
-  ctx.fillText(str,x,y);
-}
+/* 定量：三杯水位 */
+function drawFill(){
+  const caps=[1,2/3,2/3];
+  const names=["圆柱","圆柱 − 圆锥","半球"];
+  const cols=["rgba(79,70,229,.14)","rgba(13,148,136,.14)","rgba(225,29,72,.14)"];
+  const waters=["#6366f1","#14b8a6","#fb7185"];
+  const baseY=H*0.82, maxH=H*0.54, bw=Math.min(112,W*0.17);
+  const xs=[W*0.22,W*0.5,W*0.78];
+  const f=st.fillT;
 
-function drawLabels(){
-  const R=st.R;
-  if(st.mode==="vol"){
-    const pl=project([cxL(),R,0]), pr=project([cxR(),R,0]);
-    text("半球",pl[0],pl[1]-26,"#be123c",13);
-    text("圆柱 − 圆锥",pr[0],pr[1]-26,"#0f766e",13);
-    if(st.section){
-      const h=hNow();
-      const a=project([cxL(),h,0]), b=project([cxR()+0.62*R,h,0]);
-      text("S₁",a[0],a[1]-3,"#be123c",13,"700");
-      text("S₂",b[0],b[1]-3,"#0f766e",13,"700");
+  const yLine=baseY-maxH*(2/3);
+  ctx.strokeStyle="rgba(180,83,9,.34)";ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W*0.10,yLine);ctx.lineTo(W*0.90,yLine);ctx.stroke();
+  text("⅔ 水位",W*0.905,yLine-9,"#b45309",10.5);
+
+  xs.forEach((x,i)=>{
+    const topY=baseY-maxH;
+    ctx.fillStyle=cols[i];
+    ctx.fillRect(x-bw/2,topY,bw,maxH);
+    ctx.strokeStyle="#e2e8f0";ctx.lineWidth=1.3;
+    ctx.strokeRect(x-bw/2,topY,bw,maxH);
+
+    const lvl=f*caps[i];
+    if(lvl>0.004){
+      const hh=maxH*lvl;
+      ctx.fillStyle=waters[i];ctx.globalAlpha=.8;
+      ctx.fillRect(x-bw/2+1.5,baseY-hh,bw-3,hh);
+      ctx.globalAlpha=1;
+      ctx.beginPath();ctx.moveTo(x-bw/2+1.5,baseY-hh);ctx.lineTo(x+bw/2-1.5,baseY-hh);
+      ctx.strokeStyle=waters[i];ctx.lineWidth=2.4;ctx.stroke();
     }
-    const hp=project([0,hNow(),0]);
-    text("h",hp[0],hp[1]-12,"#4f46e5",13,"700");
-  }else{
-    const pt=project([0,2*R,0]);
-    text("球面 = 等高环带之和",pt[0],pt[1]-44,"#0f766e",13);
-    text("高亮环带：球面 ≡ 圆柱同一高度侧面",pt[0],pt[1]-24,"#b45309",12.5);
-  }
+    text(names[i],x,topY-20,"#475569",12.5);
+    text(i===0?"πR³":(i===1?"⅔πR³":"⅔πR³"),x,baseY+24,i===0?"#4f46e5":(i===1?"#0d9488":"#e11d48"),13,"700");
+  });
+  text("圆柱挖去圆锥后，正好与半球齐平",W/2,H*0.965,"#64748b",11.5);
 }
 
+/* 小锥分割 */
+function drawPyramid(){
+  const R=GR,n=Math.max(4,Math.min(36,st.pyramidN||8));
+  st.pyramidBand=Math.floor(n*0.58);
+  // 球（半透明环带网格）
+  drawMesh(buildBands(R,n,-1),{alpha:0.6,edges:false});
+  const C=[0,R,0];
+  // 只画到高亮环带的母线，避免“伞骨”太密
+  // 高亮一条环带对应的小锥
+  const kb=Math.max(0,Math.min(n-1,st.pyramidBand));
+  const yb=-R+2*R*(kb+1)/n, rb=Math.sqrt(Math.max(0,R*R-yb*yb));
+  ctx.globalAlpha=.20;
+  for(let j=0;j<40;j++){
+    const t0=j/40*Math.PI*2,t1=(j+1)/40*Math.PI*2;
+    const q=[project(C),project([rb*Math.cos(t0),R+yb,rb*Math.sin(t0)]),project([rb*Math.cos(t1),R+yb,rb*Math.sin(t1)])];
+    if(q.some(p=>p[2]<=0)) continue;
+    const path=poly(q);
+    ctx.fillStyle="#d97706";ctx.fill(path);
+    ctx.strokeStyle="rgba(217,119,6,.35)";ctx.lineWidth=.6;ctx.stroke(path);
+  }
+  ctx.globalAlpha=1;
+  ctx.lineWidth=1;ctx.strokeStyle="rgba(217,119,6,.5)";
+  for(let j=0;j<18;j++){
+    const t=j/18*Math.PI*2;
+    const a=project(C), b=project([rb*Math.cos(t),R+yb,rb*Math.sin(t)]);
+    if(a[2]>0&&b[2]>0){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+  }
+  const ring=circleWorld(0,R+yb,0,rb,64,false);
+  if(ring.length>2){ctx.strokeStyle="rgba(217,119,6,.9)";ctx.lineWidth=1.4;ctx.stroke(poly(ring));}
+  text("n 个小锥，顶点都在球心",W/2,H*0.12,"#0f766e",12.5);
+  text("V = ⅓ S R  ⇒  S = 3V/R",W/2,H*0.12+20,"#b45309",12.5,"700");
+}
+
+/* ==================== 渲染调度 ==================== */
 function render(){
   updCam();
   ctx.clearRect(0,0,W,H);
-  if(st.floor) drawFloor();
-  drawMesh(st.mode==="vol" ? buildHemisphere(cxL(),st.R).concat(buildCup(cxR(),st.R))
-                           : buildAreaScene());
-  if(st.mode==="vol"){
-    if(st.plane) drawPlane();
-    if(st.section) drawSections();
-  }else{
-    drawCylWire();
-    drawBandCyl();
+  if(st.scene==="stack"){drawStack();return;}
+  if(st.scene==="fill"){drawFill();return;}
+  if(st.floor!==false&&st.scene!=="fill") drawFloor();
+  if(st.scene==="vol"){
+    const R=st.R,h=hNow();
+    drawMesh(buildHemisphere(-1.45*R,R).concat(buildCup(1.45*R,R,"bottom")),{cut:h});
+    if(st.plane){
+      levelLine(-1.45*R-R*1.02,1.45*R+R*1.02,h);
+    }
+    if(st.section){
+      fillDisk(-1.45*R,h,0,Math.sqrt(Math.max(0,R*R-h*h)),"rgba(225,29,72,.55)","#9f1239");
+      fillRing(1.45*R,h,0,R,h,"rgba(13,148,136,.52)","#115e59");
+      const s1=project([-1.45*R,h,0]),s2=project([1.45*R,h,0]);
+      text("S₁",s1[0],s1[1]+4,"#be123c",12.5,"700");
+      text("S₂",s2[0],s2[1]+4,"#0f766e",12.5,"700");
+    }
+    const l1=project([-1.45*R,R,0]),l2=project([1.45*R,R,0]);
+    text("半球",l1[0],l1[1]-24,"#be123c",12.5);
+    text("圆柱 − 圆锥",l2[0],l2[1]-42,"#0f766e",12.5);
+    const hp=project([0,h,0]);
+    text("h",hp[0],hp[1]-11,"#4f46e5",12.5,"700");
+    return;
   }
-  drawLabels();
+  if(st.scene==="principle"){drawPrinciple();return;}
+  if(st.scene==="construct"){drawConstruct();return;}
+  if(st.scene==="apex"){drawConstruct();return;}
+  if(st.scene==="bands"){drawBandsScene();return;}
+  if(st.scene==="pyramid"){drawPyramid();return;}
 }
 
-/* ---------- 面板与读数 ---------- */
+/* ==================== 面板：自由探究 ==================== */
 const $=id=>document.getElementById(id);
-const rOut=$("rOut"),hOut=$("hOut"),aBall=$("aBall"),aCyl=$("aCyl"),
-      cutBadge=$("cutBadge"),cutNote=$("cutNote"),volF=$("volF"),
-      nOut=$("nOut"),kOut=$("kOut"),dzOut=$("dzOut"),
-      bandBall=$("bandBall"),bandCyl=$("bandCyl"),bandBadge=$("bandBadge"),
-      areaF=$("areaF"),readout=$("readout"),hint=$("hint"),
-      rRange=$("rRange"),hRange=$("hRange"),nRange=$("nRange"),kRange=$("kRange"),
-      btnScan=$("btnScan"),btnReset=$("btnReset"),
-      hRow=$("hRow"),cardCut=$("cardCut"),cardVol=$("cardVol"),
-      cardR=$("cardR"),cardArea=$("cardArea");
+const readout=$("readout"), hint=$("hint");
 
-function updateUI(){
-  const R=st.R, h=hNow();
-  rOut.textContent="R = "+R.toFixed(2);
-  hOut.textContent="h = "+h.toFixed(2);
-  const s1=Math.PI*(R*R-h*h);
-  const s2=Math.PI*R*R-Math.PI*h*h;
-  aBall.textContent=s1.toFixed(2);
-  aCyl.textContent=s2.toFixed(2);
-  cutBadge.textContent=Math.abs(s1-s2)<1e-9 ? "S₁ ≡ S₂，与 h 无关" : "S₁ ≠ S₂";
-  const rs=Math.sqrt(Math.max(0,R*R-h*h));
-  cutNote.innerHTML="球截面半径 √(<i>R</i>²−<i>h</i>²) = "+rs.toFixed(2)+
-    "；右图为圆环，外半径 <i>R</i>、内半径 <i>h</i> = "+h.toFixed(2)+
-    "。<b>两式恒等</b>，逐层面积相等。";
-  volF.innerHTML=
-    "V<sub>半球</sub> = <span class=\"l2\">πR³</span> − <span class=\"l1\">⅓πR³</span> = ⅔πR³ ≈ <span class=\"res\">"+
-    (2/3*Math.PI*Math.pow(R,3)).toFixed(2)+"</span><br>"+
-    "V<sub>球</sub> = 2 × ⅔πR³ = <span class=\"va\">4/3 πR³</span> ≈ <span class=\"res\">"+
-    (4/3*Math.PI*Math.pow(R,3)).toFixed(2)+"</span>";
-  const n=st.n, dz=2*R/n, ab=2*Math.PI*R*dz;
-  nOut.textContent="n = "+n;
-  kOut.textContent="第 "+(st.band+1)+" / "+n+" 条";
-  dzOut.textContent=dz.toFixed(3);
-  bandBall.textContent=ab.toFixed(3);
-  bandCyl.textContent=ab.toFixed(3);
-  areaF.innerHTML=
-    "S<sub>球</sub> = Σ2π<i>R</i>Δz = 2π<i>R</i>·2<i>R</i> = <span class=\"va\">4π<i>R</i>²</span> ≈ <span class=\"res\">"+
-    (4*Math.PI*R*R).toFixed(2)+"</span><br>"+
-    "<span class=\"dim\">每条环带都等于同高圆柱侧面 2π<i>R</i>Δz</span>";
-  readout.innerHTML = st.mode==="vol"
-    ? "<span class=\"pill rose\"><b>S₁</b>"+s1.toFixed(2)+"</span>"+
-      "<span class=\"pill teal\"><b>S₂</b>"+s2.toFixed(2)+"</span>"+
-      "<span class=\"pill eq\">S₁ ≡ S₂</span>"
-    : "<span class=\"pill teal\"><b>S</b>"+(4*Math.PI*R*R).toFixed(2)+"</span>"+
-      "<span class=\"pill eq\">4πR²</span>";
-  hint.textContent = st.mode==="vol"
-    ? "拖拽旋转 ｜ 滚轮缩放 ｜ 拖动滑块同步剖切"
-    : "拖拽旋转 ｜ 滚轮缩放 ｜ 拖动 n 细分环带";
+function fmt(x,d){return (Math.abs(x)<1e-9?0:x).toFixed(d===undefined?2:d);}
+
+function updateFree(){
+  const R=st.R,h=hNow();
+  $("rOut").textContent="R = "+fmt(R);
+  if(st.freeMode==="vol"){
+    $("hOut").textContent="h = "+fmt(h);
+    const s1=Math.PI*(R*R-h*h);
+    const s2=Math.PI*R*R-Math.PI*h*h;
+    $("freeCard1").innerHTML=
+      '<h3><span class="dot r"></span>同一高度的两个截面</h3>'+
+      '<div class="kv"><span>球截面 S₁ = π(R² − h²)</span><b class="r">'+fmt(s1)+'</b></div>'+
+      '<div class="kv"><span>柱挖锥 S₂ = πR² − πh²</span><b class="t">'+fmt(s2)+'</b></div>'+
+      '<div><span class="badge">S₁ ≡ S₂，与 h 无关</span></div>';
+    $("freeCard2").innerHTML=
+      '<h3><span class="dot a"></span>由等截面 ⇒ 等体积</h3>'+
+      '<div class="formula">'+
+      'V<sub>半球</sub> = πR³ − ⅓πR³ = <span class="res">⅔πR³ ≈ '+fmt(2/3*Math.PI*R*R*R)+'</span><br>'+
+      'V<sub>球</sub> = <span class="v">4/3 πR³</span> ≈ <span class="res">'+fmt(4/3*Math.PI*R*R*R)+'</span><br>'+
+      '<span class="dim">圆锥顶点在下底圆心，内半径恰好等于 h</span></div>';
+    readout.innerHTML=
+      '<span class="pill rose"><b>S₁</b>'+fmt(s1)+'</span>'+
+      '<span class="pill teal"><b>S₂</b>'+fmt(s2)+'</span>'+
+      '<span class="pill eq">S₁ ≡ S₂</span>';
+    hint.textContent="拖拽旋转 ｜ 滚轮缩放 ｜ 拖动滑块剖切";
+  }else{
+    const n=st.n,dz=2*R/n,ab=2*Math.PI*R*dz;
+    $("nOut").textContent="n = "+n;
+    $("kOut").textContent="第 "+(st.band+1)+" / "+n+" 条";
+    $("freeCard1").innerHTML=
+      '<h3><span class="dot t"></span>同一高度对比</h3>'+
+      '<div class="kv"><span>环带高 Δz = 2R / n</span><b>'+fmt(dz,3)+'</b></div>'+
+      '<div class="kv"><span>球面环带面积</span><b class="t">'+fmt(ab,3)+'</b></div>'+
+      '<div class="kv"><span>圆柱同高侧面 2πRΔz</span><b class="t">'+fmt(ab,3)+'</b></div>'+
+      '<div><span class="badge">同高即等面积</span></div>';
+    $("freeCard2").innerHTML=
+      '<h3><span class="dot a"></span>为什么与纬度无关</h3>'+
+      '<div class="formula">2π<i>r</i>·Δ<i>s</i> = 2π<i>R</i>·Δ<i>z</i><br>'+
+      '<span class="dim">r = Rcosφ 变小，Δs = RΔφ 变大，cosφ 被抵消</span></div>'+
+      '<div class="formula" style="margin-top:6px">S<sub>球</sub> = 2πR·2R = <span class="v">4πR²</span> ≈ <span class="res">'+fmt(4*Math.PI*R*R)+'</span></div>';
+    readout.innerHTML=
+      '<span class="pill teal"><b>单条</b>'+fmt(ab,2)+'</span>'+
+      '<span class="pill eq"><b>4πR²</b>'+fmt(4*Math.PI*R*R)+'</span>';
+    hint.textContent="拖拽旋转 ｜ 拖动 n 细分环带 ｜ 打开可压到圆柱";
+  }
+}
+function setFreeMode(m){
+  st.freeMode=m; st.scene=(m==="vol")?"vol":"bands";
+  st.anim=false;
+  document.querySelectorAll("#segFree button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  $("volCtl").hidden=(m!=="vol");
+  $("areaCtl").hidden=(m!=="vol"&&false);
+  $("areaCtl").hidden=(m==="vol");
+  updateFree();
+}
+document.querySelectorAll("#segFree button").forEach(b=>{
+  b.addEventListener("click",()=>setFreeMode(b.dataset.m));
+});
+
+/* 滑块 */
+$("rRange").addEventListener("input",e=>{st.R=+e.target.value/100;updateFree();});
+$("hRange").addEventListener("input",e=>{st.hFrac=+e.target.value/1000;st.playing=false;$("btnScan").classList.remove("on");updateFree();});
+$("nRange").addEventListener("input",e=>{
+  st.n=+e.target.value;$("kRange").max=st.n-1;
+  if(st.band>st.n-1){st.band=st.n-1;$("kRange").value=st.band;}
+  updateFree();
+});
+$("kRange").addEventListener("input",e=>{st.band=+e.target.value;updateFree();});
+$("btnScan").addEventListener("click",()=>{
+  st.playing=!st.playing;st.dir=1;
+  $("btnScan").textContent=st.playing?"⏸ 暂停":"▶ 播放剖切";
+});
+$("swProj").addEventListener("click",()=>{
+  st.proj=!st.proj;$("swProj").classList.toggle("on",st.proj);
+});
+
+/* ==================== 猜想数据 ==================== */
+const GUESS=[
+{
+  tag:"猜想 1 · 直觉", prog:"1 / 7", scene:"stack",
+  q:"一摞完全相同的纸，被整体推斜成歪棱柱。它的体积变了吗？",
+  opts:["变小了：推歪会挤掉一部分","变大了：斜着放更高","不变","要看推的角度"],
+  right:2,
+  notes:["推斜只是把同样的薄片错位，没有增减任何一片",
+         "斜着放并不会让纸变多",
+         "不管推多少度，层数和每层面积都没动"],
+  why:"每层还是同一张纸，层数也没变，“每层面积 × 层数”自然不变。<b>形状变了，体积没变</b> —— 这就是祖暅原理的雏形。",
+  key:"体积 = 每层面积 × 层数",
+  extra:"stack"
+},
+{
+  tag:"猜想 2 · 原理", prog:"2 / 7", scene:"principle",
+  q:"两个几何体夹在同一对平行平面之间，被平行于这两平面的<em>任意</em>平面截得的截面面积都相等，体积一定相等吗？",
+  opts:["一定相等","一定不等","不一定，形状还得相同","不一定，高度也得相同"],
+  right:0,
+  notes:["","右边的体被扭得多厉害，体积读数都没变",
+         "形状可以完全不同 —— 这正是原理的价值",
+         "“夹在两平行平面之间”已经把高度锁死了"],
+  why:"这就是祖暅原理。右图被扭得七扭八歪，形状和半球毫无关系，但每一层截面面积都等于左边球的截面，<b>体积读数始终相同</b>。",
+  key:"形状无关 · 等高 · 任意截面",
+  extra:"principle"
+},
+{
+  tag:"猜想 3 · 构造", prog:"3 / 7", scene:"construct",
+  q:"半球截面是 π(R² − h²)，读起来就是“一个大圆减去一个小圆”。要造一个截面也是 πR² − πh²、体积又算得出来的几何体，你选哪个？",
+  opts:["半径 R、高 R 的圆柱","半径 R、高 R 的圆柱，挖去一个同底等高的圆锥","半径 R、高 R 的圆锥","再放一个半球"],
+  right:1,
+  notes:["圆柱每层都是 πR²，少了 −πh² 这一项",
+         "",
+         "圆锥每层是 πh²，符号正好相反",
+         "它的截面当然相等，但体积正是你要算的 —— 循环论证"],
+  why:"减号的两项各是一个圆：<b>πR² 是外圈 R 圆，πh² 是内圈 h 圆</b>。所以外做圆柱、内挖一个“半径恰好等于高度”的圆锥。",
+  key:"截面表达式 → 反推几何体",
+  extra:"construct"
+},
+{
+  tag:"猜想 4 · 精度", prog:"4 / 7", scene:"apex",
+  q:"圆柱挖圆锥时，圆锥的顶点应当放在下底面圆心，还是上底面圆心？",
+  opts:["下底面圆心","上底面圆心","放哪都行，只要等高"],
+  right:0,
+  notes:["","内半径变成 R − h，截面成了 π(2Rh − h²)，逐层都不等",
+         "顶点一动，内半径的表达式就变了，不是“只要等高”"],
+  why:"顶点在下底，内半径才等于 h，截面与球逐层相等；换到上底，内半径变成 R − h，<b>截面成了 π(2Rh − h²)</b>，链条立刻断。",
+  key:"一个顶点的位置，决定整份证明",
+  extra:"apex"
+},
+{
+  tag:"猜想 5 · 定量", prog:"5 / 7", scene:"fill",
+  q:"若等截面成立，半球体积最接近下面哪个？",
+  opts:["⅓πR³","½πR³","⅔πR³","πR³"],
+  right:2,
+  notes:["⅓ 是圆锥的系数，被挖掉的那块才是 ⅓",
+         "½πR³ 比真值小 25%：直觉接近，但不精确",
+         "",
+         "圆柱要挖掉圆锥，不能整根保留"],
+  why:"圆柱 πR³ 挖去圆锥 ⅓πR³，剩 <b>⅔πR³</b>。水位对齐就看得见：半球正好装到 ⅔ 那条线。",
+  key:"πR³ − ⅓πR³ = ⅔πR³",
+  extra:"fill"
+},
+{
+  tag:"猜想 6 · 迁移", prog:"6 / 7", scene:"bands",
+  q:"把球面按等高切成 n 条环带，两极附近的环带又窄又小。这些环带的面积：",
+  opts:["赤道处最大，向两极递减","每条都相等，只与环带的高度有关","两极最小，趋近于 0","取决于切成几条"],
+  right:1,
+  notes:["看起来是这样，但每一条的数字都一样",
+         "",
+         "两极的环带确实窄，但母线更长，面积一点没少",
+         "n 只改变条数，总和恒为 4πR²"],
+  why:"每条都是 2πRΔz，只跟环带的高度有关：半径 r 变小时母线 Δs 同步变大，<b>rΔs = RΔz</b>，恰好抵消。",
+  key:"rΔs = RΔz，cosφ 被消掉",
+  extra:"bands"
+},
+{
+  tag:"猜想 7 · 统合", prog:"7 / 7", scene:"pyramid",
+  q:"已知 V = 4/3 πR³，能不能不重新积分，直接得到 S = 4πR²？",
+  opts:["不能，表面积必须单独算","能：分成 n 个小锥，V = ⅓SR，所以 S = 3V/R","能：S = 6V/R"],
+  right:1,
+  notes:["不用再积分，只要把已经算出的体积“倒推”一次",
+         "",
+         "系数错了：锥的体积是 ⅓Sh，不是 ⅙Sh"],
+  why:"n 越大，小锥体积和越贴近球体积，<b>3V/R 稳定在 4πR²</b>。同一套“分割—求和—取极限”，算了体积又算表面积。",
+  key:"S = 3V/R",
+  extra:"pyramid"
+}
+];
+
+/* ==================== 猜想流程 ==================== */
+function renderChart(shapeKind,apexMode,altApex){
+  const R=GR,Wc=294,Hc=68,p=9;
+  const nx=u=>p+(Wc-2*p)*u;
+  const ny=v=>Hc-p-(Hc-2*p-5)*v;
+  const build=(fn,col,width,dash,op)=>{
+    let d="";
+    for(let i=0;i<=40;i++){
+      const u=i/40, a=fn(u*R,R)/(Math.PI*R*R);
+      d+=(i?"L":"M")+nx(u).toFixed(1)+","+ny(Math.min(1.08,Math.max(0,a))).toFixed(1);
+    }
+    return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+(width||2)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+(op?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+  };
+  const target=u=>Math.PI*(R*R-(u*R)*(u*R));
+  const other=(shapeKind<0||shapeKind===3)?null:(u=>shapeSec(shapeKind,u*R,R,apexMode));
+  const alt=altApex? (u=>shapeSec(1,u*R,R,altApex)) : null;
+  return '<svg class="chart" viewBox="0 0 '+Wc+' '+Hc+'" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="'+p+'" y="'+p+'" width="'+(Wc-2*p)+'" height="'+(Hc-2*p)+'" fill="#fff" stroke="#eff2f8"/>'+
+    '<line x1="'+p+'" y1="'+(Hc-p)+'" x2="'+(Wc-p)+'" y2="'+(Hc-p)+'" stroke="#e2e8f0"/>'+
+    '<line x1="'+p+'" y1="'+p+'" x2="'+p+'" y2="'+(Hc-p)+'" stroke="#e2e8f0"/>'+
+    build(target,"#e11d48",3.6)+
+    (other?build(other,"#0d9488",2,"",.82):"")+
+    (alt?build(alt,"#b45309",2.2,"4 3"):"")+
+    '<text x="'+(Wc-p)+'" y="'+(Hc-2)+'" font-size="7.5" fill="#94a3b8" text-anchor="end">h/R</text>'+
+    '<text x="'+(p+3)+'" y="'+(p-1)+'" font-size="7.5" fill="#c2ccda">πR²</text>'+
+    '<text x="'+(p+3)+'" y="'+(Hc-p-3)+'" font-size="7.5" fill="#c2ccda">0</text>'+
+  '</svg>';
 }
 
-function setMode(m){
-  st.mode=m;
-  document.querySelectorAll(".tab").forEach(b=>{
-    b.classList.toggle("active",b.dataset.mode===m);
+function renderExtra(step){
+  const ex=$("qExtra"), R=GR, h=hG();
+  const stepObj=GUESS[st.step];
+  if(stepObj.extra==="stack"){
+    const A=1.02*R,B=0.70*R,T=0.90*R,vOne=(2*A)*(2*B)*T/13;
+    $("readout").innerHTML=
+      '<span class="pill"><b>层数</b>13</span>'+
+      '<span class="pill teal"><b>单层</b>'+fmt(vOne)+'</span>'+
+      '<span class="pill rose"><b>总体积</b>'+fmt(vOne*13)+'</span>';
+    ex.innerHTML=
+      '<div class="row"><span>推开程度</span><b>'+Math.round(st.shear*100)+'%</b></div>'+
+      '<input type="range" class="range" id="shRange" min="0" max="100" value="'+Math.round(st.shear*100)+'">';
+    const r=$("shRange");
+    if(r) r.addEventListener("input",ev=>{st.shear=+ev.target.value/100;st.anim=false;renderExtra(stepObj);});
+    return;
+  }
+  if(!st.rev[st.step]&&stepObj.extra!=="construct"){ex.innerHTML="";return;}
+  if(stepObj.extra==="principle"){
+    const vb=2/3*Math.PI*R*R*R;
+    const vw=volBySlices(h=>secBall(h,R),R);
+    const vw2=volBySlices(h=>Math.PI*(R*R-Math.pow(weirdInner(st.oneSec)(h),2)),R);
+    $("readout").innerHTML=
+      '<span class="pill rose"><b>半球</b>'+fmt(vw)+'</span>'+
+      '<span class="pill teal"><b>怪形体</b>'+fmt(vw2)+'</span>'+
+      '<span class="pill eq">逐层同面积</span>';
+    ex.innerHTML=
+      '<div class="row"><span class="mini" style="margin:0">只让中间一个截面相等</span><div class="switch'+(st.oneSec?" on":"")+'" id="swOne"></div></div>'+
+      '<p class="mini" id="oneTips">'+(st.oneSec
+        ? "现在只有 h = R/2 处相等，其余都差一点 —— 体积已经对不上了。"
+        : "打开试试：让截面只在中间相等，其余不等，看体积还等不等。")+'</p>';
+    const sw=$("swOne");
+    if(sw) sw.addEventListener("click",()=>{
+      st.oneSec=!st.oneSec;
+      sw.classList.toggle("on",st.oneSec);
+      const tips=$("oneTips");
+      if(tips) tips.textContent=st.oneSec
+        ? "现在只有 h = R/2 处相等，其余都差一点 —— 体积已经对不上了。"
+        : "打开试试：让截面只在中间相等，其余不等，看体积还等不等。";
+      const vw3=volBySlices(h=>Math.PI*(R*R-Math.pow(weirdInner(st.oneSec)(h),2)),R);
+      $("readout").innerHTML=
+        '<span class="pill rose"><b>半球</b>'+fmt(vb)+'</span>'+
+        '<span class="pill teal"><b>怪形体</b>'+fmt(vw3)+'</span>'+
+        '<span class="pill '+(st.oneSec?"amber":"eq")+'">'+(st.oneSec?"截面积不等":"逐层同面积")+'</span>';
+    });
+  }else if(stepObj.extra==="construct"){
+    const kind=st.choice;
+    if(kind<0){
+      ex.innerHTML='<p class="mini">先选一个几何体，右图会把它造出来。</p>';
+      $("readout").innerHTML='<span class="pill rose"><b>目标</b>'+fmt(Math.PI*(R*R-h*h))+'</span><span class="pill">待构造</span>';
+      return;
+    }
+    const tgt=Math.PI*(R*R-h*h);
+    const got=shapeSec(kind,h,R,st.apex);
+    $("readout").innerHTML=
+      '<span class="pill rose"><b>目标</b>'+fmt(tgt)+'</span>'+
+      '<span class="pill teal"><b>所选</b>'+fmt(got)+'</span>'+
+      '<span class="pill '+(Math.abs(tgt-got)<1e-6?"eq":"amber")+'">'+(Math.abs(tgt-got)<1e-6?"差 0.00":"差 "+fmt(got-tgt))+'</span>';
+    ex.innerHTML=renderChart(kind,st.apex)+
+      '<div class="legend"><span class="lg"><i style="background:#e11d48"></i>目标 π(R² − h²)</span>'+
+      '<span class="lg"><i style="background:#0d9488"></i>'+shapeName()+'</span></div>'+
+      '<div class="kv"><span>目标 / 所选</span><b class="r">'+fmt(tgt)+'</b> <b class="t">/ '+fmt(got)+'</b></div>';
+  }else if(stepObj.extra==="apex"){
+    const tgt=Math.PI*(R*R-h*h);
+    const got=Math.PI*(R*R-(st.apex==="bottom"?h:(R-h))*(st.apex==="bottom"?h:(R-h)));
+    $("readout").innerHTML=
+      '<span class="pill rose"><b>目标</b>'+fmt(tgt)+'</span>'+
+      '<span class="pill teal"><b>所选</b>'+fmt(got)+'</span>'+
+      '<span class="pill '+(Math.abs(tgt-got)<1e-6?"eq":"amber")+'">'+(Math.abs(tgt-got)<1e-6?"差 0.00":"差 "+fmt(got-tgt))+'</span>';
+    ex.innerHTML=
+      '<div class="seg" id="segApex">'+
+        '<button data-a="bottom" class="'+(st.apex==="bottom"?"on":"")+'">顶点在下底</button>'+
+        '<button data-a="top" class="'+(st.apex==="top"?"on":"")+'">顶点在上底</button>'+
+      '</div>'+
+      renderChart(1,st.apex,st.apex==="bottom"?"top":"bottom")+
+      '<div class="legend"><span class="lg"><i style="background:#e11d48"></i>球截面</span>'+
+      '<span class="lg"><i style="background:#0d9488"></i>当前选择</span>'+
+      '<span class="lg"><i style="background:#b45309"></i>另一种顶点</span></div>'+
+      '<div class="kv"><span>内半径 r<sub>内</sub></span><b>'+(st.apex==="bottom"?"h":"R − h")+'</b></div>'+
+      '<p class="mini">'+(st.apex==="top"
+        ? '截面成了 π(2Rh − h²)，逐层对不上。它其实是原体上下翻转，体积仍 ⅔πR³ —— 体积对了，链断了。'
+        : '内半径恰好等于 h，截面与球逐层相等，链条这才接上。')+'</p>';
+    const seg=$("segApex");
+    if(seg) seg.querySelectorAll("button").forEach(b=>{
+      b.addEventListener("click",()=>{st.apex=b.dataset.a;renderExtra(stepObj);});
+    });
+  }else if(stepObj.extra==="fill"){
+    const vb=2/3*Math.PI*R*R*R;
+    $("readout").innerHTML=
+      '<span class="pill"><b>圆柱</b>'+fmt(Math.PI*R*R*R)+'</span>'+
+      '<span class="pill teal"><b>挖去圆锥</b>'+fmt(vb)+'</span>'+
+      '<span class="pill rose"><b>半球</b>'+fmt(vb)+'</span>';
+    ex.innerHTML='<div class="kv"><span>πR³ − ⅓πR³</span><b class="r">⅔πR³ = '+fmt(vb)+'</b></div>'+
+      '<div class="kv"><span>球 = 2 × 半球</span><b>4/3 πR³ = '+fmt(2*vb)+'</b></div>';
+  }else if(stepObj.extra==="bands"){
+    const n=st.n,dz=2*R/n,ab=2*Math.PI*R*dz;
+    $("readout").innerHTML=
+      '<span class="pill teal"><b>单条</b>'+fmt(ab)+'</span>'+
+      '<span class="pill eq"><b>全是</b>'+fmt(ab)+'</span>';
+    ex.innerHTML='<div class="kv"><span>每条 2πRΔz</span><b class="t">'+fmt(ab)+'</b></div>'+
+      '<div class="kv"><span>总和 = 2πR·2R</span><b class="r">4πR² = '+fmt(4*Math.PI*R*R)+'</b></div>'+
+      '<div class="row"><span class="mini" style="margin:0">压到外接圆柱上</span><div class="switch'+(st.proj?" on":"")+'" id="swProj2"></div></div>';
+    const sw=$("swProj2");
+    if(sw) sw.addEventListener("click",()=>{st.proj=!st.proj;sw.classList.toggle("on",st.proj);});
+  }else if(stepObj.extra==="pyramid"){
+    const n=st.pyramidN||8, V=4/3*Math.PI*R*R*R, S=3*V/R;
+    $("readout").innerHTML=
+      '<span class="pill"><b>n</b>'+n+'</span>'+
+      '<span class="pill teal"><b>3V/R</b>'+fmt(S)+'</span>'+
+      '<span class="pill eq"><b>4πR²</b>'+fmt(4*Math.PI*R*R)+'</span>';
+    ex.innerHTML='<div class="kv"><span>球体积 V</span><b>'+fmt(V)+'</b></div>'+
+      '<div class="kv"><span>3V/R</span><b class="t">'+fmt(S)+'</b></div>'+
+      '<div class="kv"><span>4πR²</span><b class="r">'+fmt(4*Math.PI*R*R)+'</b></div>';
+  }else{ex.innerHTML="";}
+}
+
+function refreshPills(){
+  const R=GR,h=hG();
+  const ex=GUESS[st.step]&&GUESS[st.step].extra;
+  if(ex==="construct"&&st.choice>=0){
+    const tgt=Math.PI*(R*R-h*h), got=shapeSec(st.choice,h,R,st.apex);
+    $("readout").innerHTML=
+      '<span class="pill rose"><b>目标</b>'+fmt(tgt)+'</span>'+
+      '<span class="pill teal"><b>所选</b>'+fmt(got)+'</span>'+
+      '<span class="pill '+(Math.abs(tgt-got)<1e-6?"eq":"amber")+'">'+(Math.abs(tgt-got)<1e-6?"差 0.00":"差 "+fmt(got-tgt))+'</span>';
+  }else if(ex==="apex"){
+    const tgt=Math.PI*(R*R-h*h);
+    const rr=(st.apex==="bottom"?h:(R-h));
+    const got=Math.PI*(R*R-rr*rr);
+    $("readout").innerHTML=
+      '<span class="pill rose"><b>目标</b>'+fmt(tgt)+'</span>'+
+      '<span class="pill teal"><b>所选</b>'+fmt(got)+'</span>'+
+      '<span class="pill '+(Math.abs(tgt-got)<1e-6?"eq":"amber")+'">'+(Math.abs(tgt-got)<1e-6?"差 0.00":"差 "+fmt(got-tgt))+'</span>';
+  }else if(ex==="pyramid"){
+    const n=st.pyramidN||8,V=4/3*Math.PI*R*R*R;
+    $("readout").innerHTML=
+      '<span class="pill"><b>n</b>'+n+'</span>'+
+      '<span class="pill teal"><b>3V/R</b>'+fmt(3*V/R)+'</span>'+
+      '<span class="pill eq"><b>4πR²</b>'+fmt(4*Math.PI*R*R)+'</span>';
+  }else if(ex==="bands"){
+    const n=st.n,dz=2*R/n,ab=2*Math.PI*R*dz;
+    $("readout").innerHTML=
+      '<span class="pill teal"><b>单条</b>'+fmt(ab)+'</span>'+
+      '<span class="pill eq"><b>全是</b>'+fmt(ab)+'</span>';
+  }
+}
+
+function enterStep(i){
+  st.step=i;
+  const g=GUESS[i];
+  st.scene=g.scene;
+  st.animT=0;
+  st.proj=false;
+  st.oneSec=false;
+  if(g.extra==="fill") st.fillT=st.rev[i]?1:0;
+  if(g.extra==="bands"){st.n=16;st.band=8;}
+  if(g.extra==="pyramid") st.pyramidN=8;
+  st.anim=st.rev[i];
+  $("qReveal").hidden=!!st.rev[i];
+  $("qReveal").disabled=false;
+  $("qReveal").textContent="揭晓并动画验证";
+  $("qTag").textContent=g.tag;
+  $("qProg").textContent=g.prog;
+  $("hint").textContent=({
+    stack:"拖动滑块把纸堆推斜：形状变了，体积没变",
+    principle:"拖动 h 剖切，比较同一高度上的两个截面",
+    construct:"右图会把你选的几何体造出来，看截面是否对得上",
+    apex:"切换顶点位置，看两条曲线什么时候分开",
+    fill:"水位动画：三个容器最终落到同一条线",
+    bands:"拖动 n，每条环带的面积始终一样",
+    pyramid:"n 越大，小锥越贴近球体"
+  })[g.scene]||"拖拽旋转 ｜ 滚轮缩放";
+  $("qText").innerHTML=g.q;
+  syncModal();
+  renderOpts();
+  renderVerdict();
+  renderExtra(g);
+}
+
+function renderOpts(){
+  const g=GUESS[st.step], box=$("qOpts");
+  const chosen=st.ans[st.step], rev=st.rev[st.step];
+  box.innerHTML="";
+  g.opts.forEach((t,i)=>{
+    const b=document.createElement("button");
+    b.className="opt";
+    if(rev){
+      if(i===g.right) b.classList.add("good");
+      else if(i===chosen&&chosen!==g.right) b.classList.add("bad");
+    }else if(chosen===i) b.classList.add("sel");
+    b.innerHTML='<span class="mk">'+(rev?(i===g.right?"✓":(i===chosen?"✕":"")):(chosen===i?"●":""))+'</span><span>'+t+'</span>';
+    b.addEventListener("click",()=>{
+      if(st.rev[st.step]) return;
+      st.ans[st.step]=i;
+      if(g.extra==="construct"){st.choice=i;st.apex="bottom";}
+      renderOpts();
+      renderExtra(g);
+    });
+    box.appendChild(b);
   });
-  const vol=(m==="vol");
-  hRow.hidden=!vol; hRange.hidden=!vol; btnScan.hidden=!vol;
-  cardCut.hidden=!vol; cardVol.hidden=!vol;
-  cardR.hidden=vol; cardArea.hidden=vol;
-  if(!vol){ st.playing=false; }
-  btnScan.classList.remove("playing");
-  btnScan.textContent="▶ 播放剖切动画";
-  updateUI();
+  // 构造题：选中后立即能看形状，但结论未揭晓
+  if(g.extra==="construct"&&st.choice>=0&&!rev) renderExtra(g);
 }
 
-/* ---------- 交互 ---------- */
+function renderVerdict(){
+  const g=GUESS[st.step], v=$("qVerdict");
+  if(!st.rev[st.step]){v.hidden=true;v.className="verdict";return;}
+  const ok=st.ans[st.step]===g.right;
+  const chosen=st.ans[st.step];
+  v.hidden=false;
+  v.className="verdict "+(ok?"ok":"no");
+  let head=ok?"✓ 猜对了":(chosen<0?"△ 揭晓":"✕ 再想一步");
+  let body=g.why;
+  if(!ok&&chosen>=0&&g.notes[chosen]){
+    body='<b>你选的是“'+g.opts[chosen]+'”</b>：'+g.notes[chosen]+'。<br>'+g.why;
+  }
+  v.innerHTML='<h4>'+head+'</h4><p>'+body+'</p><div class="k">关键：<b>'+g.key+'</b></div>';
+}
+
+$("qReveal").addEventListener("click",()=>{
+  const g=GUESS[st.step];
+  if(st.ans[st.step]<0){
+    $("qOpts").animate?$("qOpts").animate([{transform:"translateX(0)"},{transform:"translateX(-5px)"},{transform:"translateX(5px)"},{transform:"translateX(0)"}],{duration:260}):0;
+    return;
+  }
+  st.rev[st.step]=true;
+  st.anim=true;st.animT=0;
+  st.oneSec=false;
+  if(g.extra==="fill"){st.fillT=0;}
+  if(g.extra==="pyramid"){st.pyramidN=6;}
+  renderOpts();renderVerdict();renderExtra(g);
+  $("qReveal").hidden=true;
+  syncModal();
+});
+$("qPrev").addEventListener("click",()=>{if(st.step>0) enterStep(st.step-1);});
+$("qNext").addEventListener("click",()=>{
+  if(st.step<GUESS.length-1) enterStep(st.step+1);
+  else {switchTab("boss");}
+});
+
+/* ==================== 闯关 ==================== */
+const LEVELS=[
+{
+ q:"下列哪一组几何体<b>一定</b>等体积？",
+ opts:["圆柱与同底等高的圆锥","底面积相等、高相等的直棱柱与斜棱柱","半球与半径相同的圆柱","球与体积同样大的正方体"],
+ right:1,
+ why:"斜棱柱每个等高截面与直棱柱完全相同（面积相等），等高、等截面 ⇒ 等体积。",
+ note:"A 圆锥是 ⅓；C 圆柱是 2 倍；D 只是体积相等 —— 那是逆命题，不成立。",
+ no:"只讲“体积相等”而不讲截面，就掉进逆命题了。"
+},
+{
+ q:"“若两个几何体体积相等，则它们被任意等高平面截得的截面面积一定相等。”这个说法",
+ opts:["正确","错误","加上“等高”就正确","加上“等底”就正确"],
+ right:1,
+ why:"祖暅原理是“等截面 ⇒ 等体积”，反过来不成立。等体积的正方体与球，截面完全不同。",
+ note:"这正是本题的陷阱：方向只能从左往右用。",
+ no:"原理是单向的：截面等 → 体积等，不能倒过来。"
+},
+{
+ q:"用“圆柱挖圆锥”证半球体积，圆锥顶点放在下底面圆心。若改放到上底面圆心，会怎样？",
+ opts:["截面仍相等，结论照样成立","截面面积不再相等，不能这样用祖暅原理","挖去的圆锥变小，所以半球体积变小","无法判断"],
+ right:1,
+ why:"内半径从 h 变成 R − h，截面成了 π(2Rh − h²)，逐层都不等于球截面 π(R² − h²)。",
+ note:"有趣的是这个体恰好是原体上下翻转，总体积仍是 ⅔πR³ —— 体积碰巧对了，但逐层截面不等，原理这一步用不上。",
+ no:"顶点一动，内半径表达式就变，逐层相等的链条断了。"
+},
+{
+ q:"下列哪些情形可以<b>直接</b>用祖暅原理断定两个几何体等体积？<span class='tagx'>多选</span>",
+ multi:true,
+ opts:["等高的直棱柱与斜棱柱，同高处截面全等","同底等高的圆柱与圆锥","等高、每层截面积都相等，但被扭得很不规则的两个体","体积相等、形状不同的两个球","半球与“圆柱挖去顶点在下底圆心的圆锥”"],
+ right:[0,2,4],
+ why:"判定条件是“等高 + 任意等高截面等面积”，与形状是否规则、是否倾斜无关。",
+ note:"B 截面不等；D 是逆命题，体积相等推不出截面相等。",
+ no:"抓住两个硬条件：等高、任意截面等面积。形状可以不规则。"
+}
+];
+
+function startBoss(){
+  st.bossStarted=true;st.lv=0;st.lvAns=[];st.lvDone=false;
+  st.hFrac=0.46;st.oneSec=false;st.anim=false;
+  $("bossIntro").hidden=true;$("bossEnd").hidden=true;$("bossCard").hidden=false;
+  enterLevel(0);
+  syncModal();
+}
+function enterLevel(i){
+  st.lv=i;st.lvAns[i]=null;st.lvDone=false;
+  st.scene="principle";st.anim=false;st.oneSec=false;
+  const L=LEVELS[i];
+  $("bTag").textContent=(L.multi?"第 "+(i+1)+" 关 · 多选":"第 "+(i+1)+" 关");
+  $("bScore").textContent="得分 "+scoreSoFar()+" / "+LEVELS.length;
+  updateBar();
+  $("bText").innerHTML=L.q;
+  renderBossOpts();
+  $("bVerdict").hidden=true;
+  $("hint").textContent="先作答，再看解析；右侧图形仍是祖暅原理的两个体";
+  $("bNext").hidden=true;
+  $("bSubmit").hidden=false;$("bSubmit").disabled=false;$("bSubmit").textContent="提交";
+  $("readout").innerHTML='<span class="pill">祖暅原理 · 适用边界</span>';
+}
+function updateBar(){
+  const bf=$("bBarFill"); if(bf) bf.style.width=(((st.lvDone?st.lv+1:st.lv)/LEVELS.length)*100)+"%";
+  syncModal();
+}
+function scoreSoFar(){
+  let s=0;
+  for(let i=0;i<LEVELS.length;i++){
+    const L=LEVELS[i],a=st.lvAns[i];
+    if(a==null) continue;
+    if(L.multi){ if(L.right.every(x=>a.has(x))&&a.size===L.right.length) s++; }
+    else if(a===L.right) s++;
+  }
+  return s;
+}
+function renderBossOpts(){
+  const L=LEVELS[st.lv], box=$("bOpts"), sel=st.lvAns[st.lv];
+  box.innerHTML="";
+  L.opts.forEach((t,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"+(L.multi?" cb":"");
+    const on=L.multi?(sel?sel.has(i):false):(sel===i);
+    if(on) b.classList.add("sel");
+    b.innerHTML='<span class="mk">'+(on?"●":"")+'</span><span>'+t+'</span>';
+    b.addEventListener("click",()=>{
+      if(st.lvDone) return;
+      if(L.multi){
+        let s=st.lvAns[st.lv]||new Set();
+        s.has(i)?s.delete(i):s.add(i);
+        st.lvAns[st.lv]=s;
+      }else{
+        st.lvAns[st.lv]=i;
+      }
+      renderBossOpts();
+      $("bSubmit").disabled=false;
+    });
+    box.appendChild(b);
+  });
+}
+$("bossStart").addEventListener("click",()=>{startBoss();openModal("boss");});
+$("bSubmit").addEventListener("click",()=>{
+  const L=LEVELS[st.lv],a=st.lvAns[st.lv];
+  if(a==null||(L.multi&&a.size===0)) return;
+  st.lvDone=true;
+  let ok;
+  if(L.multi) ok=L.right.every(x=>a.has(x))&&a.size===L.right.length;
+  else ok=(a===L.right);
+  // 标记
+  Array.from($("bOpts").children).forEach((el,i)=>{
+    el.classList.remove("sel");
+    const good=L.multi?L.right.includes(i):(i===L.right);
+    const chosen=L.multi?a.has(i):(a===i);
+    if(good) el.classList.add("good");
+    else if(chosen) el.classList.add("bad");
+    el.querySelector(".mk").textContent=good?"✓":(chosen?"✕":"");
+  });
+  $("bSubmit").hidden=true;
+  const v=$("bVerdict");
+  v.hidden=false;v.className="verdict "+(ok?"ok":"no");
+  let body=L.why+"<br>"+L.note;
+  if(!ok) body="<b>"+L.no+"</b><br>"+body;
+  v.innerHTML='<h4>'+(ok?"✓ 通过":"✕ 未通过")+'</h4><p>'+body+'</p>';
+  $("bScore").textContent="得分 "+scoreSoFar()+" / "+LEVELS.length;
+  updateBar();
+  $("bNext").hidden=false;
+  $("bNext").textContent=(st.lv<LEVELS.length-1)?"下一关 →":"查看成绩 →";
+});
+$("bNext").addEventListener("click",()=>{
+  if(st.lv<LEVELS.length-1) enterLevel(st.lv+1);
+  else{
+    const s=scoreSoFar();
+    $("bossCard").hidden=true;
+    closeModal();
+    const e=$("bossEnd");e.hidden=false;
+    e.innerHTML='<div class="qhead"><span class="qprog">闯关结束</span><span class="qprog">'+s+' / '+LEVELS.length+'</span></div>'+
+      '<div class="qtext" style="font-size:14px">'+(s===4?"全对：你已经抓住了“等高 + 任意截面”，也守住了它不能反用的边界。":
+        (s===3?"差一点：多选那关最容易掉进“逆命题”。":"再走一遍：判定条件只有两个 —— 等高、任意等高截面等面积。"))+'</div>'+
+      '<button class="act wide" id="bossAgain">再来一次</button>';
+    $("bossAgain").addEventListener("click",startBoss);
+    st.scene="principle";
+    const hp=$("hint"); if(hp) hp.textContent="本轮结束；可再走一遍，或回到前两个页签复盘";
+  }
+});
+
+
+/* ==================== 题目大卡片（弹层） ==================== */
+const qm={on:false,card:null,pane:null,next:null,kind:null};
+function guessScore(){
+  let n=0;
+  for(let i=0;i<GUESS.length;i++) if(st.rev[i]&&st.ans[i]===GUESS[i].right) n++;
+  return n;
+}
+function syncModal(){
+  if(!qm.on) return;
+  if(qm.kind==="guess"){
+    const g=GUESS[st.step];
+    $("qmTag").textContent=g.tag+" · "+g.prog;
+    $("qmScore").textContent="得分 "+guessScore();
+    $("qmPrev").hidden=false;$("qmNext").hidden=false;
+    $("qmPrev").disabled=(st.step===0);
+    $("qmNext").textContent=(st.step<GUESS.length-1)?"下一题 →":"进入闯关 →";
+  }else{
+    $("qmTag").textContent="闯关 · 第 "+(st.lv+1)+" / "+LEVELS.length+" 关";
+    $("qmScore").textContent="得分 "+scoreSoFar();
+    $("qmPrev").hidden=true;$("qmNext").hidden=true;
+  }
+}
+function openModal(kind){
+  if(qm.on){ if(qm.kind!==kind){closeModal();} else {syncModal();return;} }
+  const card=(kind==="guess")?$("qCard"):$("bossCard");
+  qm.on=true;qm.kind=kind;qm.card=card;
+  qm.pane=card.parentElement;qm.next=card.nextElementSibling;
+  $("qmBody").appendChild(card);
+  document.body.classList.add("modalOn");
+  $("qModal").hidden=false;
+  syncModal();
+}
+function closeModal(){
+  if(!qm.on) return;
+  const card=qm.card,pane=qm.pane,nx=qm.next;
+  if(pane){ if(nx&&nx.parentElement===pane) pane.insertBefore(card,nx); else pane.appendChild(card); }
+  document.body.classList.remove("modalOn");
+  $("qModal").hidden=true;
+  qm.on=false;qm.card=null;
+}
+
+/* 弹层按钮 */
+$("qmClose").addEventListener("click",closeModal);
+$("qmSide").addEventListener("click",closeModal);
+$("qmPrev").addEventListener("click",()=>{if(st.step>0) enterStep(st.step-1);});
+$("qmNext").addEventListener("click",()=>{$("qNext").click();});
+$("qPop").addEventListener("click",()=>openModal("guess"));
+$("bPop").addEventListener("click",()=>openModal("boss"));
+
+/* ==================== 页签切换 ==================== */
+function switchTab(t){
+  st.tab=t;
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("on",p.dataset.pane===t));
+  st.anim=false;st.oneSec=false;st.playing=false;
+  if(t==="free"){
+    st.scene=(st.freeMode==="vol")?"vol":"bands";
+    updateFree();
+  }else if(t==="guess"){
+    enterStep(st.step);
+    openModal("guess");
+  }else{
+    st.scene="principle";
+    if(st.bossStarted&&!$("bossCard").hidden) openModal("boss");
+    else closeModal();
+  }
+  render();
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+
+/* ==================== 交互：旋转缩放 ==================== */
 let drag=null;
 cv.addEventListener("pointerdown",e=>{
-  drag={x:e.clientX,y:e.clientY};
-  cv.setPointerCapture(e.pointerId);
-  cv.classList.add("grabbing");
+  drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);cv.classList.add("grabbing");
 });
 cv.addEventListener("pointermove",e=>{
-  if(!drag) return;
+  if(!drag)return;
   st.yaw-=(e.clientX-drag.x)*0.006;
   st.pitch+=(e.clientY-drag.y)*0.005;
-  st.pitch=Math.max(-0.12,Math.min(1.30,st.pitch));
+  st.pitch=Math.max(-0.02,Math.min(1.2,st.pitch));
   drag={x:e.clientX,y:e.clientY};
 });
-const endDrag=()=>{ drag=null; cv.classList.remove("grabbing"); };
+const endDrag=()=>{drag=null;cv.classList.remove("grabbing");};
 cv.addEventListener("pointerup",endDrag);
 cv.addEventListener("pointercancel",endDrag);
-cv.addEventListener("pointerleave",e=>{ if(drag&&e.buttons===0) endDrag(); });
+cv.addEventListener("pointerleave",e=>{if(drag&&e.buttons===0)endDrag();});
 cv.addEventListener("wheel",e=>{
   e.preventDefault();
   st.zoom*=Math.exp(e.deltaY*0.0012);
-  st.zoom=Math.max(0.72,Math.min(1.7,st.zoom));
+  st.zoom=Math.max(0.7,Math.min(1.7,st.zoom));
 },{passive:false});
 
-rRange.addEventListener("input",()=>{ st.R=+rRange.value/100; updateUI(); });
-hRange.addEventListener("input",()=>{ st.hFrac=+hRange.value/1000; updateUI(); });
-nRange.addEventListener("input",()=>{
-  st.n=+nRange.value;
-  kRange.max=st.n-1;
-  if(st.band>st.n-1){ st.band=st.n-1; kRange.value=st.band; }
-  updateUI();
-});
-kRange.addEventListener("input",()=>{ st.band=+kRange.value; updateUI(); });
-
-btnScan.addEventListener("click",()=>{
-  st.playing=!st.playing;
-  st.dir=1;
-  btnScan.classList.toggle("playing",st.playing);
-  btnScan.textContent=st.playing ? "⏸ 暂停剖切动画" : "▶ 播放剖切动画";
-});
-
-btnReset.addEventListener("click",()=>{
-  st.yaw=0.62; st.pitch=0.40; st.zoom=1;
-});
-
-function bindSwitch(id,key){
-  const el=$(id);
-  el.addEventListener("click",()=>{
-    st[key]=!st[key];
-    el.classList.toggle("on",st[key]);
-  });
-}
-bindSwitch("swPlane","plane");
-bindSwitch("swSection","section");
-bindSwitch("swFloor","floor");
-
-document.querySelectorAll(".tab").forEach(b=>{
-  b.addEventListener("click",()=>setMode(b.dataset.mode));
-});
-
-window.addEventListener("resize",fit);
-
-/* ---------- 启动 ---------- */
-let last=0;
+/* ==================== 主循环 ==================== */
+let last=0,lastExtra=0;
 function loop(t){
-  const dt=(last?Math.min(60,t-last):16)/1000;
+  const dt=(last?Math.min(50,t-last):16)/1000;
   last=t;
-  if(st.playing){
-    st.hFrac+=st.dir*dt/3.4;
-    if(st.hFrac>=1){ st.hFrac=1; st.dir=-1; }
-    if(st.hFrac<=0){ st.hFrac=0; st.dir=1; }
-    hRange.value=Math.round(st.hFrac*1000);
-    updateUI();
+
+  if(st.tab==="free"&&st.playing&&st.scene==="vol"){
+    st.hFrac+=st.dir*dt/3.6;
+    if(st.hFrac>=1){st.hFrac=1;st.dir=-1;}
+    if(st.hFrac<=0){st.hFrac=0;st.dir=1;}
+    $("hRange").value=Math.round(st.hFrac*1000);
+    updateFree();
+  }
+  if(st.anim){
+    st.animT+=dt;
+    if(st.scene==="construct"||st.scene==="apex"){
+      st.hFrac=0.5-0.5*Math.cos(st.animT*0.8);
+    }
+    if(st.scene==="fill"){
+      st.fillT=Math.min(1,st.fillT+dt*0.55);
+    }
+    if(st.scene==="bands"){
+      st.band=Math.floor((st.animT*1.1)%st.n);
+    }
+    if(st.scene==="pyramid"){
+      st.pyramidN=6+Math.floor((st.animT*3.2)%30);
+    }
+    if(t-lastExtra>110){
+      lastExtra=t;
+      refreshPills();
+    }
   }
   render();
   requestAnimationFrame(loop);
 }
 
+window.addEventListener("resize",fit);
+
+/* 大屏模式：收起侧栏，画布放大 */
+const btnWide=$("btnWide");
+btnWide.addEventListener("click",()=>{
+  const on=document.body.classList.toggle("wide");
+  btnWide.textContent=on?"⤡ 退出大屏":"⤢ 大屏";
+  requestAnimationFrame(()=>{fit();render();});
+});
+
+/* 启动 */
 fit();
-setMode("vol");
+updateFree();
+setFreeMode("vol");
+switchTab("free");
 requestAnimationFrame(loop);
 
 })();
 </script>
 </body>
 </html>
+<!-- （注：内容由AI生成） -->

@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>高一 · 弹簧振子如何“画”出余弦波</title>
+  <style>
+:root {
+  --bg: #070b14;
+  --bg-radial: radial-gradient(1200px 600px at 20% 0%, rgba(56, 189, 248, 0.12), transparent 60%),
+               radial-gradient(900px 500px at 85% 100%, rgba(167, 139, 250, 0.10), transparent 60%);
+  --surface: rgba(15, 23, 42, 0.78);
+  --surface-solid: #0f172a;
+  --surface-2: rgba(30, 41, 59, 0.65);
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(56, 189, 248, 0.42);
+  --ink: #f1f5f9;
+  --ink-2: #94a3b8;
+  --ink-3: #64748b;
+  --cyan: #38bdf8;
+  --cyan-glow: rgba(56, 189, 248, 0.35);
+  --purple: #a78bfa;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --red: #fb7185;
+  --grid-line: rgba(148, 163, 184, 0.16);
+  --grid-axis: rgba(226, 232, 240, 0.68);
+  --canvas-bg: #050912;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-radial: radial-gradient(1100px 520px at 15% 0%, rgba(37, 99, 235, 0.08), transparent 60%),
+               radial-gradient(900px 500px at 90% 100%, rgba(124, 58, 237, 0.06), transparent 60%);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --surface-2: rgba(241, 245, 249, 0.9);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(37, 99, 235, 0.4);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #94a3b8;
+  --cyan: #0284c7;
+  --cyan-glow: rgba(2, 132, 199, 0.22);
+  --purple: #7c3aed;
+  --amber: #d97706;
+  --green: #059669;
+  --red: #e11d48;
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --grid-axis: rgba(15, 23, 42, 0.28);
+  --canvas-bg: #ffffff;
+  --shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image: var(--bg-radial);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Header */
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 15px;
+  transition: 0.16s;
+}
+.back-link:hover {
+  border-color: var(--border-strong);
+  color: var(--cyan);
+}
+
+.grade-pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+.title-group h1 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.seg-tabs {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  gap: 2px;
+}
+
+.seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.16s;
+  white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active {
+  background: var(--cyan);
+  color: #061220;
+  font-weight: 700;
+  box-shadow: 0 2px 10px var(--cyan-glow);
+}
+[data-theme="light"] .seg-btn.active { color: #fff; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.16s;
+  white-space: nowrap;
+}
+.icon-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+.icon-btn.on {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--cyan);
+}
+
+/* Main workspace */
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  padding: 12px;
+  gap: 12px;
+}
+
+.stage-shell {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--canvas-bg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+canvas.lab-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* Floating HUD inside stage */
+.hud-top-left {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 5;
+  max-width: min(560px, calc(100% - 28px));
+}
+.hud-top-left > * { pointer-events: auto; }
+
+.formula-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  font-family: "Cambria Math", "Times New Roman", "PingFang SC", serif;
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.formula-pill .hl-a { color: var(--cyan); }
+.formula-pill .hl-w { color: var(--purple); }
+.formula-pill .hl-p { color: var(--amber); }
+.formula-pill .hl-g { color: var(--green); }
+.formula-pill .hl-r { color: var(--red); }
+
+.hud-bottom-left {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  flex-wrap: wrap;
+}
+
+.hud-bottom-right {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 5;
+  font-size: 12px;
+  color: var(--ink-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Alert banner (反例警报) */
+.alert-banner {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  max-width: 340px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(225, 29, 72, 0.16);
+  border: 1px solid rgba(251, 113, 133, 0.55);
+  color: #fecdd3;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(225, 29, 72, 0.22);
+  display: none;
+  animation: shakeIn 0.32s ease;
+}
+[data-theme="light"] .alert-banner {
+  background: rgba(255, 241, 242, 0.95);
+  color: #be123c;
+}
+.alert-banner.show { display: block; }
+
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Side drawer */
+.side-drawer {
+  width: 356px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 2px;
+  transition: width 0.22s ease, opacity 0.2s ease;
+}
+
+.app.presentation .side-drawer {
+  display: none;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 15px;
+  backdrop-filter: blur(12px);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--cyan);
+  border: 1px solid var(--border);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Sliders */
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 11px;
+}
+.slider-row:last-child { margin-bottom: 0; }
+.slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+}
+.slider-head .name { color: var(--ink-2); font-weight: 600; }
+.slider-head .val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--cyan);
+}
+
+input[type="range"].lab-range {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].lab-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px var(--cyan-glow);
+  cursor: grab;
+  transition: transform 0.12s;
+}
+input[type="range"].lab-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.btn.primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #061220;
+  font-weight: 700;
+  box-shadow: 0 4px 16px var(--cyan-glow);
+}
+[data-theme="light"] .btn.primary { color: #fff; }
+.btn.amber {
+  background: rgba(251, 191, 36, 0.16);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: var(--amber);
+}
+.btn.green {
+  background: rgba(52, 211, 153, 0.16);
+  border-color: rgba(52, 211, 153, 0.45);
+  color: var(--green);
+}
+.btn.active {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.18);
+  color: var(--cyan);
+}
+
+/* Predict-Observe-Explain */
+.predict-q {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.predict-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 11px;
+}
+.predict-opt {
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.predict-opt:hover { border-color: var(--border-strong); }
+.predict-opt.picked {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.16);
+  font-weight: 700;
+}
+.predict-opt.correct {
+  border-color: var(--green);
+  background: rgba(52, 211, 153, 0.18);
+  color: var(--green);
+}
+.predict-opt.wrong {
+  border-color: var(--red);
+  background: rgba(251, 113, 133, 0.15);
+  color: var(--red);
+}
+.predict-feedback {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--cyan);
+  margin-top: 10px;
+  display: none;
+}
+.predict-feedback.show { display: block; }
+
+/* Challenges */
+.challenge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.challenge-item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: 0.15s;
+}
+.challenge-item:hover { border-color: var(--border-strong); }
+.challenge-item.current {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.10);
+}
+.challenge-item.done {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.08);
+}
+.challenge-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.challenge-desc {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.status-dot {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-3);
+}
+.challenge-item.done .status-dot {
+  background: rgba(52, 211, 153, 0.2);
+  color: var(--green);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-box {
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.stat-box .k { font-size: 11.5px; color: var(--ink-3); }
+.stat-box .v {
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.toast {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  z-index: 30;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 960px) {
+  .workspace { flex-direction: column; }
+  .side-drawer { width: 100%; max-height: 44%; }
+}
+
+</style>
+  <style>
+    .quiz-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(3, 7, 18, 0.72);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .quiz-backdrop.open { display: flex; }
+    .quiz-modal {
+      width: min(560px, 100%);
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 22px;
+      padding: 24px 26px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+      animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.94) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .quiz-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .quiz-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink-2);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .quiz-close:hover { color: var(--ink); border-color: var(--border-strong); }
+    .quiz-stem {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .quiz-formula {
+      display: inline-block;
+      margin: 8px 0 4px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan);
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 800;
+    }
+    .quiz-opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 520px) { .quiz-opts { grid-template-columns: 1fr; } }
+    .quiz-opt {
+      position: relative;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .quiz-opt:hover:not(:disabled) {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+    .quiz-opt.correct {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, 0.18);
+      color: var(--green);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25);
+    }
+    .quiz-opt.wrong {
+      border-color: var(--red);
+      background: rgba(251, 113, 133, 0.16);
+      color: var(--red);
+      animation: optShake 0.34s ease;
+    }
+    @keyframes optShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .quiz-explain {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border-left: 3px solid var(--cyan);
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--ink-2);
+      margin-bottom: 14px;
+    }
+    .quiz-explain.show { display: block; }
+    .quiz-foot {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* ================= 答对特效：弹簧回弹（与正弦版的粒子爆炸刻意不同） ================= */
+    /* 1) 正确选项像弹簧被压一下再回弹：先纵向压扁、再横向弹开，阻尼收敛 */
+    .quiz-opt.correct.cheer {
+      transform-origin: 50% 100%;
+      background-image: linear-gradient(100deg,
+        rgba(236, 253, 245, 0) 40%,
+        rgba(236, 253, 245, 0.55) 50%,
+        rgba(236, 253, 245, 0) 60%);
+      background-size: 220% 100%;
+      background-repeat: no-repeat;
+      animation:
+        springRebound 0.72s cubic-bezier(0.3, 1.5, 0.5, 1) both,
+        lightSweep 0.92s ease-out 0.02s both;
+    }
+    @keyframes springRebound {
+      0%   { transform: scale(1, 1); }
+      18%  { transform: scale(1.045, 0.90); }
+      40%  { transform: scale(0.972, 1.075); }
+      60%  { transform: scale(1.016, 0.968); }
+      78%  { transform: scale(0.994, 1.014); }
+      100% { transform: scale(1, 1); }
+    }
+    /* 2) 一道亮光沿着选项从左扫到右，像振动沿弹簧传过去 */
+    @keyframes lightSweep {
+      from { background-position: 130% 0; }
+      to   { background-position: -30% 0; }
+    }
+    /* 3) 右上角弹出一枚 ✓ 徽章 */
+    .quiz-opt.correct.cheer::before {
+      content: '✓';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--green);
+      color: #04281a;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 0 2px 10px rgba(52, 211, 153, 0.6);
+      z-index: 2;
+      animation: tickIn 0.44s cubic-bezier(0.2, 1.8, 0.4, 1) 0.06s both;
+    }
+    @keyframes tickIn {
+      from { opacity: 0; transform: scale(0.2) rotate(-45deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* 4) 整张答题卡被「拨」了一下：上下做一次阻尼自由振动 */
+    .quiz-modal.cheer { animation: modalSpring 0.68s cubic-bezier(0.3, 1.25, 0.4, 1); }
+    @keyframes modalSpring {
+      0%   { transform: translateY(0); }
+      26%  { transform: translateY(-6px); }
+      52%  { transform: translateY(2.2px); }
+      74%  { transform: translateY(-1px); }
+      100% { transform: translateY(0); }
+    }
+    /* 全对收尾：卡片边缘亮起绿光 */
+    .quiz-modal.perfect {
+      box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.75), 0 28px 70px rgba(0, 0, 0, 0.55),
+        0 0 60px rgba(52, 211, 153, 0.4);
+    }
+
+    /* 5) 得分徽章「跳」一下，并飘出一个 +1 */
+    .quiz-head .badge { position: relative; }
+    .badge.bump { animation: badgeBump 0.52s cubic-bezier(0.3, 1.6, 0.4, 1); }
+    @keyframes badgeBump {
+      0%   { transform: scale(1); }
+      38%  { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+    .plus-one {
+      position: absolute;
+      left: 50%;
+      top: -4px;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--green);
+      pointer-events: none;
+      animation: plusOneUp 0.95s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    }
+    @keyframes plusOneUp {
+      0%   { opacity: 0; transform: translate(-50%, 2px) scale(0.6); }
+      22%  { opacity: 1; transform: translate(-50%, -9px) scale(1.1); }
+      100% { opacity: 0; transform: translate(-50%, -32px) scale(1); }
+    }
+
+    /* 6) 背景一层绿光脉冲（毛玻璃后面透出来的「共振」感） */
+    .quiz-flash {
+      position: fixed;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 46%,
+        rgba(52, 211, 153, 0.30), rgba(52, 211, 153, 0.06) 42%, transparent 62%);
+    }
+    .quiz-flash.on { display: block; animation: flashPulse 0.82s ease-out forwards; }
+    @keyframes flashPulse {
+      0%   { opacity: 0; }
+      20%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* 7) 答对赞语：GREAT! / PERFECT!（弹在所选选项正上方并升起淡出） */
+    .quiz-modal { position: relative; }
+    .praise-wrap {
+      position: absolute;
+      z-index: 6;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+    .praise-glow {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.2);
+      background: radial-gradient(circle,
+        rgba(52, 211, 153, 0.38), rgba(34, 211, 238, 0.14) 46%, transparent 68%);
+      animation: praiseGlow 1.05s ease-out forwards;
+    }
+    @keyframes praiseGlow {
+      0%   { opacity: 0.95; transform: translate(-50%, -50%) scale(0.22); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.45); }
+    }
+    /* 赞语底衬：一块「贴纸」，把下面选项的文字挡住，避免两种文字叠在一起显脏 */
+    .praise-box {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 16px;
+      border-radius: 14px;
+      background: rgba(6, 14, 26, 0.88);
+      border: 1px solid rgba(52, 211, 153, 0.42);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 26px rgba(52, 211, 153, 0.22);
+      animation: praisePop 1.15s cubic-bezier(0.22, 1.1, 0.3, 1) forwards;
+    }
+    [data-theme="light"] .praise-box {
+      background: rgba(240, 253, 249, 0.96);
+      border-color: rgba(5, 150, 105, 0.45);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16), 0 0 22px rgba(16, 185, 129, 0.22);
+    }
+    .praise {
+      position: relative;
+      display: block;
+      font-family: "Segoe UI", "SF Pro Display", system-ui, -apple-system, sans-serif;
+      font-weight: 900;
+      font-size: clamp(22px, 5.4vw, 32px);
+      line-height: 1;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      background: linear-gradient(96deg, #34d399 0%, #22d3ee 48%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 6px 16px rgba(34, 211, 238, 0.45));
+    }
+    @keyframes praisePop {
+      0%   { opacity: 0; transform: scale(0.35) rotate(-9deg); }
+      26%  { opacity: 1; transform: scale(1.16) rotate(-2deg); }
+      42%  { transform: scale(0.97) rotate(0deg); }
+      56%  { transform: scale(1.03); }
+      72%  { opacity: 1; transform: scale(1) translateY(0); }
+      100% { opacity: 0; transform: scale(0.96) translateY(-42px); }
+    }
+    /* 连对升级：字号更大、配色更「金」 */
+    .praise-wrap.tier-2 .praise { font-size: clamp(24px, 5.8vw, 34px); }
+    .praise-wrap.tier-3 .praise {
+      font-size: clamp(26px, 6.2vw, 36px);
+      background: linear-gradient(96deg, #fbbf24 0%, #f472b6 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 6px 18px rgba(251, 191, 36, 0.55));
+    }
+    .praise-wrap.tier-4 .praise {
+      font-size: clamp(28px, 6.8vw, 40px);
+      background: linear-gradient(96deg, #fde047 0%, #fb923c 45%, #f472b6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 8px 22px rgba(251, 146, 60, 0.6));
+    }
+    .praise-wrap.tier-4 .praise-box {
+      animation-duration: 1.45s;
+      border-color: rgba(251, 191, 36, 0.55);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 34px rgba(251, 191, 36, 0.3);
+    }
+    /* 浅色主题：换成深一档的渐变，避免在白卡上发虚 */
+    [data-theme="light"] .praise {
+      background: linear-gradient(96deg, #059669 0%, #0891b2 48%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 4px 12px rgba(8, 145, 178, 0.3));
+    }
+    [data-theme="light"] .praise-wrap.tier-3 .praise {
+      background: linear-gradient(96deg, #b45309 0%, #be185d 50%, #6d28d9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    [data-theme="light"] .praise-wrap.tier-4 .praise {
+      background: linear-gradient(96deg, #a16207 0%, #c2410c 45%, #be185d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    /* 赞语贴纸盖住选项时，先把角上的 ✓ 收起来，等贴纸飞走再弹回来 */
+    .quiz-opt.correct.cheer.hiding-tick::before { animation: none; opacity: 0; }
+
+    /* 系统要求减少动效时全部关掉 */
+    @media (prefers-reduced-motion: reduce) {
+      .quiz-opt.correct.cheer,
+      .quiz-opt.correct.cheer::before,
+      .quiz-modal.cheer,
+      .badge.bump,
+      .plus-one,
+      .praise-box,
+      .praise-glow,
+      .quiz-flash.on { animation: none !important; }
+    }
+  </style>
+  <style>
+    /* ===== 图象变换连续演示（在画布内进行，不另开窗口） ===== */
+    /* 侧栏入口按钮：由 y = cos x 连续变形到 y = A cos(ωx + φ) */
+    .btn.morph-cta {
+      width: 100%;
+      flex: none;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      white-space: normal;
+      text-align: center;
+      border-radius: 14px;
+    }
+    .btn.morph-cta:hover { box-shadow: 0 8px 24px var(--cyan-glow); }
+    .btn.morph-cta.on {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #061220;
+      box-shadow: 0 0 0 3px var(--cyan-glow), 0 8px 26px var(--cyan-glow);
+    }
+    [data-theme="light"] .btn.morph-cta.on { color: #fff; }
+
+    /* 画布内的演示提示条 */
+    .morph-hud {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 62px;
+      z-index: 6;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      pointer-events: none;
+    }
+    .morph-hud.show { display: flex; }
+    .morph-steps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .morph-step {
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink-3);
+      backdrop-filter: blur(10px);
+      transition: 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    }
+    .morph-step.active { color: #061220; border-color: transparent; }
+    [data-theme="light"] .morph-step.active { color: #fff; }
+    .morph-hint {
+      font-size: 12.5px;
+      line-height: 1.7;
+      text-align: center;
+      color: var(--ink-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+      max-width: min(760px, 100%);
+    }
+    .morph-hint b { color: var(--cyan); font-weight: 800; }
+    .morph-hint .path-tag { color: var(--ink-3); font-weight: 600; }
+
+    /* 演示时的底部按钮条 */
+    #morphControls .seg-btn { font-size: 12px; padding: 7px 12px; }
+    @media (max-width: 720px) {
+      .morph-hud { bottom: 56px; }
+      .morph-hint { font-size: 12px; padding: 7px 12px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <a class="back-link" href="#" title="返回总览">←</a>
+      <span class="grade-pill">高一 · 三角函数</span>
+      <div class="title-group">
+        <h1>弹簧振子如何“画”出 y = A cos(ωx + φ)</h1>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="seg-tabs" id="modeTabs">
+        <button class="seg-btn active" data-mode="explore">🔬 自由探究</button>
+        <button class="seg-btn" data-mode="predict">🤔 先猜后验</button>
+        <button class="seg-btn" data-mode="challenge">🎮 闯关挑战</button>
+      </div>
+      <button class="icon-btn" id="btnPresentation" title="快捷键 F">🖥 大屏模式</button>
+      <button class="icon-btn" id="btnTheme" title="快捷键 T">☀ 投影浅色</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage-shell">
+      <canvas id="canvas" class="lab-canvas"></canvas>
+
+      <div class="hud-top-left">
+        <div class="formula-pill" id="formulaPill">
+          <span>y =</span>
+          <span class="hl-a" id="fA">1.0</span>
+          <span>cos(</span>
+          <span class="hl-w" id="fW">1.0</span>
+          <span id="fSign">x +</span>
+          <span class="hl-p" id="fP">0</span>
+          <span>)</span>
+        </div>
+      </div>
+
+      <div class="alert-banner" id="alertBanner"></div>
+      <div class="toast" id="toast"></div>
+
+      <!-- 图象变换演示：画布内提示条（不另开窗口） -->
+      <div class="morph-hud" id="morphHud">
+        <div class="morph-steps" id="morphSteps"></div>
+        <div class="morph-hint" id="morphHint"></div>
+      </div>
+
+      <div class="hud-bottom-left" id="hudBottomLeft">
+        <button class="btn primary" id="btnPlay">⏸ 暂停振动</button>
+        <button class="btn" id="btnGhost">👻 显示基准 cos x</button>
+        <button class="btn" id="btnReset">↺ 重置参数</button>
+      </div>
+
+      <!-- 图象变换演示时的底部控制条 -->
+      <div class="hud-bottom-left" id="morphControls" style="display:none;">
+        <button class="btn primary" id="btnMorphPlay">▶ 连续变换</button>
+        <div class="seg-tabs" id="morphPathTabs">
+          <button class="seg-btn active" data-path="1" title="路径一：先平移后伸缩">路径一</button>
+          <button class="seg-btn" data-path="2" title="路径二：先伸缩后平移">路径二</button>
+        </div>
+        <button class="btn" id="btnMorphReplay">↺ 回到 y = cos x</button>
+        <button class="btn" id="btnMorphExit">✕ 退出演示</button>
+      </div>
+
+      <div class="hud-bottom-right">拖拽波形可手动推进时刻 · 快捷键 Space 播放 / F 大屏</div>
+    </section>
+
+    <aside class="side-drawer">
+      <!-- 参数控制台 -->
+      <div class="card">
+        <div class="card-title">振动参数 <span class="badge">实时联动</span></div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="name">振幅 A（离开平衡位置的最远距离）</span>
+            <span class="val" id="valA" style="color:var(--cyan)">1.0</span>
+          </div>
+          <input class="lab-range" id="sA" type="range" min="0" max="1.5" step="0.1" value="1" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="name">角频率 ω（振动快慢）</span>
+            <span class="val" id="valW" style="color:var(--purple)">1.0</span>
+          </div>
+          <input class="lab-range" id="sW" type="range" min="0.5" max="3" step="0.5" value="1" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="name">初相 φ（起始位置）</span>
+            <span class="val" id="valP" style="color:var(--amber)">0</span>
+          </div>
+          <input class="lab-range" id="sP" type="range" min="0" max="16" step="1" value="8" />
+        </div>
+      </div>
+
+      <!-- 实时物理量 -->
+      <div class="card">
+        <div class="card-title">振子实时读数 <span class="badge" id="phaseTag">x = 0.00</span></div>
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="k">周期 T = 2π / ω</div>
+            <div class="v" id="statT" style="color:var(--purple)">2π</div>
+          </div>
+          <div class="stat-box">
+            <div class="k">振子当前位移 y</div>
+            <div class="v" id="statY" style="color:var(--cyan)">1.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图象变换连续演示入口 -->
+      <button class="btn primary morph-cta" id="btnMorphOpen" title="打开图象变换连续演示">
+        由 y = cos x 连续变形到 y = A cos(ωx + φ)
+      </button>
+
+      <!-- 先猜后验 -->
+      <div class="card" id="predictCard" style="display:none;">
+        <div class="card-title">课堂悬念 <span class="badge">先猜后验</span></div>
+        <div class="predict-q">如果把振动快慢 <b>ω 从 1 调到 2</b>（振动加快一倍），余弦曲线转一圈的周期 T 会怎么变？</div>
+        <div class="predict-opts" id="predictOpts">
+          <button class="predict-opt" data-idx="0">A. 周期变大一倍，变成 4π</button>
+          <button class="predict-opt" data-idx="1">B. 周期缩小一半，变成 π</button>
+          <button class="predict-opt" data-idx="2">C. 周期不变，只是波峰变高</button>
+        </div>
+        <button class="btn amber" id="btnReveal" style="width:100%;" disabled>✨ 请先选择一个猜想</button>
+        <div class="predict-feedback" id="predictFeedback">
+          <b>验证结论：</b>振动加快一倍 → 完成一次全振动只需一半时间，所以 <b>T = 2π / ω = π</b>（横坐标压缩为原来的 1/2）。看左边，振子上下一个来回，右侧已经画出 2 个完整波峰！
+        </div>
+      </div>
+
+      <!-- 闯关任务 -->
+      <div class="card" id="challengeCard" style="display:none;">
+        <div class="card-title">随堂闯关题目 <span class="badge" id="chalScore">0 / 4</span></div>
+        <p id="quizBankInfo" style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:10px;">
+          题库共 <b>36</b> 道，每轮随机抽 <b>4</b> 道（选项顺序也会打乱），每次打开都是新的一批题。<br>重点检验对振幅 <b>A</b>、周期 <b>T = 2π/ω</b> 与相位 <b>φ</b> 的理解。
+        </p>
+        <button class="btn primary" id="btnOpenQuiz" style="width:100%;">🎯 打开闯关题目窗口</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- 闯关题目弹窗 -->
+<div class="quiz-backdrop" id="quizModal">
+  <div class="quiz-flash" id="quizFlash"></div>
+  <div class="quiz-modal" id="quizModalCard">
+    <div class="quiz-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="grade-pill" id="quizProgress">第 1 / 4 题</span>
+        <span class="badge" id="quizScoreBadge">得分 0 / 4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn on" id="btnBgm" title="背景音乐开关">🔊 音乐开</button>
+        <button class="quiz-close" id="btnCloseQuiz" title="关闭">✕</button>
+      </div>
+    </div>
+    <div class="quiz-stem" id="quizStem"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnQuizDemo" style="display:none;">🌀 在弹簧振子中演示</button>
+      <button class="btn primary" id="btnQuizNext" style="display:none;">下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  function getCssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  class LabCanvas {
+    constructor(canvas, onDraw) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.onDraw = onDraw;
+      this.width = 800;
+      this.height = 500;
+      this.dpr = window.devicePixelRatio || 1;
+      this.particles = [];
+      this.ripples = [];
+      this._raf = null;
+      this._last = performance.now();
+
+      this._resize = () => {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.width = Math.max(300, Math.floor(rect.width));
+        this.height = Math.max(240, Math.floor(rect.height));
+        this.canvas.width = Math.floor(this.width * this.dpr);
+        this.canvas.height = Math.floor(this.height * this.dpr);
+      };
+
+      const ro = new ResizeObserver(this._resize);
+      ro.observe(this.canvas.parentElement);
+      this._resize();
+    }
+
+    start(tickFn) {
+      const loop = (now) => {
+        const dt = Math.min(0.05, (now - this._last) / 1000);
+        this._last = now;
+        if (tickFn) tickFn(dt, now);
+        this._updateEffects(dt);
+
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+        ctx.clearRect(0, 0, this.width, this.height);
+        this.onDraw(ctx, this.width, this.height, dt, now);
+        this._drawEffects(ctx);
+        ctx.restore();
+
+        this._raf = requestAnimationFrame(loop);
+      };
+      this._raf = requestAnimationFrame(loop);
+    }
+
+    burst(x, y, color = '#38bdf8', count = 26) {
+      const palette = [color, '#34d399', '#fbbf24', '#a78bfa', '#ffffff'];
+      for (let i = 0; i < count; i++) {
+        const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const spd = 80 + Math.random() * 210;
+        this.particles.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 40,
+          life: 1,
+          decay: 0.9 + Math.random() * 0.7,
+          size: 2.5 + Math.random() * 3.5,
+          color: palette[i % palette.length],
+        });
+      }
+      this.ripple(x, y, color);
+    }
+
+    ripple(x, y, color = '#38bdf8') {
+      this.ripples.push({ x, y, r: 6, maxR: 58, life: 1, color });
+    }
+
+    _updateEffects(dt) {
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 260 * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) this.particles.splice(i, 1);
+      }
+      for (let i = this.ripples.length - 1; i >= 0; i--) {
+        const r = this.ripples[i];
+        r.r += (r.maxR - r.r) * Math.min(1, dt * 6);
+        r.life -= dt * 1.6;
+        if (r.life <= 0) this.ripples.splice(i, 1);
+      }
+    }
+
+    _drawEffects(ctx) {
+      for (const r of this.ripples) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, r.life * 0.75);
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      for (const p of this.particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  function glowLine(ctx, x1, y1, x2, y2, color, width = 3, glow = 14) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = glow;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function glowDot(ctx, x, y, radius, color, ringColor = '#ffffff') {
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = ringColor;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawLabel(ctx, text, x, y, color = '#f1f5f9', size = 13, align = 'center') {
+    ctx.save();
+    ctx.font = `700 ${size}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = getCssVar('--canvas-bg') || '#050912';
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  /* 弹簧线圈：沿竖直方向按正弦规律左右摆动，两端收窄贴住支点与振子 */
+  function drawSpring(ctx, x, yTop, yBot, amp, color, glowColor, isLight) {
+    const len = Math.max(10, yBot - yTop);
+    const coils = 9;
+    const steps = coils * 22;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.8;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = isLight ? 0 : 10;
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const yy = yTop + t * len;
+      const taper = Math.min(1, Math.min(t, 1 - t) * 4.5);
+      const xx = x + amp * taper * Math.sin(t * coils * Math.PI * 2);
+      i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function roundRectPath(ctx, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.lineTo(x + w - rr, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+    ctx.lineTo(x + w, y + h - rr);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    ctx.lineTo(x + rr, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+    ctx.lineTo(x, y + rr);
+    ctx.quadraticCurveTo(x, y, x + rr, y);
+    ctx.closePath();
+  }
+
+  function initShell({ onCommand } = {}) {
+    const app = document.querySelector('.app');
+    const themeBtn = document.getElementById('btnTheme');
+    const presBtn = document.getElementById('btnPresentation');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (themeBtn) themeBtn.textContent = theme === 'light' ? '🌙 深色实验室' : '☀ 投影浅色';
+      localStorage.setItem('math_lab_theme', theme);
+    }
+
+    const saved = localStorage.getItem('math_lab_theme') || 'dark';
+    setTheme(saved);
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        setTheme(cur);
+      });
+    }
+
+    function togglePresentation(force) {
+      const next = typeof force === 'boolean' ? force : !app.classList.contains('presentation');
+      app.classList.toggle('presentation', next);
+      if (presBtn) presBtn.classList.toggle('on', next);
+    }
+
+    if (presBtn) {
+      presBtn.addEventListener('click', () => togglePresentation());
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') togglePresentation();
+      if (e.key === 't' || e.key === 'T') {
+        const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        setTheme(cur);
+      }
+    });
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || data.type !== 'math-lab:command') return;
+      if (data.action === 'theme' && data.payload) setTheme(data.payload);
+      if (data.action === 'presentation') togglePresentation(Boolean(data.payload));
+      if (onCommand) onCommand(data.action, data.payload);
+    });
+
+    return { setTheme, togglePresentation };
+  }
+
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  function setAlert(msg) {
+    const el = document.getElementById('alertBanner');
+    if (!el) return;
+    if (!msg) {
+      el.classList.remove('show');
+      return;
+    }
+    if (el.textContent !== msg) {
+      el.textContent = msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+    }
+  }
+
+  // Pure Web Audio API game BGM & SFX (zero external files)
+  const sound = (() => {
+    let ctx = null;
+    let bgmTimer = null;
+    let bgmStep = 0;
+    let muted = false;
+
+    function ensureCtx() {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+
+    function tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+      if (muted) return;
+      const ac = ensureCtx();
+      if (!ac) return;
+      const t0 = ac.currentTime + delay;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    }
+
+    function playClick() {
+      tone(660, 0.06, 'triangle', 0.08, 0);
+    }
+
+    function playCorrect() {
+      // Bright ascending chime: C5 - E5 - G5 - C6
+      tone(523.25, 0.14, 'triangle', 0.16, 0);
+      tone(659.25, 0.14, 'triangle', 0.16, 0.08);
+      tone(783.99, 0.16, 'triangle', 0.16, 0.16);
+      tone(1046.5, 0.32, 'sine', 0.18, 0.24);
+    }
+
+    function playWrong() {
+      // Gentle low descending two-tone buzz
+      tone(220, 0.16, 'sawtooth', 0.09, 0);
+      tone(164.81, 0.28, 'sawtooth', 0.10, 0.13);
+    }
+
+    // 答对时的「弹簧余振」：音高被快速拉扯后随阻尼收敛，像拨了一下弹簧
+    function playSpringBoing() {
+      if (muted) return;
+      const ac = ensureCtx();
+      if (!ac) return;
+      const t0 = ac.currentTime;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(540, t0);
+      osc.frequency.exponentialRampToValueAtTime(190, t0 + 0.26);
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(24, t0);
+      lfo.frequency.exponentialRampToValueAtTime(9, t0 + 0.30);
+      lfoGain.gain.setValueAtTime(78, t0);
+      lfoGain.gain.exponentialRampToValueAtTime(5, t0 + 0.30);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.085, t0 + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.32);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      lfo.start(t0);
+      osc.start(t0);
+      osc.stop(t0 + 0.34);
+      lfo.stop(t0 + 0.34);
+    }
+
+    function playVictory() {
+      const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+      const times = [0, 0.1, 0.2, 0.3, 0.44, 0.56];
+      notes.forEach((f, i) => tone(f, i === notes.length - 1 ? 0.45 : 0.14, 'triangle', 0.16, times[i]));
+    }
+
+    // Light upbeat marimba-like classroom game loop
+    const MELODY = [
+      523.25, 659.25, 783.99, 659.25, 880.00, 783.99, 659.25, 587.33,
+      523.25, 659.25, 783.99, 1046.5, 880.00, 783.99, 659.25, 587.33,
+    ];
+    const BASS = [
+      130.81, 0, 196.00, 0, 174.61, 0, 196.00, 0,
+      130.81, 0, 196.00, 0, 146.83, 0, 196.00, 0,
+    ];
+
+    function startBgm() {
+      if (bgmTimer || muted) return;
+      ensureCtx();
+      bgmTimer = setInterval(() => {
+        if (muted) return;
+        const m = MELODY[bgmStep % MELODY.length];
+        const b = BASS[bgmStep % BASS.length];
+        if (m) tone(m, 0.18, 'sine', 0.045, 0);
+        if (b) tone(b, 0.22, 'triangle', 0.04, 0);
+        bgmStep += 1;
+      }, 240);
+    }
+
+    function stopBgm() {
+      if (bgmTimer) {
+        clearInterval(bgmTimer);
+        bgmTimer = null;
+      }
+    }
+
+    function toggleBgm() {
+      if (bgmTimer) {
+        stopBgm();
+        return false;
+      }
+      muted = false;
+      startBgm();
+      return true;
+    }
+
+    function setMuted(val) {
+      muted = Boolean(val);
+      if (muted) stopBgm();
+    }
+
+    return {
+      playClick,
+      playCorrect,
+      playWrong,
+      playSpringBoing,
+      playVictory,
+      startBgm,
+      stopBgm,
+      toggleBgm,
+      setMuted,
+      isPlaying: () => Boolean(bgmTimer) && !muted,
+    };
+  })();
+
+  window.MathLab = {
+    LabCanvas,
+    getCssVar,
+    glowLine,
+    glowDot,
+    drawLabel,
+    drawSpring,
+    roundRectPath,
+    initShell,
+    showToast,
+    setAlert,
+    sound,
+  };
+})();
+
+</script>
+<script>
+(() => {
+  'use strict';
+  const { LabCanvas, getCssVar, glowLine, glowDot, drawLabel, drawSpring, roundRectPath,
+          initShell, showToast, setAlert, sound } = window.MathLab;
+
+  const state = {
+    A: 1.0,
+    w: 1.0,
+    phi: 0,
+    x: 0,
+    playing: true,
+    showGhost: true,
+    mode: 'explore',
+    pickedOpt: null,
+    revealed: false,
+    quizIndex: 0,
+    quizScore: 0,
+    quizStreak: 0,      // 连对计数：用来升级答对赞语（Great → Perfect → Amazing）
+    quizAnswered: false,
+  };
+
+  const QUIZ_BANK = [
+    {
+      id: 1,
+      stem: '观察下列余弦函数解析式，它的振幅 A 和最小正周期 T 分别是多少？',
+      formula: 'y = cos(2x)',
+      opts: [
+        '振幅 2，周期 2π',
+        '振幅 1，周期 π',
+        '振幅 1，周期 2π',
+        '振幅 2，周期 π',
+      ],
+      ans: 1,
+      explain: 'A = 1 决定离开平衡位置的最远距离为 1（振子的振幅）；ω = 2 决定振动加快一倍，所以周期 T = 2π / ω = 2π / 2 = π。',
+      demo: { A: 1, w: 2, phi: 0 },
+    },
+    {
+      id: 2,
+      stem: '某振子的位移满足下面解析式，若 ω = 3，则完成一次全振动所需的时间 T 是？',
+      formula: 'y = 0.8 cos(3x + π/2)',
+      opts: ['2π / 3', '3π / 2', 'π / 3', '6π'],
+      ans: 0,
+      explain: '最小正周期只与 ω 有关，公式为 T = 2π / ω。代入 ω = 3，得 T = 2π / 3。',
+      demo: { A: 0.8, w: 3, phi: Math.PI / 2 },
+    },
+    {
+      id: 3,
+      stem: '当 x = 0 时，下面哪个初相能让振子恰好位于“正向最大位移”（最高点）？',
+      formula: 'y = cos(x + φ)',
+      opts: ['φ = 0', 'φ = π', 'φ = π/2', 'φ = −π/2'],
+      ans: 0,
+      explain: '把 x = 0 代入得 y = cos(φ)。要在最高点取 y = 1，需 cos(φ) = 1，因此 φ = 0。注意余弦与正弦不同：φ = 0 时余弦就已经在最高点。',
+      demo: { A: 1, w: 1, phi: 0 },
+    },
+    {
+      id: 4,
+      stem: '把 y = 0.6 cos x 的图象向“右”平移 π/4 个单位，得到的解析式是？',
+      formula: 'y = 0.6 cos(x)  ⟶  右移 π/4',
+      opts: [
+        'y = 0.6 cos(x + π/4)',
+        'y = 0.6 cos(x − π/4)',
+        'y = 0.6 cos(x) + π/4',
+        'y = 0.6 cos(π/4 · x)',
+      ],
+      ans: 1,
+      explain: '口诀“左加右减”（对 x 而言）：向右平移 π/4，是把 x 换成 x − π/4，即 φ = −π/4。',
+      demo: { A: 0.6, w: 1, phi: -Math.PI / 4 },
+    },
+    {
+      id: 5,
+      stem: '振子位移 y = 1.5 cos x 的值域是？',
+      formula: 'y = 1.5 cos(x)',
+      opts: ['[−1, 1]', '[0, 1.5]', '[−1.5, 1.5]', '[−3, 3]'],
+      ans: 2,
+      explain: '值域只由振幅 A 决定：y = A cos(ωx + φ) 的值域是 [−|A|, |A|]。这里 A = 1.5，所以是 [−1.5, 1.5]。',
+      demo: { A: 1.5, w: 1, phi: 0 },
+    },
+    {
+      id: 6,
+      stem: 'y = cos(x + π/4) 的图象可由 y = cos x 怎样平移得到？',
+      formula: 'y = cos x  ⟶  y = cos(x + π/4)',
+      opts: [
+        '向右平移 π/4 个单位',
+        '向右平移 π/8 个单位',
+        '向左平移 π/8 个单位',
+        '向左平移 π/4 个单位',
+      ],
+      ans: 3,
+      explain: '“左加右减”：括号里是 x + π/4，相当于把 x 换成 x + π/4，向左平移 π/4 个单位。',
+      demo: { A: 1, w: 1, phi: Math.PI / 4 },
+    },
+    {
+      id: 7,
+      stem: '若 y = cos(ωx) 的最小正周期为 2π/3，则 ω 等于？',
+      formula: 'T = 2π/3',
+      opts: ['2/3', '3', '6', '1/3'],
+      ans: 1,
+      explain: '由 T = 2π/ω 得 ω = 2π/T = 2π ÷ (2π/3) = 3。周期越小，振动越快，ω 越大。',
+      demo: { A: 1, w: 3, phi: 0 },
+    },
+    {
+      id: 8,
+      stem: '函数 y = 1.2 cos(2x − π/4) 的最大值是多少？',
+      formula: 'y = 1.2 cos(2x − π/4)',
+      opts: ['0.6', '2', '1', '1.2'],
+      ans: 3,
+      explain: 'cos 的最大值是 1，所以整体最大值就是振幅 A = 1.2（在 ωx + φ = 2kπ 时取到）。',
+      demo: { A: 1.2, w: 2, phi: -Math.PI / 4 },
+    },
+    {
+      id: 9,
+      stem: 'y = cos(2x) 的图象的一条对称轴是？',
+      formula: 'y = cos(2x)',
+      opts: ['x = π/2', 'x = π/4', 'x = π/3', 'x = π/6'],
+      ans: 0,
+      explain: '余弦曲线的对称轴都过波峰或波谷，即 2x = kπ，得 x = kπ/2。取 k = 1 得 x = π/2。而 π/4、π/3、π/6 处都不是波峰或波谷。',
+      demo: { A: 1, w: 2, phi: 0 },
+    },
+    {
+      id: 10,
+      stem: 'y = cos(x + π/3) 在 x > 0 时的最小零点是？',
+      formula: 'y = cos(x + π/3)',
+      opts: ['x = π/6', 'x = π/3', 'x = 2π/3', 'x = 5π/6'],
+      ans: 0,
+      explain: '零点是 cos 的图象与 x 轴的交点：x + π/3 = π/2 + kπ，得 x = π/6 + kπ。最小正值取 k = 0，即 x = π/6。',
+      demo: { A: 1, w: 1, phi: Math.PI / 3 },
+    },
+    {
+      id: 11,
+      stem: '把 y = cos x 先向左平移 π/2，再把横坐标缩短为原来的 1/2，得到？',
+      formula: 'y = cos x  ⟶  左移 π/2  ⟶  横坐标 ×1/2',
+      opts: [
+        'y = cos(2x + π/2)',
+        'y = cos(2x + π)',
+        'y = cos(x/2 + π/2)',
+        'y = cos(2x)',
+      ],
+      ans: 0,
+      explain: '先平移得 y = cos(x + π/2)；再把 x 换成 2x（横坐标缩短为 1/2）得 y = cos(2x + π/2)。注意顺序不能颠倒！',
+      demo: { A: 1, w: 2, phi: Math.PI / 2 },
+    },
+    {
+      id: 12,
+      stem: '关于 y = cos x 与 y = sin x 的图象关系，正确的是？',
+      formula: 'y = sin x  ⟶  ?  ⟶  y = cos x',
+      opts: [
+        '把 y = sin x 向左平移 π/2 得 y = cos x',
+        '把 y = sin x 向右平移 π/2 得 y = cos x',
+        '把 y = sin x 向上平移 1 得 y = cos x',
+        '两者图象完全相同',
+      ],
+      ans: 0,
+      explain: '因为 sin(x + π/2) = cos x，按“左加”把 y = sin x 向左平移 π/2 就得到 y = cos x。也就是说，余弦曲线就是正弦曲线左移 π/2 的结果。',
+      demo: { A: 1, w: 1, phi: Math.PI / 2 },
+    },
+    {
+      id: 13,
+      stem: '在 [0, 2π] 上，y = cos x 的单调递减区间是？',
+      formula: 'y = cos x,  x ∈ [0, 2π]',
+      opts: ['[0, π]', '[π, 2π]', '[0, π/2]', '[π/2, 3π/2]'],
+      ans: 0,
+      explain: '余弦曲线从 x = 0 的最高点（y = 1）一路降到 x = π 的最低点（y = −1），所以递减区间是 [0, π]；[π, 2π] 上则单调递增。',
+      demo: { A: 1, w: 1, phi: 0 },
+    },
+    {
+      id: 14,
+      stem: '只把 y = cos x 的振幅变为原来的 1.5 倍，周期会怎样变化？',
+      formula: 'y = cos x  ⟶  y = 1.5 cos x',
+      opts: ['周期不变，仍是 2π', '周期变为 π', '周期变为 3π', '周期变为 2π/3'],
+      ans: 0,
+      explain: '周期只由 ω 决定（T = 2π/ω），改振幅 A 只改变图象的高低（值域），周期仍是 2π。',
+      demo: { A: 1.5, w: 1, phi: 0 },
+    },
+    {
+      id: 15,
+      stem: '把 y = cos x 的图象向右平移 π/3，得到的解析式是？',
+      formula: 'y = cos x  ⟶  右移 π/3',
+      opts: [
+        'y = cos(x + π/3)',
+        'y = cos(x − π/3)',
+        'y = cos x − π/3',
+        'y = cos(π/3 · x)',
+      ],
+      ans: 1,
+      explain: '“左加右减”针对 x：右移 π/3 就是把 x 换成 x − π/3，对应 φ = −π/3。',
+      demo: { A: 1, w: 1, phi: -Math.PI / 3 },
+    },
+    {
+      id: 16,
+      stem: '下列函数中，最小正周期为 π 且振幅为 1.5 的是？',
+      formula: 'T = π,  A = 1.5',
+      opts: ['y = 1.5 cos(2x)', 'y = 1.5 cos x', 'y = cos(2x)', 'y = 3 cos(2x)'],
+      ans: 0,
+      explain: '振幅 1.5 要求 A = 1.5；周期 π 要求 2π/ω = π，即 ω = 2。所以是 y = 1.5 cos(2x)。',
+      demo: { A: 1.5, w: 2, phi: 0 },
+    },
+    {
+      id: 17,
+      stem: '在 y = A cos(ωx + φ) 中，φ 决定图象的什么？',
+      formula: 'y = A cos(ωx + φ)',
+      opts: ['振幅（值域大小）', '周期（振动快慢）', '左右平移（起始位置）', '对称轴的条数'],
+      ans: 2,
+      explain: 'A 管高低、ω 管疏密（周期）、φ 管左右位置。φ > 0 图象左移，φ < 0 图象右移。',
+      demo: { A: 1, w: 1, phi: Math.PI / 2 },
+    },
+    {
+      id: 18,
+      stem: '某振子位移 y = 1.5 cos(0.5x)（x 为时间），完成一次全振动需要多久？',
+      formula: 'y = 1.5 cos(0.5x)',
+      opts: ['2π', '4π', 'π', '8π'],
+      ans: 1,
+      explain: '一次全振动就是一个周期：T = 2π/ω = 2π/0.5 = 4π。ω 越小，振动越慢。',
+      demo: { A: 1.5, w: 0.5, phi: 0 },
+    },
+    {
+      id: 19,
+      stem: '把 y = 1.5 cos(2x − π/2) 写成 y = A cos(ωx + φ) 的形式，初相 φ 是？',
+      formula: 'y = 1.5 cos(2x − π/2)',
+      opts: ['π/2', '−π/2', '2', '−π/4'],
+      ans: 1,
+      explain: '括号里 x 的系数是 ω = 2，剩下的常数项就是 φ，即 φ = −π/2。',
+      demo: { A: 1.5, w: 2, phi: -Math.PI / 2 },
+    },
+    {
+      id: 20,
+      stem: '振子位移 y = 1.5 cos(0.5x) 从 x = 0 起，第一次回到平衡位置所需时间是？',
+      formula: 'y = 1.5 cos(0.5x)',
+      opts: ['π', '2π', 'π/2', '4π'],
+      ans: 0,
+      explain: '平衡位置对应 y = 0，即 cos(0.5x) = 0，0.5x = π/2，解得 x = π。这段时间正好是四分之一个周期 T/4 = 4π/4 = π。',
+      demo: { A: 1.5, w: 0.5, phi: 0 },
+    },
+    {
+      id: 21,
+      stem: '在区间 [0, π] 上，y = 1.5 cos(2x) 的最小值是？',
+      formula: 'y = 1.5 cos(2x),  x ∈ [0, π]',
+      opts: ['−1.5', '−1', '0', '1.5'],
+      ans: 0,
+      explain: '当 x = π/2 时 2x = π，cos π = −1，取到最小值 −1.5。此时振子正好在负向最大位移处。',
+      demo: { A: 1.5, w: 2, phi: 0 },
+    },
+    {
+      id: 22,
+      stem: '把 y = 1.5 cos x 的图象向左平移 π/2，所得函数在 x = 0 处的值是？',
+      formula: 'y = 1.5 cos(x + π/2)',
+      opts: ['0', '1.5', '−1.5', '0.75'],
+      ans: 0,
+      explain: '左移 π/2 得 y = 1.5 cos(x + π/2) = −1.5 sin x，代入 x = 0 得 0（振子正好经过平衡位置）。',
+      demo: { A: 1.5, w: 1, phi: Math.PI / 2 },
+    },
+    {
+      id: 23,
+      stem: '某振子位移的最大值为 1.5，最小值为 −1.5，则 y = A cos(ωx + φ) 中的 A 是？',
+      formula: 'y_max = 1.5,  y_min = −1.5',
+      opts: ['1.5', '3', '0.75', '无法确定'],
+      ans: 0,
+      explain: '值域是 [−|A|, |A|]，所以 |A| = 1.5；振幅取正值，A = 1.5。',
+      demo: { A: 1.5, w: 1, phi: 0 },
+    },
+    {
+      id: 24,
+      stem: '关于函数 y = 1.5 cos(2x − π/4)，下列说法正确的是？',
+      formula: 'y = 1.5 cos(2x − π/4)',
+      opts: ['周期 π，振幅 1.5', '周期 2π，振幅 1.5', '周期 π，振幅 2', '周期 π/2，振幅 1.5'],
+      ans: 0,
+      explain: '振幅只看 A = 1.5；周期 T = 2π/ω = 2π/2 = π，与 φ 无关。',
+      demo: { A: 1.5, w: 2, phi: -Math.PI / 4 },
+    },
+    {
+      id: 25,
+      stem: '把 y = cos x 先使横坐标缩短为原来的 1/2，再向左平移 π/4，得到？',
+      formula: 'y = cos x  ⟶  横坐标 ×1/2  ⟶  左移 π/4',
+      opts: ['y = cos(2x + π/2)', 'y = cos(2x + π/4)', 'y = cos(2x − π/2)', 'y = cos(x/2 + π/4)'],
+      ans: 0,
+      explain: '先得 y = cos(2x)；再左移 π/4 是把 x 换成 x + π/4，得 cos(2(x + π/4)) = cos(2x + π/2)。注意平移量要乘上 ω。',
+      demo: { A: 1, w: 2, phi: Math.PI / 2 },
+    },
+    {
+      id: 26,
+      stem: '振子振幅 A = 1.5 m，位移 y = 1.5 cos(ωx + φ)。一次全振动中最高点与最低点的高度差是？',
+      formula: 'y = 1.5 cos(ωx + φ)',
+      opts: ['1.5 m', '3 m', '0 m', '4.5 m'],
+      ans: 1,
+      explain: '最高 1.5、最低 −1.5，高度差 = 1.5 − (−1.5) = 3 m，正好是 2A（两倍振幅）。',
+      demo: { A: 1.5, w: 1, phi: 0 },
+    },
+    {
+      id: 27,
+      stem: 'y = 1.5 cos x 在 [0, 2π] 上的最小值是？',
+      formula: 'y = 1.5 cos(x),  x ∈ [0, 2π]',
+      opts: ['0', '−1.5', '−1', '1.5'],
+      ans: 1,
+      explain: '当 x = π 时 cos x = −1，取到最小值 −1.5。',
+      demo: { A: 1.5, w: 1, phi: 0 },
+    },
+    {
+      id: 28,
+      stem: '把 y = cos x 图象上每点的纵坐标伸长到原来的 1.5 倍（横坐标不变），新图象的周期是？',
+      formula: 'y = cos x  ⟶  y = 1.5 cos x',
+      opts: ['2π', 'π', '3π', '4π/3'],
+      ans: 0,
+      explain: '纵坐标伸缩只改振幅，不改变周期；T 仍是 2π/ω = 2π。',
+      demo: { A: 1.5, w: 1, phi: 0 },
+    },
+    {
+      id: 29,
+      stem: '弹簧振子从“正向最大位移处”由静止释放（取向上为正），其位移随时间变化的图象是？',
+      formula: 'x = 0 时 y = A,  v = 0',
+      opts: [
+        '从最大值出发的余弦曲线',
+        '从 0 出发的正弦曲线',
+        '一条水平直线 y = A',
+        '从最小值出发的余弦曲线',
+      ],
+      ans: 0,
+      explain: 'x = 0 时位移已经是 +A，且速度为 0；而 cos 0 = 1 恰好从最大值出发，所以“拉到最高点放手”的振动对应 y = A cos(ωx + φ)。这也正是本页左边振子画出余弦曲线的原因。',
+      demo: { A: 1.5, w: 2, phi: 0 },
+    },
+    {
+      id: 30,
+      stem: '把 y = 1.5 cos(2x) 的图象向右平移 π/4，得到？',
+      formula: 'y = 1.5 cos(2x)  ⟶  右移 π/4',
+      opts: ['y = 1.5 cos(2x − π/2)', 'y = 1.5 cos(2x − π/4)', 'y = 1.5 cos(2x + π/2)', 'y = 1.5 cos(2x − π/8)'],
+      ans: 0,
+      explain: '右移 π/4：把 x 换成 x − π/4，得 1.5 cos(2(x − π/4)) = 1.5 cos(2x − π/2)。',
+      demo: { A: 1.5, w: 2, phi: -Math.PI / 2 },
+    },
+    {
+      id: 31,
+      stem: 'y = 1.5 cos(2x + π/2) 在 x = π/4 处的函数值是？',
+      formula: 'y = 1.5 cos(2x + π/2)',
+      opts: ['1.5', '0', '−1.5', '0.75'],
+      ans: 2,
+      explain: '代入：2 × π/4 + π/2 = π，cos π = −1，所以 y = −1.5（此时振子在负向最大位移处）。',
+      demo: { A: 1.5, w: 2, phi: Math.PI / 2 },
+    },
+    {
+      id: 32,
+      stem: '下列函数中，最小正周期最小的是？',
+      formula: '比较四个函数的周期',
+      opts: ['y = 1.5 cos(3x)', 'y = cos(2x)', 'y = 1.5 cos(0.5x)', 'y = cos x'],
+      ans: 0,
+      explain: '周期 T = 2π/ω：ω = 3 时 T = 2π/3 最小。ω 越大，图象越“密”，振动越快。',
+      demo: { A: 1.5, w: 3, phi: 0 },
+    },
+    {
+      id: 33,
+      stem: 'y = 1.5 cos(0.5x) 的一个单调递减区间是？',
+      formula: 'y = 1.5 cos(0.5x)',
+      opts: ['[0, 2π]', '[2π, 4π]', '[−π, π]', '[π, 3π]'],
+      ans: 0,
+      explain: '令 0.5x ∈ [0, π]，得 x ∈ [0, 2π]；在这一段里图象从 1.5 一路降到 −1.5，所以是递减区间。',
+      demo: { A: 1.5, w: 0.5, phi: 0 },
+    },
+    {
+      id: 34,
+      stem: '振子位移满足 y = 1.5 cos(ωx + φ)，把 ω 由 1 增大到 2，则？',
+      formula: 'ω: 1 ⟶ 2',
+      opts: ['最高点变高', '完成一次全振动用时变短', '图象左右平移', '振幅变小'],
+      ans: 1,
+      explain: 'ω 只影响周期：T = 2π/ω 由 2π 变成 π，振动更快；最高点、振幅、左右位置都不变。',
+      demo: { A: 1.5, w: 2, phi: 0 },
+    },
+    {
+      id: 35,
+      stem: 'y = cos(x − π/4) 的图象可由 y = cos(x + π/4) 的图象怎样得到？',
+      formula: 'y = cos(x + π/4)  ⟶  y = cos(x − π/4)',
+      opts: ['向右平移 π/2', '向左平移 π/2', '向右平移 π/4', '两图象重合'],
+      ans: 0,
+      explain: '两者相位差 (π/4) − (−π/4) = π/2，右移 π/2 后 cos((x − π/2) + π/4) = cos(x − π/4)。',
+      demo: { A: 1, w: 1, phi: -Math.PI / 4 },
+    },
+    {
+      id: 36,
+      stem: '图象经过点 (0, 1.5) 且最小正周期为 π 的函数可以是？',
+      formula: '过 (0, 1.5)，T = π',
+      opts: ['y = 1.5 cos(2x)', 'y = 1.5 cos x', 'y = 1.5 cos(2x + π/2)', 'y = cos(2x)'],
+      ans: 0,
+      explain: '余弦在 x = 0 处就取最大值，所以过 (0, 1.5) 只要 A = 1.5 且 φ = 0；再由 T = π 得 ω = 2，即 y = 1.5 cos(2x)。',
+      demo: { A: 1.5, w: 2, phi: 0 },
+    },
+  ];
+
+  /* ---------- 每次打开闯关都换一批题 ---------- */
+  const QUIZ_SIZE = 4;
+  let quizSet = [];
+  let lastIds = [];   // 上一轮抽到的题号，用来保证“换一批”真的不一样
+
+  // 面板文案由常量实时生成，避免写死数字与逻辑不一致
+  (function syncQuizInfo() {
+    const el = document.getElementById('quizBankInfo');
+    if (el) {
+      el.innerHTML = `题库共 <b>${QUIZ_BANK.length}</b> 道，每轮随机抽 <b>${QUIZ_SIZE}</b> 道（选项顺序也会打乱），每次打开都是新的一批题。<br>重点检验对振幅 <b>A</b>、周期 <b>T = 2π/ω</b> 与相位 <b>φ</b> 的理解。`;
+    }
+    const prog = document.getElementById('quizProgress');
+    if (prog) prog.textContent = `第 1 / ${QUIZ_SIZE} 题`;
+    const badge = document.getElementById('quizScoreBadge');
+    if (badge) badge.textContent = `得分 0 / ${QUIZ_SIZE}`;
+    const chal = document.getElementById('chalScore');
+    if (chal) chal.textContent = `0 / ${QUIZ_SIZE}`;
+  })();
+
+  // 给每道题补一个稳定题号，用于“换一批”时避开上一轮
+  QUIZ_BANK.forEach((q, i) => { if (q.id === undefined) q.id = 'q' + (i + 1); });
+
+  function shuffleArr(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function newQuizSet() {
+    // 尽量避开上一轮用过的题，保证每次打开都是“新面孔”
+    const fresh = QUIZ_BANK.filter((q) => lastIds.indexOf(q.id) === -1);
+    const pool = fresh.length >= QUIZ_SIZE ? fresh : QUIZ_BANK;
+    const picked = shuffleArr(pool).slice(0, QUIZ_SIZE);
+    lastIds = picked.map((q) => q.id);
+
+    quizSet = picked.map((q) => {
+      const texts = shuffleArr(q.opts);           // 选项顺序也打乱
+      return { ...q, opts: texts, ans: texts.indexOf(q.opts[q.ans]) };
+    });
+    state.quizIndex = 0;
+    state.quizScore = 0;
+    state.quizStreak = 0;
+    state.quizAnswered = false;
+  }
+
+  const sA = document.getElementById('sA');
+  const sW = document.getElementById('sW');
+  const sP = document.getElementById('sP');
+
+  // φ 滑杆用「整数格」而非弧度：min=0、max=16、step=1，中点为 8
+  // 这样两端的格子一定够得到（用弧度当步长时 min+16×step 会略超 max，右端两格拉不到）
+  const PHI_STEP = Math.PI / 8;      // 一格 = π/8，全程 −π … π
+  const PHI_MID = 8;
+  const phiFromSlider = v => (Number(v) - PHI_MID) * PHI_STEP;
+  const sliderFromPhi = phi => Math.round(phi / PHI_STEP) + PHI_MID;
+
+  // 弧度 → 「几分之几 π」：找分母不超过 maxDen 的最佳分数，永不出现小数
+  function piFrac(v, maxDen) {
+    maxDen = maxDen || 12;
+    if (Math.abs(v) < Math.PI / (2 * maxDen) - 1e-9) return '0';
+    const neg = v < 0;
+    const t = Math.abs(v) / Math.PI;
+    let bn = 1, bd = 1, best = Infinity;
+    for (let d = 1; d <= maxDen; d++) {
+      const n = Math.round(t * d);
+      if (n < 1) continue;
+      const err = Math.abs(t - n / d);
+      if (err < best - 1e-9) { best = err; bn = n; bd = d; }  // 同精度取分母更小的
+    }
+    const g = mGcd(bn, bd); bn /= g; bd /= g;
+    return (neg ? '−' : '') + (bn === 1 ? 'π' : bn + 'π') + (bd === 1 ? '' : '/' + bd);
+  }
+
+  function formatPhi(phi) {
+    return piFrac(phi, 8).replace('−', '-');   // 滑杆步长就是 π/8
+  }
+
+  // 公式胶囊里的相位：符号单独占一位，数值只写「几分之几 π」，永远不出现小数
+  function setPhiPill(phi) {
+    const signEl = document.getElementById('fSign');
+    if (signEl) signEl.textContent = phi < -1e-6 ? 'x −' : 'x +';
+    document.getElementById('fP').textContent = mPi(Math.abs(phi));
+  }
+
+  function formatT(w) {
+    if (Math.abs(w - 1) < 0.05) return '2π';
+    if (Math.abs(w - 2) < 0.05) return 'π';
+    if (Math.abs(w - 0.5) < 0.05) return '4π';
+    if (Math.abs(w - 3) < 0.05) return '2π/3';
+    return (2 / w).toFixed(2) + 'π';
+  }
+
+  function syncUI() {
+    sA.value = state.A;
+    sW.value = state.w;
+    sP.value = sliderFromPhi(state.phi);
+
+    document.getElementById('valA').textContent = state.A.toFixed(1);
+    document.getElementById('valW').textContent = state.w.toFixed(1);
+    document.getElementById('valP').textContent = formatPhi(state.phi);
+
+    document.getElementById('fA').textContent = state.A.toFixed(1);
+    document.getElementById('fW').textContent = state.w.toFixed(1);
+    setPhiPill(state.phi);
+    document.getElementById('statT').textContent = formatT(state.w);
+
+    const y = state.A * Math.cos(state.w * state.x + state.phi);
+    document.getElementById('statY').textContent = y.toFixed(2);
+    document.getElementById('phaseTag').textContent = `x = ${state.x.toFixed(2)}`;
+
+    // 反例警报
+    if (state.A < 0.1) {
+      setAlert('⚠️ 振幅 A = 0！振子停在平衡位置不动，余弦曲线退化为水平直线 y = 0。');
+    } else if (state.phi < -0.1 && state.mode === 'explore') {
+      setAlert('💡 注意相位方向：φ < 0（如 x − π/2）波形向右平移；φ > 0（左加）才向左平移！');
+    } else {
+      setAlert('');
+    }
+  }
+
+  const quizModal = document.getElementById('quizModal');
+  const btnQuizDemo = document.getElementById('btnQuizDemo');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+  const btnBgm = document.getElementById('btnBgm');
+  let bgmEnabled = true;
+
+  function syncBgmBtn() {
+    const playing = sound.isPlaying();
+    btnBgm.textContent = playing ? '🔊 音乐开' : '🔇 音乐关';
+    btnBgm.classList.toggle('on', playing);
+  }
+
+  btnBgm.addEventListener('click', () => {
+    bgmEnabled = !bgmEnabled;
+    if (bgmEnabled) {
+      sound.setMuted(false);
+      sound.startBgm();
+    } else {
+      sound.stopBgm();
+    }
+    syncBgmBtn();
+  });
+
+  function openQuizModal() {
+    newQuizSet();               // 每次打开闯关都换一批新题
+    quizModal.classList.add('open');
+    if (bgmEnabled) {
+      sound.setMuted(false);
+      sound.startBgm();
+    }
+    syncBgmBtn();
+    renderQuizQuestion();
+  }
+
+  function closeQuizModal() {
+    quizModal.classList.remove('open');
+    sound.stopBgm();
+    syncBgmBtn();
+  }
+
+  // ===== 答对反馈：弹簧手势（不用粒子爆炸，避开正弦版的做法）=====
+  const modalCard = document.getElementById('quizModalCard');
+  const quizFlash = document.getElementById('quizFlash');
+  const quizScoreBadgeEl = document.getElementById('quizScoreBadge');
+
+  function clearCheer() {
+    modalCard.classList.remove('cheer', 'perfect');
+    quizFlash.classList.remove('on');
+    quizScoreBadgeEl.querySelectorAll('.plus-one').forEach((n) => n.remove());
+    modalCard.querySelectorAll('.praise-wrap').forEach((n) => n.remove());
+  }
+
+  // 连对越久，赞语越「大」：Great! → Perfect! → Amazing!
+  // 四题全对且最后一题答对，单独给金色的 PERFECT!
+  const PRAISE_WORDS = ['Great!', 'Perfect!', 'Amazing!'];
+
+  function praiseFor(streak, allRight) {
+    if (allRight) return { text: 'PERFECT!', tier: 4 };
+    const i = Math.min(Math.max(streak, 1) - 1, PRAISE_WORDS.length - 1);
+    return { text: PRAISE_WORDS[i], tier: Math.min(i + 1, 3) };
+  }
+
+  // 赞语弹在「刚选中的那个选项」正中间，随后上升淡出
+  function showPraise(anchorEl, text, tier) {
+    if (!anchorEl) return;
+    const cardRect = modalCard.getBoundingClientRect();
+    const r = anchorEl.getBoundingClientRect();
+
+    const wrap = document.createElement('div');
+    wrap.className = 'praise-wrap tier-' + tier;
+    const centerX = r.left - cardRect.left + r.width / 2;
+    wrap.style.left = centerX + 'px';
+    wrap.style.top = (r.top - cardRect.top + r.height / 2) + 'px';
+
+    const glow = document.createElement('span');
+    glow.className = 'praise-glow';
+    const box = document.createElement('div');
+    box.className = 'praise-box';
+    const word = document.createElement('span');
+    word.className = 'praise';
+    word.textContent = text;
+
+    box.appendChild(word);
+    wrap.appendChild(glow);
+    wrap.appendChild(box);
+    modalCard.appendChild(wrap);
+
+    // 赞语比选项还宽时（PERFECT! 这类大字），把贴纸横向夹在卡片内，别顶出边框
+    const bw = box.offsetWidth;
+    const cw = cardRect.width;
+    const margin = 10;
+    let cx = centerX;
+    if (bw > cw - margin * 2) cx = cw / 2;
+    else cx = Math.min(Math.max(cx, bw / 2 + margin), cw - bw / 2 - margin);
+    wrap.style.left = cx + 'px';
+
+    // 贴纸停留期间把角上的 ✓ 收起来（贴纸飞走后会重新弹一次）
+    anchorEl.classList.add('hiding-tick');
+    window.setTimeout(() => {
+      wrap.remove();
+      anchorEl.classList.remove('hiding-tick');
+    }, 1700);
+  }
+
+  // 三道反馈依次叠加：选中选项「压扁回弹」→ 整张卡「阻尼余振」→ 背景「绿光脉冲」
+  function cheerCorrect(optBtn, isLast) {
+    const pr = praiseFor(state.quizStreak, state.quizScore === quizSet.length);
+    if (optBtn) {
+      optBtn.classList.remove('cheer');
+      void optBtn.offsetWidth;            // 强制重排，让动画从第 0 帧重新开始
+      optBtn.classList.add('cheer');
+    }
+
+    if (pr) showPraise(optBtn, pr.text, pr.tier);
+
+    modalCard.classList.remove('cheer');
+    void modalCard.offsetWidth;
+    modalCard.classList.add('cheer');
+
+    // 得分徽章跳动 + 飘出 +1
+    const plus = document.createElement('span');
+    plus.className = 'plus-one';
+    plus.textContent = '+1';
+    quizScoreBadgeEl.appendChild(plus);
+    quizScoreBadgeEl.classList.remove('bump');
+    void quizScoreBadgeEl.offsetWidth;
+    quizScoreBadgeEl.classList.add('bump');
+    window.setTimeout(() => plus.remove(), 1000);
+
+    quizFlash.classList.remove('on');
+    void quizFlash.offsetWidth;
+    quizFlash.classList.add('on');
+
+    if (isLast) modalCard.classList.add('perfect');
+  }
+
+  function renderQuizQuestion() {
+    const q = quizSet[state.quizIndex];
+    state.quizAnswered = false;
+    clearCheer();
+    document.getElementById('quizProgress').textContent = `第 ${state.quizIndex + 1} / ${quizSet.length} 题`;
+    document.getElementById('quizScoreBadge').textContent = `得分 ${state.quizScore} / ${quizSet.length}`;
+    document.getElementById('chalScore').textContent = `${state.quizScore} / ${quizSet.length}`;
+    document.getElementById('quizStem').innerHTML = `${q.stem}<br><span class="quiz-formula">${q.formula}</span>`;
+
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.classList.remove('show');
+    explainEl.innerHTML = '';
+    btnQuizDemo.style.display = 'none';
+    btnQuizNext.style.display = 'none';
+
+    const optsEl = document.getElementById('quizOpts');
+    optsEl.innerHTML = '';
+    q.opts.forEach((label, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = 'ABCD'[idx] + '. ' + label;
+      btn.addEventListener('click', () => handleQuizPick(idx));
+      optsEl.appendChild(btn);
+    });
+  }
+
+  function handleQuizPick(pickedIdx) {
+    if (state.quizAnswered) return;
+    state.quizAnswered = true;
+    const q = quizSet[state.quizIndex];
+    const buttons = document.querySelectorAll('#quizOpts .quiz-opt');
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.ans) b.classList.add('correct');
+      else if (i === pickedIdx) b.classList.add('wrong');
+    });
+
+    if (pickedIdx === q.ans) {
+      state.quizScore += 1;
+      state.quizStreak += 1;
+      quizScoreBadgeEl.textContent = `得分 ${state.quizScore} / ${quizSet.length}`;
+      document.getElementById('chalScore').textContent = `${state.quizScore} / ${quizSet.length}`;
+
+      const isLast = state.quizIndex === quizSet.length - 1;
+      cheerCorrect(buttons[q.ans], isLast);
+
+      // 声音：先「啵嘤」一下（弹簧余振），再跟进上行音阶
+      sound.playSpringBoing();
+      if (isLast) {
+        window.setTimeout(() => sound.playVictory(), 110);
+        showToast(`🏆 闯关完成！总得分 ${state.quizScore} / ${quizSet.length}`);
+      } else {
+        window.setTimeout(() => sound.playCorrect(), 110);
+        showToast('🎉 回答正确！+1 分');
+      }
+    } else {
+      state.quizStreak = 0;              // 答错断连击，赞语回到 Great!
+      sound.playWrong();
+      showToast('❌ 答错了，看看解析再在弹簧振子上验证一下');
+    }
+
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.innerHTML = `<b>解析：</b>${q.explain}`;
+    explainEl.classList.add('show');
+
+    btnQuizDemo.style.display = 'inline-flex';
+    btnQuizNext.style.display = 'inline-flex';
+    btnQuizNext.textContent = state.quizIndex < quizSet.length - 1 ? '下一题 →' : '🔄 换一批新题';
+  }
+
+  document.getElementById('btnOpenQuiz').addEventListener('click', openQuizModal);
+  document.getElementById('btnCloseQuiz').addEventListener('click', closeQuizModal);
+  quizModal.addEventListener('click', (e) => {
+    if (e.target === quizModal) closeQuizModal();
+  });
+
+  btnQuizDemo.addEventListener('click', () => {
+    const q = quizSet[state.quizIndex];
+    state.A = q.demo.A;
+    state.w = q.demo.w;
+    state.phi = q.demo.phi;
+    state.x = 0;
+    togglePlay(true);
+    syncUI();
+    closeQuizModal();
+    showToast(`🌀 已把弹簧振子切换到：${q.formula}`);
+  });
+
+  btnQuizNext.addEventListener('click', () => {
+    sound.playClick();
+    if (state.quizIndex < quizSet.length - 1) {
+      state.quizIndex += 1;
+    } else {
+      newQuizSet();              // 一轮做完，换一批全新的题
+    }
+    renderQuizQuestion();
+  });
+
+  /* ============================================================
+     图象变换连续演示：直接在主画布上把 y = cos x 连续变形为 y = A cos(ωx+φ)
+     （不另开窗口，变形就发生在右侧坐标系里）
+     ============================================================ */
+  const morph = {
+    active: false,
+    path: 1,
+    mt: 0,
+    playing: false,
+    A: 1, w: 1, phi: 0,
+    x: 0,          // 演示时振子自己的时间轴（振动快慢跟着 ω 变）
+    resume: false, // 演示前振子是否在振动
+    sig: '',
+  };
+  const M_HOLD = 0.6;    // 每步完成后停顿（秒）
+  const M_EPS = 0.004;   // “参数没变化”的容差
+  const M_STAGE = {
+    k: { name: '相位变换', color: '--amber' },
+    w: { name: '周期变换', color: '--purple' },
+    a: { name: '振幅变换', color: '--cyan' },
+  };
+
+  function mGcd(a, b) {
+    a = Math.abs(a); b = Math.abs(b);
+    while (b) { const t = a % b; a = b; b = t; }
+    return a || 1;
+  }
+  function mPi(v) { // 按 π/8 网格显示（滑杆步长 0.3927 即其近似值，动画中间态也吸附到网格）
+    const m = Math.round(v / (Math.PI / 8));
+    if (m === 0) return '0';
+    let n = Math.abs(m), d = 8;
+    const g = mGcd(n, d); n /= g; d /= g;
+    return (m < 0 ? '−' : '') + (n === 1 ? 'π' : n + 'π') + (d === 1 ? '' : '/' + d);
+  }
+  function mFrac(num, den) { // num/den · π
+    if (!den) return '—';
+    let n = Math.abs(num), d = Math.abs(den);
+    const g = mGcd(n, d); n /= g; d /= g;
+    return (num * den < 0 ? '−' : '') + (n === 1 ? 'π' : n + 'π') + (d === 1 ? '' : '/' + d);
+  }
+  function mFormula(a, w, k, dec) {
+    const A = dec ? a.toFixed(2) : a.toFixed(1);
+    const W = dec ? w.toFixed(2) : w.toFixed(1);
+    const ph = Math.abs(k) < M_EPS ? '' : (k > 0 ? ' + ' : ' − ') + mPi(Math.abs(k));
+    return `y = ${A} cos(${W}x${ph})`;
+  }
+  function mOrder() { return morph.path === 1 ? ['k', 'w', 'a'] : ['w', 'k', 'a']; }
+  function mTargets() { return { a: morph.A, w: morph.w, k: morph.phi }; }
+  function mDurations() {
+    const tg = mTargets();
+    return mOrder().map((key) => {
+      const v0 = key === 'a' || key === 'w' ? 1 : 0;
+      return Math.abs(tg[key] - v0) > M_EPS ? 1.35 : 0.3; // 无变化的阶段快速跳过
+    });
+  }
+  function mTimeline() {
+    const d = mDurations();
+    const segs = [];
+    let t = 0;
+    for (let i = 0; i < 3; i++) {
+      segs.push({ start: t, anim: d[i] });
+      t += d[i] + (i < 2 ? M_HOLD : 0);
+    }
+    segs.total = t;
+    return segs;
+  }
+  function mTotal() { return mTimeline().total; }
+  function mStage() {
+    const segs = mTimeline();
+    const o = mOrder();
+    for (let i = 0; i < 3; i++) {
+      const s = segs[i];
+      if (morph.mt < s.start + s.anim) {
+        return { idx: i, key: o[i], f: Math.max(0, (morph.mt - s.start) / s.anim), holding: false };
+      }
+      if (i < 2 && morph.mt < s.start + s.anim + M_HOLD) {
+        return { idx: i, key: o[i], f: 1, holding: true };
+      }
+    }
+    return { idx: 3, f: 1, done: true };
+  }
+  function morphDisp() { // 当前正在显示的参数（插值结果）
+    const tg = mTargets();
+    const o = mOrder();
+    const st = mStage();
+    if (st.done) return { a: tg.a, w: tg.w, k: tg.k };
+    const cur = { a: 1, w: 1, k: 0 };
+    for (let s = 0; s < st.idx; s++) cur[o[s]] = tg[o[s]];
+    const key = o[st.idx];
+    let f = st.f;
+    f = f * f * (3 - 2 * f); // smoothstep 缓动
+    const v0 = key === 'a' || key === 'w' ? 1 : 0;
+    cur[key] = v0 + (tg[key] - v0) * f;
+    return cur;
+  }
+
+  // —— 画布内提示条 ——
+  const morphHud = document.getElementById('morphHud');
+  const morphSteps = document.getElementById('morphSteps');
+  const morphHint = document.getElementById('morphHint');
+  const hudBottomLeft = document.getElementById('hudBottomLeft');
+  const morphControls = document.getElementById('morphControls');
+  const btnMorphPlay = document.getElementById('btnMorphPlay');
+  const btnMorphEntry = document.getElementById('btnMorphOpen');
+  const hintBar = document.querySelector('.hud-bottom-right');
+  const morphPathBtns = Array.from(document.querySelectorAll('#morphPathTabs .seg-btn'));
+  const pillA = document.getElementById('fA');
+  const pillW = document.getElementById('fW');
+
+  function morphHintHTML(st) {
+    const tag = `<span class="path-tag">${morph.path === 1 ? '路径一 · 先平移后伸缩' : '路径二 · 先伸缩后平移'}</span>　`;
+    const full = mFormula(morph.A, morph.w, morph.phi, false);
+    if (morph.mt <= 1e-6 && !morph.playing) {
+      return `点击 <b>连续变换</b>：图象将从 y = cos x 连续变形为 <b>${full}</b>`;
+    }
+    if (st.done) {
+      return `<b>变换完成</b>：图象已是 <b>${full}</b>　—　点「✕ 退出演示」交还弹簧振子`;
+    }
+    if (st.key === 'k') {
+      if (Math.abs(morph.phi) < M_EPS) return tag + '<b>相位变换</b>：φ = 0，图象无需左右平移';
+      const dir = morph.phi > 0 ? '向<b>左</b>' : '向<b>右</b>';
+      const phiTxt = mPi(Math.abs(morph.phi));
+      if (morph.path === 2) {
+        // 先伸缩后平移：实际平移量是 φ/ω，句子里直接给这个值，避免和 φ 混淆
+        const amt = piFrac(Math.abs(morph.phi) / morph.w, 24);
+        return tag + `<b>相位变换</b>：图象沿 x 轴${dir}平移 <b>φ/ω = ${amt}</b> 个单位长度（先伸缩后平移，不是 φ = ${phiTxt}）`;
+      }
+      return tag + `<b>相位变换</b>：图象沿 x 轴${dir}平移 <b>${phiTxt}</b> 个单位长度（口诀“左加右减”）`;
+    }
+    if (st.key === 'w') {
+      if (Math.abs(morph.w - 1) < M_EPS) return tag + '<b>周期变换</b>：ω = 1，横坐标无需伸缩';
+      const T = mFrac(4, Math.round(morph.w * 2));
+      return tag + `<b>周期变换</b>：横坐标变为原来的 <b>1/ω = ${(1 / morph.w).toFixed(2)}</b> 倍，周期 T = 2π/ω = <b>${T}</b>`;
+    }
+    if (Math.abs(morph.A - 1) < M_EPS) return tag + '<b>振幅变换</b>：A = 1，纵坐标无需伸缩';
+    return tag + `<b>振幅变换</b>：纵坐标变为原来的 <b>${morph.A.toFixed(1)}</b> 倍，值域 <b>[−${morph.A.toFixed(1)}, ${morph.A.toFixed(1)}]</b>`;
+  }
+
+  function syncMorphUI() {
+    const st = mStage();
+    const sig = morph.path + '|' + (st.done ? 'd' : st.idx) + '|' + (st.holding ? 'h' : 'a') +
+      '|' + (morph.playing ? 'p' : 's') + '|' + (morph.mt <= 1e-6 ? '0' : '1');
+    btnMorphPlay.textContent = morph.playing ? '⏸ 暂停变换' : '▶ 连续变换';
+    if (sig === morph.sig) return;
+    morph.sig = sig;
+
+    const o = mOrder();
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      const info = M_STAGE[o[i]];
+      const color = getCssVar(info.color) || '#38bdf8';
+      const done = st.done || st.idx > i || (st.idx === i && st.holding);
+      const active = !st.done && st.idx === i && !st.holding;
+      let style = '';
+      if (active) style = ` style="background:${color};box-shadow:0 6px 18px ${color}55"`;
+      else if (done) style = ` style="color:${color};border-color:${color}55"`;
+      html += `<div class="morph-step${active ? ' active' : ''}${done ? ' done' : ''}"${style}>` +
+        info.name + (done ? ' ✓' : '') + (active ? ' …' : '') + '</div>';
+    }
+    morphSteps.innerHTML = html;
+    morphHint.innerHTML = morphHintHTML(st);
+  }
+
+  function updateMorphPill(d) {
+    pillA.textContent = d.a.toFixed(2);
+    pillW.textContent = d.w.toFixed(2);
+    setPhiPill(d.k);
+  }
+
+  function startMorph() {
+    morph.A = state.A; morph.w = state.w; morph.phi = state.phi;
+    morph.mt = 0;
+    morph.x = state.x;
+    morph.playing = true;
+    morph.active = true;
+    morph.sig = '';
+    morph.resume = state.playing;
+    togglePlay(false);
+    hudBottomLeft.style.display = 'none';
+    morphControls.style.display = 'flex';
+    morphHud.classList.add('show');
+    btnMorphEntry.classList.add('on');
+    hintBar.style.display = 'none';
+    syncMorphUI();
+  }
+
+  function exitMorph() {
+    morph.active = false;
+    morph.playing = false;
+    morph.sig = '';
+    morphHud.classList.remove('show');
+    hintBar.style.display = '';
+    morphControls.style.display = 'none';
+    hudBottomLeft.style.display = 'flex';
+    btnMorphEntry.classList.remove('on');
+    syncUI();                 // 还原公式胶囊
+    togglePlay(morph.resume); // 交还弹簧振子
+  }
+
+  // Canvas & Draw
+  let lastPhi = null;          // 上一帧的 φ，用来判断“用户刚调过相位”
+  let phaseArrowAt = -1e9;     // 最近一次调整 φ 的时刻（ms）
+  const canvasEl = document.getElementById('canvas');
+  const lab = new LabCanvas(canvasEl, (ctx, W, H, dt, now) => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const cyan = getCssVar('--cyan');
+    const purple = getCssVar('--purple');
+    const amber = getCssVar('--amber');
+    const green = getCssVar('--green');
+    const gridColor = getCssVar('--grid-line');
+    const axisColor = getCssVar('--grid-axis');
+    const ink2 = getCssVar('--ink-2');
+    const ink3 = getCssVar('--ink-3');
+
+    const PAD_L = 24;
+    // A 最大到 1.5：振子的行程与波形共用同一纵向比例（位移 = 曲线纵坐标），
+    // 单位长度要按“A = 1.5 时振子正好在画布内”来定，否则大振幅时会被裁掉
+    const A_MAX = 1.5;
+    const leftAreaW = Math.min(W * 0.40, 400);
+    const cx = PAD_L + leftAreaW * 0.50 + 6;
+    // 固定端要落在左上角公式胶囊的下方，否则弹簧会像从公式里长出来
+    const ceilingY = Math.max(40, Math.min(H * 0.19, 128));
+    const massH = Math.max(28, Math.min(42, H * 0.072));
+    const massW = massH * 1.50;
+    const minSpring = Math.max(40, H * 0.10);
+    const bottomPad = Math.max(36, H * 0.085);
+    const topLimit = ceilingY + minSpring + massH / 2;
+    const bottomLimit = H - bottomPad - massH / 2;
+    const halfBand = Math.max(24, (bottomLimit - topLimit) / 2);
+    const unitPx = Math.max(22, Math.min(halfBand / A_MAX, leftAreaW * 0.42));
+    const eqY = (topLimit + bottomLimit) / 2;
+
+    // 变换演示时，振子跟着“正在变的参数”一起变：
+    // 振幅 ↔ A、振动快慢 ↔ ω、起始位置 ↔ φ
+    const mp = morph.active ? morphDisp() : null;
+    const dA = mp ? mp.a : state.A;
+    const dW = mp ? mp.w : state.w;
+    const dPhi = mp ? mp.k : state.phi;
+    const dT = mp ? morph.x : state.x;
+
+    const theta = dW * dT + dPhi;
+    const disp = dA * Math.cos(theta);          // 当前位移（向上为正）
+    const vel = -dA * dW * Math.sin(theta);     // 当前速度（向上为正）
+
+    const waveStartX = PAD_L + leftAreaW + 26;
+    const waveEndX = W - 26;
+    const waveW = Math.max(180, waveEndX - waveStartX);
+    const xMax = Math.PI * 5;
+    const xToPx = (xv) => waveStartX + (xv / xMax) * waveW;
+    const yToPx = (yv) => eqY - yv * unitPx;
+
+    // 1. Background grid on wave side
+    ctx.save();
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    for (let yv = -A_MAX; yv <= A_MAX + 1e-6; yv += 0.5) {
+      const py = yToPx(yv);
+      if (py < 30 || py > H - 32) continue;
+      ctx.beginPath();
+      ctx.moveTo(waveStartX, py);
+      ctx.lineTo(waveEndX, py);
+      ctx.stroke();
+    }
+    for (let k = 0; k <= 5; k++) {
+      const xv = k * Math.PI;
+      const px = xToPx(xv);
+      ctx.beginPath();
+      ctx.moveTo(px, 32);
+      ctx.lineTo(px, H - 34);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Axes
+    ctx.save();
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(waveStartX - 10, eqY);
+    ctx.lineTo(waveEndX, eqY);
+    ctx.moveTo(waveStartX, 32);
+    ctx.lineTo(waveStartX, H - 34);
+    ctx.stroke();
+    ctx.restore();
+
+    // Axis ticks
+    const piTicks = [
+      { v: Math.PI, t: 'π' },
+      { v: Math.PI * 2, t: '2π' },
+      { v: Math.PI * 3, t: '3π' },
+      { v: Math.PI * 4, t: '4π' },
+    ];
+    piTicks.forEach((tk) => {
+      const px = xToPx(tk.v);
+      drawLabel(ctx, tk.t, px, eqY + 16, ink2, 11);
+    });
+    for (let yv = -A_MAX; yv <= A_MAX + 1e-6; yv += 0.5) {
+      if (Math.abs(yv) < 1e-6) continue;
+      const isInt = Math.abs(yv - Math.round(yv)) < 1e-6;
+      const isEdge = Math.abs(Math.abs(yv) - A_MAX) < 1e-6; // 最外圈的 ±1.5 也标出来
+      if (!isInt && !isEdge) continue;
+      drawLabel(ctx, yv.toFixed(1).replace(/\.0$/, ''), waveStartX - 18, yToPx(yv), ink2, 11);
+    }
+
+    // 2. 基准曲线 y = cos x（虚线）
+    if (state.showGhost) {
+      ctx.save();
+      ctx.strokeStyle = isLight ? 'rgba(100,116,139,0.45)' : 'rgba(203,213,225,0.55)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 6]);
+      ctx.beginPath();
+      for (let i = 0; i <= 200; i++) {
+        const xv = (i / 200) * xMax;
+        const px = xToPx(xv);
+        const py = yToPx(Math.cos(xv));
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 3. 目标波形（淡；变换演示时用虚线）+ 当前波形
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(2,132,199,0.32)' : 'rgba(56,189,248,0.38)';
+    ctx.lineWidth = 2.2;
+    if (mp) ctx.setLineDash([3, 7]);
+    ctx.beginPath();
+    for (let i = 0; i <= 240; i++) {
+      const xv = (i / 240) * xMax;
+      const px = xToPx(xv);
+      const py = yToPx(state.A * Math.cos(state.w * xv + state.phi));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    if (mp) {
+      // 变换演示：整条曲线按当前插值参数绘制，从 y = cos x 连续变形到目标
+      ctx.save();
+      ctx.strokeStyle = cyan;
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = cyan;
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      for (let i = 0; i <= 520; i++) {
+        const xv = (i / 520) * xMax;
+        const px = xToPx(xv);
+        const py = yToPx(mp.a * Math.cos(mp.w * xv + mp.k));
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      const steps = Math.max(2, Math.floor((state.x / xMax) * 240));
+      ctx.save();
+      ctx.strokeStyle = cyan;
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = cyan;
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      for (let i = 0; i <= steps; i++) {
+        const xv = (i / steps) * state.x;
+        const px = xToPx(xv);
+        const py = yToPx(state.A * Math.cos(state.w * xv + state.phi));
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    /* ============ 4. 弹簧振子本体 ============ */
+    const massCy = yToPx(disp);
+    const massTop = massCy - massH / 2;
+
+    // 4.1 固定端（天花板 + 斜线阴影）
+    const barHalf = Math.min(leftAreaW * 0.34, massW * 2.6);
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(15,23,42,0.5)' : 'rgba(148,163,184,0.72)';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx - barHalf, ceilingY);
+    ctx.lineTo(cx + barHalf, ceilingY);
+    ctx.stroke();
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    for (let i = 1; i <= 6; i++) {
+      const bx = cx - barHalf + (i / 7) * (barHalf * 2);
+      ctx.moveTo(bx, ceilingY - 1);
+      ctx.lineTo(bx - 9, ceilingY - 11);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // 4.2 平衡位置（虚线）
+    const eqLeft = cx - leftAreaW * 0.42;
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(15,23,42,0.30)' : 'rgba(226,232,240,0.42)';
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(eqLeft, eqY);
+    ctx.lineTo(cx + massW * 1.25, eqY);
+    ctx.stroke();
+    ctx.restore();
+    drawLabel(ctx, '平衡位置 O', eqLeft + 2, eqY + 15, ink3, 11, 'left');
+
+    // 4.3 振幅参考线（±A）
+    const xL = cx - leftAreaW * 0.40;
+    const xR = cx - massW * 0.52;
+    if (dA > 0.02) {
+      [1, -1].forEach((s) => {
+        const yy = yToPx(s * dA);
+        ctx.save();
+        ctx.strokeStyle = amber;
+        ctx.globalAlpha = 0.38;
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([4, 5]);
+        ctx.beginPath();
+        ctx.moveTo(xL, yy);
+        ctx.lineTo(xR, yy);
+        ctx.stroke();
+        ctx.restore();
+        drawLabel(ctx, s > 0 ? '+A' : '−A', xL - 6, yy, amber, 11, 'right');
+      });
+    }
+
+    // 4.4 弹簧线圈
+    const springTop = ceilingY + 2;
+    drawSpring(
+      ctx, cx, springTop, Math.max(springTop + 8, massTop), massW * 0.60,
+      isLight ? 'rgba(71,85,105,0.85)' : 'rgba(203,213,225,0.80)',
+      cyan, isLight
+    );
+
+    // 4.5 振子（物块）
+    ctx.save();
+    const grd = ctx.createLinearGradient(cx, massTop, cx, massTop + massH);
+    if (isLight) {
+      grd.addColorStop(0, '#e0f2fe');
+      grd.addColorStop(1, '#7dd3fc');
+    } else {
+      grd.addColorStop(0, '#0e7490');
+      grd.addColorStop(1, '#155e75');
+    }
+    ctx.shadowColor = 'rgba(56,189,248,0.55)';
+    ctx.shadowBlur = isLight ? 0 : 16;
+    roundRectPath(ctx, cx - massW / 2, massTop, massW, massH, Math.min(9, massH * 0.24));
+    ctx.fillStyle = grd;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = cyan;
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = isLight ? '#0c4a6e' : '#e0f2fe';
+    ctx.font = `800 ${Math.round(massH * 0.46)}px "Cambria Math", "Times New Roman", serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('m', cx, massCy + 1);
+    ctx.restore();
+
+    // 4.6 速度方向箭头（绿色，长度随速度大小变化）
+    if (Math.abs(vel) > 0.06) {
+      const vx = cx - massW * 0.82;
+      const dir = vel > 0 ? -1 : 1;       // 屏幕坐标：向上为负
+      const len = 13 + 30 * Math.min(1, Math.abs(vel) / 1.6);
+      const y0 = massCy;
+      const y1 = massCy + dir * len;
+      ctx.save();
+      ctx.strokeStyle = green;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = green;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(vx, y0);
+      ctx.lineTo(vx, y1 - dir * 4);
+      ctx.stroke();
+      ctx.fillStyle = green;
+      ctx.beginPath();
+      ctx.moveTo(vx, y1);
+      ctx.lineTo(vx - 4.6, y1 - dir * 9);
+      ctx.lineTo(vx + 4.6, y1 - dir * 9);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      drawLabel(ctx, 'v', vx, y1 + dir * 12, green, 11);
+    }
+
+    // 5. 振子与曲线的高度对应：水平虚线（位移相同 → 同一条水平线）
+    const waveDotX = xToPx(dT);
+    const waveDotY = yToPx(disp);
+    ctx.save();
+    ctx.strokeStyle = amber;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([5, 5]);
+    ctx.globalAlpha = mp ? 0.45 : 0.9;
+    ctx.beginPath();
+    ctx.moveTo(cx + massW / 2 + 2, massCy);
+    ctx.lineTo(waveDotX, waveDotY);
+    ctx.stroke();
+    ctx.restore();
+
+    if (!mp) {
+      // 位移竖条 + 当前点
+      glowLine(ctx, waveDotX, eqY, waveDotX, waveDotY, cyan, 2.5, 8);
+      glowDot(ctx, waveDotX, waveDotY, 7.5, cyan);
+      drawLabel(
+        ctx, `y=${disp.toFixed(2)}`,
+        Math.max(waveStartX + 42, waveDotX), waveDotY - 18, cyan, 12
+      );
+    } else {
+      glowDot(ctx, waveDotX, waveDotY, 6, cyan);
+    }
+
+    // 6. 相位变换的“左移 / 右移”箭头
+    // a/w/k 为当前画面上的参数；phi 为方向与文字所依据的目标 φ；shiftAmt 为要标注的平移量
+    function drawPhaseArrow(a, w, k, phi, shiftAmt, alpha) {
+      if (alpha === undefined) alpha = 1;
+      if (alpha <= 0.002) return;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const peakY = yToPx(a);
+      const arrowY = Math.max(66, Math.min(yToPx(a + 0.30), eqY - 26));
+
+      // 余弦波峰位置：cos 的自变量等于 2nπ 处；找一个两端都落在画面内的波峰
+      let n = 0, xFrom = 0, xEnd = -phi / w;
+      for (let i = 0; i < 6; i++) {
+        const p0 = (2 * Math.PI * i) / w;
+        const p1 = (2 * Math.PI * i - phi) / w;
+        n = i; xFrom = p0; xEnd = p1;
+        if (p1 >= 0.16 * Math.PI && p0 <= Math.PI * 4.5) break;
+      }
+      const xNow = (2 * Math.PI * n - k) / w;   // 当前波峰（跟着平移走）
+      const pFrom = xToPx(xFrom);
+      const pTo = xToPx(xEnd);
+      const pNow = xToPx(xNow);
+      const sgn = pTo >= pFrom ? 1 : -1;
+      const head = 9;
+      const lo = Math.min(pFrom, pTo), hi = Math.max(pFrom, pTo);
+
+      // 起点 / 终点的竖直辅助虚线
+      ctx.save();
+      ctx.strokeStyle = amber;
+      ctx.globalAlpha = 0.45 * alpha;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(pFrom, peakY - 4); ctx.lineTo(pFrom, arrowY);
+      ctx.moveTo(pTo, peakY - 4); ctx.lineTo(pTo, arrowY);
+      ctx.stroke();
+      ctx.restore();
+
+      // 起点：原来的波峰（空心圈）
+      ctx.save();
+      ctx.strokeStyle = amber;
+      ctx.globalAlpha = 0.75 * alpha;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(pFrom, peakY, 5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // 箭头主轴 + 箭头头部
+      ctx.save();
+      ctx.strokeStyle = amber;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = amber;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(pFrom, arrowY);
+      ctx.lineTo(pTo - sgn * head * 0.6, arrowY);
+      ctx.stroke();
+      ctx.fillStyle = amber;
+      ctx.beginPath();
+      ctx.moveTo(pTo, arrowY);
+      ctx.lineTo(pTo - sgn * head, arrowY - head * 0.62);
+      ctx.lineTo(pTo - sgn * head, arrowY + head * 0.62);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 当前波峰在箭头上的位置（跟着平移走）
+      const px = Math.min(hi, Math.max(lo, pNow));
+      ctx.save();
+      ctx.fillStyle = amber;
+      ctx.shadowColor = amber;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(px, arrowY, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 文字说明（夹在坐标系内）
+      const txt = (phi > 0 ? '左移 ' : '右移 ') + piFrac(Math.abs(shiftAmt), 24) + ' 个单位';
+      const tx = Math.min(waveEndX - 70, Math.max(waveStartX + 76, (pFrom + pTo) / 2));
+      drawLabel(ctx, txt, tx, arrowY - 16, amber, 12);
+      ctx.restore();
+    }
+
+    // φ 一变就重置箭头计时：普通模式里箭头只短暂出现，随后自动淡出
+    if (lastPhi === null || Math.abs(state.phi - lastPhi) > 1e-6) {
+      lastPhi = state.phi;
+      phaseArrowAt = now;
+    }
+
+    if (mp) {
+      const st = mStage();
+      // 只在「相位正在平移」时显示箭头；这一步一完成（含停顿、整段结束）立即消失
+      if (Math.abs(morph.phi) > M_EPS && !st.done && !st.holding && st.key === 'k') {
+        const amt = morph.path === 2 ? Math.abs(morph.phi) / morph.w : Math.abs(morph.phi);
+        drawPhaseArrow(mp.a, mp.w, mp.k, morph.phi, amt);
+      }
+    } else if (Math.abs(state.phi) > M_EPS) {
+      // 普通模式：箭头只在刚调整过 φ 的 1.8 秒内出现，之后自然淡出（不再常驻）
+      const age = (now - phaseArrowAt) / 1000;
+      const LIFE = 1.8, FADE = 0.5;
+      if (age < LIFE) {
+        const alpha = age > LIFE - FADE ? Math.max(0, (LIFE - age) / FADE) : 1;
+        drawPhaseArrow(state.A, state.w, state.phi, state.phi, state.phi / state.w, alpha);
+      }
+    }
+  });
+
+  lab.start((dt) => {
+    if (morph.active && morph.playing) {
+      morph.mt += dt;
+      morph.x += dt * 1.8;      // 与正常模式同一基准节奏，θ = ω·x + φ
+      if (morph.x > Math.PI * 5) morph.x -= Math.PI * 5;
+      if (morph.mt >= mTotal()) {
+        morph.mt = mTotal();
+        morph.playing = false;
+        morph.sig = '';
+      }
+      syncMorphUI();
+      updateMorphPill(morphDisp());
+    }
+    if (state.playing) {
+      state.x += dt * 1.8;
+      if (state.x > Math.PI * 5) state.x = 0;
+      syncUI();
+    }
+  });
+
+  // Controls：拖动滑杆即退出变换演示（参数一改，目标就变了）
+  sA.addEventListener('input', () => { if (morph.active) exitMorph(); state.A = parseFloat(sA.value); syncUI(); });
+  sW.addEventListener('input', () => { if (morph.active) exitMorph(); state.w = parseFloat(sW.value); syncUI(); });
+  sP.addEventListener('input', () => { if (morph.active) exitMorph(); state.phi = phiFromSlider(sP.value); syncUI(); });
+
+  const btnPlay = document.getElementById('btnPlay');
+  function togglePlay(force) {
+    state.playing = typeof force === 'boolean' ? force : !state.playing;
+    btnPlay.textContent = state.playing ? '⏸ 暂停振动' : '▶ 继续振动';
+  }
+  btnPlay.addEventListener('click', () => togglePlay());
+
+  /* ---------- 图象变换演示的按钮 ---------- */
+  btnMorphEntry.addEventListener('click', () => {
+    if (morph.active) {           // 已在演示中：从头再放一次
+      morph.mt = 0;
+      morph.x = state.x;
+      morph.playing = true;
+      morph.sig = '';
+      syncMorphUI();
+    } else {
+      startMorph();
+    }
+  });
+
+  btnMorphPlay.addEventListener('click', () => {
+    if (morph.playing) {
+      morph.playing = false;
+    } else {
+      if (morph.mt >= mTotal() - 1e-6) morph.mt = 0;
+      morph.playing = true;
+    }
+    morph.sig = '';
+    syncMorphUI();
+  });
+
+  document.getElementById('btnMorphReplay').addEventListener('click', () => {
+    morph.mt = 0;
+    morph.x = state.x;
+    morph.playing = false;
+    morph.sig = '';
+    syncMorphUI();
+    updateMorphPill(morphDisp());
+  });
+
+  document.getElementById('btnMorphExit').addEventListener('click', exitMorph);
+
+  morphPathBtns.forEach((b) => {
+    b.addEventListener('click', () => {
+      morph.path = Number(b.dataset.path);
+      morphPathBtns.forEach((x) => x.classList.toggle('active', x === b));
+      morph.mt = 0;
+      morph.playing = false;
+      morph.sig = '';
+      syncMorphUI();
+      updateMorphPill(morphDisp());
+    });
+  });
+
+  const btnGhost = document.getElementById('btnGhost');
+  btnGhost.classList.add('active');
+  btnGhost.addEventListener('click', () => {
+    state.showGhost = !state.showGhost;
+    btnGhost.classList.toggle('active', state.showGhost);
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    state.A = 1.0; state.w = 1.0; state.phi = 0; state.x = 0;
+    syncUI();
+  });
+
+  // Drag on wave canvas to scrub x（变换演示时不响应）
+  let dragging = false;
+  canvasEl.addEventListener('pointerdown', (e) => {
+    if (morph.active) return;
+    const rect = canvasEl.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const waveStartX = 24 + Math.min(rect.width * 0.40, 400) + 26;
+    if (px >= waveStartX - 10) {
+      dragging = true;
+      togglePlay(false);
+      updateXFromPointer(px, rect.width);
+    }
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const rect = canvasEl.getBoundingClientRect();
+    updateXFromPointer(e.clientX - rect.left, rect.width);
+  });
+  window.addEventListener('pointerup', () => { dragging = false; });
+
+  function updateXFromPointer(px, W) {
+    const waveStartX = 24 + Math.min(W * 0.40, 400) + 26;
+    const waveW = Math.max(180, W - 26 - waveStartX);
+    const ratio = Math.max(0, Math.min(1, (px - waveStartX) / waveW));
+    state.x = ratio * Math.PI * 5;
+    syncUI();
+  }
+
+  // Mode switching
+  document.querySelectorAll('#modeTabs .seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeTabs .seg-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      document.getElementById('predictCard').style.display = state.mode === 'predict' ? 'block' : 'none';
+      document.getElementById('challengeCard').style.display = state.mode === 'challenge' ? 'block' : 'none';
+      if (state.mode === 'challenge') openQuizModal();
+    });
+  });
+
+  // Predict-Observe-Explain
+  const btnReveal = document.getElementById('btnReveal');
+  document.querySelectorAll('#predictOpts .predict-opt').forEach((opt) => {
+    opt.addEventListener('click', () => {
+      if (state.revealed) return;
+      document.querySelectorAll('#predictOpts .predict-opt').forEach((o) => o.classList.remove('picked'));
+      opt.classList.add('picked');
+      state.pickedOpt = Number(opt.dataset.idx);
+      btnReveal.disabled = false;
+      btnReveal.textContent = '✨ 揭晓并动画验证';
+    });
+  });
+
+  btnReveal.addEventListener('click', () => {
+    state.revealed = true;
+    state.w = 2.0;
+    state.x = 0;
+    togglePlay(true);
+    syncUI();
+    document.querySelectorAll('#predictOpts .predict-opt').forEach((o) => {
+      const idx = Number(o.dataset.idx);
+      if (idx === 1) o.classList.add('correct');
+      else if (idx === state.pickedOpt) o.classList.add('wrong');
+    });
+    document.getElementById('predictFeedback').classList.add('show');
+    if (state.pickedOpt === 1) {
+      lab.burst(lab.width * 0.65, lab.height * 0.4, '#34d399', 26);
+      showToast('👏 预测正确！周期减半为 π');
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && e.target.tagName !== 'BUTTON') {
+      e.preventDefault();
+      if (morph.active) btnMorphPlay.click();
+      else togglePlay();
+      return;
+    }
+    if (e.key === 'Escape' && morph.active) {
+      exitMorph();
+    }
+  });
+
+  initShell({
+    onCommand: (action, payload) => {
+      if (action === 'setParam' && payload) {
+        if (typeof payload.A === 'number') state.A = payload.A;
+        if (typeof payload.w === 'number') state.w = payload.w;
+        if (typeof payload.phi === 'number') state.phi = payload.phi;
+        syncUI();
+      }
+      if (action === 'play') togglePlay(Boolean(payload));
+      if (action === 'reveal' && state.mode === 'predict') btnReveal.click();
+    },
+  });
+
+  syncUI();
+})();
+</script>
+</body>
+</html>

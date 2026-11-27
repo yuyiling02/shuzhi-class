@@ -1,0 +1,3138 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070b14'/><path d='M4 26 C9 26 11 8 16 8 C21 8 23 26 28 26' stroke='%2338bdf8' stroke-width='2.6' fill='none'/><line x1='12' y1='4' x2='12' y2='28' stroke='%23fbbf24' stroke-width='1.6' stroke-dasharray='3 3'/></svg>" />
+  <title>高一 · 探照灯如何“扫”出 y = tan(ωx + φ)</title>
+  <style>
+:root {
+  --bg: #070b14;
+  --bg-radial: radial-gradient(1200px 600px at 20% 0%, rgba(56, 189, 248, 0.12), transparent 60%),
+               radial-gradient(900px 500px at 85% 100%, rgba(167, 139, 250, 0.10), transparent 60%);
+  --surface: rgba(15, 23, 42, 0.78);
+  --surface-solid: #0f172a;
+  --surface-2: rgba(30, 41, 59, 0.65);
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(56, 189, 248, 0.42);
+  --ink: #f1f5f9;
+  --ink-2: #94a3b8;
+  --ink-3: #64748b;
+  --cyan: #38bdf8;
+  --cyan-glow: rgba(56, 189, 248, 0.35);
+  --purple: #a78bfa;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --red: #fb7185;
+  --grid-line: rgba(148, 163, 184, 0.16);
+  --grid-axis: rgba(226, 232, 240, 0.68);
+  --canvas-bg: #050912;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-radial: radial-gradient(1100px 520px at 15% 0%, rgba(37, 99, 235, 0.08), transparent 60%),
+               radial-gradient(900px 500px at 90% 100%, rgba(124, 58, 237, 0.06), transparent 60%);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --surface-2: rgba(241, 245, 249, 0.9);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(37, 99, 235, 0.4);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #94a3b8;
+  --cyan: #0284c7;
+  --cyan-glow: rgba(2, 132, 199, 0.22);
+  --purple: #7c3aed;
+  --amber: #d97706;
+  --green: #059669;
+  --red: #e11d48;
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --grid-axis: rgba(15, 23, 42, 0.28);
+  --canvas-bg: #ffffff;
+  --shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image: var(--bg-radial);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Header */
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 15px;
+  transition: 0.16s;
+}
+.back-link:hover {
+  border-color: var(--border-strong);
+  color: var(--cyan);
+}
+
+.grade-pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+.title-group h1 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.seg-tabs {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  gap: 2px;
+}
+
+.seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.16s;
+  white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active {
+  background: var(--cyan);
+  color: #061220;
+  font-weight: 700;
+  box-shadow: 0 2px 10px var(--cyan-glow);
+}
+[data-theme="light"] .seg-btn.active { color: #fff; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.16s;
+  white-space: nowrap;
+}
+.icon-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+.icon-btn.on {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--cyan);
+}
+
+/* Main workspace */
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  padding: 12px;
+  gap: 12px;
+}
+
+.stage-shell {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--canvas-bg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+canvas.lab-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* Floating HUD inside stage */
+.hud-top-left {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 5;
+  max-width: min(560px, calc(100% - 28px));
+}
+.hud-top-left > * { pointer-events: auto; }
+
+.formula-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  font-family: "Cambria Math", "Times New Roman", "PingFang SC", serif;
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.formula-pill .hl-a { color: var(--cyan); }
+.formula-pill .hl-w { color: var(--purple); }
+.formula-pill .hl-p { color: var(--amber); }
+
+.hud-bottom-left {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  flex-wrap: wrap;
+}
+
+.hud-bottom-right {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 5;
+  font-size: 12px;
+  color: var(--ink-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Alert banner (反例警报) */
+.alert-banner {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  max-width: 340px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(225, 29, 72, 0.16);
+  border: 1px solid rgba(251, 113, 133, 0.55);
+  color: #fecdd3;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(225, 29, 72, 0.22);
+  display: none;
+  animation: shakeIn 0.32s ease;
+}
+[data-theme="light"] .alert-banner {
+  background: rgba(255, 241, 242, 0.95);
+  color: #be123c;
+}
+.alert-banner.show { display: block; }
+
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Side drawer */
+.side-drawer {
+  width: 356px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 2px;
+  transition: width 0.22s ease, opacity 0.2s ease;
+}
+
+.app.presentation .side-drawer {
+  display: none;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 15px;
+  backdrop-filter: blur(12px);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--cyan);
+  border: 1px solid var(--border);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Sliders */
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 11px;
+}
+.slider-row:last-child { margin-bottom: 0; }
+.slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+}
+.slider-head .name { color: var(--ink-2); font-weight: 600; }
+.slider-head .val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--cyan);
+}
+
+input[type="range"].lab-range {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].lab-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px var(--cyan-glow);
+  cursor: grab;
+  transition: transform 0.12s;
+}
+input[type="range"].lab-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* 正切没有振幅：用「缺项」表示 */
+.absent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.absent-row .k { text-decoration: line-through; }
+.absent-row .v { color: var(--ink-2); font-weight: 600; font-size: 12px; }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.btn.primary {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #061220;
+  font-weight: 700;
+  box-shadow: 0 4px 16px var(--cyan-glow);
+}
+[data-theme="light"] .btn.primary { color: #fff; }
+.btn.amber {
+  background: rgba(251, 191, 36, 0.16);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: var(--amber);
+}
+.btn.green {
+  background: rgba(52, 211, 153, 0.16);
+  border-color: rgba(52, 211, 153, 0.45);
+  color: var(--green);
+}
+.btn.active {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.18);
+  color: var(--cyan);
+}
+
+/* Predict-Observe-Explain */
+.predict-q {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.predict-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 11px;
+}
+.predict-opt {
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.predict-opt:hover { border-color: var(--border-strong); }
+.predict-opt.picked {
+  border-color: var(--cyan);
+  background: rgba(56, 189, 248, 0.16);
+  font-weight: 700;
+}
+.predict-opt.correct {
+  border-color: var(--green);
+  background: rgba(52, 211, 153, 0.18);
+  color: var(--green);
+}
+.predict-opt.wrong {
+  border-color: var(--red);
+  background: rgba(251, 113, 133, 0.15);
+  color: var(--red);
+}
+.predict-feedback {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--cyan);
+  margin-top: 10px;
+  display: none;
+}
+.predict-feedback.show { display: block; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-box {
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+.stat-box .k { font-size: 11.5px; color: var(--ink-3); }
+.stat-box .v {
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.toast {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  z-index: 30;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 960px) {
+  .workspace { flex-direction: column; }
+  .side-drawer { width: 100%; max-height: 44%; }
+  .hud-bottom-right { display: none; }
+}
+
+</style>
+  <style>
+    .quiz-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(3, 7, 18, 0.72);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .quiz-backdrop.open { display: flex; }
+    .quiz-modal {
+      width: min(560px, 100%);
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 22px;
+      padding: 24px 26px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+      animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.94) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .quiz-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .quiz-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink-2);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .quiz-close:hover { color: var(--ink); border-color: var(--border-strong); }
+    .quiz-stem {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .quiz-formula {
+      display: inline-block;
+      margin: 8px 0 4px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan);
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 800;
+    }
+    .quiz-opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 520px) { .quiz-opts { grid-template-columns: 1fr; } }
+    .quiz-opt {
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .quiz-opt:hover:not(:disabled) {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+    .quiz-opt.correct {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, 0.18);
+      color: var(--green);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25);
+    }
+    .quiz-opt.wrong {
+      border-color: var(--red);
+      background: rgba(251, 113, 133, 0.16);
+      color: var(--red);
+      animation: optShake 0.34s ease;
+    }
+    @keyframes optShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .quiz-explain {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border-left: 3px solid var(--cyan);
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--ink-2);
+      margin-bottom: 14px;
+    }
+    .quiz-explain.show { display: block; }
+    .quiz-foot {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* ===== 答对反馈：飘起来的"✓ 答对了"印章 ===== */
+    .quiz-modal { position: relative; }
+    .quiz-stamp {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 22px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #34d399, #10b981);
+      color: #fff;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      box-shadow: 0 18px 46px rgba(16, 185, 129, 0.42), 0 0 0 6px rgba(52, 211, 153, 0.16);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -55%) scale(0.6);
+    }
+    .quiz-stamp .s-ico {
+      font-size: 24px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+    }
+    .quiz-stamp .s-sub {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0.9;
+      letter-spacing: 0;
+      margin-top: 1px;
+    }
+    .quiz-stamp.gold {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      box-shadow: 0 18px 46px rgba(245, 158, 11, 0.45), 0 0 0 6px rgba(251, 191, 36, 0.18);
+    }
+    .quiz-stamp.show { animation: stampPop 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes stampPop {
+      0%   { opacity: 0; transform: translate(-50%, -42%) scale(0.5) rotate(-7deg); }
+      16%  { opacity: 1; transform: translate(-50%, -58%) scale(1.12) rotate(2deg); }
+      26%  { transform: translate(-50%, -55%) scale(0.98) rotate(0deg); }
+      34%  { transform: translate(-50%, -55%) scale(1); }
+      74%  { opacity: 1; transform: translate(-50%, -62%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -95%) scale(1.04); }
+    }
+
+    /* 正确选项：弹一下 + 打勾 + 外圈光环扩散 */
+    .quiz-opt.correct {
+      position: relative;
+      animation: optWin 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes optWin {
+      0%   { transform: scale(1); box-shadow: 0 0 0 rgba(52, 211, 153, 0); }
+      32%  { transform: scale(1.045); box-shadow: 0 0 26px rgba(52, 211, 153, 0.55); }
+      62%  { transform: scale(0.994); }
+      100% { transform: scale(1); box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); }
+    }
+    /* 跟随文字的对勾（内联，不会压住长选项的末字） */
+    .opt-tick {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-left: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #04120c;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      vertical-align: -2px;
+      animation: tickIn 0.42s 0.1s backwards cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes tickIn {
+      0% { opacity: 0; transform: scale(0.2) rotate(-40deg); }
+      70% { opacity: 1; transform: scale(1.18) rotate(4deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    .quiz-opt.correct::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 12px;
+      border: 2px solid rgba(52, 211, 153, 0.85);
+      pointer-events: none;
+      animation: ringPulse 0.95s ease-out forwards;
+    }
+    @keyframes ringPulse {
+      0% { opacity: 0.9; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.16); }
+    }
+
+    /* 得分数字跳动 */
+    .badge.bump { animation: scoreBump 0.62s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes scoreBump {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.22); }
+      60% { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    .badge.gain {
+      color: #34d399;
+      border-color: rgba(52, 211, 153, 0.55);
+      background: rgba(52, 211, 153, 0.16);
+    }
+
+    /* 弹窗整体一次绿色呼吸 */
+    .quiz-modal.okFlash { animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1), modalOk 0.9s ease-out; }
+    @keyframes modalOk {
+      0%   { box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(52, 211, 153, 0.5); }
+      40%  { box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 10px rgba(52, 211, 153, 0.12); }
+      100% { box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(52, 211, 153, 0); }
+    }
+
+    /* 彩纸画布：盖在弹窗之上，不挡点击 */
+    .fx-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: none;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .quiz-stamp.show { animation: stampFade 1s ease forwards; }
+      @keyframes stampFade {
+        0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; }
+      }
+      .quiz-opt.correct, .quiz-opt.correct::before, .opt-tick,
+      .badge.bump, .quiz-modal.okFlash { animation: none; }
+    }
+  </style>
+  <style>
+    /* ===== 图象变换连续演示（在画布内进行，不另开窗口） ===== */
+    .btn.morph-cta {
+      width: 100%;
+      flex: none;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      white-space: normal;
+      text-align: center;
+      border-radius: 14px;
+    }
+    .btn.morph-cta:hover { box-shadow: 0 8px 24px var(--cyan-glow); }
+    .btn.morph-cta.on {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #061220;
+      box-shadow: 0 0 0 3px var(--cyan-glow), 0 8px 26px var(--cyan-glow);
+    }
+    [data-theme="light"] .btn.morph-cta.on { color: #fff; }
+
+    /* 画布内的演示提示条 */
+    .morph-hud {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 62px;
+      z-index: 6;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      pointer-events: none;
+    }
+    .morph-hud.show { display: flex; }
+    .morph-steps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .morph-step {
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink-3);
+      backdrop-filter: blur(10px);
+      transition: 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    }
+    .morph-step.active { color: #061220; border-color: transparent; }
+    [data-theme="light"] .morph-step.active { color: #fff; }
+    .morph-hint {
+      font-size: 12.5px;
+      line-height: 1.7;
+      text-align: center;
+      color: var(--ink-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+      max-width: min(760px, 100%);
+    }
+    .morph-hint b { color: var(--cyan); font-weight: 800; }
+    .morph-hint .path-tag { color: var(--ink-3); font-weight: 600; }
+
+    /* 演示时的底部按钮条 */
+    #morphControls .seg-btn { font-size: 12px; padding: 7px 12px; }
+    @media (max-width: 720px) {
+      .morph-hud { bottom: 56px; }
+      .morph-hint { font-size: 12px; padding: 7px 12px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <a class="back-link" href="#" title="返回总览">←</a>
+      <span class="grade-pill">高一 · 三角函数</span>
+      <div class="title-group">
+        <h1>探照灯如何“扫”出 y = tan(ωx + φ)</h1>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="seg-tabs" id="modeTabs">
+        <button class="seg-btn active" data-mode="explore">🔬 自由探究</button>
+        <button class="seg-btn" data-mode="predict">🤔 先猜后验</button>
+        <button class="seg-btn" data-mode="challenge">🎮 闯关挑战</button>
+      </div>
+      <button class="icon-btn" id="btnPresentation" title="快捷键 F">🖥 大屏模式</button>
+      <button class="icon-btn" id="btnTheme" title="快捷键 T">☀ 投影浅色</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage-shell">
+      <canvas id="canvas" class="lab-canvas"></canvas>
+
+      <div class="hud-top-left">
+        <div class="formula-pill" id="formulaPill">
+          <span>y = tan(</span>
+          <span class="hl-w" id="fW">1.0</span>
+          <span id="fSign">x +</span>
+          <span class="hl-p" id="fP">0</span>
+          <span>)</span>
+        </div>
+      </div>
+
+      <div class="alert-banner" id="alertBanner"></div>
+      <div class="toast" id="toast"></div>
+
+      <!-- 图象变换演示：画布内提示条（不另开窗口） -->
+      <div class="morph-hud" id="morphHud">
+        <div class="morph-steps" id="morphSteps"></div>
+        <div class="morph-hint" id="morphHint"></div>
+      </div>
+
+      <div class="hud-bottom-left" id="hudBottomLeft">
+        <button class="btn primary" id="btnPlay">⏸ 暂停扫描</button>
+        <button class="btn" id="btnGhost">👻 显示基准 tan x</button>
+        <button class="btn" id="btnReset">↺ 重置参数</button>
+      </div>
+
+      <!-- 图象变换演示时的底部控制条 -->
+      <div class="hud-bottom-left" id="morphControls" style="display:none;">
+        <button class="btn primary" id="btnMorphPlay">▶ 连续变换</button>
+        <div class="seg-tabs" id="morphPathTabs">
+          <button class="seg-btn active" data-path="1" title="路径一：先平移后伸缩">路径一</button>
+          <button class="seg-btn" data-path="2" title="路径二：先伸缩后平移">路径二</button>
+        </div>
+        <button class="btn" id="btnMorphReplay">↺ 回到 y = tan x</button>
+        <button class="btn" id="btnMorphExit">✕ 退出演示</button>
+      </div>
+
+      <div class="hud-bottom-right">拖拽波形可手动推进时刻 · 快捷键 Space 播放 / F 大屏</div>
+    </section>
+
+    <aside class="side-drawer">
+      <!-- 参数控制台 -->
+      <div class="card">
+        <div class="card-title">探照灯参数 <span class="badge">实时联动</span></div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="name">旋转角速度 ω（倍速）</span>
+            <span class="val" id="valW" style="color:var(--purple)">1.0</span>
+          </div>
+          <input class="lab-range" id="sW" type="range" min="0.5" max="3" step="0.5" value="1" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="name">起始相位 φ（初始位置）</span>
+            <span class="val" id="valP" style="color:var(--amber)">0</span>
+          </div>
+          <input class="lab-range" id="sP" type="range" min="-1.5708" max="1.5708" step="0.3927" value="0" />
+        </div>
+        <div class="absent-row">
+          <span class="k">振幅 A</span>
+          <span class="v">无 —— 正切值域是 R</span>
+        </div>
+      </div>
+
+      <!-- 实时读数 -->
+      <div class="card">
+        <div class="card-title">光斑读数 <span class="badge" id="phaseTag">x = -6.28</span></div>
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="k">周期 T = π / ω</div>
+            <div class="v" id="statT" style="color:var(--purple)">π</div>
+          </div>
+          <div class="stat-box">
+            <div class="k">光束角度 θ</div>
+            <div class="v" id="statTh" style="color:var(--amber)">0.0°</div>
+          </div>
+          <div class="stat-box">
+            <div class="k">光斑高度 tan θ</div>
+            <div class="v" id="statY" style="color:var(--cyan)">0.00</div>
+          </div>
+          <div class="stat-box">
+            <div class="k">光斑状态</div>
+            <div class="v" id="statS" style="color:var(--ink-2);font-size:13px;">正常</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图象变换连续演示入口 -->
+      <button class="btn primary morph-cta" id="btnMorphOpen" title="打开图象变换连续演示">
+        由 y = tan x 连续变形到 y = tan(ωx + φ)
+      </button>
+
+      <!-- 先猜后验 -->
+      <div class="card" id="predictCard" style="display:none;">
+        <div class="card-title">课堂悬念 <span class="badge">先猜后验</span></div>
+        <div class="predict-q">把光束从 <b>80°</b> 继续推到 <b>90°</b>，墙上的光斑会怎样？</div>
+        <div class="predict-opts" id="predictOpts">
+          <button class="predict-opt" data-idx="0">A. 慢慢靠近墙上某个最高点，最后停住</button>
+          <button class="predict-opt" data-idx="1">B. 越接近 90° 冲得越快，90° 之前光斑就消失（tan θ 不存在）</button>
+          <button class="predict-opt" data-idx="2">C. 高度按比例线性增加，到 90° 时等于 1.57</button>
+        </div>
+        <button class="btn amber" id="btnReveal" style="width:100%;" disabled>✨ 请先选择一个猜想</button>
+        <div class="predict-feedback" id="predictFeedback">
+          <b>验证结论：</b>θ → 90° 时 tan θ 冲上无穷快得吓人（80° 才 5.67，89° 已经 57.3）。等到 θ = 90°，光束与墙面<b>平行</b>，永远打不到墙，光斑直接不存在 —— 这就是 <b>x ≠ π/2 + kπ</b> 的来历，图像上那条竖直虚线就是它。
+        </div>
+      </div>
+
+      <!-- 闯关任务 -->
+      <div class="card" id="challengeCard" style="display:none;">
+        <div class="card-title">随堂闯关题目 <span class="badge" id="chalScore">0 / 4</span></div>
+        <p id="quizBankInfo" style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:10px;">
+          题库共 <b>30</b> 道，每轮随机抽 <b>4</b> 道（选项顺序也会打乱），每次打开都是新的一批题。<br>重点检验对周期 <b>T = π/ω</b>、相位 <b>φ</b> 与渐近线 <b>x = π/2 + kπ</b> 的理解。
+        </p>
+        <button class="btn primary" id="btnOpenQuiz" style="width:100%;">🎯 打开闯关题目窗口</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- 闯关题目弹窗 -->
+<div class="quiz-backdrop" id="quizModal">
+  <div class="quiz-modal">
+    <div class="quiz-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="grade-pill" id="quizProgress">第 1 / 4 题</span>
+        <span class="badge" id="quizScoreBadge">得分 0 / 4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn on" id="btnBgm" title="背景音乐开关">🔊 音乐开</button>
+        <button class="quiz-close" id="btnCloseQuiz" title="关闭">✕</button>
+      </div>
+    </div>
+    <div class="quiz-stamp" id="quizStamp" aria-live="polite"></div>
+    <div class="quiz-stem" id="quizStem"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnQuizDemo" style="display:none;">🔦 在探照灯中演示</button>
+      <button class="btn primary" id="btnQuizNext" style="display:none;">下一题 →</button>
+    </div>
+  </div>
+</div>
+<canvas class="fx-canvas" id="fxCanvas"></canvas>
+
+<script>
+(() => {
+  'use strict';
+
+  function getCssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  class LabCanvas {
+    constructor(canvas, onDraw) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.onDraw = onDraw;
+      this.width = 800;
+      this.height = 500;
+      this.dpr = window.devicePixelRatio || 1;
+      this.particles = [];
+      this.ripples = [];
+      this._raf = null;
+      this._last = performance.now();
+
+      this._resize = () => {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.width = Math.max(300, Math.floor(rect.width));
+        this.height = Math.max(240, Math.floor(rect.height));
+        this.canvas.width = Math.floor(this.width * this.dpr);
+        this.canvas.height = Math.floor(this.height * this.dpr);
+      };
+
+      const ro = new ResizeObserver(this._resize);
+      ro.observe(this.canvas.parentElement);
+      this._resize();
+    }
+
+    start(tickFn) {
+      // 首帧同步绘制：后台标签被 rAF 节流时也不会留白
+      const ctx0 = this.ctx;
+      ctx0.save();
+      ctx0.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx0.clearRect(0, 0, this.width, this.height);
+      this.onDraw(ctx0, this.width, this.height, 0, performance.now());
+      ctx0.restore();
+
+      const loop = (now) => {
+        const dt = Math.min(0.05, (now - this._last) / 1000);
+        this._last = now;
+        if (tickFn) tickFn(dt, now);
+        this._updateEffects(dt);
+
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+        ctx.clearRect(0, 0, this.width, this.height);
+        this.onDraw(ctx, this.width, this.height, dt, now);
+        this._drawEffects(ctx);
+        ctx.restore();
+
+        this._raf = requestAnimationFrame(loop);
+      };
+      this._raf = requestAnimationFrame(loop);
+    }
+
+    burst(x, y, color = '#38bdf8', count = 26) {
+      const palette = [color, '#34d399', '#fbbf24', '#a78bfa', '#ffffff'];
+      for (let i = 0; i < count; i++) {
+        const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const spd = 80 + Math.random() * 210;
+        this.particles.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 40,
+          life: 1,
+          decay: 0.9 + Math.random() * 0.7,
+          size: 2.5 + Math.random() * 3.5,
+          color: palette[i % palette.length],
+        });
+      }
+      this.ripple(x, y, color);
+    }
+
+    ripple(x, y, color = '#38bdf8') {
+      this.ripples.push({ x, y, r: 6, maxR: 58, life: 1, color });
+    }
+
+    _updateEffects(dt) {
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 260 * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) this.particles.splice(i, 1);
+      }
+      for (let i = this.ripples.length - 1; i >= 0; i--) {
+        const r = this.ripples[i];
+        r.r += (r.maxR - r.r) * Math.min(1, dt * 6);
+        r.life -= dt * 1.6;
+        if (r.life <= 0) this.ripples.splice(i, 1);
+      }
+    }
+
+    _drawEffects(ctx) {
+      for (const r of this.ripples) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, r.life * 0.75);
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      for (const p of this.particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  function glowLine(ctx, x1, y1, x2, y2, color, width = 3, glow = 14) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = glow;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function glowDot(ctx, x, y, radius, color, ringColor = '#ffffff') {
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = ringColor;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawLabel(ctx, text, x, y, color = '#f1f5f9', size = 13, align = 'center') {
+    ctx.save();
+    ctx.font = `700 ${size}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = getCssVar('--canvas-bg') || '#050912';
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  function initShell({ onCommand } = {}) {
+    const app = document.querySelector('.app');
+    const themeBtn = document.getElementById('btnTheme');
+    const presBtn = document.getElementById('btnPresentation');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (themeBtn) themeBtn.textContent = theme === 'light' ? '🌙 深色实验室' : '☀ 投影浅色';
+      localStorage.setItem('math_lab_theme', theme);
+    }
+
+    const saved = localStorage.getItem('math_lab_theme') || 'dark';
+    setTheme(saved);
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        setTheme(cur);
+      });
+    }
+
+    function togglePresentation(force) {
+      const next = typeof force === 'boolean' ? force : !app.classList.contains('presentation');
+      app.classList.toggle('presentation', next);
+      if (presBtn) presBtn.classList.toggle('on', next);
+    }
+
+    if (presBtn) {
+      presBtn.addEventListener('click', () => togglePresentation());
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') togglePresentation();
+      if (e.key === 't' || e.key === 'T') {
+        const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        setTheme(cur);
+      }
+    });
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || data.type !== 'math-lab:command') return;
+      if (data.action === 'theme' && data.payload) setTheme(data.payload);
+      if (data.action === 'presentation') togglePresentation(Boolean(data.payload));
+      if (onCommand) onCommand(data.action, data.payload);
+    });
+
+    return { setTheme, togglePresentation };
+  }
+
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  // 警报带「最短停留」：光斑扫过渐近线时不会闪一下就消失
+  let alertHoldUntil = 0;
+  let alertTimer = null;
+  function alertNow() {
+    return (window.performance && performance.now) ? performance.now() : Date.now();
+  }
+  function hideAlertSoon(delay) {
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+      alertTimer = null;
+      const el = document.getElementById('alertBanner');
+      if (!el) return;
+      const now = alertNow();
+      if (now >= alertHoldUntil) { alertHoldUntil = 0; el.classList.remove('show'); }
+      else hideAlertSoon(alertHoldUntil - now);
+    }, Math.max(0, delay));
+  }
+  function setAlert(msg, holdMs) {
+    const el = document.getElementById('alertBanner');
+    if (!el) return;
+    const now = alertNow();
+    if (!msg) {
+      if (now < alertHoldUntil) { hideAlertSoon(alertHoldUntil - now); return; }
+      el.classList.remove('show');
+      return;
+    }
+    alertHoldUntil = now + (holdMs || 0);
+    if (el.textContent !== msg) {
+      el.textContent = msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+    } else if (!el.classList.contains('show')) {
+      el.classList.add('show');
+    }
+    if (holdMs && !alertTimer) hideAlertSoon(holdMs);
+  }
+
+  // 纯 Web Audio 合成音效，零外部文件
+  const sound = (() => {
+    let ctx = null;
+    let bgmTimer = null;
+    let bgmStep = 0;
+    let muted = false;
+
+    function ensureCtx() {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+
+    function tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+      if (muted) return;
+      const ac = ensureCtx();
+      if (!ac) return;
+      const t0 = ac.currentTime + delay;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    }
+
+    function playClick() { tone(660, 0.06, 'triangle', 0.08, 0); }
+
+    function playCorrect() {
+      tone(523.25, 0.14, 'triangle', 0.16, 0);
+      tone(659.25, 0.14, 'triangle', 0.16, 0.08);
+      tone(783.99, 0.16, 'triangle', 0.16, 0.16);
+      tone(1046.5, 0.32, 'sine', 0.18, 0.24);
+    }
+
+    function playWrong() {
+      tone(220, 0.16, 'sawtooth', 0.09, 0);
+      tone(164.81, 0.28, 'sawtooth', 0.10, 0.13);
+    }
+
+    function playVictory() {
+      const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+      const times = [0, 0.1, 0.2, 0.3, 0.44, 0.56];
+      notes.forEach((f, i) => tone(f, i === notes.length - 1 ? 0.45 : 0.14, 'triangle', 0.16, times[i]));
+    }
+
+    const MELODY = [
+      523.25, 659.25, 783.99, 659.25, 880.00, 783.99, 659.25, 587.33,
+      523.25, 659.25, 783.99, 1046.5, 880.00, 783.99, 659.25, 587.33,
+    ];
+    const BASS = [
+      130.81, 0, 196.00, 0, 174.61, 0, 196.00, 0,
+      130.81, 0, 196.00, 0, 146.83, 0, 196.00, 0,
+    ];
+
+    function startBgm() {
+      if (bgmTimer || muted) return;
+      ensureCtx();
+      bgmTimer = setInterval(() => {
+        if (muted) return;
+        const m = MELODY[bgmStep % MELODY.length];
+        const b = BASS[bgmStep % BASS.length];
+        if (m) tone(m, 0.18, 'sine', 0.045, 0);
+        if (b) tone(b, 0.22, 'triangle', 0.04, 0);
+        bgmStep += 1;
+      }, 240);
+    }
+
+    function stopBgm() {
+      if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+    }
+
+    function toggleBgm() {
+      if (bgmTimer) { stopBgm(); return false; }
+      muted = false;
+      startBgm();
+      return true;
+    }
+
+    function setMuted(val) {
+      muted = Boolean(val);
+      if (muted) stopBgm();
+    }
+
+    return {
+      playClick, playCorrect, playWrong, playVictory,
+      startBgm, stopBgm, toggleBgm, setMuted,
+      isPlaying: () => Boolean(bgmTimer) && !muted,
+    };
+  })();
+
+  window.MathLab = {
+    LabCanvas, getCssVar, glowLine, glowDot, drawLabel,
+    initShell, showToast, setAlert, sound,
+  };
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const { LabCanvas, getCssVar, glowLine, glowDot, drawLabel, initShell, showToast, setAlert, sound } = window.MathLab;
+
+  const XMIN = -Math.PI * 2;
+  const XMAX = Math.PI * 2;
+
+  const state = {
+    w: 1.0,
+    phi: 0,
+    x: XMIN,
+    playing: true,
+    showGhost: true,
+    mode: 'explore',
+    slow: 0,
+    pickedOpt: null,
+    revealed: false,
+    quizIndex: 0,
+    quizScore: 0,
+    quizAnswered: false,
+    quizStreak: 0,
+  };
+
+  const QUIZ_BANK = [
+    {
+      id: 1,
+      stem: '函数 y = tan(2x) 的最小正周期 T 是多少？',
+      formula: 'y = tan(2x)',
+      opts: ['π/2', 'π', '2π', '4π'],
+      ans: 0,
+      explain: '正切的周期公式是 T = π / ω。这里 ω = 2，所以 T = π / 2：转速加倍，曲线在横轴上被压成一半，渐近线密度翻倍。',
+      demo: { w: 2, phi: 0 },
+    },
+    {
+      id: 2,
+      stem: '函数 y = tan x 的定义域是？',
+      formula: 'y = tan x',
+      opts: ['x ≠ kπ', 'x ≠ π/2 + kπ', 'x ≠ 2kπ', '全体实数'],
+      ans: 1,
+      explain: 'θ = π/2 + kπ 时光束与墙面平行，永远打不到墙，光斑不存在 —— 所以在这些点 tan x 无定义，图像上有竖直渐近线。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 3,
+      stem: '把 y = tan x 的图象向右平移 π/4 个单位，得到的解析式是？',
+      formula: 'y = tan x  ⟶  右移 π/4',
+      opts: ['y = tan(x + π/4)', 'y = tan(x − π/4)', 'y = tan x − π/4', 'y = tan(π/4 · x)'],
+      ans: 1,
+      explain: '口诀“左加右减”（针对 x）：向右平移 π/4 是把 x 换成 x − π/4，即 φ = −π/4，渐近线也整体右移 π/4。',
+      demo: { w: 1, phi: -Math.PI / 4 },
+    },
+    {
+      id: 4,
+      stem: 'y = tan x 在下列哪个区间内是增函数？',
+      formula: 'y = tan x',
+      opts: ['(−π/2, π/2)', '(0, π)', '(−π/2, 3π/2)', '(−π, π)'],
+      ans: 0,
+      explain: 'tan x 在每一个连续区间 (−π/2 + kπ, π/2 + kπ) 上单调递增。B、C、D 都跨过了渐近线 π/2 或 −π/2，区间里断成两截，不能说它在那里递增。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 5,
+      stem: 'y = tan(x + π/3) 的图象可以由 y = tan x 怎样平移得到？',
+      formula: 'y = tan(x + π/3)',
+      opts: ['向左平移 π/3', '向右平移 π/3', '向左平移 π/6', '向右平移 π/6'],
+      ans: 0,
+      explain: '“左加右减”：括号里加 π/3，就是把 x 换成 x + π/3，图像整体向左平移 π/3 —— φ = π/3 > 0，注意平移方向与 φ 的符号相反。',
+      demo: { w: 1, phi: Math.PI / 3 },
+    },
+    {
+      id: 6,
+      stem: '函数 y = tan(3x) 的最小正周期是？',
+      formula: 'y = tan(3x)',
+      opts: ['π/6', 'π/3', '2π/3', '3π'],
+      ans: 1,
+      explain: 'T = π / ω = π / 3。ω 越大周期越短：转速 3 倍，图像被压成原来的 1/3，渐近线之间的间隔变成 π/3。',
+      demo: { w: 3, phi: 0 },
+    },
+    {
+      id: 7,
+      stem: '若 y = tan(ωx) 的最小正周期是 2π，则 ω 等于？',
+      formula: 'T = π / ω = 2π',
+      opts: ['0.5', '1', '2', '4'],
+      ans: 0,
+      explain: '由 T = π / ω = 2π 得 ω = 0.5。转速减半，图像被横向拉长一倍，渐近线间隔变成 2π —— 把滑杆拖到 0.5 就能看到。',
+      demo: { w: 0.5, phi: 0 },
+    },
+    {
+      id: 8,
+      stem: 'y = tan x 的渐近线方程是？',
+      formula: 'y = tan x',
+      opts: ['x = kπ', 'x = π/2 + kπ', 'x = 2kπ', 'x = π/4 + kπ'],
+      ans: 1,
+      explain: 'θ = π/2 + kπ 时光束与墙面平行，光斑跑到无穷远，图像在那里断开 —— 所以渐近线是 x = π/2 + kπ（k 为整数）。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 9,
+      stem: 'y = tan(−x) 是？',
+      formula: 'y = tan(−x)',
+      opts: ['偶函数，关于 y 轴对称', '奇函数，关于原点对称', '非奇非偶', '既是奇函数又是偶函数'],
+      ans: 1,
+      explain: 'tan(−x) = −tan x，所以是奇函数，图像关于原点对称。每个分支都是一条从 −∞ 升到 +∞ 的曲线，绕原点转 180° 后与自身重合。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 10,
+      stem: 'tan(π/4) 的值等于？',
+      formula: 'tan(π/4)',
+      opts: ['0', '1', '√2/2', '不存在'],
+      ans: 1,
+      explain: 'θ = 45° 时，光斑到光轴的距离正好等于灯到墙的距离（1 个单位），所以 tan(π/4) = 1。可以在页面上把相位调到 π/4 验证这个读数。',
+      demo: { w: 1, phi: Math.PI / 4 },
+    },
+    {
+      id: 11,
+      stem: '函数 y = tan x 的值域是？',
+      formula: 'y = tan x',
+      opts: ['[−1, 1]', '(0, +∞)', 'R（全体实数）', '[0, +∞)'],
+      ans: 2,
+      explain: '墙是无限高的，光束扫到哪，光斑就能跑到哪，所以 tan 能取到任何实数，值域是 R —— 这正是它没有“振幅 A”的原因。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 12,
+      stem: 'y = tan(x − π/2) 的定义域是？',
+      formula: 'y = tan(x − π/2)',
+      opts: ['x ≠ π + kπ', 'x ≠ kπ', 'x ≠ π/2 + kπ', '全体实数'],
+      ans: 0,
+      explain: '令 x − π/2 = π/2 + kπ，解得 x = π + kπ。相位平移不会消掉渐近线，只会把整条渐近线一起搬走。',
+      demo: { w: 1, phi: -Math.PI / 2 },
+    },
+    {
+      id: 13,
+      stem: 'y = tan x 图像的对称中心是？',
+      formula: 'y = tan x',
+      opts: ['(kπ, 0)', '(kπ/2, 0)', '(π/2 + kπ, 0)', '只有 (0, 0)'],
+      ans: 1,
+      explain: 'tan 的对称中心是 (kπ/2, 0)：既包括图像与 x 轴的交点 (kπ, 0)，也包括每个分支中点处被渐近线一分为二的位置 (π/2 + kπ, 0)。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 14,
+      stem: '当 θ 从左侧趋近 90° 时，tan θ 会怎样？',
+      formula: 'θ → 90°⁻',
+      opts: ['趋近于 0', '趋向 +∞，而 tan 90° 不存在', '趋向 −∞', '趋近于 1'],
+      ans: 1,
+      explain: 'θ 越接近 90°，光斑在墙上爬得越高、越快，最终冲上无穷远；到 90° 光束与墙面平行，压根打不到墙，tan 90° 不存在 —— 页面上那段警报讲的就是这件事。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 15,
+      stem: '把 y = tan x 的图像向左平移 π/4，再横向压缩为原来的 1/2，得到？',
+      formula: '左移 π/4，再 ω = 2',
+      opts: ['y = tan(2x + π/4)', 'y = tan(2x − π/4)', 'y = tan(x/2 + π/4)', 'y = tan(2x + π/2)'],
+      ans: 0,
+      explain: '左移 π/4 得 y = tan(x + π/4)；再横向压缩为 1/2（ω 从 1 变 2）是把 x 换成 2x，得 y = tan(2x + π/4)，周期也变成 π/2。',
+      demo: { w: 2, phi: Math.PI / 4 },
+    },
+    {
+      id: 16,
+      stem: 'y = tan x 与 y = tan(x + π) 的图像是什么关系？',
+      formula: 'y = tan(x + π)',
+      opts: ['关于 x 轴对称', '图像完全重合', '左右相差 π/2', '关于 y 轴对称'],
+      ans: 1,
+      explain: 'tan 的周期是 π，所以 tan(x + π) = tan x，两条曲线完全重合 —— 这也是光斑转过半圈（180°）后又回到原处的原因。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 17,
+      stem: '若 y = tan(ωx) 的最小正周期是 π/3，则 ω 等于？',
+      formula: 'T = π / ω = π/3',
+      opts: ['3', '1/3', '6', '2/3'],
+      ans: 0,
+      explain: '由 T = π/ω 得 ω = π / T = π ÷ (π/3) = 3。周期越小，转速 ω 越大，渐近线挤得越密。',
+      demo: { w: 3, phi: 0 },
+    },
+    {
+      id: 18,
+      stem: 'y = tan(x + π/4) 的一条渐近线是？',
+      formula: 'y = tan(x + π/4)',
+      opts: ['x = π/4', 'x = π/2', 'x = −π/4', 'x = 3π/4'],
+      ans: 0,
+      explain: '令 x + π/4 = π/2，得 x = π/4。相位 φ = π/4 > 0 把整条渐近线从 π/2 向左搬了 π/4。',
+      demo: { w: 1, phi: Math.PI / 4 },
+    },
+    {
+      id: 19,
+      stem: '把 y = tan(2x) 的图象向右平移 π/4，得到的解析式是？',
+      formula: 'y = tan(2x)  ⟶  右移 π/4',
+      opts: ['y = tan(2x − π/2)', 'y = tan(2x − π/4)', 'y = tan(2x + π/2)', 'y = tan(2x − π/8)'],
+      ans: 0,
+      explain: '右移 π/4 是把 x 换成 x − π/4：tan(2(x − π/4)) = tan(2x − π/2)。注意括号里剩下的常数是 2 × π/4 = π/2，平移量被 ω 放大了。',
+      demo: { w: 2, phi: -Math.PI / 2 },
+    },
+    {
+      id: 20,
+      stem: '函数 y = tan(0.5x) 的最小正周期是？',
+      formula: 'y = tan(0.5x)',
+      opts: ['2π', 'π', '4π', 'π/2'],
+      ans: 0,
+      explain: 'T = π / ω = π ÷ 0.5 = 2π。转速减半，一圈用时翻倍，图像被横向拉长一倍。',
+      demo: { w: 0.5, phi: 0 },
+    },
+    {
+      id: 21,
+      stem: '灯到墙正好 1 个单位，当光束角 θ = 60° 时，光斑到光轴的距离约为？',
+      formula: 'tan 60°',
+      opts: ['约 1.73', '约 0.87', '2', '1'],
+      ans: 0,
+      explain: '光斑高度在数值上就是 tan θ。tan 60° = √3 ≈ 1.732。把相位调到 π/3，读数会同步显示 1.73。',
+      demo: { w: 1, phi: Math.PI / 3 },
+    },
+    {
+      id: 22,
+      stem: 'y = tan x 在 (0, π/2) 上的单调性是？',
+      formula: 'y = tan x,  x ∈ (0, π/2)',
+      opts: ['单调递增', '单调递减', '先增后减', '不单调'],
+      ans: 0,
+      explain: 'θ 从 0 涨到 90°，光斑从 0 一路往上冲，y 随 x 增大而增大，所以在每个 (−π/2 + kπ, π/2 + kπ) 上都是增函数。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 23,
+      stem: '函数 y = 2 tan x 的值域是？',
+      formula: 'y = 2 tan x',
+      opts: ['[−2, 2]', 'R（全体实数）', '(0, +∞)', '[−1, 1]'],
+      ans: 1,
+      explain: '系数 2 只是让曲线更陡（每点纵坐标翻倍），墙依然无限高，所以值域还是 R —— 正切永远没有振幅。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 24,
+      stem: '函数 y = tan(2x − π/4) 的最小正周期是？',
+      formula: 'y = tan(2x − π/4)',
+      opts: ['π/2', 'π', '2π', 'π/4'],
+      ans: 0,
+      explain: '周期只看 ω：T = π/ω = π/2，与相位 φ = −π/4 无关。相位只负责左右平移。',
+      demo: { w: 2, phi: -Math.PI / 4 },
+    },
+    {
+      id: 25,
+      stem: '把 y = tan x 的横坐标缩短为原来的 1/2，再向左平移 π/4，得到？',
+      formula: 'y = tan x  ⟶  横坐标 ×1/2  ⟶  左移 π/4',
+      opts: ['y = tan(2x + π/2)', 'y = tan(2x + π/4)', 'y = tan(2x − π/2)', 'y = tan(x/2 + π/4)'],
+      ans: 0,
+      explain: '先得 y = tan(2x)；再左移 π/4 是把 x 换成 x + π/4：tan(2(x + π/4)) = tan(2x + π/2)。先伸缩后平移，平移量要乘上 ω。',
+      demo: { w: 2, phi: Math.PI / 2 },
+    },
+    {
+      id: 26,
+      stem: 'tan(−π/4) 的值等于？',
+      formula: 'tan(−π/4)',
+      opts: ['−1', '1', '0', '不存在'],
+      ans: 0,
+      explain: 'tan 是奇函数：tan(−π/4) = −tan(π/4) = −1。光束向下偏 45°，光斑落在光轴下方 1 个单位处。',
+      demo: { w: 1, phi: -Math.PI / 4 },
+    },
+    {
+      id: 27,
+      stem: 'y = tan x 与 y = tan(x − π) 的图像是什么关系？',
+      formula: 'y = tan(x − π)',
+      opts: ['关于 x 轴对称', '图像完全重合', '左右相差 π/2', '关于 y 轴对称'],
+      ans: 1,
+      explain: 'tan 的周期是 π，tan(x − π) = tan x，两条曲线逐点重合。这也是为什么滑杆把 φ 加到 π 也看不出变化。',
+      demo: { w: 1, phi: 0 },
+    },
+    {
+      id: 28,
+      stem: '若 tan α = 1 且 α ∈ (0, π/2)，则 α 等于？',
+      formula: 'tan α = 1,  α ∈ (0, π/2)',
+      opts: ['π/4', 'π/2', 'π/6', '3π/4'],
+      ans: 0,
+      explain: 'tan α = 1 说明光斑高度正好等于灯到墙的距离 1，此时光束角是 45° = π/4。',
+      demo: { w: 1, phi: Math.PI / 4 },
+    },
+    {
+      id: 29,
+      stem: '函数 y = tan(2x + π/2) 的定义域是？',
+      formula: 'y = tan(2x + π/2)',
+      opts: ['x ≠ kπ/2', 'x ≠ π/4 + kπ/2', 'x ≠ kπ', 'x ≠ π/2 + kπ'],
+      ans: 0,
+      explain: '令 2x + π/2 = π/2 + kπ，得 2x = kπ，即 x = kπ/2 —— 横坐标压缩后，渐近线的间隔也变成 π/2。',
+      demo: { w: 2, phi: Math.PI / 2 },
+    },
+    {
+      id: 30,
+      stem: '光束从 0 扫到 180°，光斑在墙上划出的这一段轨迹是？',
+      formula: 'θ: 0 → 180°',
+      opts: ['一条从下往上的直线', '先从 0 冲到 +∞，再从 −∞ 爬回 0', '一个完整的圆', '两条分开的抛物线'],
+      ans: 1,
+      explain: 'θ → 90°⁻ 时光斑冲上无穷；越过 90° 光束跑到墙的另一侧（平行是分界），光斑从 −∞ 重新出现并爬回 0。这就是 tan 一个分支“从 −∞ 到 +∞”的物理来历。',
+      demo: { w: 1, phi: 0 },
+    },
+  ];
+
+  /* ============================================================
+     答对特效：彩纸 + 光点 + 盖章（独立覆盖层画布，用完即停）
+     ============================================================ */
+  const fxCanvas = document.getElementById('fxCanvas');
+  const quizStamp = document.getElementById('quizStamp');
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  const fx = (() => {
+    const ctx = fxCanvas.getContext('2d');
+    const COLORS = ['#34d399', '#22d3ee', '#fbbf24', '#a78bfa', '#f472b6', '#38bdf8', '#ffffff'];
+    let parts = [];
+    let raf = 0;
+    let last = 0;
+
+    function fit() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const w = window.innerWidth, h = window.innerHeight;
+      fxCanvas.width = Math.round(w * dpr);
+      fxCanvas.height = Math.round(h * dpr);
+      fxCanvas.style.width = w + 'px';
+      fxCanvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    fit();
+    window.addEventListener('resize', () => { if (parts.length) fit(); });
+
+    function paper(x, y, ang, spd, power) {
+      parts.push({
+        kind: 'paper',
+        x, y,
+        vx: Math.cos(ang) * spd * power,
+        vy: Math.sin(ang) * spd * power,
+        w: 6 + Math.random() * 7,
+        h: 5 + Math.random() * 5,
+        rot: Math.random() * 6.2832,
+        vr: (Math.random() - 0.5) * 15,
+        color: COLORS[(Math.random() * COLORS.length) | 0],
+        life: 1,
+        decay: 0.5 + Math.random() * 0.26,
+        swing: Math.random() * 6.2832,
+      });
+    }
+
+    // 从某点向上（扇形）撒一把彩纸
+    function confetti(x, y, count, power) {
+      for (let i = 0; i < count; i++) {
+        const ang = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.95;
+        paper(x + (Math.random() - 0.5) * 36, y + (Math.random() - 0.5) * 10,
+          ang, 170 + Math.random() * 320, power || 1);
+      }
+    }
+
+    function sparks(x, y, count) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * 6.2832;
+        const spd = 90 + Math.random() * 250;
+        parts.push({
+          kind: 'spark',
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          r: 1.6 + Math.random() * 2.6,
+          color: COLORS[(Math.random() * COLORS.length) | 0],
+          life: 1,
+          decay: 1.1 + Math.random() * 0.9,
+        });
+      }
+    }
+
+    // 两侧礼花炮：通关时用
+    function cannons(count) {
+      const w = window.innerWidth, h = window.innerHeight;
+      for (let i = 0; i < count; i++) {
+        const left = i % 2 === 0;
+        parts.push({
+          kind: 'paper',
+          x: left ? -8 : w + 8,
+          y: h - 16,
+          vx: (left ? 1 : -1) * (360 + Math.random() * 240),
+          vy: -(620 + Math.random() * 320),
+          w: 7 + Math.random() * 7,
+          h: 5 + Math.random() * 5,
+          rot: Math.random() * 6.2832,
+          vr: (Math.random() - 0.5) * 16,
+          color: COLORS[(Math.random() * COLORS.length) | 0],
+          life: 1,
+          decay: 0.34 + Math.random() * 0.2,
+          swing: Math.random() * 6.2832,
+        });
+      }
+    }
+
+    function tick(t) {
+      const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
+      last = t;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const p = parts[i];
+        p.life -= p.decay * dt;
+        if (p.life <= 0) { parts.splice(i, 1); continue; }
+
+        if (p.kind === 'paper') {
+          p.vy += 1150 * dt;
+          p.vx *= 1 - 1.1 * dt;
+          p.vy *= 1 - 0.5 * dt;
+          p.swing += dt * 9;
+          p.x += (p.vx + Math.sin(p.swing) * 34) * dt;
+          p.y += p.vy * dt;
+          p.rot += p.vr * dt;
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, p.life * 1.7);
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          // 用 cos 压扁高度，模拟纸片翻面
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, Math.max(1, p.h * Math.abs(Math.cos(p.swing * 0.7))));
+          ctx.restore();
+        } else {
+          p.vy += 420 * dt;
+          p.vx *= 1 - 2.2 * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, Math.max(0.4, p.r * p.life), 0, 6.2832);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        if (p.y > window.innerHeight + 80) parts.splice(i, 1);
+      }
+
+      if (!parts.length) {
+        cancel();
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      if (raf) return;
+      fit();
+      fxCanvas.style.display = 'block';
+      last = 0;
+      raf = requestAnimationFrame(tick);
+    }
+
+    function cancel() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      last = 0;
+      parts = [];
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      fxCanvas.style.display = 'none';
+    }
+
+    return {
+      clear: cancel,
+      /** 从某个元素位置喷彩纸（答对立刻反馈） */
+      burstAt(el, big) {
+        if (reduceMotion || !el) return;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + 8;            // 从选项上沿喷出，尽量不糊住文字
+        confetti(cx, cy, big ? 84 : 42, big ? 1.25 : 1);
+        sparks(cx, cy, big ? 22 : 12);
+        start();
+      },
+      /** 通关：两侧礼花 + 中央补两轮 */
+      finale() {
+        if (reduceMotion) return;
+        cannons(64);
+        start();
+        [0, 1, 2].forEach((i) => {
+          setTimeout(() => {
+            confetti(window.innerWidth * (0.3 + i * 0.2), window.innerHeight * 0.66, 30, 1.12);
+            start();
+          }, 240 * (i + 1));
+        });
+      },
+    };
+  })();
+
+  /* 弹窗中央的「✓ 答对了」印章 */
+  function showQuizStamp(icon, main, sub, gold) {
+    if (!quizStamp) return;
+    quizStamp.className = 'quiz-stamp' + (gold ? ' gold' : '');
+    quizStamp.innerHTML = `<span class="s-ico">${icon}</span>` +
+      `<span>${main}${sub ? `<span class="s-sub">${sub}</span>` : ''}</span>`;
+    void quizStamp.offsetWidth;
+    quizStamp.classList.add('show');
+  }
+
+  function bumpBadge(el) {
+    if (!el) return;
+    el.classList.remove('bump', 'gain');
+    void el.offsetWidth;
+    el.classList.add('bump', 'gain');
+    clearTimeout(el._bumpT);
+    el._bumpT = setTimeout(() => el.classList.remove('bump', 'gain'), 1500);
+  }
+
+  function flashModal() {
+    const m = quizModal.querySelector('.quiz-modal');
+    if (!m) return;
+    m.classList.remove('okFlash');
+    void m.offsetWidth;
+    m.classList.add('okFlash');
+  }
+
+  /* ---------- 每次打开闯关都换一批题 ---------- */
+  const QUIZ_SIZE = 4;
+  let quizSet = [];
+  let lastIds = [];
+
+  (function syncQuizInfo() {
+    const el = document.getElementById('quizBankInfo');
+    if (el) {
+      el.innerHTML = `题库共 <b>${QUIZ_BANK.length}</b> 道，每轮随机抽 <b>${QUIZ_SIZE}</b> 道（选项顺序也会打乱），每次打开都是新的一批题。<br>重点检验对周期 <b>T = π/ω</b>、相位 <b>φ</b> 与渐近线 <b>x = π/2 + kπ</b> 的理解。`;
+    }
+    const badge = document.getElementById('quizScoreBadge');
+    if (badge) badge.textContent = `得分 0 / ${QUIZ_SIZE}`;
+    const chal = document.getElementById('chalScore');
+    if (chal) chal.textContent = `0 / ${QUIZ_SIZE}`;
+  })();
+
+  function shuffleArr(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function newQuizSet() {
+    const fresh = QUIZ_BANK.filter((q) => lastIds.indexOf(q.id) === -1);
+    const pool = fresh.length >= QUIZ_SIZE ? fresh : QUIZ_BANK;
+    const picked = shuffleArr(pool).slice(0, QUIZ_SIZE);
+    lastIds = picked.map((q) => q.id);
+
+    quizSet = picked.map((q) => {
+      const texts = shuffleArr(q.opts);
+      return { ...q, opts: texts, ans: texts.indexOf(q.opts[q.ans]) };
+    });
+    state.quizIndex = 0;
+    state.quizScore = 0;
+    state.quizAnswered = false;
+    state.quizStreak = 0;
+  }
+
+  const sW = document.getElementById('sW');
+  const sP = document.getElementById('sP');
+
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = b; b = a % b; a = t; } return a || 1; }
+
+  // 把一个「以 π 为单位」的量写成 p/q π 的形式；拆不出来就退回小数
+  function piFrac(v, maxDen) {
+    maxDen = maxDen || 12;
+    const k = v / Math.PI;
+    if (Math.abs(k) < 1e-9) return '0';
+    let best = null, bestErr = 4e-3;
+    for (let q = 1; q <= maxDen; q++) {
+      const p = Math.round(k * q);
+      if (p === 0) continue;
+      const err = Math.abs(p / q - k);
+      if (err < bestErr) { bestErr = err; best = { p, q }; }
+    }
+    if (!best) return '≈' + k.toFixed(2) + 'π';
+    const sign = best.p < 0 ? '−' : '';
+    const a = Math.abs(best.p);
+    const g = gcd(a, best.q);
+    const n = a / g, d = best.q / g;
+    if (d === 1) return sign + (n === 1 ? '' : n) + 'π';
+    return sign + (n === 1 ? '' : n) + 'π/' + d;
+  }
+
+  function formatPhi(phi) {
+    // 相位一律写成几分之几 π，避免出现小数
+    const k = phi / (Math.PI / 8);
+    if (Math.abs(k - Math.round(k)) < 0.06) return piFrac(Math.round(k) * Math.PI / 8, 8);
+    return piFrac(phi, 12);
+  }
+
+  function formatT(w) { return piFrac(Math.PI / w, 12); }
+
+  function deg(th) {
+    let d = th * 180 / Math.PI;
+    d = d % 360;
+    if (d <= -180) d += 360;
+    if (d > 180) d -= 360;
+    return d.toFixed(1) + '°';
+  }
+
+  function thetaNow() { return state.w * state.x + state.phi; }
+
+  // 公式胶囊里的相位：符号单独占一位，数值只写「几分之几 π」
+  function setPhiPill(phi) {
+    const signEl = document.getElementById('fSign');
+    if (signEl) signEl.textContent = phi < -1e-6 ? 'x −' : 'x +';
+    document.getElementById('fP').textContent = formatPhi(Math.abs(phi));
+  }
+
+  // 光斑读数（普通模式与变换演示共用）
+  function syncReadout(th, xVal, w) {
+    document.getElementById('phaseTag').textContent = `x = ${xVal.toFixed(2)}`;
+    document.getElementById('statTh').textContent = deg(th);
+    if (typeof w === 'number') document.getElementById('statT').textContent = formatT(w);
+
+    const c = Math.cos(th);
+    const tanV = Math.sin(th) / c;
+    let yText = '无定义';
+    let sText = '无定义';
+    if (Math.abs(c) > 1e-3) {
+      yText = Math.abs(tanV) > 999 ? (tanV > 0 ? '+∞' : '−∞') : tanV.toFixed(2);
+      sText = Math.abs(tanV) > 6 ? '冲向无穷' : '正常';
+    }
+    const statY = document.getElementById('statY');
+    const statS = document.getElementById('statS');
+    statY.textContent = yText;
+    statY.style.color = (Math.abs(c) < 0.05 || Math.abs(tanV) > 10) ? 'var(--red)' : 'var(--cyan)';
+    statS.textContent = sText;
+    statS.style.color = sText === '正常' ? 'var(--ink-2)' : 'var(--red)';
+    return { c, tanV };
+  }
+
+  function syncUI() {
+    sW.value = state.w;
+    sP.value = state.phi;
+
+    document.getElementById('valW').textContent = state.w.toFixed(1);
+    document.getElementById('valP').textContent = formatPhi(state.phi);
+
+    document.getElementById('fW').textContent = state.w.toFixed(1);
+    setPhiPill(state.phi);
+    document.getElementById('statT').textContent = formatT(state.w);
+
+    const th = thetaNow();
+    const { c, tanV } = syncReadout(th, state.x, state.w);
+
+    // 反例警报
+    if (Math.abs(c) < 0.05 || Math.abs(tanV) > 10) {
+      setAlert('⚠️ 越接近 90° 光斑冲得越猛 —— 到 90° 光束与墙面平行、光斑根本不存在（tan 无定义，x ≠ π/2 + kπ）。', 1000);
+    } else if (Math.abs(state.phi) > 0.2 && state.mode === 'explore') {
+      setAlert(state.phi > 0
+        ? '💡 φ > 0 时整条曲线连同渐近线一起向左平移 —— 记住「左加右减」。'
+        : '💡 φ < 0 时整条曲线连同渐近线一起向右平移 —— 记住「左加右减」。', 900);
+    } else {
+      setAlert('');
+    }
+  }
+
+  const quizModal = document.getElementById('quizModal');
+  const btnQuizDemo = document.getElementById('btnQuizDemo');
+  const btnQuizNext = document.getElementById('btnQuizNext');
+  const btnBgm = document.getElementById('btnBgm');
+  let bgmEnabled = true;
+
+  function syncBgmBtn() {
+    const playing = sound.isPlaying();
+    btnBgm.textContent = playing ? '🔊 音乐开' : '🔇 音乐关';
+    btnBgm.classList.toggle('on', playing);
+  }
+
+  btnBgm.addEventListener('click', () => {
+    bgmEnabled = !bgmEnabled;
+    if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); }
+    else { sound.stopBgm(); }
+    syncBgmBtn();
+  });
+
+  function openQuizModal() {
+    newQuizSet();
+    quizModal.classList.add('open');
+    if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); }
+    syncBgmBtn();
+    renderQuizQuestion();
+  }
+
+  function closeQuizModal() {
+    quizModal.classList.remove('open');
+    fx.clear();
+    sound.stopBgm();
+    syncBgmBtn();
+  }
+
+  function renderQuizQuestion() {
+    const q = quizSet[state.quizIndex];
+    state.quizAnswered = false;
+    fx.clear();
+    if (quizStamp) quizStamp.classList.remove('show');
+    document.getElementById('quizProgress').textContent = `第 ${state.quizIndex + 1} / ${quizSet.length} 题`;
+    document.getElementById('quizScoreBadge').textContent = `得分 ${state.quizScore} / ${quizSet.length}`;
+    document.getElementById('chalScore').textContent = `${state.quizScore} / ${quizSet.length}`;
+    document.getElementById('quizStem').innerHTML = `${q.stem}<br><span class="quiz-formula">${q.formula}</span>`;
+
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.classList.remove('show');
+    explainEl.innerHTML = '';
+    btnQuizDemo.style.display = 'none';
+    btnQuizNext.style.display = 'none';
+
+    const optsEl = document.getElementById('quizOpts');
+    optsEl.innerHTML = '';
+    q.opts.forEach((label, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = 'ABCD'[idx] + '. ' + label;
+      btn.addEventListener('click', () => handleQuizPick(idx));
+      optsEl.appendChild(btn);
+    });
+  }
+
+  function handleQuizPick(pickedIdx) {
+    if (state.quizAnswered) return;
+    state.quizAnswered = true;
+    const q = quizSet[state.quizIndex];
+    const buttons = document.querySelectorAll('#quizOpts .quiz-opt');
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.ans) {
+        b.classList.add('correct');
+        const tick = document.createElement('span');
+        tick.className = 'opt-tick';
+        tick.textContent = '✓';
+        b.appendChild(tick);
+      } else if (i === pickedIdx) {
+        b.classList.add('wrong');
+      }
+    });
+
+    if (pickedIdx === q.ans) {
+      state.quizScore += 1;
+      state.quizStreak = (state.quizStreak || 0) + 1;
+      const isLast = state.quizIndex === quizSet.length - 1;
+      const scoreBadge = document.getElementById('quizScoreBadge');
+      scoreBadge.textContent = `得分 ${state.quizScore} / ${quizSet.length}`;
+      document.getElementById('chalScore').textContent = `${state.quizScore} / ${quizSet.length}`;
+
+      // —— 答对的小特效 ——
+      fx.burstAt(buttons[q.ans], isLast);        // 从正确选项位置喷彩纸
+      flashModal();                              // 弹窗绿色呼吸一次
+      bumpBadge(scoreBadge);                     // 分数数字跳一下
+      bumpBadge(document.getElementById('chalScore'));
+
+      if (isLast) {
+        fx.finale();                             // 通关：两侧礼花炮
+        const full = state.quizScore === quizSet.length;
+        showQuizStamp(full ? '🏆' : '🎉',
+          full ? '满分通关！' : '闯关完成',
+          `总得分 ${state.quizScore} / ${quizSet.length}`,
+          true);
+        sound.playVictory();
+        showToast(full ? `🏆 全对通关！${state.quizScore} / ${quizSet.length}` : `🏆 闯关完成！总得分 ${state.quizScore} / ${quizSet.length}`);
+      } else {
+        const streak = state.quizStreak || 1;
+        showQuizStamp('✓', '答对了 +1', streak >= 2 ? `🔥 连对 ${streak} 题` : '保持这个节奏', false);
+        sound.playCorrect();
+        showToast(streak >= 2 ? `🔥 连对 ${streak} 题了！` : '🎉 回答正确！+1 分');
+      }
+    } else {
+      state.quizStreak = 0;
+      sound.playWrong();
+      showToast('❌ 答错了，看看解析再在探照灯上验证一下');
+    }
+
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.innerHTML = `<b>解析：</b>${q.explain}`;
+    explainEl.classList.add('show');
+
+    btnQuizDemo.style.display = 'inline-flex';
+    btnQuizNext.style.display = 'inline-flex';
+    btnQuizNext.textContent = state.quizIndex < quizSet.length - 1 ? '下一题 →' : '🔄 换一批新题';
+  }
+
+  document.getElementById('btnOpenQuiz').addEventListener('click', openQuizModal);
+  document.getElementById('btnCloseQuiz').addEventListener('click', closeQuizModal);
+  quizModal.addEventListener('click', (e) => { if (e.target === quizModal) closeQuizModal(); });
+
+  btnQuizDemo.addEventListener('click', () => {
+    const q = quizSet[state.quizIndex];
+    if (morph.active) exitMorph();
+    state.w = q.demo.w;
+    state.phi = q.demo.phi;
+    state.x = XMIN;
+    state.slow = 0;
+    togglePlay(true);
+    syncUI();
+    closeQuizModal();
+    showToast(`🔦 已把探照灯调到：${q.formula}`);
+  });
+
+  btnQuizNext.addEventListener('click', () => {
+    sound.playClick();
+    if (state.quizIndex < quizSet.length - 1) {
+      state.quizIndex += 1;
+    } else {
+      newQuizSet();
+    }
+    renderQuizQuestion();
+  });
+
+  /* ============================================================
+     图象变换连续演示：直接在主画布上把 y = tan x 连续变形为 y = tan(ωx + φ)
+     正切没有振幅，所以只有「相位」「周期」两步；两条路径的顺序不同，
+     正好把「平移 φ」和「平移 φ/ω」的区别演示清楚。
+     ============================================================ */
+  const morph = {
+    active: false,
+    path: 1,
+    mt: 0,
+    playing: false,
+    w: 1, phi: 0,
+    x: XMIN,
+    resume: false,
+    sig: '',
+  };
+  const M_HOLD = 0.6;
+  const M_EPS = 0.004;
+  const M_STAGE = {
+    k: { name: '相位变换', color: '--amber' },
+    w: { name: '周期变换', color: '--purple' },
+  };
+
+  function mOrder() { return morph.path === 1 ? ['k', 'w'] : ['w', 'k']; }
+  function mTargets() { return { w: morph.w, k: morph.phi }; }
+  function mDurations() {
+    const tg = mTargets();
+    return mOrder().map((key) => {
+      const v0 = key === 'w' ? 1 : 0;
+      return Math.abs(tg[key] - v0) > M_EPS ? 1.35 : 0.3;
+    });
+  }
+  function mTimeline() {
+    const d = mDurations();
+    const n = d.length;
+    const segs = [];
+    let t = 0;
+    for (let i = 0; i < n; i++) {
+      segs.push({ start: t, anim: d[i] });
+      t += d[i] + (i < n - 1 ? M_HOLD : 0);
+    }
+    segs.total = t;
+    return segs;
+  }
+  function mTotal() { return mTimeline().total; }
+  function mStage() {
+    const segs = mTimeline();
+    const o = mOrder();
+    const n = o.length;
+    for (let i = 0; i < n; i++) {
+      const s = segs[i];
+      if (morph.mt < s.start + s.anim) {
+        return { idx: i, key: o[i], f: Math.max(0, (morph.mt - s.start) / s.anim), holding: false };
+      }
+      if (i < n - 1 && morph.mt < s.start + s.anim + M_HOLD) {
+        return { idx: i, key: o[i], f: 1, holding: true };
+      }
+    }
+    return { idx: n, f: 1, done: true };
+  }
+  function morphDisp() { // 当前正在显示的参数（插值结果）
+    const tg = mTargets();
+    const o = mOrder();
+    const st = mStage();
+    if (st.done) return { w: tg.w, k: tg.k };
+    const cur = { w: 1, k: 0 };
+    for (let s = 0; s < st.idx; s++) cur[o[s]] = tg[o[s]];
+    const key = o[st.idx];
+    let f = st.f;
+    f = f * f * (3 - 2 * f); // smoothstep 缓动
+    const v0 = key === 'w' ? 1 : 0;
+    cur[key] = v0 + (tg[key] - v0) * f;
+    return cur;
+  }
+
+  function mFormula(w, k, dec) {
+    const W = dec ? w.toFixed(2) : w.toFixed(1);
+    const ph = Math.abs(k) < M_EPS ? '' : (k > 0 ? ' + ' : ' − ') + formatPhi(Math.abs(k));
+    return `y = tan(${W}x${ph})`;
+  }
+
+  // —— 画布内提示条 ——
+  const morphHud = document.getElementById('morphHud');
+  const morphSteps = document.getElementById('morphSteps');
+  const morphHint = document.getElementById('morphHint');
+  const hudBottomLeft = document.getElementById('hudBottomLeft');
+  const morphControls = document.getElementById('morphControls');
+  const btnMorphPlay = document.getElementById('btnMorphPlay');
+  const btnMorphEntry = document.getElementById('btnMorphOpen');
+  const hintBar = document.querySelector('.hud-bottom-right');
+  const morphPathBtns = Array.from(document.querySelectorAll('#morphPathTabs .seg-btn'));
+  const pillW = document.getElementById('fW');
+  const pillP = document.getElementById('fP');
+
+  function morphHintHTML(st) {
+    const tag = `<span class="path-tag">${morph.path === 1 ? '路径一 · 先平移后伸缩' : '路径二 · 先伸缩后平移'}</span>　`;
+    const full = mFormula(morph.w, morph.phi, false);
+    if (morph.mt <= 1e-6 && !morph.playing) {
+      return `点击 <b>连续变换</b>：图象将从 y = tan x 连续变形为 <b>${full}</b>`;
+    }
+    if (st.done) {
+      return `<b>变换完成</b>：图象已是 <b>${full}</b>　—　点「✕ 退出演示」交还探照灯`;
+    }
+    if (st.key === 'k') {
+      if (Math.abs(morph.phi) < M_EPS) return tag + '<b>相位变换</b>：φ = 0，图象无需左右平移';
+      const dir = morph.phi > 0 ? '向<b>左</b>' : '向<b>右</b>';
+      const amt = piFrac(Math.abs(morph.phi) / morph.w, 24);
+      if (morph.path === 2) {
+        return tag + `<b>相位变换</b>：图象沿 x 轴${dir}平移 <b>φ/ω = ${amt}</b> 个单位长度（先伸缩后平移，不是 φ = ${formatPhi(Math.abs(morph.phi))}）`;
+      }
+      return tag + `<b>相位变换</b>：图象沿 x 轴${dir}平移 <b>${formatPhi(Math.abs(morph.phi))}</b> 个单位长度（口诀“左加右减”）`;
+    }
+    if (Math.abs(morph.w - 1) < M_EPS) return tag + '<b>周期变换</b>：ω = 1，横坐标无需伸缩';
+    const T = formatT(morph.w);
+    return tag + `<b>周期变换</b>：横坐标变为原来的 <b>1/ω = ${(1 / morph.w).toFixed(2)}</b> 倍，周期 T = π/ω = <b>${T}</b>，渐近线间隔也变成 ${T}`;
+  }
+
+  function syncMorphUI() {
+    const st = mStage();
+    const sig = morph.path + '|' + (st.done ? 'd' : st.idx) + '|' + (st.holding ? 'h' : 'a') +
+      '|' + (morph.playing ? 'p' : 's') + '|' + (morph.mt <= 1e-6 ? '0' : '1');
+    btnMorphPlay.textContent = morph.playing ? '⏸ 暂停变换' : '▶ 连续变换';
+    if (sig === morph.sig) return;
+    morph.sig = sig;
+
+    const o = mOrder();
+    let html = '';
+    for (let i = 0; i < o.length; i++) {
+      const info = M_STAGE[o[i]];
+      const color = getCssVar(info.color) || '#38bdf8';
+      const done = st.done || st.idx > i || (st.idx === i && st.holding);
+      const active = !st.done && st.idx === i && !st.holding;
+      let style = '';
+      if (active) style = ` style="background:${color};box-shadow:0 6px 18px ${color}55"`;
+      else if (done) style = ` style="color:${color};border-color:${color}55"`;
+      html += `<div class="morph-step${active ? ' active' : ''}${done ? ' done' : ''}"${style}>` +
+        info.name + (done ? ' ✓' : '') + (active ? ' …' : '') + '</div>';
+    }
+    morphSteps.innerHTML = html;
+    morphHint.innerHTML = morphHintHTML(st);
+  }
+
+  function updateMorphPill(d) {
+    pillW.textContent = d.w.toFixed(2);
+    const done = morph.mt >= mTotal() - 1e-6;
+    if (done) {
+      setPhiPill(d.k);          // 结束时用精确值，保证和目标公式一致
+      return;
+    }
+    // 动画中间态吸附到 π/8 网格，避免胶囊里一直跳「≈0.37π」
+    const sn = Math.round(d.k / (Math.PI / 8)) * (Math.PI / 8);
+    document.getElementById('fSign').textContent = sn < -1e-6 ? 'x −' : 'x +';
+    pillP.textContent = formatPhi(Math.abs(sn));
+  }
+
+  function startMorph() {
+    morph.w = state.w;
+    morph.phi = state.phi;
+    morph.mt = 0;
+    morph.x = state.x;
+    morph.playing = true;
+    morph.active = true;
+    morph.sig = '';
+    morph.resume = state.playing;
+    togglePlay(false);
+    hudBottomLeft.style.display = 'none';
+    morphControls.style.display = 'flex';
+    morphHud.classList.add('show');
+    btnMorphEntry.classList.add('on');
+    hintBar.style.display = 'none';
+    syncMorphUI();
+  }
+
+  function exitMorph() {
+    morph.active = false;
+    morph.playing = false;
+    morph.sig = '';
+    morphHud.classList.remove('show');
+    hintBar.style.display = '';
+    morphControls.style.display = 'none';
+    hudBottomLeft.style.display = 'flex';
+    btnMorphEntry.classList.remove('on');
+    syncUI();                 // 还原公式胶囊
+    togglePlay(morph.resume); // 交还探照灯
+  }
+
+  // ===== 画布 =====
+  let L = null;
+  let lastPhi = null;
+  let phaseArrowAt = -1e9;
+  const canvasEl = document.getElementById('canvas');
+
+  const lab = new LabCanvas(canvasEl, (ctx, W, H, dt, now) => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const cyan = getCssVar('--cyan');
+    const purple = getCssVar('--purple');
+    const amber = getCssVar('--amber');
+    const rose = getCssVar('--red');
+    const ink2 = getCssVar('--ink-2');
+    const gridColor = getCssVar('--grid-line');
+    const axisColor = getCssVar('--grid-axis');
+
+    const padL = 24;
+    const padT = 40;
+    const padB = 46;
+    const cy = Math.round(H * 0.53);
+    // 探照灯这一侧只要放得下「灯 + 1 个单位的墙距」，比摩天轮窄一些，把宽度让给函数图像
+    const lampAreaW = Math.min(W * 0.32, 360);
+    const vUp = cy - padT - 10;
+    const vDown = H - padB - cy - 10;
+    const unitPx = Math.max(38, Math.min(190, lampAreaW - 56, Math.min(vUp, vDown) / 1.9));
+    const lampX = padL + Math.max(12, (lampAreaW - unitPx) / 2);
+    const wallX = lampX + unitPx;
+    const waveStartX = wallX + 46;
+    const waveEndX = W - 26;
+
+    L = { padT, padB, cy, unitPx, lampX, wallX, waveStartX, waveEndX };
+
+    const xToPx = (v) => waveStartX + (v - XMIN) / (XMAX - XMIN) * (waveEndX - waveStartX);
+    const yToPx = (v) => cy - v * unitPx;
+
+    // 变换演示时，探照灯跟着「正在变的参数」一起变：
+    // 转速 ↔ ω（周期）、起始角 ↔ φ（相位）
+    const mp = morph.active ? morphDisp() : null;
+    const dW = mp ? mp.w : state.w;
+    const dPhi = mp ? mp.k : state.phi;
+    const dT = mp ? morph.x : state.x;
+
+    // 「按像素列采样，遇渐近线自动断段」的 tan 曲线绘制
+    function traceTan(w, phi, fromX, toX) {
+      const px0 = Math.max(waveStartX, xToPx(fromX));
+      const px1 = Math.min(waveEndX, xToPx(toX));
+      if (px1 <= px0 + 1) return;
+      const xPerPx = (XMAX - XMIN) / Math.max(1, waveEndX - waveStartX);
+      ctx.beginPath();
+      let pen = false;
+      let lastPy = 0;
+      for (let px = px0; px <= px1; px += 2) {
+        const xv = XMIN + (px - waveStartX) * xPerPx;
+        const t = w * xv + phi;
+        const ct = Math.cos(t);
+        if (Math.abs(ct) < 1e-3) { pen = false; continue; }
+        const v = Math.sin(t) / ct;
+        if (!isFinite(v) || Math.abs(v) > 40) { pen = false; continue; }
+        const py = cy - v * unitPx;
+        if (pen && Math.abs(py - lastPy) > H * 1.8) pen = false;
+        if (!pen) { ctx.moveTo(px, py); pen = true; } else { ctx.lineTo(px, py); }
+        lastPy = py;
+      }
+      ctx.stroke();
+    }
+
+    // ---------- 右侧：函数图象 ----------
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(waveStartX, padT, Math.max(1, waveEndX - waveStartX), H - padT - padB);
+    ctx.clip();
+
+    // 网格
+    ctx.save();
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    for (let v = -1.5; v <= 1.5; v += 0.5) {
+      if (Math.abs(v) < 1e-9) continue;
+      const py = yToPx(v);
+      if (py < padT || py > H - padB) continue;
+      ctx.beginPath();
+      ctx.moveTo(waveStartX, py);
+      ctx.lineTo(waveEndX, py);
+      ctx.stroke();
+    }
+    for (let k = -4; k <= 4; k++) {
+      const px = xToPx(k * Math.PI / 2);
+      if (px < waveStartX || px > waveEndX) continue;
+      ctx.beginPath();
+      ctx.moveTo(px, padT);
+      ctx.lineTo(px, H - padB);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 渐近线
+    ctx.save();
+    ctx.strokeStyle = rose;
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([8, 6]);
+    ctx.shadowColor = rose;
+    ctx.shadowBlur = 8;
+    for (let k = -6; k <= 6; k++) {
+      const xv = (Math.PI / 2 + k * Math.PI - dPhi) / dW;
+      if (xv < XMIN - 0.01 || xv > XMAX + 0.01) continue;
+      const px = xToPx(xv);
+      ctx.beginPath();
+      ctx.moveTo(px, padT);
+      ctx.lineTo(px, H - padB);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 坐标轴
+    ctx.save();
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(waveStartX - 8, cy);
+    ctx.lineTo(waveEndX, cy);
+    ctx.moveTo(xToPx(0), padT);
+    ctx.lineTo(xToPx(0), H - padB);
+    ctx.stroke();
+    ctx.restore();
+
+    // 基准 y = tan x
+    if (state.showGhost) {
+      ctx.save();
+      ctx.strokeStyle = isLight ? 'rgba(100,116,139,0.45)' : 'rgba(203,213,225,0.55)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 6]);
+      traceTan(1, 0, XMIN, XMAX);
+      ctx.restore();
+    }
+
+    // 目标曲线（淡）
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(2,132,199,0.30)' : 'rgba(56,189,248,0.36)';
+    ctx.lineWidth = 2.2;
+    if (mp) ctx.setLineDash([3, 7]);
+    traceTan(state.w, state.phi, XMIN, XMAX);
+    ctx.restore();
+
+    // 当前曲线：演示时整条连续变形，普通模式只画「已扫过」的一段
+    ctx.save();
+    ctx.strokeStyle = cyan;
+    ctx.lineWidth = 3.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.shadowColor = cyan;
+    ctx.shadowBlur = 16;
+    if (mp) traceTan(mp.w, mp.k, XMIN, XMAX);
+    else traceTan(state.w, state.phi, XMIN, Math.max(XMIN + 1e-6, state.x));
+    ctx.restore();
+
+    ctx.restore(); // 结束右侧裁剪
+
+    // 图像刻度
+    const xTicks = [
+      { v: -Math.PI * 2, t: '−2π' },
+      { v: -Math.PI, t: '−π' },
+      { v: 0, t: '0' },
+      { v: Math.PI, t: 'π' },
+      { v: Math.PI * 2, t: '2π' },
+    ];
+    xTicks.forEach((tk) => {
+      const px = xToPx(tk.v);
+      if (px < waveStartX - 1 || px > waveEndX + 1) return;
+      drawLabel(ctx, tk.t, px, cy + 17, ink2, 11);
+    });
+    for (let v = -1; v <= 1; v++) {
+      if (v === 0) continue;
+      const py = yToPx(v);
+      if (py < padT + 4 || py > H - padB - 4) continue;
+      drawLabel(ctx, String(v), waveStartX - 18, py, ink2, 11);
+    }
+    drawLabel(ctx, 'tan θ', xToPx(0) - 24, padT + 12, ink2, 11, 'right');
+    drawLabel(ctx, 'x', waveEndX - 12, cy - 13, ink2, 11);
+
+    // ---------- 相位平移箭头 ----------
+    // 箭头的几何位置跟着当前 k 走（所以是「长出来」的），数值标注用目标平移量 labelAmt
+    function drawPhaseArrow(w, k, labelAmt, alpha) {
+      if (alpha === undefined) alpha = 1;
+      if (alpha <= 0.002 || Math.abs(k) < 1e-6) return;
+      const shift = -k / w;
+      const x0 = xToPx(0);
+      const x1 = xToPx(shift);
+      const goingLeft = shift < 0;
+      const yA = padT + 16;
+      const sgn = goingLeft ? -1 : 1;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+
+      // 主轴
+      ctx.strokeStyle = purple;
+      ctx.lineWidth = 2.6;
+      ctx.shadowColor = purple;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(x0, yA);
+      ctx.lineTo(x1 - sgn * 4, yA);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // 两端定位短线
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.strokeStyle = purple;
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x0, yA);
+      ctx.lineTo(x0, yA + 13);
+      ctx.moveTo(x1, yA);
+      ctx.lineTo(x1, yA + 13);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 起点空心圈
+      ctx.globalAlpha = alpha * 0.9;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x0, yA, 3.4, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 箭头
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = purple;
+      ctx.beginPath();
+      ctx.moveTo(x1, yA);
+      ctx.lineTo(x1 - sgn * 11, yA - 6.5);
+      ctx.lineTo(x1 - sgn * 11, yA + 6.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      const label = (goingLeft ? '左移 ' : '右移 ') + piFrac(labelAmt, 24) + ' 个单位';
+      drawLabel(ctx, label, Math.min(waveEndX - 60, Math.max(waveStartX + 70, (x0 + x1) / 2)), yA + 24, purple, 12);
+    }
+
+    if (lastPhi === null || Math.abs(state.phi - lastPhi) > 1e-6) {
+      lastPhi = state.phi;
+      phaseArrowAt = now;
+    }
+
+    if (mp) {
+      const st = mStage();
+      if (Math.abs(morph.phi) > M_EPS && !st.done && !st.holding && st.key === 'k') {
+        drawPhaseArrow(mp.w, mp.k, Math.abs(morph.phi) / morph.w);
+      }
+    } else if (Math.abs(state.phi) > 1e-3) {
+      const age = (now - phaseArrowAt) / 1000;
+      const LIFE = 1.8, FADE = 0.5;
+      if (age < LIFE) {
+        const alpha = age > LIFE - FADE ? Math.max(0, (LIFE - age) / FADE) : 1;
+        drawPhaseArrow(state.w, state.phi, Math.abs(state.phi) / state.w, alpha);
+      }
+    }
+
+    // ---------- 左侧：探照灯与墙面 ----------
+    const th = dW * dT + dPhi;
+    const cosT = Math.cos(th);
+    const sinT = Math.sin(th);
+    const tanV = sinT / cosT;
+    const defined = Math.abs(cosT) > 1e-3;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, waveStartX - 8, H);
+    ctx.clip();
+
+    // 墙面
+    const wallGrd = ctx.createLinearGradient(wallX - 4, 0, wallX + 4, 0);
+    wallGrd.addColorStop(0, isLight ? 'rgba(15,23,42,0.10)' : 'rgba(148,163,184,0.10)');
+    wallGrd.addColorStop(0.5, isLight ? 'rgba(15,23,42,0.34)' : 'rgba(203,213,225,0.40)');
+    wallGrd.addColorStop(1, isLight ? 'rgba(15,23,42,0.10)' : 'rgba(148,163,184,0.10)');
+    ctx.fillStyle = wallGrd;
+    ctx.fillRect(wallX - 4, padT, 8, H - padT - padB);
+
+    // 墙面刻度
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(15,23,42,0.22)' : 'rgba(148,163,184,0.30)';
+    ctx.lineWidth = 1;
+    for (let v = -4; v <= 4; v++) {
+      if (v === 0) continue;
+      const py = yToPx(v);
+      if (py < padT + 6 || py > H - padB - 6) continue;
+      ctx.beginPath();
+      ctx.moveTo(wallX - 4, py);
+      ctx.lineTo(wallX - 13, py);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    drawLabel(ctx, '墙面', wallX - 12, H - padB - 22, ink2, 11, 'right');
+
+    // 光轴（虚线）
+    ctx.save();
+    ctx.strokeStyle = isLight ? 'rgba(15,23,42,0.30)' : 'rgba(226,232,240,0.45)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 6]);
+    ctx.beginPath();
+    ctx.moveTo(lampX, cy);
+    ctx.lineTo(wallX, cy);
+    ctx.stroke();
+    ctx.restore();
+    if (W > 700) drawLabel(ctx, '1 单位', lampX + unitPx * 0.5, cy + 24, ink2, 12);
+
+    // 光束：始终指向墙面（θ 越过 90° 时方向自动翻正，高度仍由 tan θ 决定）
+    let dirX = cosT;
+    let dirY = -sinT;
+    if (dirX < 0) { dirX = -dirX; dirY = -dirY; }
+    const far = Math.min(Math.abs(dirX) > 1e-3 ? unitPx / dirX : H * 4, H * 4);
+    const beamEndX = lampX + dirX * far;
+    const beamEndY = Math.max(-H * 4, Math.min(H * 4, cy + dirY * far));
+
+    // 光锥
+    ctx.save();
+    const cone = ctx.createLinearGradient(lampX, cy, beamEndX, beamEndY);
+    cone.addColorStop(0, isLight ? 'rgba(217,119,6,0.24)' : 'rgba(251,191,36,0.26)');
+    cone.addColorStop(1, isLight ? 'rgba(217,119,6,0.03)' : 'rgba(251,191,36,0.04)');
+    ctx.fillStyle = cone;
+    ctx.beginPath();
+    ctx.moveTo(lampX, cy);
+    const pxN = -dirY;
+    const pyN = dirX;
+    const spread = 13;
+    ctx.lineTo(beamEndX + pxN * spread, beamEndY + pyN * spread);
+    ctx.lineTo(beamEndX - pxN * spread, beamEndY - pyN * spread);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    glowLine(ctx, lampX, cy, beamEndX, beamEndY, amber, 2.4, 14);
+
+    // 角度弧
+    const arcR = Math.min(40, unitPx * 0.46);
+    if (Math.abs(th) < Math.PI * 0.97) {
+      ctx.save();
+      ctx.strokeStyle = amber;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.arc(lampX, cy, arcR, 0, -th, th > 0);
+      ctx.stroke();
+      ctx.restore();
+
+      const midA = -th / 2;
+      const rr = arcR + 14;
+      const lx = lampX + Math.cos(midA) * rr;
+      const ly = cy + Math.sin(midA) * rr;
+      drawLabel(ctx, 'θ', lx, ly, amber, 12);
+    }
+
+    // 灯体
+    ctx.save();
+    ctx.fillStyle = isLight ? 'rgba(15,23,42,0.10)' : 'rgba(148,163,184,0.16)';
+    ctx.beginPath();
+    ctx.arc(lampX, cy, 15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.shadowColor = amber;
+    ctx.shadowBlur = 22;
+    ctx.fillStyle = amber;
+    ctx.beginPath();
+    ctx.arc(lampX, cy, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+    drawLabel(ctx, '灯', lampX, cy + 30, ink2, 11);
+
+    // 光斑
+    const limTop = padT + 10;
+    const limBot = H - padB - 10;
+    const spotY = cy - unitPx * tanV;
+
+    if (defined && spotY > limTop && spotY < limBot) {
+      ctx.save();
+      const g = ctx.createRadialGradient(wallX, spotY, 0, wallX, spotY, 22);
+      g.addColorStop(0, isLight ? 'rgba(217,119,6,0.55)' : 'rgba(251,191,36,0.75)');
+      g.addColorStop(1, 'rgba(251,191,36,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(wallX, spotY, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      glowDot(ctx, wallX, spotY, 6.5, amber);
+    } else if (defined) {
+      // 光斑已冲出画面：在墙面边缘画个「往上/往下跑」的箭头
+      const dirUp = tanV > 0;
+      const edgeY = dirUp ? limTop : limBot;
+      ctx.save();
+      ctx.strokeStyle = amber;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(wallX, edgeY - (dirUp ? 26 : -26));
+      ctx.lineTo(wallX, edgeY);
+      ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.fillStyle = amber;
+      ctx.beginPath();
+      if (dirUp) {
+        ctx.moveTo(wallX, edgeY);
+        ctx.lineTo(wallX - 6, edgeY + 11);
+        ctx.lineTo(wallX + 6, edgeY + 11);
+      } else {
+        ctx.moveTo(wallX, edgeY);
+        ctx.lineTo(wallX - 6, edgeY - 11);
+        ctx.lineTo(wallX + 6, edgeY - 11);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.restore(); // 结束左侧裁剪
+
+    // ---------- 光斑 ↔ 曲线 联动 ----------
+    const waveDotX = xToPx(dT);
+    const waveDotY = cy - unitPx * tanV;
+
+    if (defined && Math.abs(tanV) < 14) {
+      ctx.save();
+      ctx.strokeStyle = amber;
+      ctx.globalAlpha = mp ? 0.45 : 0.65;
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(wallX + 3, waveDotY);
+      ctx.lineTo(waveDotX, waveDotY);
+      ctx.stroke();
+      ctx.restore();
+
+      if (!mp) {
+        ctx.save();
+        ctx.strokeStyle = cyan;
+        ctx.globalAlpha = 0.35;
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([4, 5]);
+        ctx.beginPath();
+        ctx.moveTo(waveDotX, cy);
+        ctx.lineTo(waveDotX, waveDotY);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      glowDot(ctx, waveDotX, waveDotY, mp ? 6 : 7, cyan);
+      if (!mp) {
+        const ly = waveDotY - 18 < padT + 12 ? waveDotY + 20 : waveDotY - 18;
+        let lx = waveDotX;
+        let align = 'center';
+        if (waveDotX < waveStartX + 56) { lx = waveDotX + 9; align = 'left'; }     // 靠左：往右让，别压到墙面
+        else if (waveDotX > waveEndX - 56) { lx = waveDotX - 9; align = 'right'; }
+        drawLabel(ctx, `tan θ = ${tanV.toFixed(2)}`, lx, ly, cyan, 12, align);
+      }
+    }
+
+    if (defined && spotY > limTop && spotY < limBot) {
+      let ly = spotY - 18;
+      if (ly < padT + 12) ly = spotY + 18;
+      drawLabel(ctx, '光斑', wallX - 15, ly, amber, 12, 'right');
+    }
+  });
+
+  lab.start((dt) => {
+    if (morph.active && morph.playing) {
+      morph.mt += dt;
+      morph.x += dt * 0.85;
+      if (morph.x > XMAX) morph.x = XMIN;
+      if (morph.mt >= mTotal()) {
+        morph.mt = mTotal();
+        morph.playing = false;
+        morph.sig = '';
+      }
+      syncMorphUI();
+      const d = morphDisp();
+      updateMorphPill(d);
+      syncReadout(d.w * morph.x + d.k, morph.x, d.w);   // 读数跟着正在变的参数一起走
+    }
+    if (state.playing) {
+      let speed = 0.85;
+      if (state.slow > 0) {
+        speed = 0.075;
+        state.slow -= dt;
+        if (state.slow < 0) state.slow = 0;
+      }
+      state.x += dt * speed;
+      if (state.x > XMAX) state.x = XMIN;
+      if (!morph.active) syncUI();
+    }
+  });
+
+  // ===== 控件：拖动滑杆即退出变换演示（目标一变，演示就没意义了）=====
+  sW.addEventListener('input', () => { if (morph.active) exitMorph(); state.w = parseFloat(sW.value); syncUI(); });
+  sP.addEventListener('input', () => { if (morph.active) exitMorph(); state.phi = parseFloat(sP.value); syncUI(); });
+
+  const btnPlay = document.getElementById('btnPlay');
+  function togglePlay(force) {
+    state.playing = typeof force === 'boolean' ? force : !state.playing;
+    btnPlay.textContent = state.playing ? '⏸ 暂停扫描' : '▶ 继续扫描';
+  }
+  btnPlay.addEventListener('click', () => togglePlay());
+
+  const btnGhost = document.getElementById('btnGhost');
+  btnGhost.classList.add('active');
+  btnGhost.addEventListener('click', () => {
+    state.showGhost = !state.showGhost;
+    btnGhost.classList.toggle('active', state.showGhost);
+  });
+
+  /* ---------- 图象变换演示的按钮 ---------- */
+  btnMorphEntry.addEventListener('click', () => {
+    if (morph.active) {           // 已在演示中：从头再放一次
+      morph.mt = 0;
+      morph.x = state.x;
+      morph.playing = true;
+      morph.sig = '';
+      syncMorphUI();
+    } else {
+      startMorph();
+    }
+  });
+
+  btnMorphPlay.addEventListener('click', () => {
+    if (morph.playing) {
+      morph.playing = false;
+    } else {
+      if (morph.mt >= mTotal() - 1e-6) morph.mt = 0;
+      morph.playing = true;
+    }
+    morph.sig = '';
+    syncMorphUI();
+  });
+
+  document.getElementById('btnMorphReplay').addEventListener('click', () => {
+    morph.mt = 0;
+    morph.x = state.x;
+    morph.playing = false;
+    morph.sig = '';
+    syncMorphUI();
+    updateMorphPill(morphDisp());
+  });
+
+  document.getElementById('btnMorphExit').addEventListener('click', exitMorph);
+
+  morphPathBtns.forEach((b) => {
+    b.addEventListener('click', () => {
+      morph.path = Number(b.dataset.path);
+      morphPathBtns.forEach((x) => x.classList.toggle('active', x === b));
+      morph.mt = 0;
+      morph.playing = false;
+      morph.sig = '';
+      syncMorphUI();
+      updateMorphPill(morphDisp());
+    });
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    if (morph.active) exitMorph();
+    state.w = 1.0;
+    state.phi = 0;
+    state.x = XMIN;
+    state.slow = 0;
+    syncUI();
+  });
+
+  // 拖拽图像推进时刻（演示时不响应）
+  let dragging = false;
+  canvasEl.addEventListener('pointerdown', (e) => {
+    if (morph.active || !L) return;
+    const rect = canvasEl.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    if (px >= L.waveStartX - 10) {
+      dragging = true;
+      togglePlay(false);
+      updateXFromPointer(px);
+    }
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!dragging || !L) return;
+    const rect = canvasEl.getBoundingClientRect();
+    updateXFromPointer(e.clientX - rect.left);
+  });
+  window.addEventListener('pointerup', () => { dragging = false; });
+
+  function updateXFromPointer(px) {
+    const ratio = Math.max(0, Math.min(1, (px - L.waveStartX) / Math.max(1, L.waveEndX - L.waveStartX)));
+    state.x = XMIN + ratio * (XMAX - XMIN);
+    syncUI();
+  }
+
+  // 模式切换
+  document.querySelectorAll('#modeTabs .seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeTabs .seg-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      document.getElementById('predictCard').style.display = state.mode === 'predict' ? 'block' : 'none';
+      document.getElementById('challengeCard').style.display = state.mode === 'challenge' ? 'block' : 'none';
+      if (state.mode === 'challenge') openQuizModal();
+    });
+  });
+
+  // 先猜后验
+  const btnReveal = document.getElementById('btnReveal');
+  document.querySelectorAll('#predictOpts .predict-opt').forEach((opt) => {
+    opt.addEventListener('click', () => {
+      if (state.revealed) return;
+      document.querySelectorAll('#predictOpts .predict-opt').forEach((o) => o.classList.remove('picked'));
+      opt.classList.add('picked');
+      state.pickedOpt = Number(opt.dataset.idx);
+      btnReveal.disabled = false;
+      btnReveal.textContent = '✨ 揭晓并慢放验证';
+    });
+  });
+
+  btnReveal.addEventListener('click', () => {
+    state.revealed = true;
+    if (morph.active) exitMorph();
+    state.w = 1.0;
+    state.phi = 1.3963;                        // 80°
+    state.x = (Math.PI * 70 / 180 - state.phi) / state.w;  // 从 70° 开始慢放
+    state.slow = 6;
+    togglePlay(true);
+    syncUI();
+    document.querySelectorAll('#predictOpts .predict-opt').forEach((o) => {
+      const idx = Number(o.dataset.idx);
+      if (idx === 1) o.classList.add('correct');
+      else if (idx === state.pickedOpt) o.classList.add('wrong');
+    });
+    document.getElementById('predictFeedback').classList.add('show');
+    if (state.pickedOpt === 1) {
+      lab.burst(lab.width * 0.32, lab.height * 0.3, '#34d399', 26);
+      showToast('👏 预测正确：光斑会冲出墙面');
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && e.target.tagName !== 'BUTTON') {
+      e.preventDefault();
+      if (morph.active) btnMorphPlay.click();
+      else togglePlay();
+      return;
+    }
+    if (e.key === 'Escape' && morph.active) {
+      exitMorph();
+    }
+  });
+
+  initShell({
+    onCommand: (action, payload) => {
+      if (action === 'setParam' && payload) {
+        if (typeof payload.w === 'number') state.w = payload.w;
+        if (typeof payload.phi === 'number') state.phi = payload.phi;
+        syncUI();
+      }
+      if (action === 'play') togglePlay(Boolean(payload));
+      if (action === 'reveal' && state.mode === 'predict') btnReveal.click();
+    },
+  });
+
+  syncUI();
+})();
+</script>
+</body>
+</html>

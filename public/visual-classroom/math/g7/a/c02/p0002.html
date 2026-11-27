@@ -207,6 +207,148 @@
 
   .pfoot{font-size:11px;color:#a6b2c3;line-height:1.7;letter-spacing:.02em}
 
+  /* ==================== 新教学模块 ==================== */
+  /* 顶部模式切换 */
+  .modebar{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px}
+  .modebar .cap{grid-column:1/-1;font-size:11px;letter-spacing:.14em;color:var(--ink3);margin-bottom:2px}
+  .modebtn{
+    display:flex;align-items:center;gap:7px;padding:9px 9px;border:1px solid var(--line);
+    border-radius:7px;background:#fff;cursor:pointer;transition:.15s;text-align:left;
+    font-family:var(--font);font-size:12px;color:var(--ink2);font-weight:600
+  }
+  .modebtn:hover{border-color:#b9c6d8;background:#fafcff}
+  .modebtn .ic{
+    width:20px;height:20px;border-radius:5px;background:var(--line2);color:var(--ink2);
+    display:grid;place-items:center;font-size:11px;font-family:var(--mono);flex:none
+  }
+  .modebtn.on{border-color:var(--blue);background:#f2f7ff;color:var(--blue);
+    box-shadow:0 2px 10px rgba(47,111,208,.10)}
+  .modebtn.on .ic{background:var(--blue);color:#fff}
+
+  /* 通用模块内容块 */
+  .tbody{padding:4px 2px 0}
+  .t-h{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.03em;margin:2px 0 9px;
+    display:flex;align-items:center;gap:7px}
+  .t-h::before{content:'';width:3px;height:13px;border-radius:2px;background:var(--blue)}
+  .t-p{font-size:12px;line-height:1.8;color:var(--ink2);margin:0 0 12px}
+  .t-p b{color:var(--ink)}
+  .t-note{margin:12px 2px 0;padding:12px 14px;border-radius:8px;background:#f7faff;
+    border:1px solid #e3ecfa;font-size:12px;line-height:1.8;color:var(--ink2)}
+  .t-note b{color:var(--blue)}
+  .t-btn{
+    padding:7px 11px;border:1px solid var(--line);border-radius:6px;background:#fff;
+    font-family:inherit;font-size:12px;color:var(--ink2);cursor:pointer;transition:.15s;
+    letter-spacing:.02em
+  }
+  .t-btn:hover{border-color:#b9c6d8;background:#fafcff;color:var(--ink)}
+  .t-btn.on{border-color:var(--blue);background:#eef5ff;color:var(--blue);font-weight:600}
+  .t-btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+
+  /* 概念对比 */
+  .cmp{display:flex;flex-direction:column;gap:14px}
+  .cmp-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .cmp-top{padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .cmp-top.a{background:#f2f7ff;border-bottom:1px solid #e3ecfa}
+  .cmp-top.b{background:#f2fbf7;border-bottom:1px solid #e1f2ea}
+  .cmp-top .tag{font-size:10px;padding:2px 7px;border-radius:4px;font-family:var(--mono)}
+  .cmp-top.a .tag{background:var(--blue);color:#fff}
+  .cmp-top.b .tag{background:#2e9e6b;color:#fff}
+  .cmp-top .tt{font-size:13px;font-weight:700}
+  .cmp-top.a .tt{color:var(--blue)} .cmp-top.b .tt{color:#24875c}
+  .cmp-body{padding:11px 14px;font-size:12px;line-height:1.85;color:var(--ink2)}
+  .cmp-body .def{color:var(--ink);font-weight:600}
+  .cmp-fig{display:flex;justify-content:center;padding:2px 0 8px}
+  .cmp-vs{text-align:center;font-size:11px;color:var(--ink3);letter-spacing:.2em;margin:0}
+
+  /* 三视图 */
+  .views{display:flex;flex-direction:column;gap:12px}
+  .viewcard{border:1px solid var(--line);border-radius:9px;background:#fff;overflow:hidden}
+  .viewcard .vh{padding:8px 12px;font-size:12px;font-weight:700;color:var(--ink2);
+    background:#f8fafc;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:8px}
+  .viewcard .vh .dir{font-size:10px;color:#fff;background:var(--ink3);padding:1px 6px;border-radius:4px;font-family:var(--mono)}
+  .viewcard.active{border-color:var(--blue);box-shadow:0 2px 12px rgba(47,111,208,.12)}
+  .viewcard.active .vh{background:#f2f7ff;color:var(--blue)}
+  .viewcard.active .vh .dir{background:var(--blue)}
+  .viewcard .vb{height:152px;display:grid;place-items:center;padding:6px;overflow:hidden}
+  .viewcard .vb svg{width:148px;height:148px;overflow:visible;max-width:100%}
+  .viewcap{font-size:11px;color:var(--ink3);text-align:center;padding:0 0 8px}
+
+  /* 拼搭 */
+  .build-info{display:flex;gap:8px;margin:4px 0 12px}
+  .build-info .bi{flex:1;border:1px solid var(--line);border-radius:8px;padding:9px;text-align:center;background:#fff}
+  .build-info .bi b{display:block;font-family:var(--mono);font-size:20px;color:var(--blue);line-height:1.2}
+  .build-info .bi span{font-size:11px;color:var(--ink3)}
+
+  /* 展开图全览 */
+  .netgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:2px}
+  .netthumb{border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px 4px 5px;
+    cursor:pointer;transition:.15s;position:relative}
+  .netthumb:hover{border-color:#b9c6d8;background:#fafcff}
+  .netthumb.on{border-color:var(--blue);background:#f2f7ff;box-shadow:0 2px 10px rgba(47,111,208,.12)}
+  .netthumb.bad{border-color:#e6b7b1;background:#fff8f7}
+  .netthumb.bad.on{border-color:var(--red);background:#fdf0ee}
+  .netthumb svg{width:100%;height:56px;display:block;overflow:visible}
+  .netthumb .cap{font-size:10.5px;color:var(--ink3);text-align:center;margin-top:2px;letter-spacing:.02em}
+  .netthumb.on .cap{color:var(--blue);font-weight:700}
+  .netthumb.bad .cap{color:#b8533f}
+  .netthumb .okmark,.netthumb .nomark{position:absolute;top:3px;right:4px;font-size:11px;font-weight:700}
+  .netthumb .okmark{color:#2e9e6b} .netthumb .nomark{color:var(--red)}
+  .net-detail{margin-top:12px;padding:12px 14px;border-radius:9px;border:1px solid var(--line);background:#fbfdff}
+  .net-detail .nd-t{font-size:13px;font-weight:700;margin-bottom:6px}
+  .net-detail .nd-t.good{color:#24875c} .net-detail .nd-t.bad{color:var(--red)}
+  .net-detail .nd-p{font-size:12px;line-height:1.75;color:var(--ink2)}
+
+  /* 旋转成体 */
+  .rot-list{display:flex;flex-direction:column;gap:7px}
+  .rot-item{border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px 12px;
+    cursor:pointer;transition:.15s}
+  .rot-item:hover{border-color:#b9c6d8;background:#fafcff}
+  .rot-item.on{border-color:var(--blue);background:#f2f7ff;box-shadow:0 2px 10px rgba(47,111,208,.10)}
+  .rot-item .rt{font-size:12.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .rot-item .rno{width:19px;height:19px;border-radius:5px;background:var(--line2);color:var(--ink2);
+    display:grid;place-items:center;font-family:var(--mono);font-size:11px;flex:none}
+  .rot-item.on .rno{background:var(--blue);color:#fff}
+  .rot-item .rd{font-size:11.5px;color:var(--ink3);margin-top:5px;line-height:1.6}
+  .rot-item{position:relative;padding-right:74px}
+  .rot-thumb{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:60px;height:44px}
+  .rot-thumb svg{width:100%;height:100%;display:block}
+  .rot-play{display:flex;gap:8px;margin:12px 0 4px}
+
+  /* 覆盖在 3D 舞台上的浮动说明（三视图/旋转模式用） */
+  .stage-note{position:absolute;left:26px;top:118px;z-index:5;max-width:340px;
+    font-size:12px;line-height:1.7;color:var(--ink2);background:rgba(255,255,255,.86);
+    border:1px solid var(--line);border-radius:8px;padding:10px 13px;display:none;
+    backdrop-filter:blur(4px)}
+  .stage-note b{color:var(--blue)}
+
+  /* pane 切换 */
+  .pane{display:none}
+  .pane.on{display:block}
+  /* 中间展开图面板的四个模式视图 */
+  .npane{display:none;height:100%;flex-direction:column;min-height:0}
+  .npane.on{display:flex}
+  .npane .nh{padding:22px 22px 12px;border-bottom:1px solid var(--line2);flex:none}
+  .npane .nh .k{font-size:11.5px;letter-spacing:.14em;color:var(--ink3);margin-bottom:7px}
+  .npane .nh h2{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em}
+  .npane .nh p{margin:8px 0 0;font-size:12px;line-height:1.6;color:var(--ink2)}
+  .npane .nb{flex:1;min-height:0;overflow-y:auto;padding:14px}
+  .npane .nb::-webkit-scrollbar{width:6px}
+  .npane .nb::-webkit-scrollbar-thumb{background:#dbe2ec;border-radius:3px}
+
+  /* 概念对比在中间面板的图示 */
+  .cmp-hero{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cmp-hero .ch{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 8px;text-align:center}
+  .cmp-hero .ch.c3d{background:#f4f8ff;border-color:#dce8f8}
+  .cmp-hero .ch.c2d{background:#f3fbf7;border-color:#d9efe3}
+  .cmp-hero .ch svg{width:100%;height:96px;overflow:visible}
+  .cmp-hero .ch .cl{font-size:12px;font-weight:700;margin-top:2px}
+  .cmp-hero .ch.c3d .cl{color:var(--blue)}
+  .cmp-hero .ch.c2d .cl{color:#24875c}
+  .cmp-hero .ch .cs{font-size:10.5px;color:var(--ink3)}
+
+  /* 舞台底部模式标题条 */
+  .vp-mode{position:absolute;left:26px;top:118px;z-index:5;display:none}
+
   @media (max-width:1240px){
     .app{grid-template-columns:1fr 260px}
     .net{display:none}
@@ -240,6 +382,8 @@
 
       <div class="vp-tag"><span class="dot"></span><span id="vpName">正方体</span></div>
 
+      <div class="stage-note" id="stageNote"></div>
+
       <div class="vtools">
         <button id="btnUnfold">展开图形</button>
         <button id="btnFront" class="on">正视</button>
@@ -257,24 +401,61 @@
     </div>
   </main>
 
-  <!-- ================= 展开图 ================= -->
+  <!-- ================= 展开图 / 模式内容 ================= -->
   <section class="net">
-    <div class="net-head">
-      <div class="k">P L A N E   N E T</div>
-      <h2>平面展开图</h2>
-      <p id="netDesc">6 个全等的正方形，沿 7 条棱剪开摊平。</p>
+    <div class="npane on" data-npane="solid">
+      <div class="net-head">
+        <div class="k">P L A N E   N E T</div>
+        <h2>平面展开图</h2>
+        <p id="netDesc">6 个全等的正方形，沿 7 条棱剪开摊平。</p>
+      </div>
+      <div class="net-body">
+        <svg id="netSvg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="net-foot">
+        <div class="premise"><i></i><span>实线 = 剪开的棱（轮廓）</span></div>
+        <div class="premise"><i class="dash"></i><span>虚线 = 折痕（原来的棱）</span></div>
+      </div>
     </div>
-    <div class="net-body">
-      <svg id="netSvg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="npane" data-npane="compare">
+      <div class="nh"><div class="k">C O N C E P T</div><h2>概念对比</h2>
+        <p>立体图形与平面图形，定义、例子一目了然。</p></div>
+      <div class="nb" id="netCompare"></div>
     </div>
-    <div class="net-foot">
-      <div class="premise"><i></i><span>实线 = 剪开的棱（轮廓）</span></div>
-      <div class="premise"><i class="dash"></i><span>虚线 = 折痕（原来的棱）</span></div>
+    <div class="npane" data-npane="views">
+      <div class="nh"><div class="k">T H R E E   V I E W S</div><h2>三视图</h2>
+        <p id="viewsSub">从正面、上面、左面观察同一个几何体。</p></div>
+      <div class="nb" id="netViews"></div>
+    </div>
+    <div class="npane" data-npane="build">
+      <div class="nh"><div class="k">B U I L D</div><h2>小正方体拼搭</h2>
+        <p>用小正方体搭出造型，再看它的三视图。</p></div>
+      <div class="nb" id="netBuild"></div>
+    </div>
+    <div class="npane" data-npane="nets">
+      <div class="nh"><div class="k">11   N E T S</div><h2>正方体展开图全览</h2>
+        <p>正方体共有 11 种展开图，点开逐个查看，并辨别错误图形。</p></div>
+      <div class="nb" id="netNets"></div>
+    </div>
+    <div class="npane" data-npane="rotate">
+      <div class="nh"><div class="k">R O T A T I O N</div><h2>旋转成体</h2>
+        <p>面绕轴旋转一周，形成立体图形。</p></div>
+      <div class="nb" id="netRotate"></div>
     </div>
   </section>
 
   <!-- ================= 控制面板 ================= -->
   <aside class="panel">
+    <div class="modebar" id="modebar">
+      <div class="cap">教 学 模 块</div>
+      <button class="modebtn on" data-mode="solid"><span class="ic">01</span>立体图形</button>
+      <button class="modebtn" data-mode="compare"><span class="ic">02</span>概念对比</button>
+      <button class="modebtn" data-mode="views"><span class="ic">03</span>三视图</button>
+      <button class="modebtn" data-mode="build"><span class="ic">04</span>拼搭小正方体</button>
+      <button class="modebtn" data-mode="nets"><span class="ic">05</span>展开图全览</button>
+      <button class="modebtn" data-mode="rotate"><span class="ic">06</span>旋转成体</button>
+    </div>
+    <div class="pane on" data-pane="solid">
     <div class="pblock">
       <div class="ptitle"><span class="idx">1</span><h3>六种立体图形</h3></div>
       <div class="solid-list" id="solidList"></div>
@@ -315,6 +496,13 @@
     <div class="pfoot">
       支持网址参数：#id=cube&view=front
     </div>
+    </div><!-- /pane solid -->
+
+    <div class="pane" data-pane="compare"><div class="tbody" id="paneCompare"></div></div>
+    <div class="pane" data-pane="views"><div class="tbody" id="paneViews"></div></div>
+    <div class="pane" data-pane="build"><div class="tbody" id="paneBuild"></div></div>
+    <div class="pane" data-pane="nets"><div class="tbody" id="paneNets"></div></div>
+    <div class="pane" data-pane="rotate"><div class="tbody" id="paneRotate"></div></div>
   </aside>
 </div>
 
@@ -56512,7 +56700,7 @@ canvas.addEventListener('pointerup', e => {
   const ms = performance.now() - _down.t;
   _down = null;
   // 位移小、按下时间短 → 判定为“单击”，而不是拖动
-  if (Math.hypot(dx, dy) < 7 && ms < 380 && state.id !== 'plsb') {
+  if (Math.hypot(dx, dy) < 7 && ms < 380 && state.id !== 'plsb' && T2MODE === 'solid') {
     setUnfold(unfold.target < 0.5);
   }
 });
@@ -56604,6 +56792,7 @@ function tick() {
   stepUnfold(dt);
   stepAuxFade(dt);
   if (state.id === 'plsb') stepDyn(dt);
+  if (window.__t2Tick) window.__t2Tick(dt);
   if (camAnim) {
     camAnim.k = Math.min(1, camAnim.k + dt * 3.2);
     const e = 1 - Math.pow(1 - camAnim.k, 3);
@@ -56614,6 +56803,889 @@ function tick() {
   controls.update();
   renderer.render(scene, camera);
 }
+
+/* ============ 扩展教学模块 ============ */
+
+/* ==========================================================================
+   扩展教学模块：概念对比 / 三视图 / 拼搭 / 展开图全览 / 旋转成体
+   —— 依赖外层 IIFE 内的 THREE / scene / camera / controls / root / 各 group /
+      makeText / edgeTube / clearGroup / tweenCam / selectSolid / MAT 等
+   ========================================================================== */
+var T2MODE = 'solid';
+var T2 = {};
+
+/* ---------- 通用小工具 ---------- */
+function _v(x,y,z){ return new THREE.Vector3(x,y,z); }
+function _g(){
+  const g = new THREE.Group(); root.add(g); return g;
+}
+function _label(text, x, y, z, opt){
+  const s = makeText(text, Object.assign({size:58, height:0.26, color:'#16223a'}, opt||{}));
+  s.position.set(x,y,z); return s;
+}
+function _cube(size, mat, x, y, z){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(size,size,size), mat);
+  m.position.set(x,y,z); m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+function _boxEdges(w,h,d, mat, cx, cy, cz){
+  const g = new THREE.Group();
+  const x0=cx-w/2,x1=cx+w/2,y0=cy-h/2,y1=cy+h/2,z0=cz-d/2,z1=cz+d/2;
+  const pts=[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]];
+  const es=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  es.forEach(([a,b])=>g.add(edgeTube(_v(...pts[a]),_v(...pts[b]),mat,0.02)));
+  return g;
+}
+
+/* SVG：由方格单元生成展开图/投影图（cells: [[col,row],...]） */
+function _svgCells(cells, opt){
+  opt = opt||{};
+  const cs = opt.cell||18, gap = opt.gap===undefined?2:opt.gap;
+  const cols = cells.map(c=>c[0]), rows = cells.map(c=>c[1]);
+  const minC=Math.min(...cols), maxC=Math.max(...cols), minR=Math.min(...rows), maxR=Math.max(...rows);
+  const W=(maxC-minC+1)*(cs+gap)-gap, H=(maxR-minR+1)*(cs+gap)-gap;
+  const pad=6, vb=`0 0 ${W+pad*2} ${H+pad*2}`;
+  let s=`<svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet">`;
+  const set=new Set(cells.map(c=>c.join(',')));
+  cells.forEach(([c,r])=>{
+    const x=pad+(c-minC)*(cs+gap), y=pad+(r-minR)*(cs+gap);
+    const fill=opt.fill||'#dce9fb', stroke=opt.stroke||'#2f6fd0';
+    s+=`<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>`;
+  });
+  s+='</svg>';
+  return s;
+}
+
+/* 简单的正投影图形 SVG（按形状类型） */
+function _projSvg(kind, dir){
+  const S=`<svg viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet">`;
+  // 投影面淡方格底纹
+  let grid='<g stroke="#eef3fa" stroke-width="1">';
+  for(let p=20;p<120;p+=20){ grid+=`<line x1="${p}" y1="0" x2="${p}" y2="120"/><line x1="0" y1="${p}" x2="120" y2="${p}"/>`; }
+  grid+='</g>';
+  const fill='#dce9fb', stroke='#2f6fd0', sw=2.4;
+  let body='';
+  const rect=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  const circle=(cx,cy,r)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  const tri=(x1,y1,x2,y2,x3,y3)=>`<polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  if(kind==='cube'){
+    body=rect(24,24,72,72);
+  } else if(kind==='cuboid'){
+    if(dir==='top') body=rect(14,40,92,40);
+    else if(dir==='left') body=rect(34,26,52,68);
+    else body=rect(12,30,96,60);
+  } else if(kind==='cylinder'){
+    body = dir==='top' ? circle(60,60,44) : rect(28,16,64,88);
+  } else if(kind==='cone'){
+    body = dir==='top' ? circle(60,60,44)+`<circle cx="60" cy="60" r="2.6" fill="${stroke}"/>`
+      : tri(60,14,18,104,102,104);
+  }
+  return S+grid+body+`</svg>`;
+}
+
+/* ==========================================================================
+   模块二：概念对比
+   ========================================================================== */
+(function(){
+  const g3 = _g(); g3.visible=false;
+  let built=false;
+
+  function build(){
+    if(built) return; built=true;
+    const matA = faceMat(PALETTE.cube.main);
+    const matEdge = new THREE.MeshStandardMaterial({color:'#1b2537',roughness:0.42,metalness:0.14});
+    // 左：立体图形（正方体），转成斜视角露出顶面与侧面，立体感更强
+    const cubeTurn = new THREE.Group();
+    cubeTurn.position.set(-2.0,0,0); cubeTurn.rotation.y=-0.6;
+    g3.add(cubeTurn);
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(2.3,2.3,2.3), matA);
+    cube.position.set(0,1.35,0); cube.castShadow=true; cube.receiveShadow=true;
+    cubeTurn.add(cube);
+    cubeTurn.add(_boxEdges(2.3,2.3,2.3,matEdge,0,1.35,0));
+    // 高亮前面一个面（略前移），随立方体一起转
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(2.3,2.3),
+      new THREE.MeshBasicMaterial({color:'#c8402f',transparent:true,opacity:0.30,side:THREE.DoubleSide}));
+    face.position.set(0,1.35,1.157); cubeTurn.add(face);
+    g3.add(_label('立体图形',-2.0,3.15,0,{color:'#2f6fd0',height:0.30}));
+    g3.add(_label('各部分不都在同一平面内',-2.0,-0.75,0,{size:44,height:0.20,color:'#7b8899'}));
+
+    // 右：平面图形（正方形薄片），平铺
+    const sq = new THREE.Mesh(new THREE.PlaneGeometry(2.3,2.3),
+      new THREE.MeshPhysicalMaterial({color:'#6fc2b4',roughness:.4,clearcoat:.3,side:THREE.DoubleSide}));
+    sq.position.set(2.0,1.35,0); sq.castShadow=true; g3.add(sq);
+    g3.add(_boxEdges(2.3,2.3,0.04,matEdge,2.0,1.35,0));
+    g3.add(_label('平面图形',2.0,3.15,0,{color:'#24875c',height:0.30}));
+    g3.add(_label('各部分都在同一平面内',2.0,-0.15,0,{size:44,height:0.20,color:'#7b8899'}));
+
+    // 中间箭头
+    const ar = new THREE.Mesh(new THREE.ConeGeometry(0.16,0.4,20),
+      new THREE.MeshBasicMaterial({color:'#9fb0c6'}));
+    ar.rotation.z=-Math.PI/2; ar.position.set(0,1.35,0); g3.add(ar);
+  }
+
+  const HERO = `<div class="cmp-hero">
+    <div class="ch c3d">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <polygon points="22,32 50,18 78,32 50,46" fill="#dce9fb" stroke="#2f6fd0" stroke-width="2"/>
+        <polygon points="22,32 50,46 50,80 22,66" fill="#b9d4f5" stroke="#2f6fd0" stroke-width="2"/>
+        <polygon points="78,32 50,46 50,80 78,66" fill="#a9c9ef" stroke="#2f6fd0" stroke-width="2"/>
+      </svg>
+      <div class="cl">立体图形</div><div class="cs">正方体 · 圆柱 · 球 · 棱锥</div>
+    </div>
+    <div class="ch c2d">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <rect x="26" y="26" width="48" height="48" rx="2" fill="#dff3ea" stroke="#2e9e6b" stroke-width="2"/>
+        <circle cx="72" cy="70" r="12" fill="#dff3ea" stroke="#2e9e6b" stroke-width="2"/>
+      </svg>
+      <div class="cl">平面图形</div><div class="cs">正方形 · 圆 · 三角形 · 长方形</div>
+    </div>
+  </div>`;
+
+  function render(){
+    build();
+    document.getElementById('netCompare').innerHTML = HERO + `
+      <div class="t-note" style="margin-top:14px">
+        <b>一句话区分：</b>看图形的各部分是不是都在<b>同一个平面</b>内——是，就是平面图形；不是，就是立体图形。
+      </div>
+      <div class="t-p" style="margin-top:14px">
+        <b>联系：</b>立体图形的面是平面图形；把立体图形的表面剪开摊平，就得到它的<b>平面展开图</b>。
+      </div>`;
+
+    document.getElementById('paneCompare').innerHTML = `
+      <div class="cmp">
+        <div class="cmp-card">
+          <div class="cmp-top a"><span class="tag">立体</span><span class="tt">立体图形</span></div>
+          <div class="cmp-body">
+            <div class="def">定义：各部分<b>不都在同一平面内</b>的图形。</div>
+            占有一定的空间，有长、宽、高。<br>
+            <b>例：</b>正方体、长方体、圆柱、圆锥、球、棱柱、棱锥。
+          </div>
+        </div>
+        <div class="cmp-vs">— 对 比 —</div>
+        <div class="cmp-card">
+          <div class="cmp-top b"><span class="tag">平面</span><span class="tt">平面图形</span></div>
+          <div class="cmp-body">
+            <div class="def">定义：各部分<b>都在同一平面内</b>的图形。</div>
+            只在一个平面内，有大小、没有厚薄。<br>
+            <b>例：</b>正方形、长方形、三角形、圆、平行四边形。
+          </div>
+        </div>
+      </div>
+      <div class="t-note">
+        <b>易错提醒：</b>“球”和“圆”不同——球是<b>立体</b>图形（占有空间），圆是<b>平面</b>图形。
+      </div>`;
+  }
+  T2.compare = { group:g3, render, onEnter(){ tweenCam(_v(0,3.2,15.5),_v(0,1.4,0)); } };
+})();
+
+/* ==========================================================================
+   模块三：三视图
+   ========================================================================== */
+(function(){
+  const g3 = _g(); g3.visible=false;
+  let shape='cube', dir='front', obj=null;
+  const SHAPES = [
+    ['cube','正方体'],['cuboid','长方体'],['cylinder','圆柱'],['cone','圆锥']
+  ];
+  const DIRS = [['front','正面'],['top','上面'],['left','左面']];
+
+  function buildShape(){
+    clearGroup(g3);
+    const mat = faceMat(PALETTE.cube.main);
+    const edgeMat_ = new THREE.MeshStandardMaterial({color:'#1b2537',roughness:0.4,metalness:0.14});
+    if(shape==='cube'){
+      const c=new THREE.Mesh(new THREE.BoxGeometry(2.2,2.2,2.2),mat);
+      c.position.y=1.1;c.castShadow=true;c.receiveShadow=true;g3.add(c);
+      g3.add(_boxEdges(2.2,2.2,2.2,edgeMat_,0,1.1,0));
+    } else if(shape==='cuboid'){
+      const c=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.8,1.6),faceMat(PALETTE.cuboid.main));
+      c.position.y=0.9;c.castShadow=true;c.receiveShadow=true;g3.add(c);
+      g3.add(_boxEdges(3.2,1.8,1.6,edgeMat_,0,0.9,0));
+    } else if(shape==='cylinder'){
+      const c=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,2.4,64),faceMat(PALETTE.cylinder.main));
+      c.position.y=1.2;c.castShadow=true;c.receiveShadow=true;g3.add(c);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(1.15,0.022,8,64),edgeMat_);
+      ring.rotation.x=Math.PI/2;ring.position.y=2.4;g3.add(ring);
+      const ring2=ring.clone();ring2.position.y=0;g3.add(ring2);
+    } else if(shape==='cone'){
+      const c=new THREE.Mesh(new THREE.ConeGeometry(1.2,2.6,64),faceMat(PALETTE.cone.main));
+      c.position.y=1.3;c.castShadow=true;c.receiveShadow=true;g3.add(c);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(1.2,0.022,8,64),edgeMat_);
+      ring.rotation.x=Math.PI/2;g3.add(ring);
+    }
+  }
+
+  function moveCam(){
+    const dist = 11;
+    const tgt = _v(0,1.1,0);
+    let pos;
+    if(dir==='front') pos=_v(0,1.1,dist);
+    else if(dir==='top') pos=_v(0,1.1+dist,0.001);
+    else pos=_v(-dist,1.1,0);
+    tweenCam(pos,tgt);
+  }
+
+  function render(){
+    buildShape();
+    moveCam();
+    const shapeBtns=SHAPES.map(([k,n])=>`<button class="t-btn ${k===shape?'on':''}" data-shape="${k}">${n}</button>`).join('');
+    document.getElementById('paneViews').innerHTML = `
+      <div class="t-h">选择几何体</div>
+      <div class="t-btnrow">${shapeBtns}</div>
+      <div class="t-h" style="margin-top:18px">观察方向</div>
+      <div class="t-btnrow">${DIRS.map(([k,n])=>`<button class="t-btn ${k===dir?'on':''}" data-dir="${k}">${n}</button>`).join('')}</div>
+      <div class="t-note">
+        <b>正投影：</b>视线与投影面<b>垂直</b>时看到的形状。<br>
+        记住口诀：<b>长对正、高平齐、宽相等</b>。
+      </div>`;
+
+    document.getElementById('netViews').innerHTML = DIRS.map(([k,n])=>`
+      <div class="viewcard ${k===dir?'active':''}" data-vdir="${k}">
+        <div class="vh"><span class="dir">${{front:'主',top:'俯',left:'左'}[k]}</span>${n}看到的图形</div>
+        <div class="vb">${_projSvg(shape,k)}</div>
+      </div>`).join('') + `<div class="viewcap">点击卡片可切换观察方向</div>`;
+
+    document.getElementById('paneViews').querySelectorAll('[data-shape]').forEach(b=>{
+      b.addEventListener('click',()=>{ shape=b.dataset.shape; render(); });
+    });
+    document.getElementById('paneViews').querySelectorAll('[data-dir]').forEach(b=>{
+      b.addEventListener('click',()=>{ dir=b.dataset.dir; render(); });
+    });
+    document.getElementById('netViews').querySelectorAll('[data-vdir]').forEach(c=>{
+      c.addEventListener('click',()=>{ dir=c.dataset.vdir; render(); });
+    });
+  }
+  T2.views = { group:g3, render, onEnter(){ controls.enableRotate=false; }, onExit(){ controls.enableRotate=true; } };
+})();
+
+/* ==========================================================================
+   模块四：小正方体拼搭
+   ========================================================================== */
+(function(){
+  const g3 = _g(); g3.visible=false;
+  let cells=[];            // [[x,y,z],...] 单位为小方块，y 从 0 起
+  let preset='L';
+  const cubeMat = () => faceMat(PALETTE.cube.main);
+  const edgeMat_ = () => new THREE.MeshStandardMaterial({color:'#1b2537',roughness:0.4,metalness:0.14});
+
+  const PRESETS = {
+    'L':      { name:'L 形（4块）',   cells:[[0,0,0],[1,0,0],[2,0,0],[0,0,1]] },
+    'stair':  { name:'阶梯（6块）',   cells:[[0,0,0],[1,0,0],[2,0,0],[1,1,0],[2,1,0],[2,2,0]] },
+    'cross':  { name:'十字（5块）',   cells:[[1,0,0],[0,0,1],[1,0,1],[2,0,1],[1,0,2]] },
+    'tower':  { name:'立柱+底（5块）',cells:[[0,0,0],[1,0,0],[2,0,0],[1,1,0],[1,2,0]] },
+    'floor':  { name:'田字底（4块）', cells:[[0,0,0],[1,0,0],[0,0,1],[1,0,1]] }
+  };
+
+  function rebuild(){
+    clearGroup(g3);
+    const u=1.02;
+    const em=edgeMat_();
+    cells.forEach(([x,y,z])=>{
+      const c=_cube(1, cubeMat(), x*u, 0.5+y*u, z*u);
+      g3.add(c);
+      g3.add(_boxEdges(1,1,1,em,x*u,0.5+y*u,z*u));
+    });
+    // 网格地台
+    const grid=new THREE.GridHelper(8,8,'#c3d2e6','#e3ebf5');
+    grid.position.y=-0.01; g3.add(grid);
+  }
+
+  /* 由三维占用生成三视图的二维方格（col,row） */
+  function projections(){
+    const set=new Set(cells.map(c=>c.join(',')));
+    const top=new Set(), front=new Set(), left=new Set();
+    set.forEach(k=>{
+      const [x,y,z]=k.split(',').map(Number);
+      top.add(x+','+z);     // 俯视：x-z
+      front.add(x+','+y);   // 主视：x-y
+      left.add(z+','+y);    // 左视：z-y（水平用 z）
+    });
+    const toCells=s=>[...s].map(k=>k.split(',').map(Number));
+    return { top:toCells(top), front:toCells(front), left:toCells(left) };
+  }
+
+  function render(){
+    const p=projections();
+    document.getElementById('paneBuild').innerHTML = `
+      <div class="t-h">选择造型</div>
+      <div class="t-btnrow">${Object.entries(PRESETS).map(([k,v])=>`<button class="t-btn ${k===preset?'on':''}" data-preset="${k}">${v.name}</button>`).join('')}</div>
+      <div class="build-info">
+        <div class="bi"><b>${cells.length}</b><span>小正方体总数</span></div>
+        <div class="bi"><b>${p.front.length}</b><span>主视图格数</span></div>
+        <div class="bi"><b>${p.top.length}</b><span>俯视图格数</span></div>
+      </div>
+      <div class="t-note">
+        <b>观察方法：</b>从正面看，把前后重叠的小正方体<b>压成一个格</b>；<br>
+        从上面看，把上下叠在一起的<b>只算一个格</b>。
+      </div>`;
+    document.getElementById('netBuild').innerHTML = `
+      <div class="t-h">三视图（从三个方向看）</div>
+      <div class="viewcard"><div class="vh"><span class="dir">主</span>从正面看</div>
+        <div class="vb">${_svgCells(p.front,{cell:20,fill:'#dce9fb',stroke:'#2f6fd0'})}</div></div>
+      <div class="viewcard"><div class="vh"><span class="dir">俯</span>从上面看</div>
+        <div class="vb">${_svgCells(p.top,{cell:20,fill:'#dff3ea',stroke:'#2e9e6b'})}</div></div>
+      <div class="viewcard"><div class="vh"><span class="dir">左</span>从左面看</div>
+        <div class="vb">${_svgCells(p.left,{cell:20,fill:'#fdeede',stroke:'#d98b3f'})}</div></div>`;
+    document.getElementById('paneBuild').querySelectorAll('[data-preset]').forEach(b=>{
+      b.addEventListener('click',()=>{ preset=b.dataset.preset; load(); });
+    });
+  }
+  function load(){ cells=PRESETS[preset].cells.map(c=>c.slice()); rebuild(); render(); }
+  T2.build={ group:g3, render, onEnter(){ load(); tweenCam(_v(7,7.5,9),_v(0,0.8,0)); } };
+})();
+
+/* ==========================================================================
+   模块五：正方体展开图全览（11 种 + 错误示例）
+   —— cells 坐标来自折叠算法枚举，均为 [row,col]
+   ========================================================================== */
+(function(){
+  const g3 = _g(); g3.visible=false;
+  const NETS = [
+    { cells:[[0,0],[0,1],[0,2],[1,1],[2,1],[3,1]], type:'1-4-1 型', tag:'丁字' },
+    { cells:[[0,0],[0,1],[0,2],[1,2],[1,3],[1,4]], type:'3-3 型', tag:'错位' },
+    { cells:[[0,0],[0,1],[1,1],[1,2],[1,3],[2,1]], type:'2-3-1 型', tag:'' },
+    { cells:[[0,0],[0,1],[1,1],[1,2],[1,3],[2,2]], type:'2-3-1 型', tag:'' },
+    { cells:[[0,0],[0,1],[1,1],[1,2],[1,3],[2,3]], type:'2-3-1 型', tag:'' },
+    { cells:[[0,0],[0,1],[1,1],[1,2],[2,1],[3,1]], type:'2-2-2 型', tag:'阶梯' },
+    { cells:[[0,0],[0,1],[1,1],[1,2],[2,2],[2,3]], type:'2-2-2 型', tag:'阶梯' },
+    { cells:[[0,0],[0,1],[1,1],[2,1],[2,2],[3,1]], type:'2-2-2 型', tag:'' },
+    { cells:[[0,0],[0,1],[1,1],[2,1],[3,1],[3,2]], type:'2-2-2 型', tag:'' },
+    { cells:[[0,1],[1,0],[1,1],[1,2],[1,3],[2,1]], type:'1-4-1 型', tag:'标准十字' },
+    { cells:[[0,1],[1,0],[1,1],[1,2],[1,3],[2,2]], type:'1-4-1 型', tag:'' }
+  ];
+  const BAD = [
+    { cells:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5]], why:'一排 6 个方格，折叠时首尾两面会<b>重合</b>，无法围成正方体。' },
+    { cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]], why:'出现 <b>2×3 的长方形块</b>，折叠时会有面重叠，不能折成正方体。' },
+    { cells:[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]], why:'含 <b>“田”字形 2×2 方块</b>，一带四角就挤在一起，必然重叠。' },
+    { cells:[[0,1],[1,0],[1,1],[1,2],[2,0],[2,2]], why:'出现 <b>凹形缺口</b>，折叠后有两个面落到同一个位置。' }
+  ];
+  let sel=9, showBad=false;
+  const S=1.0, TH=0.13, GROUND=0.09, DUR=3.2;   // 放慢到约 3.2 秒一趟，便于学生看清每个面立起
+  const FLAT_C=new THREE.Color('#dce9fb');        // 平铺时的淡蓝（与缩略图呼应）
+  const FACE_COLORS=['#5aa9e6','#4fc1ae','#8ac24a','#e9b63f','#e98352','#a988db'].map(c=>new THREE.Color(c));
+  let faceMeshes=[], cellsNow=[], prog=0, dir=0, animating=false, folded=false;
+
+  // 折叠运动学：沿折痕逐面旋转 90°（算法坐标：x=列, y=-行, z=法向）
+  const AX_X=new THREE.Vector3(1,0,0), AX_Y=new THREE.Vector3(0,1,0);
+  const RULES=[
+    {dr:0,dc:1, ax:AX_Y, ang:-Math.PI/2},{dr:0,dc:-1,ax:AX_Y, ang:Math.PI/2},
+    {dr:-1,dc:0,ax:AX_X, ang:Math.PI/2}, {dr:1,dc:0, ax:AX_X, ang:-Math.PI/2}
+  ];
+  function foldStates(cells, t){
+    const key=c=>c[0]+','+c[1], set=new Set(cells.map(key));
+    const cc=cells.reduce((a,c)=>a+c[1],0)/cells.length;
+    const rc=cells.reduce((a,c)=>a+c[0],0)/cells.length;
+    const root=cells[0], out=new Map();
+    out.set(key(root),{ p:new THREE.Vector3(root[1]-cc, -(root[0]-rc), 0), q:new THREE.Quaternion() });
+    const que=[root];
+    while(que.length){
+      const cur=que.shift(), ct=out.get(key(cur));
+      for(const R of RULES){
+        const nb=[cur[0]+R.dr, cur[1]+R.dc];
+        if(!set.has(key(nb))||out.has(key(nb))) continue;
+        let off;
+        if(R.dc===1) off=new THREE.Vector3(1,0,0);
+        else if(R.dc===-1) off=new THREE.Vector3(-1,0,0);
+        else if(R.dr===-1) off=new THREE.Vector3(0,1,0);
+        else off=new THREE.Vector3(0,-1,0);
+        const qf=new THREE.Quaternion().setFromAxisAngle(R.ax, R.ang*t);
+        const half=off.clone().multiplyScalar(0.5);
+        const rel=half.clone().add(half.clone().applyQuaternion(qf));
+        const wp=rel.applyQuaternion(ct.q);
+        out.set(key(nb),{ p:ct.p.clone().add(wp), q:ct.q.clone().multiply(qf) });
+        que.push(nb);
+      }
+    }
+    return out;
+  }
+  // 算法系→世界系：绕 X 轴 -90°（local z 法向 → world y 朝上）
+  const M=new THREE.Quaternion().setFromAxisAngle(AX_X,-Math.PI/2), Mi=M.clone().invert();
+  const ease=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+  function applyFold(t){
+    if(!faceMeshes.length) return;
+    const st=foldStates(cellsNow,t);
+    faceMeshes.forEach(f=>{
+      const s2=st.get(f.key); if(!s2) return;
+      const wp=s2.p.clone().applyQuaternion(M).multiplyScalar(S);
+      wp.y += GROUND;
+      f.mesh.position.copy(wp);
+      f.mesh.quaternion.copy(M.clone().multiply(s2.q).multiply(Mi));
+      // 折叠过程中：淡蓝平铺 → 逐渐染上各自颜色，折好后六面色彩分明
+      if(f.good) f.mesh.material.color.copy(FLAT_C).lerp(FACE_COLORS[f.idx%6],t);
+    });
+    // 描边随折叠淡出：平铺时看清折痕，折好后粗黑边消失，成品干净
+    const em=g3.userData.netEm;
+    if(em) em.opacity = g3.userData.netGood ? 0.9*(1-t) : 0.9-0.45*t;
+  }
+
+  function render3D(){
+    clearGroup(g3); faceMeshes=[]; animating=false; dir=0; prog=0; folded=false;
+    const good=!showBad, item=good?NETS[sel]:BAD[sel];
+    cellsNow=item.cells;
+    g3.userData.netGood=good;
+    const em=new THREE.MeshStandardMaterial({color:good?'#3a6ea5':'#a05252',roughness:0.4,metalness:0.1,transparent:true,opacity:0.9});
+    g3.userData.netEm=em;
+    const base=good?'#dce9fb':'#f9ded9';
+    cellsNow.forEach(([r,c],i)=>{
+      const mat=faceMat(base);                       // 每面独立材质，才能各自染色
+      const mesh=new THREE.Mesh(new THREE.BoxGeometry(S,TH,S),mat);
+      mesh.castShadow=true; mesh.receiveShadow=true;
+      mesh.add(_boxEdges(S,TH,S,em,0,0,0));
+      g3.add(mesh);
+      faceMeshes.push({mesh,key:r+','+c,idx:i,good});
+    });
+    applyFold(0);
+    tweenCam(_v(0.01,9.2,3.4),_v(0,0.2,0));
+    updateFoldBtns();
+  }
+
+  function playFold(d){
+    if(!faceMeshes.length) return;
+    if(d===1 && folded){ prog=0; applyFold(0); }
+    dir=d; animating=true;
+    if(d===1) tweenCam(_v(5.4,5.6,7.2),_v(0,0.55,0));
+    else tweenCam(_v(0.01,9.2,3.4),_v(0,0.2,0));
+    updateFoldBtns();
+  }
+  function step(dt){
+    if(!animating) return;
+    prog += dir*dt/DUR;
+    if(prog>=1){ prog=1; animating=false; folded=true; }
+    if(prog<=0){ prog=0; animating=false; folded=false; }
+    applyFold(ease(prog));
+    if(!animating) updateFoldBtns();
+  }
+  function updateFoldBtns(){
+    const b=document.getElementById('netFoldToggle');
+    if(b) b.textContent = folded?'⟲ 展开回平面图':'▶ 折叠成正方体';
+  }
+
+  function render(){
+    const good=!showBad;
+    document.getElementById('paneNets').innerHTML = `
+      <div class="t-h">类型分布（共 11 种）</div>
+      <div class="t-p" style="margin-bottom:8px">
+        <b>1-4-1 型 6 种</b> · <b>2-3-1 型 3 种</b> · <b>2-2-2 型 1 种</b> · <b>3-3 型 1 种</b>。
+        口诀：<b>“一四一”六种，“二三一”三种，“二二二”“三三”各一种</b>。
+      </div>
+      <div class="t-btnrow">
+        <button class="t-btn ${good?'on':''}" data-nets="good">能折成正方体（11）</button>
+        <button class="t-btn ${!good?'on':''}" data-nets="bad">错误示例（${BAD.length}）</button>
+      </div>
+      <div class="t-btnrow" style="margin-top:8px">
+        <button class="t-btn on" id="netFoldToggle">▶ 折叠成正方体</button>
+        <button class="t-btn" id="netReplay">↻ 重播</button>
+      </div>
+      <div class="t-note">
+        <b>动手看：</b>先点一种展开图选中（左边显示为平面图），再点<b>“折叠成正方体”</b>，6 个面才会沿折痕折起；点“展开回平面图”可还原。
+      </div>`;
+
+    const list = good ? NETS : BAD;
+    const gridHtml = list.map((it,i)=>{
+      const cap=good?`第 ${i+1} 种 · ${it.type}`:`错误 ${i+1}`;
+      return `<div class="netthumb ${i===sel?'on':''} ${good?'':'bad'}" data-net="${i}">
+        <span class="${good?'okmark':'nomark'}">${good?'✓':'✗'}</span>
+        ${_svgCells(it.cells,{cell:15,gap:2,fill:good?'#dce9fb':'#f9ded9',stroke:good?'#2f6fd0':'#c8402f'})}
+        <div class="cap">${cap}</div></div>`;
+    }).join('');
+    document.getElementById('netNets').innerHTML = `<div class="netgrid">${gridHtml}</div><div id="netDetail"></div>`;
+
+    const it=list[sel], d=document.getElementById('netDetail');
+    if(!good){
+      d.innerHTML=`<div class="net-detail"><div class="nd-t bad">✗ 不能折成正方体</div><div class="nd-p">${it.why}</div></div>`;
+    } else {
+      d.innerHTML=`<div class="net-detail"><div class="nd-t good">✓ 第 ${sel+1} 种：${it.type}${it.tag?'（'+it.tag+'）':''}</div>
+        <div class="nd-p">沿虚线折痕把 6 个正方形折起，正好围成一个正方体，<b>不重叠、不缺面</b>。这是 11 种有效展开图之一。点“折叠成正方体”看动画。</div></div>`;
+    }
+    render3D();
+
+    document.getElementById('paneNets').querySelectorAll('[data-nets]').forEach(b=>{
+      b.addEventListener('click',()=>{ showBad=b.dataset.nets==='bad'; sel=0; render(); });
+    });
+    document.getElementById('paneNets').querySelector('#netFoldToggle').addEventListener('click',()=>{
+      playFold(folded?-1:1);
+    });
+    document.getElementById('paneNets').querySelector('#netReplay').addEventListener('click',()=>{
+      prog=0; applyFold(0); folded=false; playFold(1);
+    });
+    document.getElementById('netNets').querySelectorAll('[data-net]').forEach(t=>{
+      t.addEventListener('click',()=>{ sel=+t.dataset.net; render(); });
+    });
+  }
+  T2.nets={ group:g3, render, step };
+})();
+
+/* ==========================================================================
+   模块六：旋转成体（面动成体）
+   ========================================================================== */
+(function(){
+  const g3 = _g(); g3.visible=false;
+  let sel=0, angle=0, playing=true, sweep=null, plane=null;
+  const AX = '#c8402f';
+  const CASES = [
+    { t:'长方形 → 圆柱', d:'长方形绕它的一条边旋转一周，形成一个<b>圆柱</b>。',
+      shape:'rect', body:'圆柱', r:1.3, h:2.6,
+      cols:['#3f52a8','#7486dc','#b6c8f5'], rim:'#a8beff', line:'#3a4a92' },
+    { t:'直角三角形 → 圆锥', d:'直角三角形绕一条直角边旋转一周，形成一个<b>圆锥</b>。',
+      shape:'tri', body:'圆锥', r:1.35, h:2.7,
+      cols:['#bf5230','#ee8b52','#ffcb8e'], rim:'#ffc79a', line:'#a84020' },
+    { t:'直角梯形 → 圆台', d:'直角梯形绕直角腰旋转一周，形成一个<b>圆台</b>。',
+      shape:'trap', body:'圆台', r1:1.4, r2:0.7, h:2.6,
+      cols:['#1c7468','#43ac96','#a6eed0'], rim:'#9ff0d8', line:'#166055' },
+    { t:'半圆 → 球', d:'半圆绕它的直径旋转一周，形成一个<b>球</b>。',
+      shape:'semi', body:'球', r:1.5,
+      cols:['#8a3d82','#c468ac','#f4bcdf'], rim:'#f0b8e0', line:'#7a306f' }
+  ];
+
+  /* 平面→立体 小图示 */
+  function _rotIcon(shape, cfg){
+    const O='#eaa24c', B=cfg.cols[1], LS=cfg.cols[0];
+    let flat='', solid='';
+    if(shape==='rect'){
+      flat=`<rect x="2" y="12" width="11" height="20" rx="1" fill="${O}" opacity=".85" stroke="#b86419" stroke-width="1.2"/>`;
+      solid=`<ellipse cx="46" cy="13" rx="9" ry="3.2" fill="${B}" stroke="${LS}" stroke-width="1.2"/><path d="M37 13 V31 A9 3.2 0 0 0 55 31 V13" fill="${B}" stroke="${LS}" stroke-width="1.2"/><ellipse cx="46" cy="31" rx="9" ry="3.2" fill="${B}" stroke="${LS}" stroke-width="1.2"/>`;
+    } else if(shape==='tri'){
+      flat=`<polygon points="2,32 13,32 2,12" fill="${O}" opacity=".85" stroke="#b86419" stroke-width="1.2" stroke-linejoin="round"/>`;
+      solid=`<ellipse cx="46" cy="32" rx="10" ry="3.4" fill="${B}" stroke="${LS}" stroke-width="1.2"/><path d="M46 8 L36 32 A10 3.4 0 0 0 56 32 Z" fill="${B}" stroke="${LS}" stroke-width="1.2" stroke-linejoin="round"/>`;
+    } else if(shape==='trap'){
+      flat=`<polygon points="2,32 14,32 11,12 2,12" fill="${O}" opacity=".85" stroke="#b86419" stroke-width="1.2" stroke-linejoin="round"/>`;
+      solid=`<ellipse cx="46" cy="32" rx="10" ry="3.4" fill="${B}" stroke="${LS}" stroke-width="1.2"/><path d="M40 13 L36 32 A10 3.4 0 0 0 56 32 L52 13 A6 2.2 0 0 0 40 13 Z" fill="${B}" stroke="${LS}" stroke-width="1.2" stroke-linejoin="round"/><ellipse cx="46" cy="13" rx="6" ry="2.2" fill="${B}" stroke="${LS}" stroke-width="1.2"/>`;
+    } else {
+      flat=`<path d="M2 30 A11 11 0 0 1 24 30 Z" fill="${O}" opacity=".85" stroke="#b86419" stroke-width="1.2"/>`;
+      solid=`<circle cx="46" cy="22" r="11" fill="${B}" stroke="${LS}" stroke-width="1.2"/><ellipse cx="46" cy="22" rx="11" ry="4" fill="none" stroke="${LS}" stroke-width="1" opacity=".5"/>`;
+    }
+    return `<svg viewBox="0 0 60 44">${flat}<path d="M17 22 h8 m-3 -3 l3 3 -3 3" fill="none" stroke="#9fb0c4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>${solid}</svg>`;
+  }
+
+  function build(){
+    clearGroup(g3);
+    const c=CASES[sel];
+    const H = c.shape==='semi' ? c.r*2 : c.h;
+    const R = c.shape==='trap' ? c.r1 : c.r;
+
+    // 地台：淡色圆盘 + 边圈，让立体不悬浮、有落点
+    const disc=new THREE.Mesh(new THREE.CircleGeometry(2.45,64),
+      new THREE.MeshStandardMaterial({color:'#eef3fa',roughness:.95,transparent:true,opacity:.92}));
+    disc.rotation.x=-Math.PI/2; disc.position.y=-0.04; disc.receiveShadow=true; g3.add(disc);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(2.45,0.018,8,64),
+      new THREE.MeshBasicMaterial({color:'#c9d7e8'}));
+    ring.rotation.x=Math.PI/2; ring.position.y=-0.03; g3.add(ring);
+
+    // 旋转轴：红色虚线 + 顶部箭头 + 标签
+    const axis=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([_v(0,-0.15,0),_v(0,H+0.5,0)]),
+      new THREE.LineDashedMaterial({color:AX,dashSize:0.11,gapSize:0.08,linewidth:2,transparent:true,opacity:.95})
+    );
+    axis.computeLineDistances(); g3.add(axis);
+    const cap=new THREE.Mesh(new THREE.ConeGeometry(0.085,0.22,16),new THREE.MeshBasicMaterial({color:AX}));
+    cap.position.set(0,H+0.58,0); g3.add(cap);
+    g3.add(_label('旋转轴',0.42,H*0.72,0,{size:36,height:0.18,color:AX}));
+
+    // 要旋转的平面图形：橙色薄片 + 深色描边，一起放进 spin 组绕轴转
+    let pts2;
+    if(c.shape==='rect') pts2=[[0,0],[c.r,0],[c.r,c.h],[0,c.h]];
+    else if(c.shape==='tri') pts2=[[0,0],[c.r,0],[0,c.h]];
+    else if(c.shape==='trap') pts2=[[0,0],[c.r1,0],[c.r2,c.h],[0,c.h]];
+    else { pts2=[[0,0]]; for(let i=1;i<=20;i++){const th=Math.PI*i/20; pts2.push([Math.sin(th)*c.r, c.r-Math.cos(th)*c.r]);} }
+    const sh=new THREE.Shape();
+    pts2.forEach(([x,y],i)=> i?sh.lineTo(x,y):sh.moveTo(x,y));
+    sh.closePath();
+    const spin=new THREE.Group(); g3.add(spin);
+    const pm=new THREE.MeshPhysicalMaterial({color:'#ffc36b',roughness:.32,clearcoat:.45,
+      side:THREE.DoubleSide,transparent:true,opacity:.95,emissive:'#6b3d00',emissiveIntensity:.06});
+    plane=new THREE.Mesh(new THREE.ShapeGeometry(sh),pm);
+    spin.add(plane);
+    const em=new THREE.MeshBasicMaterial({color:'#b86419',transparent:true,opacity:.95});
+    for(let i=0;i<pts2.length;i++){
+      const a=pts2[i], b=pts2[(i+1)%pts2.length];
+      if(Math.hypot(a[0]-b[0],a[1]-b[1])<1e-4) continue;
+      spin.add(edgeTube(_v(a[0],a[1],0.014),_v(b[0],b[1],0.014),em,0.02));
+    }
+    g3.userData.spin=spin; g3.userData.em=em;
+
+    // 旋转扫掠体：用与成品一致的三段渐变 + 清漆高光，旋转过程中就好看
+    sweep=new THREE.Mesh(new THREE.BufferGeometry(),
+      new THREE.MeshPhysicalMaterial({vertexColors:true,roughness:.24,metalness:.05,
+        clearcoat:.9,clearcoatRoughness:.16,side:THREE.DoubleSide,
+        transparent:true,opacity:.72}));
+    g3.add(sweep);
+    // 扫掠体的菲涅尔边缘光泽，从一开始就随旋转亮起
+    const sweepRim=new THREE.Mesh(new THREE.BufferGeometry(), _rimMaterial(c.rim));
+    sweepRim.scale.setScalar(1.012);
+    g3.add(sweepRim); g3.userData.sweepRim=sweepRim;
+    let lathePts;
+    if(c.shape==='rect') lathePts=[_v2(0,0),_v2(c.r,0),_v2(c.r,c.h),_v2(0,c.h)];
+    else if(c.shape==='tri') lathePts=[_v2(0,0),_v2(c.r,0),_v2(0,c.h)];
+    else if(c.shape==='trap') lathePts=[_v2(0,0),_v2(c.r1,0),_v2(c.r2,c.h),_v2(0,c.h)];
+    else { lathePts=[]; for(let i=0;i<=20;i++){const th=Math.PI*i/20; lathePts.push(_v2(Math.sin(th)*c.r, c.r-Math.cos(th)*c.r));} }
+    g3.userData.lathePts=lathePts;
+
+    // 转满后淡入的成品实体：与旋转过程同款三段渐变 + 清漆高光，无缝衔接
+    const finGeo=_gradColor(_finishedGeo(c,H),c.cols[0],c.cols[1],c.cols[2]);
+    const finMat=new THREE.MeshPhysicalMaterial({vertexColors:true,roughness:.2,metalness:.06,
+      clearcoat:1,clearcoatRoughness:.12,envMapIntensity:1.0,
+      side:THREE.DoubleSide,transparent:true,opacity:0});
+    const finish=new THREE.Mesh(finGeo,finMat);
+    finish.castShadow=true; finish.visible=false; g3.add(finish);
+    g3.userData.finish=finish;
+
+    // 菲涅尔边缘光泽壳：略放大一圈，边缘泛通透光，像宝石/果冻
+    const rim=new THREE.Mesh(_finishedGeo(c,H), _rimMaterial(c.rim));
+    rim.scale.setScalar(1.012);
+    rim.material.uniforms.uIntensity.value=0;
+    rim.visible=false; g3.add(rim); g3.userData.rim=rim;
+
+    // 柔和接触阴影：成品底部"坐"在地台上
+    const shSize=(R+0.35)*2;
+    const shadow=new THREE.Mesh(new THREE.PlaneGeometry(shSize,shSize),
+      new THREE.MeshBasicMaterial({map:_shadowTexture(),transparent:true,opacity:0,depthWrite:false}));
+    shadow.rotation.x=-Math.PI/2; shadow.position.y=-0.02;
+    shadow.visible=false; g3.add(shadow); g3.userData.shadow=shadow;
+
+    // 成品的柔和轮廓线（转满一圈后才显示，勾勒最终形状）
+    const wire=new THREE.LineSegments(new THREE.EdgesGeometry(finGeo,24),
+      new THREE.LineBasicMaterial({color:c.line,transparent:true,opacity:.32}));
+    wire.visible=false; g3.add(wire); g3.userData.wire=wire;
+
+    // 地面旋转方向弧形箭头
+    const ap=[];
+    for(let i=0;i<=30;i++){const t=0.1+Math.PI*1.35*i/30; ap.push(new THREE.Vector3(Math.cos(t)*(R+0.72),0.03,-Math.sin(t)*(R+0.72)));}
+    const arc=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ap),40,0.022,8,false),
+      new THREE.MeshBasicMaterial({color:AX,transparent:true,opacity:.72}));
+    g3.add(arc);
+    const tip=ap[ap.length-1], prev=ap[ap.length-4];
+    const head=new THREE.Mesh(new THREE.ConeGeometry(0.08,0.24,14),new THREE.MeshBasicMaterial({color:AX}));
+    head.position.copy(tip); head.quaternion.setFromUnitVectors(_v(0,1,0),new THREE.Vector3().subVectors(tip,prev).normalize());
+    g3.add(head);
+
+    // 状态文字：旋转中 / 完成后切换
+    const labelY=H + (c.shape==='semi'?0.45:1.05);   // 球较高，标签放低避免顶到页面标题
+    const tBefore=_label('面动成体 · 观察旋转',0,labelY,0,{size:44,height:0.24,color:'#2f6fd0'});
+    const tAfter=_label('形成'+c.body+'！',0,labelY,0,{size:48,height:0.26,color:c.line});
+    tAfter.visible=false; g3.add(tBefore); g3.add(tAfter);
+    g3.userData.tBefore=tBefore; g3.userData.tAfter=tAfter;
+
+    angle=0; playing=true;
+  }
+  function _v2(x,y){ return new THREE.Vector2(x,y); }
+  // 给几何体按高度着三段渐变色（底 → 中 → 顶），通透有层次
+  function _gradColor(geo, cb, cm, ct){
+    const pos=geo.attributes.position;
+    const c1=new THREE.Color(cb), c2=new THREE.Color(cm), c3=new THREE.Color(ct), tmp=new THREE.Color();
+    let ymin=Infinity,ymax=-Infinity;
+    for(let i=0;i<pos.count;i++){const y=pos.getY(i); if(y<ymin)ymin=y; if(y>ymax)ymax=y;}
+    const arr=new Float32Array(pos.count*3);
+    for(let i=0;i<pos.count;i++){
+      const t=ymax>ymin?(pos.getY(i)-ymin)/(ymax-ymin):0;
+      if(t<0.5) tmp.copy(c1).lerp(c2,t*2);
+      else tmp.copy(c2).lerp(c3,(t-0.5)*2);
+      arr[i*3]=tmp.r; arr[i*3+1]=tmp.g; arr[i*3+2]=tmp.b;
+    }
+    geo.setAttribute('color',new THREE.BufferAttribute(arr,3));
+    return geo;
+  }
+  // 菲涅尔边缘光泽材质：让成品边缘泛起一圈通透的宝石光，立体感更强
+  function _rimMaterial(color){
+    return new THREE.ShaderMaterial({
+      uniforms:{ uColor:{value:new THREE.Color(color)}, uPower:{value:2.8}, uIntensity:{value:0} },
+      vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); vN=normalize(normalMatrix*normal); vV=-mv.xyz; gl_Position=projectionMatrix*mv; }',
+      fragmentShader:'uniform vec3 uColor; uniform float uPower; uniform float uIntensity; varying vec3 vN; varying vec3 vV; void main(){ float f=pow(1.0-abs(dot(normalize(vN),normalize(vV))),uPower); gl_FragColor=vec4(uColor,f*uIntensity); }',
+      transparent:true, depthWrite:false, side:THREE.FrontSide
+    });
+  }
+  // 柔和接触阴影贴图：让成品"坐"在地台上，更真实
+  function _shadowTexture(){
+    const cv=document.createElement('canvas'); cv.width=cv.height=128;
+    const ctx=cv.getContext('2d');
+    const g=ctx.createRadialGradient(64,64,6,64,64,62);
+    g.addColorStop(0,'rgba(28,72,104,0.40)');
+    g.addColorStop(0.5,'rgba(28,72,104,0.16)');
+    g.addColorStop(1,'rgba(28,72,104,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,128,128);
+    return new THREE.CanvasTexture(cv);
+  }
+  // 转满后用的标准成品几何体（平滑、无扫掠放射纹）
+  function _finishedGeo(c, H){
+    let g;
+    if(c.shape==='rect') g=new THREE.CylinderGeometry(c.r,c.r,c.h,64,1);
+    else if(c.shape==='tri') g=new THREE.ConeGeometry(c.r,c.h,64,1);
+    else if(c.shape==='trap') g=new THREE.CylinderGeometry(c.r2,c.r1,c.h,64,1);
+    else g=new THREE.SphereGeometry(c.r,48,32);
+    g.translate(0,H/2,0);   // 底部对齐到 y=0
+    return g;
+  }
+
+  function step(dt){
+    if(!sweep) return;
+    if(playing){ angle+=dt*0.75; if(angle>Math.PI*2+0.01){ angle=Math.PI*2; playing=false; } }
+    const phi=Math.min(angle,Math.PI*2);
+    const done = angle>=Math.PI*2-0.02;
+    // Lathe 默认从 +Z 起扫，薄片初始在 +X 平面。用 phiStart=+π/2 让旋转体
+    // 也从 +X 起步，并与薄片同向（都朝 -Z）旋转，二者始终贴合不再"对冲"。
+    if(!done){
+      const c=CASES[sel];
+      let geo=new THREE.LatheGeometry(g3.userData.lathePts,48,Math.PI/2,Math.max(phi,0.001));
+      geo=_gradColor(geo,c.cols[0],c.cols[1],c.cols[2]);   // 过程中就是三段渐变彩体
+      if(sweep.geometry) sweep.geometry.dispose();
+      sweep.geometry=geo;
+      sweep.material.opacity = 0.62 + 0.2*Math.min(1,phi/(Math.PI*2));  // 较饱满，质感在线
+      sweep.visible=true;
+      // 扫掠体的菲涅尔光泽随旋转亮起（与成品同色系）
+      const sr=g3.userData.sweepRim;
+      if(sr){
+        sr.geometry=geo;   // 与扫掠体共享同一份渐变几何体
+        sr.material.uniforms.uIntensity.value=Math.min(.8,phi/(Math.PI*2)*.8);
+        sr.visible=true;
+      }
+    } else {
+      sweep.visible=false;                 // 转满后交给成品实体
+      if(g3.userData.sweepRim) g3.userData.sweepRim.visible=false;
+    }
+    // 薄片与旋转体完全同步同向旋转；转到背面时逐渐淡出，最后收进立体
+    const spin=g3.userData.spin, em=g3.userData.em;
+    if(spin){
+      spin.rotation.y=angle;
+      const fade = angle<Math.PI ? 0.95 : Math.max(0,0.95-(angle-Math.PI)*0.95/(Math.PI*0.9));
+      plane.material.opacity=fade; em.opacity=fade;
+      spin.visible = angle<Math.PI*2-0.05 && fade>0.01;
+    }
+    // 成品实体淡入（0→1），光泽壳/接触阴影/轮廓线同步柔和浮现
+    const finish=g3.userData.finish;
+    if(finish){
+      finish.visible=done || finish.material.opacity>0.01;
+      if(done) finish.material.opacity=Math.min(1,finish.material.opacity+dt*1.6);
+      else finish.material.opacity=0;
+    }
+    const rim=g3.userData.rim;
+    if(rim){
+      rim.visible=done || rim.material.uniforms.uIntensity.value>0.01;
+      if(done) rim.material.uniforms.uIntensity.value=Math.min(.85,rim.material.uniforms.uIntensity.value+dt*1.3);
+      else rim.material.uniforms.uIntensity.value=0;
+    }
+    const shadow=g3.userData.shadow;
+    if(shadow){
+      shadow.visible=done || shadow.material.opacity>0.01;
+      if(done) shadow.material.opacity=Math.min(.9,shadow.material.opacity+dt*1.4);
+      else shadow.material.opacity=0;
+    }
+    if(g3.userData.wire){
+      g3.userData.wire.visible=done;
+      if(done) g3.userData.wire.material.opacity=Math.min(.3,(g3.userData.wire.material.opacity||0)+dt*0.6);
+    }
+    if(g3.userData.tBefore) g3.userData.tBefore.visible=!done;
+    if(g3.userData.tAfter) g3.userData.tAfter.visible=done;
+  }
+
+  function render(){
+    document.getElementById('paneRotate').innerHTML = `
+      <div class="t-h">旋转题</div>
+      <div class="rot-list">${CASES.map((c,i)=>`<div class="rot-item ${i===sel?'on':''}" data-rot="${i}">
+        <div class="rt"><span class="rno">${i+1}</span>${c.t}</div>
+        <div class="rd">${c.d}</div>
+        <div class="rot-thumb">${_rotIcon(c.shape,c)}</div></div>`).join('')}</div>
+      <div class="rot-play">
+        <button class="t-btn ${playing?'on':''}" id="rotToggle">${playing?'暂停':'播放'}</button>
+        <button class="t-btn" id="rotReset">重新旋转</button>
+      </div>
+      <div class="t-note"><b>要点：</b>点动成线，线动成面，<b>面动成体</b>。旋转时，轴不动，图形绕轴转一圈。</div>`;
+    document.getElementById('netRotate').innerHTML = `
+      <div class="t-p">观察左边的平面图形（带阴影的薄片）绕<b style="color:${AX}">红色虚线</b>旋转。<br>
+      转过的轨迹逐渐“扫出”一个立体图形。</div>
+      <div class="net-detail"><div class="nd-t good">本题：${CASES[sel].t}</div>
+        <div class="nd-p">${CASES[sel].d}</div></div>`;
+    document.getElementById('paneRotate').querySelectorAll('[data-rot]').forEach(it=>{
+      it.addEventListener('click',()=>{ sel=+it.dataset.rot; build(); render(); });
+    });
+    document.getElementById('rotToggle').addEventListener('click',e=>{
+      playing=!playing; e.target.textContent=playing?'暂停':'播放'; e.target.classList.toggle('on',playing);
+    });
+    document.getElementById('rotReset').addEventListener('click',()=>{ build(); render(); });
+  }
+  T2.rotate={ group:g3, render, step, onEnter(){ build(); tweenCam(_v(5.2,4.8,8.2),_v(0,1.5,0)); } };
+})();
+
+/* ==========================================================================
+   模式调度
+   ========================================================================== */
+(function(){
+  const ALL_GROUPS=[T2.compare.group,T2.views.group,T2.build.group,T2.nets.group,T2.rotate.group];
+  const NOTE_ID='stageNote';
+
+  function hideAllT2(){
+    ALL_GROUPS.forEach(g=>g.visible=false);
+  }
+  function setStageNote(html){
+    const n=document.getElementById(NOTE_ID);
+    if(html){ n.innerHTML=html; n.style.display='block'; }
+    else { n.style.display='none'; n.innerHTML=''; }
+  }
+  function setVpTools(mode){
+    // 非“立体图形”模式下，隐藏展开/正视/自动旋转，避免干扰
+    const vt=document.querySelector('.vtools');
+    const stats=document.getElementById('stats');
+    const hint=document.querySelector('.hint');
+    const isSolid=mode==='solid';
+    if(vt) vt.style.display=isSolid?'':'none';
+    if(stats) stats.style.display=isSolid?'':'none';
+    if(hint) hint.style.display=isSolid?'':'none';
+    document.body.classList.toggle('t2-mode',!isSolid);
+  }
+
+  function switchMode(mode){
+    T2MODE=mode;
+    document.querySelectorAll('.modebtn').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
+    document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.dataset.pane===mode));
+    document.querySelectorAll('.npane').forEach(p=>p.classList.toggle('on',p.dataset.npane===mode));
+    hideAllT2();
+
+    if(mode==='solid'){
+      document.getElementById('vpName').textContent='立体图形';
+      setStageNote('');
+      setVpTools('solid');
+      // 恢复原立体图形：重新选中当前 id
+      const keep = (SOLIDS[state.id]||state.id==='plsb') ? state.id : 'cube';
+      document.body.classList.remove('dyn-mode');
+      selectSolid(keep);
+      // 恢复默认相机
+      const {pos,tgt}=camFor(keep);
+      tweenCam(pos,tgt);
+      return;
+    }
+
+    // 退出原立体状态
+    unfold.t=0; unfold.target=0; unfold.active=false; netBuilder=null;
+    netGrp.visible=false; solidGrp.visible=false; auxGrp.visible=false; dynGrp.visible=false;
+    DYN.playing=false;
+    document.body.classList.remove('dyn-mode');
+    setVpTools(mode);
+
+    const mod=T2[mode];
+    mod.group.visible=true;
+    controls.enableRotate=true;               // 默认允许拖动；三视图模块会自行关闭
+    if(mod.onEnter) mod.onEnter();
+    mod.render();
+
+    const titles={compare:'立体图形 vs 平面图形',views:'三视图 · 从不同方向观察',build:'小正方体拼搭',nets:'正方体展开图全览',rotate:'旋转成体 · 面动成体'};
+    document.getElementById('vpName').textContent=titles[mode];
+    setStageNote(mode==='views'?'<b>拖动漫画外的立体</b>看看形状，再看右侧三张正投影图。<br>点方向按钮，相机会转到对应的观察位置。'
+      : '');
+  }
+
+  // 绑定模式按钮
+  document.querySelectorAll('.modebtn').forEach(b=>{
+    b.addEventListener('click',()=>switchMode(b.dataset.mode));
+  });
+
+  // 每帧驱动旋转模块
+  const _tick=window.__t2Hook=null;
+  window.__t2Tick=function(dt){ if(T2MODE==='rotate') T2.rotate.step(dt); if(T2MODE==='nets') T2.nets.step(dt); };
+
+  // 初始：保持原课件“立体图形”模式，不做改动（init 已 selectSolid）
+
+  T2.switchMode=switchMode;
+})();
+
 
 /* ---- 初始化（支持 URL 参数直接定位） ---- */
 (function init() {

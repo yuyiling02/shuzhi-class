@@ -1,488 +1,1533 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>集合与韦恩图 · 动态可视化讲解 Demo</title>
-<style>
-  :root{
-    --bg:#f5f7fa; --card:#fff; --ink:#1e293b; --muted:#64748b;
-    --line:#e2e8f0; --brand:#2563eb; --hl:#ef4444;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
-  body{background:var(--bg);color:var(--ink);padding-bottom:40px}
-  header{background:linear-gradient(120deg,#1e3a8a,#2563eb 60%,#0ea5e9);color:#fff;padding:18px 28px}
-  header h1{font-size:20px;font-weight:700}
-  header p{font-size:13px;opacity:.85;margin-top:4px}
-  main{max-width:1320px;margin:0 auto;padding:22px}
-  .grid{display:grid;gap:18px}
-  .top{grid-template-columns:300px 1fr}
-  .bot{grid-template-columns:1fr 320px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-  .card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .tag{font-size:11px;background:#eff6ff;color:var(--brand);padding:2px 8px;border-radius:20px;font-weight:400}
-  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
-  .seg button{flex:1;border:none;background:#fff;padding:8px;font-size:13px;color:var(--muted);cursor:pointer}
-  .seg button.on{background:var(--brand);color:#fff;font-weight:700}
-  .ops{display:flex;flex-direction:column;gap:7px}
-  .ops button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 12px;font-size:13.5px;
-    text-align:left;cursor:pointer;transition:.12s;color:var(--ink)}
-  .ops button:hover{border-color:var(--brand);background:#f8fafc}
-  .ops button.on{background:#fef2f2;border-color:var(--hl);color:#b91c1c;font-weight:700}
-  .ops button small{color:var(--muted);font-weight:400;margin-left:6px}
-  .data-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-  @media (max-width:900px){ .data-grid{grid-template-columns:repeat(2,1fr)} }
-  .stage{display:flex;flex-direction:column;gap:16px;align-items:stretch;max-width:780px;margin:0 auto}
-  .svgwrap{min-width:0}
-  svg{width:100%;max-width:600px;display:block;margin:0 auto}
-  .explain{min-width:0;font-size:14px;line-height:1.9;text-align:left;
-    border-top:1px solid var(--line);padding-top:14px}
-  .explain-txt{font-size:16.5px;line-height:2;margin-top:8px;color:#1f2937}
-  .legend{display:flex;gap:14px;justify-content:center;font-size:13px;margin-top:6px;flex-wrap:wrap}
-  .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
-  .btn{background:var(--brand);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13.5px;cursor:pointer}
-  .btn:hover{background:#1d4ed8}
-  .btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
-  .btn.ghost:hover{background:#eff6ff}
-  .btn.play{background:#0f766e}
-  .btn.play:hover{background:#0b5e58}
-  .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
-  th{color:var(--muted);font-weight:600;font-size:12.5px}
-  td b{color:var(--brand)}
-  .hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7}
-  .switch{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;
-    border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-top:12px;cursor:pointer;user-select:none}
-  .switch input{display:none}
-  .track{width:40px;height:22px;border-radius:20px;background:#cbd5e1;position:relative;transition:.2s;flex:0 0 auto}
-  .track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
-    background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
-  .switch input:checked + .track{background:var(--brand)}
-  .switch input:checked + .track::after{transform:translateX(18px)}
-  .colors{display:flex;gap:14px;margin-top:10px;font-size:13px;color:var(--muted);align-items:center;flex-wrap:wrap}
-  .colors label{display:flex;align-items:center;gap:6px;cursor:pointer}
-  .colors input[type=color]{width:26px;height:26px;border:1px solid var(--line);border-radius:7px;background:none;padding:2px;cursor:pointer}
-  .fld{margin-bottom:10px}
-  .fld span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
-  input[type=text]{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:13px;font-family:inherit}
-  input[type=text]:focus{outline:2px solid #bfdbfe}
-  .note{font-size:13.5px;line-height:2}
-  .kp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
-  .kp .box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#f8fafc}
-  .kp h4{font-size:13px;margin-bottom:6px;color:var(--brand)}
-  .kp ul{margin:0;padding-left:18px;font-size:13px;line-height:2;color:#334155}
-  text.el{cursor:pointer}
-  text.el:hover{opacity:.6}
-  .anim{animation:pulse 1.8s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:.30}50%{opacity:.5}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070b14'/><circle cx='13' cy='16' r='9' stroke='%2338bdf8' stroke-width='2' fill='none'/><circle cx='19' cy='16' r='9' stroke='%23fbbf24' stroke-width='2' fill='none'/></svg>" />
+  <title>高一 · 集合的基本运算</title>
+
+  <script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$']] },
+    svg: { fontCache: 'global' }
+  };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+  <style>
+:root {
+  --bg: #070b14;
+  --bg-radial: radial-gradient(1200px 600px at 20% 0%, rgba(56, 189, 248, 0.12), transparent 60%),
+               radial-gradient(900px 500px at 85% 100%, rgba(167, 139, 250, 0.10), transparent 60%);
+  --surface: rgba(15, 23, 42, 0.78);
+  --surface-solid: #0f172a;
+  --surface-2: rgba(30, 41, 59, 0.65);
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(56, 189, 248, 0.42);
+  --ink: #f1f5f9;
+  --ink-2: #94a3b8;
+  --ink-3: #64748b;
+  --cyan: #38bdf8;
+  --cyan-glow: rgba(56, 189, 248, 0.35);
+  --purple: #a78bfa;
+  --pink: #f472b6;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --red: #fb7185;
+  --grid-line: rgba(148, 163, 184, 0.16);
+  --grid-axis: rgba(226, 232, 240, 0.68);
+  --canvas-bg: #050912;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --bg-radial: radial-gradient(1100px 520px at 15% 0%, rgba(37, 99, 235, 0.08), transparent 60%),
+               radial-gradient(900px 500px at 90% 100%, rgba(124, 58, 237, 0.06), transparent 60%);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --surface-2: rgba(241, 245, 249, 0.9);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(37, 99, 235, 0.4);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #94a3b8;
+  --cyan: #0284c7;
+  --cyan-glow: rgba(2, 132, 199, 0.22);
+  --purple: #7c3aed;
+  --pink: #db2777;
+  --amber: #d97706;
+  --green: #059669;
+  --red: #e11d48;
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --grid-axis: rgba(15, 23, 42, 0.28);
+  --canvas-bg: #ffffff;
+  --shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
+
+/* 集合专用主题变量 */
+:root { --venn-box:#050912; --venn-border:#334155; --venn-hl:#ef4444; --venn-hl-on:#fb7185; }
+[data-theme="light"] { --venn-box:#ffffff; --venn-border:#cbd5e1; --venn-hl:#ef4444; --venn-hl-on:#b91c1c; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image: var(--bg-radial);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.app { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+/* Header */
+.topbar {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--border);
+  background: var(--surface); backdrop-filter: blur(14px); z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.back-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink-2); text-decoration: none;
+  font-size: 15px; transition: .16s;
+}
+.back-link:hover { border-color: var(--border-strong); color: var(--cyan); }
+.grade-pill {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px;
+  border-radius: 999px; background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3); color: var(--cyan); white-space: nowrap;
+}
+.title-group h1 {
+  font-size: 16px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.seg-tabs {
+  display: inline-flex; padding: 3px; border-radius: 11px;
+  background: var(--surface-2); border: 1px solid var(--border); gap: 2px;
+}
+.seg-btn {
+  border: none; background: transparent; color: var(--ink-2); font-family: inherit;
+  font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 8px;
+  cursor: pointer; transition: .16s; white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active {
+  background: var(--cyan); color: #061220; font-weight: 700;
+  box-shadow: 0 2px 10px var(--cyan-glow);
+}
+[data-theme="light"] .seg-btn.active { color: #fff; }
+.icon-btn {
+  display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--ink-2); font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: .16s; white-space: nowrap;
+}
+.icon-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+.icon-btn.on { border-color: var(--cyan); background: rgba(56, 189, 248, 0.15); color: var(--cyan); }
+
+/* Workspace */
+.workspace { flex: 1; min-height: 0; display: flex; position: relative; padding: 12px; gap: 12px; }
+.stage-shell {
+  flex: 1; min-width: 0; min-height: 0; position: relative; border-radius: 18px;
+  border: 1px solid var(--border); background: var(--canvas-bg);
+  box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+}
+
+/* 几何图（SVG）—— 颜色全部跟随主题变量 */
+#fig { width: 100%; height: 100%; flex: 1; min-height: 0; display: block; cursor: default; }
+#fig text.el { cursor: pointer; }
+#fig text.el:hover { opacity: .6; }
+.anim { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity:.30 } 50% { opacity:.5 } }
+mjx-container, .formula-pill mjx-container, .stat-label mjx-container, .quiz-formula mjx-container, .quiz-opt mjx-container {
+  color: inherit; font-family: inherit;
+}
+mjx-container { font-size: 1em !important; }
+mjx-container[display="true"] { margin: .35em 0 !important; }
+mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; color: var(--ink); }
+
+/* Floating HUD */
+.hud-top-left {
+  position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column;
+  gap: 8px; pointer-events: none; z-index: 5; max-width: min(560px, calc(100% - 28px));
+}
+.hud-top-left > * { pointer-events: auto; }
+.formula-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: 14px; background: var(--surface); border: 1px solid var(--border);
+  backdrop-filter: blur(12px); font-family: "Cambria Math", "Times New Roman", "PingFang SC", serif;
+  font-size: clamp(16px, 2vw, 24px); font-weight: 700; letter-spacing: .02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22); width: fit-content;
+}
+.formula-pill .setop { color: var(--cyan); font-weight: 800; }
+.formula-pill .setname-a { color: var(--cyan); }
+.formula-pill .setname-b { color: var(--amber); }
+.formula-pill .setname-c { color: var(--purple); }
+.probe-pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+  border-radius: 10px; background: var(--surface); border: 1px solid var(--border);
+  backdrop-filter: blur(10px); font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  font-variant-numeric: tabular-nums; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); width: fit-content;
+}
+.probe-pill b { color: var(--cyan); font-weight: 800; }
+.hud-bottom-left {
+  position: absolute; bottom: 14px; left: 14px; display: flex; align-items: center;
+  gap: 8px; z-index: 5; flex-wrap: wrap; max-width: calc(100% - 28px);
+}
+.hud-bottom-left .btn { flex: none; white-space: nowrap; }
+.hud-bottom-right {
+  position: absolute; bottom: 14px; right: 14px; z-index: 5; font-size: 12px;
+  color: var(--ink-3); background: var(--surface); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 999px; backdrop-filter: blur(8px);
+}
+.hud-top-right {
+  position: absolute; top: 14px; right: 14px; z-index: 10; display: flex;
+  flex-direction: column; align-items: flex-end; gap: 9px;
+  max-width: min(424px, calc(100% - 28px)); pointer-events: none;
+}
+.hud-top-right > * { pointer-events: auto; }
+.kp-hint {
+  display: none; align-items: center; gap: 8px; max-width: 394px; padding: 8px 12px;
+  border-radius: 12px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border);
+  color: var(--ink); font-size: 12.6px; font-weight: 600; line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32); animation: kpPop .24s ease;
+  transition: opacity .45s ease, transform .45s ease;
+}
+.kp-hint.show { display: flex; }
+.kp-hint .ico { flex: none; font-size: 11px; line-height: 1; }
+.kp-hint.fade { opacity: 0; transform: translateY(-4px); }
+.hud-top-right:hover .kp-hint.fade { opacity: 1; transform: none; }
+.kp-hint:hover { opacity: 1; transform: none; }
+.kp-hint .num {
+  flex: none; width: 16px; height: 16px; display: grid; place-items: center;
+  border-radius: 50%; border: 1.4px solid currentColor; font-size: 9.5px; font-weight: 800; color: var(--cyan);
+}
+.kp-hint b { color: var(--cyan); }
+.kp-hint .nw { white-space: nowrap; }
+.kp-hint.down .num, .kp-hint.down b { color: var(--pink); }
+.kp-hint .kp-a {
+  flex: none; margin-left: 2px; padding: 1px 8px; border-radius: 999px;
+  background: rgba(56, 189, 248, 0.16); color: var(--cyan); font-size: 11.5px;
+  font-weight: 800; font-variant-numeric: tabular-nums;
+}
+[data-theme="light"] .kp-hint { background: rgba(255, 255, 255, 0.97); box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1); }
+@media (max-width: 1180px) { .kp-hint { max-width: 296px; font-size: 12px; padding: 7px 10px; } }
+@keyframes kpPop { from { opacity: 0; transform: translateY(-5px); } }
+
+.alert-banner {
+  max-width: 336px; padding: 10px 14px; border-radius: 12px;
+  background: rgba(225, 29, 72, 0.16); border: 1px solid rgba(251, 113, 133, 0.55);
+  color: #fecdd3; font-size: 13px; font-weight: 600; line-height: 1.5;
+  backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(225, 29, 72, 0.22);
+  display: none; animation: shakeIn .32s ease;
+}
+[data-theme="light"] .alert-banner { background: rgba(255, 241, 242, 0.95); color: #be123c; }
+.alert-banner.show { display: block; }
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); } 40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
+}
+
+/* Side drawer */
+.side-drawer {
+  width: 368px; min-width: 0; flex: none; display: flex; flex-direction: column;
+  gap: 10px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent; transition: width .22s ease, opacity .2s ease;
+}
+.side-drawer::-webkit-scrollbar { width: 6px; }
+.side-drawer::-webkit-scrollbar-track { background: transparent; }
+.side-drawer::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+.app.presentation .side-drawer { display: none; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 15px; backdrop-filter: blur(12px);
+}
+.card-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 13px; font-weight: 700; color: var(--ink-2); text-transform: uppercase;
+  letter-spacing: .05em; margin-bottom: 10px;
+}
+/* 可折叠卡片：默认只显示标题按钮 */
+.card.collapsible { padding: 0; overflow: hidden; }
+.card.collapsible > .card-title {
+  margin: 0; padding: 12px 15px; cursor: pointer; user-select: none;
+  border-radius: 16px; transition: background .15s ease;
+}
+.card.collapsible > .card-title:hover { background: var(--surface-2); }
+.card.collapsible > .card-title .title-main { display: inline-flex; align-items: center; gap: 8px; }
+.card.collapsible > .card-title .caret {
+  flex: none; font-size: 13px; color: var(--ink-2); transition: transform .2s ease;
+}
+.card.collapsible:not(.collapsed) > .card-title .caret { transform: rotate(90deg); }
+.card.collapsible > .card-body { padding: 0 15px 14px; display: none; }
+.card.collapsible:not(.collapsed) > .card-body { display: block; }
+.badge {
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--cyan); border: 1px solid var(--border);
+  text-transform: none; letter-spacing: 0;
+}
+
+/* Sliders */
+.slider-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+.slider-row:last-child { margin-bottom: 0; }
+.slider-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.slider-head .name { color: var(--ink-2); font-weight: 600; }
+.slider-head .val { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 15px; color: var(--cyan); }
+input[type="range"].lab-range {
+  width: 100%; appearance: none; height: 6px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--border); outline: none; cursor: pointer;
+}
+input[type="range"].lab-range::-webkit-slider-thumb {
+  appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--cyan);
+  border: 2px solid #fff; box-shadow: 0 0 12px var(--cyan-glow); cursor: grab; transition: transform .12s;
+}
+input[type="range"].lab-range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* Buttons */
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink);
+  font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 12px;
+  border-radius: 10px; cursor: pointer; transition: .15s; white-space: nowrap; backdrop-filter: blur(10px);
+}
+.btn:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.btn.primary {
+  background: var(--cyan); border-color: var(--cyan); color: #061220; font-weight: 700;
+  box-shadow: 0 4px 16px var(--cyan-glow);
+}
+[data-theme="light"] .btn.primary { color: #fff; }
+.btn.amber { background: rgba(251, 191, 36, 0.16); border-color: rgba(251, 191, 36, 0.45); color: var(--amber); }
+.btn.green { background: rgba(52, 211, 153, 0.16); border-color: rgba(52, 211, 153, 0.45); color: var(--green); }
+.btn.active { border-color: var(--cyan); background: rgba(56, 189, 248, 0.18); color: var(--cyan); }
+
+/* 读数 */
+.probe-tip { font-size: 12px; color: var(--ink-3); line-height: 1.5; margin: -2px 0 10px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-box {
+  padding: 9px 11px; border-radius: 11px; background: var(--surface-2);
+  border: 1px solid var(--border); min-width: 0;
+}
+.stat-box .k { font-size: 11.5px; color: var(--ink-3); }
+.stat-box .v {
+  font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.prop-list { margin-top: 10px; padding-top: 6px; border-top: 1px dashed var(--border); }
+.prop-row { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12.4px; line-height: 1.5; }
+.prop-row:last-child { border-bottom: none; }
+.prop-row .pk { flex: none; width: 66px; color: var(--ink-3); font-weight: 600; }
+.prop-row .pv { flex: 1; color: var(--ink-2); font-weight: 600; }
+
+/* 实时数据面板 */
+.drow { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; font-size: 13.5px; color: var(--ink-2); }
+.drow .stat-label { display: inline-flex; align-items: baseline; gap: 3px; }
+.drow b { font-size: 18px; font-variant-numeric: tabular-nums; font-weight: 800; }
+.bar { height: 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin: 2px 0 8px; }
+.bar i { display: block; height: 100%; border-radius: 20px; transition: width .12s; }
+.cmp {
+  background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: 10px;
+  padding: 9px 10px; text-align: center; font-size: 15px; margin: 10px 0 8px; color: var(--ink);
+  font-variant-numeric: tabular-nums; display: flex; align-items: center; justify-content: center;
+  gap: 6px; flex-wrap: wrap;
+}
+.cmp b { font-variant-numeric: tabular-nums; }
+.eqnote { font-size: 12.5px; color: var(--ink-3); line-height: 1.7; }
+.eqnote.eq { color: var(--green); font-weight: 700; }
+
+/* Predict-Observe-Explain */
+.predict-q { font-size: 14px; font-weight: 700; line-height: 1.55; margin-bottom: 10px; }
+.predict-opts { display: flex; flex-direction: column; gap: 7px; margin-bottom: 11px; }
+.predict-opt {
+  text-align: left; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink); font-family: inherit; font-size: 13px;
+  line-height: 1.5; cursor: pointer; transition: .15s;
+}
+.predict-opt:hover { border-color: var(--border-strong); }
+.predict-opt.picked { border-color: var(--cyan); background: rgba(56, 189, 248, 0.16); font-weight: 700; }
+.predict-opt.correct { border-color: var(--green); background: rgba(52, 211, 153, 0.18); color: var(--green); }
+.predict-opt.wrong { border-color: var(--red); background: rgba(251, 113, 133, 0.15); color: var(--red); }
+.predict-feedback {
+  font-size: 13px; line-height: 1.65; color: var(--ink-2); padding: 10px 12px;
+  border-radius: 10px; background: var(--surface-2); border-left: 3px solid var(--cyan);
+  margin-top: 10px; display: none;
+}
+.predict-feedback.show { display: block; }
+
+.toast {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-16px);
+  z-index: 30; padding: 10px 20px; border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #06b6d4); color: #fff; font-size: 14px; font-weight: 700;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35); opacity: 0; pointer-events: none;
+  transition: .28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 连续演示 */
+.morph-hud {
+  position: absolute; left: 14px; right: 14px; bottom: 62px; z-index: 6; display: none;
+  flex-direction: column; align-items: center; gap: 9px; pointer-events: none;
+}
+.morph-hud.show { display: flex; }
+.morph-hint {
+  font-size: 12.5px; line-height: 1.7; text-align: center; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 8px 15px; backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  max-width: min(760px, 100%);
+}
+.morph-hint b { color: var(--cyan); font-weight: 800; }
+
+@media (max-width: 960px) { .workspace { flex-direction: column; } .side-drawer { width: 100%; max-height: 44%; } .hud-bottom-right { display: none; } }
+@media (max-width: 1180px) {
+  .topbar { padding: 9px 12px; gap: 8px; }
+  .topbar-actions { gap: 6px; flex-wrap: nowrap; }
+  .topbar-actions .icon-btn { padding: 0 8px; font-size: 11.5px; }
+  .seg-btn { padding: 5px 8px; font-size: 11.5px; }
+  .brand { gap: 6px; } .title-group h1 { font-size: 14px; }
+  .grade-pill { font-size: 11px; padding: 2px 7px; } .hud-bottom-right { display: none; }
+}
+  </style>
+
+  <style>
+    /* ===== 集合格式补充样式 ===== */
+    .op-list { display: flex; flex-direction: column; gap: 6px; }
+    .op-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left;
+      border: 1px solid var(--border); background: var(--surface-2); color: var(--ink);
+      border-radius: 10px; padding: 8px 11px; font-family: inherit; font-size: 13.5px;
+      cursor: pointer; transition: .15s;
+    }
+    .op-btn:hover:not(.on) { border-color: var(--border-strong); }
+    .op-btn.on { border-color: var(--cyan); background: rgba(56, 189, 248, 0.16); color: var(--cyan); font-weight: 700; }
+    .op-btn small { color: var(--ink-3); font-weight: 600; font-size: 11.5px; }
+    .op-btn.on small { color: var(--cyan); }
+
+    .field { margin-bottom: 9px; }
+    .field > span { display: block; font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+    .field input[type=text] {
+      width: 100%; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2);
+      color: var(--ink); font-family: inherit; font-size: 12.5px; padding: 8px 10px; outline: none;
+    }
+    .field input[type=text]:focus { border-color: var(--border-strong); }
+    .hint-sm { font-size: 11.5px; color: var(--ink-3); line-height: 1.65; margin-top: 8px; }
+    .hint-sm b { color: var(--ink-2); }
+
+    .sw-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      font-size: 12.5px; color: var(--ink-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 11px; margin: 10px 0; cursor: pointer; user-select: none;
+    }
+    .sw-row input { display: none; }
+    .sw-row .track {
+      width: 36px; height: 20px; border-radius: 20px; background: var(--surface-2);
+      border: 1px solid var(--border); position: relative; flex: none; transition: .2s;
+    }
+    .sw-row .track::after {
+      content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--ink-3); transition: .2s;
+    }
+    .sw-row input:checked + .track { background: var(--cyan); border-color: var(--cyan); }
+    .sw-row input:checked + .track::after { transform: translateX(16px); background: #061220; }
+    [data-theme="light"] .sw-row input:checked + .track::after { background: #fff; }
+
+    .color-row { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--ink-3); align-items: center; margin-top: 6px; }
+    .color-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+    .color-row input[type=color] { width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 7px; background: none; padding: 2px; cursor: pointer; }
+
+    /* 概念梳理步骤条目 */
+    .sb { font-size: 13px; line-height: 1.85; color: var(--ink-2); margin-bottom: 12px; border-radius: 8px; padding: 2px 6px; }
+    .sb:last-child { margin-bottom: 0; }
+    .sb b { color: var(--red); }
+  </style>
+
+  <style>
+    .quiz-backdrop {
+      position: fixed; inset: 0; z-index: 60; background: rgba(3, 7, 18, 0.72);
+      backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .quiz-backdrop.open { display: flex; }
+    .quiz-modal {
+      width: min(560px, 100%); background: var(--surface-solid); border: 1px solid var(--border-strong);
+      border-radius: 22px; padding: 24px 26px; box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+      animation: popIn .22s cubic-bezier(0.22, 1, 0.36, 1); position: relative;
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .quiz-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .quiz-close {
+      width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--ink-2); font-size: 16px; cursor: pointer;
+    }
+    .quiz-close:hover { color: var(--ink); border-color: var(--border-strong); }
+    .quiz-stem { font-size: 16px; font-weight: 700; line-height: 1.65; margin-bottom: 14px; }
+    .quiz-formula {
+      display: inline-block; margin: 8px 0 4px; padding: 8px 16px; border-radius: 12px;
+      background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan); font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 22px; font-weight: 800;
+    }
+    .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (max-width: 520px) { .quiz-opts { grid-template-columns: 1fr; } }
+    .quiz-opt {
+      text-align: left; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--ink); font-family: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer; transition: .15s;
+    }
+    .quiz-opt:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+    .quiz-opt.correct {
+      border-color: var(--green); background: rgba(52, 211, 153, 0.18); color: var(--green);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); animation: optWin .52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes optWin {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(52, 211, 153, 0); }
+      32% { transform: scale(1.045); box-shadow: 0 0 26px rgba(52, 211, 153, 0.55); }
+      62% { transform: scale(.994); } 100% { transform: scale(1); box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); }
+    }
+    .quiz-opt.wrong { border-color: var(--red); background: rgba(251, 113, 133, 0.16); color: var(--red); animation: optShake .34s ease; }
+    @keyframes optShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .quiz-explain {
+      display: none; padding: 11px 14px; border-radius: 12px; background: var(--surface-2);
+      border-left: 3px solid var(--cyan); font-size: 13.5px; line-height: 1.65; color: var(--ink-2); margin-bottom: 14px;
+    }
+    .quiz-explain.show { display: block; }
+    .quiz-foot { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    .quiz-stamp {
+      position: absolute; left: 50%; top: 0; z-index: 4; display: flex; align-items: center; gap: 9px;
+      padding: 12px 22px; border-radius: 18px; background: linear-gradient(135deg, #34d399, #10b981);
+      color: #fff; font-size: 19px; font-weight: 800; white-space: nowrap;
+      box-shadow: 0 18px 46px rgba(16, 185, 129, 0.42), 0 0 0 6px rgba(52, 211, 153, 0.16);
+      opacity: 0; pointer-events: none; transform: translate(-50%, -55%) scale(.6);
+    }
+    .quiz-stamp .s-ico { font-size: 24px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); }
+    .quiz-stamp .s-sub { display: block; font-size: 13px; font-weight: 700; opacity: .9; margin-top: 1px; }
+    .quiz-stamp.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 18px 46px rgba(245,158,11,.45), 0 0 0 6px rgba(251,191,36,.18); }
+    .quiz-stamp.show { animation: stampPop 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes stampPop {
+      0% { opacity: 0; transform: translate(-50%, -42%) scale(.5) rotate(-7deg); }
+      16% { opacity: 1; transform: translate(-50%, -58%) scale(1.12) rotate(2deg); }
+      26% { transform: translate(-50%, -55%) scale(.98) rotate(0deg); }
+      34% { transform: translate(-50%, -55%) scale(1); }
+      74% { opacity: 1; transform: translate(-50%, -62%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -95%) scale(1.04); }
+    }
+    .opt-tick {
+      display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+      margin-left: 7px; border-radius: 50%; background: var(--green); color: #04120c;
+      font-size: 12px; font-weight: 900; line-height: 1; vertical-align: -2px;
+      animation: tickIn .42s .1s backwards cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes tickIn { 0% { opacity: 0; transform: scale(.2) rotate(-40deg); } 70% { opacity: 1; transform: scale(1.18) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+    .badge.bump { animation: scoreBump .62s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes scoreBump { 0% { transform: scale(1); } 30% { transform: scale(1.22); } 60% { transform: scale(.97); } 100% { transform: scale(1); } }
+    .badge.gain { color: #34d399; border-color: rgba(52, 211, 153, 0.55); background: rgba(52, 211, 153, 0.16); }
+    .fx-canvas { position: fixed; inset: 0; z-index: 70; display: none; pointer-events: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .quiz-stamp.show { animation: stampFade 1s ease forwards; }
+      @keyframes stampFade { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+      .quiz-opt.correct, .opt-tick, .badge.bump { animation: none; }
+    }
+  </style>
+
+  <style>
+    /* ===== 知识点总结弹窗 ===== */
+    .kp-backdrop {
+      position: fixed; inset: 0; z-index: 70; display: none; align-items: center; justify-content: center;
+      padding: 24px; background: rgba(3, 7, 18, 0.7); backdrop-filter: blur(10px);
+    }
+    .kp-backdrop.open { display: flex; animation: kpFade .2s ease; }
+    @keyframes kpFade { from { opacity: 0; } }
+    @keyframes kpIn { from { opacity: 0; transform: translateY(16px) scale(.985); } }
+    .kp-modal {
+      width: min(1040px, 96vw); height: min(86vh, 880px); display: flex; flex-direction: column;
+      background: var(--surface-solid); border: 1px solid var(--border); border-radius: 18px;
+      box-shadow: var(--shadow); overflow: hidden; animation: kpIn .26s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .kp-mhead {
+      flex: none; display: flex; align-items: center; gap: 12px; padding: 15px 18px 13px 20px;
+      border-bottom: 1px solid var(--border); background: var(--surface-2);
+    }
+    .kp-mhead h2 { font-size: 17px; font-weight: 800; }
+    .kp-msub { margin-top: 3px; font-size: 12px; color: var(--ink-3); }
+    .kp-msub b { color: var(--cyan); font-variant-numeric: tabular-nums; }
+    .kp-mactions { margin-left: auto; display: flex; gap: 8px; flex: none; }
+    .kp-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink-2);
+      font-family: inherit; font-size: 12.5px; font-weight: 700; padding: 8px 14px;
+      border-radius: 10px; cursor: pointer; transition: .16s; white-space: nowrap;
+    }
+    .kp-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+    .kp-x { width: 36px; padding: 8px 0; text-align: center; }
+    .kp-body { flex: 1; overflow-y: auto; padding: 20px 22px 30px; }
+    .kp-body::-webkit-scrollbar { width: 8px; }
+    .kp-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+    .kp-sec { margin-bottom: 22px; }
+    .kp-sec:last-child { margin-bottom: 0; }
+    .kp-sec h3 { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; font-size: 14.5px; font-weight: 800; color: var(--ink); }
+    .kp-sec h3 .idx {
+      width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 7px;
+      font-size: 12px; font-weight: 800; background: rgba(56, 189, 248, 0.16); color: var(--cyan);
+    }
+    .kp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kp-item { border: 1px solid var(--border); background: var(--surface-2); border-radius: 12px; padding: 11px 14px; }
+    .kp-item .f { display: block; font-family: "Cambria Math", "Times New Roman", serif; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.6; }
+    .kp-item .n { margin-top: 5px; font-size: 12px; color: var(--ink-3); line-height: 1.55; }
+    .kp-item.hit { border-color: rgba(56, 189, 248, 0.55); background: rgba(56, 189, 248, 0.1); }
+    .kp-item.hit .f { color: var(--cyan); }
+    .kp-tag { display: inline-block; float: right; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; font-style: normal; background: var(--cyan); color: #04121f; }
+    .kp-body ul { margin: 2px 0 0; padding-left: 20px; }
+    .kp-body li { font-size: 13.2px; line-height: 1.72; color: var(--ink-2); margin-bottom: 4px; }
+    .kp-body p { font-size: 13.2px; line-height: 1.72; color: var(--ink-2); }
+    .kp-body b { color: var(--ink); }
+    .kp-body code { font-family: "Cambria Math", "Times New Roman", serif; font-size: 1.08em; font-weight: 600; color: var(--cyan); }
+    .kp-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .kp-tbl th, .kp-tbl td { border: 1px solid var(--border); padding: 8px 11px; text-align: left; vertical-align: top; line-height: 1.6; }
+    .kp-tbl th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
+    .kp-tbl td { color: var(--ink-2); }
+    .kp-tbl td.k { width: 120px; color: var(--ink-3); white-space: nowrap; }
+    .kp-tbl tr.hit td { background: rgba(56, 189, 248, 0.1); color: var(--cyan); }
+    .kp-note { margin-top: 14px; padding: 11px 14px; border-radius: 12px; border: 1px dashed var(--border); font-size: 12.4px; line-height: 1.65; color: var(--ink-3); }
+    .kp-note b { color: var(--amber); }
+    @media (max-width: 760px) { .kp-grid { grid-template-columns: 1fr; } .kp-modal { height: 92vh; } .kp-backdrop { padding: 12px; } }
+    @media print {
+      body * { visibility: hidden !important; }
+      .kp-modal, .kp-modal * { visibility: visible !important; }
+      .kp-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; border: none; box-shadow: none; background: #fff; color: #000; }
+      .kp-body { overflow: visible; padding: 0; } .kp-mactions { display: none; }
+      .kp-item, .kp-tbl th, .kp-tbl td { border-color: #ccc; }
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>集合与韦恩图 · 动态可视化讲解</h1>
-  <p>数据（自定义 / 随机生成）→ 运算（交 / 并 / 补 / 差）→ 结果（韦恩图）→ 补充说明 → 知识点总结</p>
-</header>
-
-<main>
-  <div class="card" style="margin-bottom:18px">
-    <h3>✏️ 集合数据 <span class="tag">自定义 / 随机生成</span></h3>
-    <div class="data-grid">
-      <div class="fld"><span>全集 U（如 1-16，也可写 a,b,c…）</span>
-        <input type="text" id="uInput" value="1-16"></div>
-      <div class="fld"><span>集合 A 的元素</span><input type="text" id="aInput"></div>
-      <div class="fld"><span>集合 B 的元素</span><input type="text" id="bInput"></div>
-      <div class="fld" id="cField"><span>集合 C 的元素</span><input type="text" id="cInput"></div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <a class="back-link" href="#" onclick="history.back();return false;" title="返回总览">←</a>
+      <span class="grade-pill">高一 · 集合</span>
+      <div class="title-group"><h1>集合的基本运算</h1></div>
     </div>
-    <div class="btns">
-      <button class="btn" onclick="applyData()">应用数据</button>
-      <button class="btn" onclick="randomize()">🎲 随机生成</button>
-      <button class="btn ghost" onclick="resetData()">↺ 重置</button>
+    <div class="topbar-actions">
+      <div class="seg-tabs" id="modeTabs">
+        <button class="seg-btn active" data-mode="explore">🔬 自由探究</button>
+        <button class="seg-btn" data-mode="predict">🤔 先猜后验</button>
+        <button class="seg-btn" data-mode="challenge">🎮 闯关挑战</button>
+      </div>
+      <button class="icon-btn" id="btnKp" title="知识点总结（页内弹窗）">📖 知识点总结</button>
+      <button class="icon-btn" id="btnPresentation" title="快捷键 F">🖥 大屏模式</button>
+      <button class="icon-btn" id="btnTheme" title="快捷键 T">☀ 投影浅色</button>
     </div>
-    <p class="hint">元素用逗号或空格分隔，如 <b>1,3,5,7</b>；连续数字可用范围 <b>1-16</b>。
-      「随机生成」按当前全集随机分配每个元素的归属区域，一键换题；不属于任何集合的元素会留在方框内、圆圈外。</p>
-  </div>
+  </header>
 
-  <div class="grid top">
-    <div class="card">
-      <h3>🎛 控制台</h3>
-      <div class="seg">
-        <button id="m2" class="on" onclick="setMode(2)">两个集合</button>
-        <button id="m3" onclick="setMode(3)">三个集合</button>
+  <main class="workspace">
+    <section class="stage-shell">
+      <svg id="fig" viewBox="0 0 400 400" aria-label="集合韦恩图"></svg>
+
+      <div class="hud-top-left">
+        <div class="formula-pill" id="formulaPill"></div>
+        <div class="probe-pill" id="probePill"></div>
       </div>
 
-      <label class="switch" for="showEl">
-        <span>显示集合中的元素</span>
-        <input type="checkbox" id="showEl" checked onchange="toggleElements(this.checked)">
-        <span class="track"></span>
-      </label>
-
-      <div class="colors" id="colorBar"></div>
-
-      <h3 style="margin-top:16px">🧮 集合运算 <span class="tag">点击切换</span></h3>
-      <div class="ops" id="ops"></div>
-      <div class="btns">
-        <button class="btn play" id="playBtn" onclick="autoPlay()">▶ 自动演示</button>
+      <div class="hud-top-right">
+        <div class="kp-hint" id="kpHint"></div>
+        <div class="alert-banner" id="alertBanner"></div>
       </div>
-      <p class="hint">💡 课堂用法：先关掉元素讲区域关系，再打开元素讲计数；点击运算按钮让区域「亮起来」。</p>
-    </div>
+      <div class="toast" id="toast"></div>
+      <div class="morph-hud" id="morphHud"><div class="morph-hint" id="morphHint"></div></div>
 
-    <div class="card">
-      <div class="stage">
-        <div class="svgwrap">
-          <svg id="venn" viewBox="0 0 400 400"></svg>
-          <div class="legend" id="legend"></div>
+      <div class="hud-bottom-left" id="morphControls" style="display:none;">
+        <button class="btn primary" id="btnMorphPlay">⏸ 暂停演示</button>
+        <button class="btn" id="btnMorphReplay">↺ 从头演示</button>
+        <button class="btn" id="btnMorphExit">✕ 退出演示</button>
+      </div>
+      <div class="hud-bottom-right" id="hintBar">点击运算切换 · 点元素改归属 · ←→ 切换 · F 大屏 · T 主题</div>
+    </section>
+
+    <aside class="side-drawer">
+      <!-- 数据控制台（默认收起，点击标题展开） -->
+      <div class="card collapsible collapsed" id="ctrlCard">
+        <div class="card-title" id="ctrlToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="ctrlBody" title="点击展开 / 收起数据控制台">
+          <span class="title-main">🎛 数据控制台 <span class="badge" id="modeTag">两个集合</span></span>
+          <span class="caret">▸</span>
         </div>
-        <div class="explain" id="explain"></div>
+        <div class="card-body" id="ctrlBody">
+          <div class="seg-tabs" id="setModeTabs" style="width:100%;margin-bottom:12px;">
+            <button class="seg-btn active" data-n="2">两个集合</button>
+            <button class="seg-btn" data-n="3">三个集合</button>
+          </div>
+          <div class="field"><span>全集 U（如 1-16，也可写 a,b,c…）</span><input type="text" id="uInput" value="1-16"></div>
+          <div class="field"><span>集合 A 的元素</span><input type="text" id="aInput"></div>
+          <div class="field"><span>集合 B 的元素</span><input type="text" id="bInput"></div>
+          <div class="field" id="cField" style="display:none;"><span>集合 C 的元素</span><input type="text" id="cInput"></div>
+          <label class="sw-row" for="showEl"><span>显示集合中的元素</span><input type="checkbox" id="showEl" checked><span class="track"></span></label>
+          <div class="color-row" id="colorBar"></div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn primary" id="btnApply">应用数据</button>
+            <button class="btn" id="btnApplyRandom">🎲 随机生成</button>
+          </div>
+          <p class="hint-sm">元素用逗号或空格分隔，如 <b>1,3,5,7</b>；连续数字可写 <b>1-16</b>。「随机生成」按当前全集随机分配每个元素的归属区域，一键换题。</p>
+        </div>
+      </div>
+
+      <!-- 集合运算 -->
+      <div class="card">
+        <div class="card-title">🧮 集合运算 <span class="badge">点击切换</span></div>
+        <div class="op-list" id="ops"></div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn" id="btnAutoSide">▶ 自动演示所有运算</button>
+          <button class="btn" id="btnDeriv">📝 概念梳理</button>
+        </div>
+      </div>
+
+      <!-- 先猜后验 -->
+      <div class="card" id="predictCard" style="display:none;">
+        <div class="card-title">课堂悬念 <span class="badge">先猜后验</span></div>
+        <div class="predict-q">两个集合模式下依次切换运算：<b>哪一种运算</b>的红色亮起区域会被 A 圆隔开成<b>互不相连的两块</b>？</div>
+        <div class="predict-opts" id="predictOpts">
+          <button class="predict-opt" data-idx="0">A. 交集 A∩B —— 两圆重叠的一块</button>
+          <button class="predict-opt" data-idx="1">B. 并集 A∪B —— 两圆覆盖的一整片</button>
+          <button class="predict-opt" data-idx="2">C. 差集 A−B —— A 中的月牙一块</button>
+          <button class="predict-opt" data-idx="3">D. 补集 ∁ᵤA —— A 圆外的两块</button>
+        </div>
+        <button class="btn amber" id="btnReveal" style="width:100%;" disabled>✨ 请先选择一个猜想</button>
+        <div class="predict-feedback" id="predictFeedback">
+          <b>验证结论：</b>补集 ∁<sub>U</sub>A = {x｜x∈U 且 x∉A}，在韦恩图上是「A 圆外」的全部：既包括「只在 B 里」的月牙，也包括「框内、两圆之外」的一整圈，被 A 圆隔开成 <b>两块互不相连的区域</b>。而交集、并集、差集的亮起区域都落在圆内，各自连成一块。点「揭晓」后自动演示会依次点亮每种运算，对照观察即可验证。
+        </div>
+      </div>
+
+      <!-- 闯关任务 -->
+      <div class="card" id="challengeCard" style="display:none;">
+        <div class="card-title">随堂闯关 <span class="badge" id="chalScore">0 / 4</span></div>
+        <p id="quizBankInfo" style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:10px;">
+          题库共 <b>16</b> 道，每轮随机抽 <b>4</b> 道（选项顺序也会打乱）。
+        </p>
+        <button class="btn primary" id="btnOpenQuiz" style="width:100%;">🎯 打开闯关题目窗口</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- 概念梳理弹窗 -->
+<div class="kp-backdrop" id="derivModal">
+  <div class="kp-modal" role="dialog" aria-modal="true" aria-label="概念梳理" style="width:min(840px,94vw);height:auto;max-height:88vh;">
+    <div class="kp-mhead">
+      <div>
+        <h2>📝 集合的基本运算 · 概念梳理</h2>
+        <div class="kp-msub">高一数学 · 从定义到韦恩图，五步理清四种运算</div>
+      </div>
+      <div class="kp-mactions"><button class="kp-btn kp-x" id="derivClose" title="关闭（Esc）">✕</button></div>
+    </div>
+    <div class="kp-body" id="steps"></div>
+  </div>
+</div>
+
+<!-- 知识点总结弹窗 -->
+<div class="kp-backdrop" id="kpModal">
+  <div class="kp-modal" role="dialog" aria-modal="true" aria-label="知识点总结">
+    <div class="kp-mhead">
+      <div>
+        <h2>集合的基本运算 · 知识点总结</h2>
+        <div class="kp-msub">高一数学 · 当前 <b id="kpModalState">两个集合 · 16 个元素</b></div>
+      </div>
+      <div class="kp-mactions"><button class="kp-btn kp-x" id="kpClose" title="关闭（Esc）">✕</button></div>
+    </div>
+    <div class="kp-body" id="kpBody"></div>
+  </div>
+</div>
+
+<!-- 闯关题目弹窗 -->
+<div class="quiz-backdrop" id="quizModal">
+  <div class="quiz-modal">
+    <div class="quiz-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="grade-pill" id="quizProgress">第 1 / 4 题</span>
+        <span class="badge" id="quizScoreBadge">得分 0 / 4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn on" id="btnBgm" title="背景音乐开关">🔊 音乐开</button>
+        <button class="quiz-close" id="btnCloseQuiz" title="关闭">✕</button>
       </div>
     </div>
-  </div>
-
-  <div class="card" style="margin-top:18px">
-    <h3>📝 知识点速览 <span class="tag">高中必修</span></h3>
-    <div style="font-size:13.5px;line-height:2">
-      <b>交集 A∩B</b>：既属于 A 又属于 B 的元素<br>
-      <b>并集 A∪B</b>：属于 A 或属于 B 的元素（公共元素只计一次）<br>
-      <b>补集 ∁<sub>U</sub>A</b>：全集 U 中不属于 A 的元素<br>
-      <b>差集 A−B</b>：属于 A 但不属于 B 的元素<br>
-    </div>
-    <p class="hint">建议先讲区域关系，再打开元素讲计数。</p>
-  </div>
-
-  <div class="card" style="margin-top:18px">
-    <h3>📚 知识点总结 <span class="tag">一表梳理，考前速记</span></h3>
-    <table>
-      <tr><th>运算</th><th>记号</th><th>定义</th><th>韦恩图区域</th><th>常用性质</th></tr>
-      <tr><td>交集</td><td><b>A∩B</b></td><td>{x｜x∈A 且 x∈B}</td><td>两圆重叠部分</td>
-        <td>A∩A=A，A∩∅=∅，(A∩B)⊆A</td></tr>
-      <tr><td>并集</td><td><b>A∪B</b></td><td>{x｜x∈A 或 x∈B}</td><td>两圆覆盖的全部</td>
-        <td>公共元素只写一次；A∪∅=A</td></tr>
-      <tr><td>补集</td><td><b>∁<sub>U</sub>A</b></td><td>{x｜x∈U 且 x∉A}</td><td>圆外、方框内</td>
-        <td>A∪∁<sub>U</sub>A=U，A∩∁<sub>U</sub>A=∅，∁<sub>U</sub>(∁<sub>U</sub>A)=A</td></tr>
-      <tr><td>差集</td><td><b>A−B</b></td><td>{x｜x∈A 且 x∉B}</td><td>A 中挖去重叠部分</td>
-        <td>A−B = A∩∁<sub>U</sub>B；一般 A−B ≠ B−A</td></tr>
-    </table>
-    <div class="kp" style="grid-template-columns:1fr">
-      <div class="box">
-        <h4>运算律</h4>
-        <ul>
-          <li>交换律：A∩B=B∩A，A∪B=B∪A</li>
-          <li>结合律：(A∩B)∩C=A∩(B∩C)，并集同理</li>
-          <li>分配律：A∩(B∪C)=(A∩B)∪(A∩C)</li>
-          <li>德摩根律：∁<sub>U</sub>(A∪B)=∁<sub>U</sub>A∩∁<sub>U</sub>B，　∁<sub>U</sub>(A∩B)=∁<sub>U</sub>A∪∁<sub>U</sub>B</li>
-        </ul>
-      </div>
+    <div class="quiz-stamp" id="quizStamp" aria-live="polite"></div>
+    <div class="quiz-stem" id="quizStem"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnQuizDemo" style="display:none;">🔬 在图中验证</button>
+      <button class="btn primary" id="btnQuizNext" style="display:none;">下一题 →</button>
     </div>
   </div>
-</main>
+</div>
+<canvas class="fx-canvas" id="fxCanvas"></canvas>
 
 <script>
-/* ================= 数据模型 ================= */
-let mode = 2;                 // 2 或 3 个集合
-let curOp = 'inter';
-let showEl = true;
-let timer = null;
-let COLORS = {A:'#2563eb', B:'#f59e0b', C:'#10b981'};
-const NAMES = ['A','B','C'];
-let ELEMS = [];               // 元素标签数组
-let regions = [];             // regions[i]：第 i 个元素所属区域的位掩码
-let dataVer = 0;              // 数据版本号，用于位置缓存失效
+(() => {
+  'use strict';
+  function getCssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
-const DEFAULT2 = [3,1,1,3,0,2,2,1,3,0,2,1,0,2,3,0];
-const DEFAULT3 = [7,1,2,4,3,5,6,0,1,4,7,2,0,5,3,6];
-
-const OPS2 = [
-  {k:'inter',  t:'A ∩ B', d:'交集', rs:[3],     say:'交集 A∩B：两个集合的<b>公共部分</b>，元素必须同时属于 A 和 B。'},
-  {k:'union',  t:'A ∪ B', d:'并集', rs:[1,2,3], say:'并集 A∪B：属于 A <b>或</b>属于 B 的所有元素，公共部分只算一次。'},
-  {k:'diffA',  t:'A − B', d:'差集', rs:[1],     say:'A−B：属于 A 但<b>不属于 B</b>的元素，即 A 中去掉公共部分后剩下的月牙形。'},
-  {k:'diffB',  t:'B − A', d:'差集', rs:[2],     say:'B−A：属于 B 但不属于 A 的元素。注意 A−B ≠ B−A。'},
-  {k:'compA',  t:'∁ᵤA',   d:'补集', rs:[0,2],   say:'补集 ∁<sub>U</sub>A：全集 U 中<b>不属于 A</b>的元素，含「只在 B 里」和「框内圈外」两块。'}
-];
-const OPS3 = [
-  {k:'inter3', t:'A ∩ B ∩ C',   d:'交集', rs:[7],             say:'A∩B∩C：三个集合的<b>公共部分</b>，元素同时属于 A、B、C。'},
-  {k:'union3', t:'A ∪ B ∪ C',   d:'并集', rs:[1,2,3,4,5,6,7], say:'A∪B∪C：至少属于其中一个集合的全部元素。'},
-  {k:'interAB',t:'A ∩ B',       d:'交集', rs:[3,7],           say:'A∩B：A 与 B 的公共部分，含「只在 A、B 中」与「三者公共」两块。'},
-  {k:'abNotC', t:'(A ∩ B) − C', d:'差集', rs:[3],             say:'(A∩B)−C：属于 A 和 B，但不属于 C 的部分。'},
-  {k:'abUC',   t:'(A ∪ B) ∩ C', d:'混合', rs:[5,6,7],         say:'(A∪B)∩C：先求 A∪B，再与 C 取公共部分。'},
-  {k:'compAB3',t:'∁ᵤ(A ∪ B)',   d:'补集', rs:[0,4],           say:'∁<sub>U</sub>(A∪B)：全集里既不在 A 也不在 B 的元素。'}
-];
-function ops(){ return mode===2 ? OPS2 : OPS3; }
-function op(){ return ops().find(o=>o.k===curOp) || ops()[0]; }
-
-/* ================= 几何与排版 ================= */
-const UBOX = {x0:8, y0:16, x1:392, y1:388};
-function geo(){
-  if(mode===2) return {
-    circles:[{cx:150,cy:205,r:116,c:COLORS.A,n:'A',lx:44,ly:112},
-             {cx:250,cy:205,r:116,c:COLORS.B,n:'B',lx:356,ly:112}]
-  };
-  return {
-    circles:[{cx:146,cy:150,r:112,c:COLORS.A,n:'A',lx:46,ly:70},
-             {cx:254,cy:150,r:112,c:COLORS.B,n:'B',lx:354,ly:70},
-             {cx:200,cy:244,r:112,c:COLORS.C,n:'C',lx:200,ly:376}]
-  };
-}
-const ROW_CACHE = {};
-function inRegion(r, x, y, g, pad){
-  for(const c of g.circles) if(Math.hypot(x-c.lx, y-c.ly) < 24) return false;  // 避开集合名标签
-  if(Math.hypot(x-22, y-32) < 20) return false;                                // 避开 U 标记
-  for(let i=0;i<g.circles.length;i++){
-    const c=g.circles[i], d=Math.hypot(x-c.cx, y-c.cy), inside=(r>>i)&1;
-    if(inside){ if(d > c.r - pad) return false; }
-    else if(d < c.r + pad) return false;
-  }
-  return true;
-}
-function regionRows(r, g, pad){
-  const rows=[];
-  for(let y=UBOX.y0+18; y<=UBOX.y1-18; y+=4){
-    const runs=[]; let start=null;
-    for(let x=UBOX.x0+16; x<=UBOX.x1-16; x+=2){
-      const ok = inRegion(r, x, y, g, pad);
-      if(ok && start===null) start=x;
-      if(!ok && start!==null){ runs.push([start, x-2]); start=null; }
+  function initShell({ onCommand } = {}) {
+    const app = document.querySelector('.app');
+    const themeBtn = document.getElementById('btnTheme');
+    const presBtn = document.getElementById('btnPresentation');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (themeBtn) themeBtn.textContent = theme === 'light' ? '🌙 深色实验室' : '☀ 投影浅色';
+      localStorage.setItem('math_lab_theme', theme);
     }
-    if(start!==null) runs.push([start, UBOX.x1-16]);
-    const good = runs.filter(a=>a[1]-a[0] >= 10);
-    if(good.length) rows.push({y, runs:good});
+    setTheme(localStorage.getItem('math_lab_theme') || 'dark');
+    if (themeBtn) themeBtn.addEventListener('click', () => {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    });
+    function togglePresentation(force) {
+      const next = typeof force === 'boolean' ? force : !app.classList.contains('presentation');
+      app.classList.toggle('presentation', next);
+      if (presBtn) presBtn.classList.toggle('on', next);
+    }
+    if (presBtn) presBtn.addEventListener('click', () => togglePresentation());
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') togglePresentation();
+      if (e.key === 't' || e.key === 'T') setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    });
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || data.type !== 'math-lab:command') return;
+      if (data.action === 'theme' && data.payload) setTheme(data.payload);
+      if (data.action === 'presentation') togglePresentation(Boolean(data.payload));
+      if (onCommand) onCommand(data.action, data.payload);
+    });
+    return { setTheme, togglePresentation };
   }
-  return rows;
-}
-function layoutRegionPad(r, k, g, pad){
-  const key = mode+'_'+pad;
-  if(!ROW_CACHE[key]){
-    const cache={}, maxR=1<<mode;
-    for(let i=0;i<maxR;i++) cache[i]=regionRows(i, g, pad);
-    ROW_CACHE[key]=cache;
+
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(el._timer); el._timer = setTimeout(() => el.classList.remove('show'), 2400);
   }
-  const rows = ROW_CACHE[key][r] || [];
-  if(!rows.length || k<=0) return [];
-  const cy = rows.reduce((s,a)=>s+a.y,0)/rows.length;
-  const width = row => Math.max(...row.runs.map(a=>a[1]-a[0]));
-  const order = rows.slice().sort((a,b)=>
-    (-Math.min(width(a),260) + Math.abs(a.y-cy)*0.6) - (-Math.min(width(b),260) + Math.abs(b.y-cy)*0.6));
-  const used=[], out=[], MAX_STEP=30;
-  for(const row of order){
-    if(out.length>=k) break;
-    if(used.some(y=>Math.abs(y-row.y)<26)) continue;
-    const placed=[];
-    for(const [a,b] of row.runs){
-      const w=b-a, room = Math.max(1, Math.floor((w+14)/24));
-      let n = Math.min(k-out.length-placed.length, room);
-      while(n>0){
-        const step = n>1 ? Math.min((w-8)/(n-1), MAX_STEP) : 0;
-        const sx = (a+b)/2 - step*(n-1)/2;
-        const cand=[]; for(let i=0;i<n;i++) cand.push({x:sx+i*step, y:row.y});
-        const far = p => placed.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=20)
-                       && out.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=20);
-        if(cand.every(far)){ placed.push(...cand); break; }
-        n--;
+
+  let alertHoldUntil = 0, alertTimer = null;
+  const alertNow = () => (window.performance && performance.now) ? performance.now() : Date.now();
+  function hideAlertSoon(delay) {
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+      alertTimer = null;
+      const el = document.getElementById('alertBanner'); if (!el) return;
+      const now = alertNow();
+      if (now >= alertHoldUntil) { alertHoldUntil = 0; el.classList.remove('show'); }
+      else hideAlertSoon(alertHoldUntil - now);
+    }, Math.max(0, delay));
+  }
+  function setAlert(msg, holdMs) {
+    const el = document.getElementById('alertBanner'); if (!el) return;
+    const now = alertNow();
+    if (!msg) {
+      if (now < alertHoldUntil) { hideAlertSoon(alertHoldUntil - now); return; }
+      el.classList.remove('show'); return;
+    }
+    alertHoldUntil = now + (holdMs || 0);
+    if (el.textContent !== msg) {
+      el.textContent = msg; el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    } else if (!el.classList.contains('show')) el.classList.add('show');
+    if (holdMs && !alertTimer) hideAlertSoon(holdMs);
+  }
+
+  const sound = (() => {
+    let ctx = null, bgmTimer = null, bgmStep = 0, muted = false;
+    function ensureCtx() {
+      if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+    function tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+      if (muted) return; const ac = ensureCtx(); if (!ac) return;
+      const t0 = ac.currentTime + delay, osc = ac.createOscillator(), gain = ac.createGain();
+      osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.start(t0); osc.stop(t0 + duration + 0.02);
+    }
+    function playClick() { tone(660, 0.06, 'triangle', 0.08, 0); }
+    function playCorrect() { tone(523.25,.14,'triangle',.16,0); tone(659.25,.14,'triangle',.16,.08); tone(783.99,.16,'triangle',.16,.16); tone(1046.5,.32,'sine',.18,.24); }
+    function playWrong() { tone(220,.16,'sawtooth',.09,0); tone(164.81,.28,'sawtooth',.10,.13); }
+    function playVictory() { const notes=[523.25,659.25,783.99,1046.5,783.99,1046.5], times=[0,.1,.2,.3,.44,.56]; notes.forEach((f,i)=>tone(f,i===5?.45:.14,'triangle',.16,times[i])); }
+    const MELODY=[523.25,659.25,783.99,659.25,880,783.99,659.25,587.33,523.25,659.25,783.99,1046.5,880,783.99,659.25,587.33];
+    const BASS=[130.81,0,196,0,174.61,0,196,0,130.81,0,196,0,146.83,0,196,0];
+    function startBgm() { if (bgmTimer || muted) return; ensureCtx(); bgmTimer = setInterval(() => { if (muted) return; const m=MELODY[bgmStep%MELODY.length], b=BASS[bgmStep%BASS.length]; if(m)tone(m,.18,'sine',.045,0); if(b)tone(b,.22,'triangle',.04,0); bgmStep++; }, 240); }
+    function stopBgm() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+    function toggleBgm() { if (bgmTimer) { stopBgm(); return false; } muted = false; startBgm(); return true; }
+    function setMuted(v) { muted = Boolean(v); if (muted) stopBgm(); }
+    return { playClick, playCorrect, playWrong, playVictory, startBgm, stopBgm, toggleBgm, setMuted, isPlaying: () => Boolean(bgmTimer) && !muted };
+  })();
+
+  window.MathLab = { getCssVar, initShell, showToast, setAlert, sound };
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const { initShell, showToast, setAlert, sound } = window.MathLab;
+  const $ = id => document.getElementById(id);
+  const fig = $('fig');
+
+  /* ================= 数据模型 ================= */
+  let mode = 2;
+  let curOp = 'inter';
+  let showEl = true;
+  let COLORS = { A:'#38bdf8', B:'#fbbf24', C:'#34d399' };
+  let ELEMS = [];
+  let regions = [];
+  let dataVer = 0;
+
+  const DEFAULT2 = [3,1,1,3,0,2,2,1,3,0,2,1,0,2,3,0];
+  const DEFAULT3 = [7,1,2,4,3,5,6,0,1,4,7,2,0,5,3,6];
+
+  const OPS2 = [
+    { k:'inter', t:'A ∩ B', d:'交集', rs:[3],
+      f:'<span class="setname-a">A</span> <span class="setop">∩</span> <span class="setname-b">B</span>',
+      say:'交集 A∩B：两个集合的公共部分，元素必须同时属于 A 和 B。',
+      hint:'<span class="ico">💡</span><span class="num">①</span><span><span class="nw">交集 = 两圆重叠区</span> → <b>A∩B ⊆ A</b> 且 <b>⊆ B</b></span>',
+      stat:'|A ∩ B|' },
+    { k:'union', t:'A ∪ B', d:'并集', rs:[1,2,3],
+      f:'<span class="setname-a">A</span> <span class="setop">∪</span> <span class="setname-b">B</span>',
+      say:'并集 A∪B：属于 A 或属于 B 的所有元素，公共部分只算一次。',
+      hint:'<span class="ico">💡</span><span class="num">②</span><span><span class="nw">并集 = 两圆覆盖的全部</span> → <b>公共元素只写一次</b></span>',
+      stat:'|A ∪ B|' },
+    { k:'diffA', t:'A − B', d:'差集', rs:[1],
+      f:'<span class="setname-a">A</span> <span class="setop">−</span> <span class="setname-b">B</span>',
+      say:'A−B：属于 A 但不属于 B 的元素，即 A 中去掉公共部分后的月牙形。',
+      hint:'<span class="ico">💡</span><span class="num">③</span><span><span class="nw">差集 = A 减去重叠区</span> → <b>A−B = A∩∁<sub>U</sub>B</b></span>',
+      stat:'|A − B|' },
+    { k:'diffB', t:'B − A', d:'差集', rs:[2],
+      f:'<span class="setname-b">B</span> <span class="setop">−</span> <span class="setname-a">A</span>',
+      say:'B−A：属于 B 但不属于 A 的元素。注意 A−B ≠ B−A。',
+      hint:'<span class="ico">⚠</span><span class="num">④</span><span><span class="nw">一般 A−B ≠ B−A</span> → <b>差集不满足交换律</b></span>',
+      stat:'|B − A|' },
+    { k:'compA', t:'∁ᵤA', d:'补集', rs:[0,2],
+      f:'<span class="setop">∁</span><sub>U</sub><span class="setname-a">A</span>',
+      say:'补集 ∁<sub>U</sub>A：全集 U 中不属于 A 的元素，含「只在 B 里」和「框内圈外」两块。',
+      hint:'<span class="ico">💡</span><span class="num">⑤</span><span><span class="nw">补集 = 框内、A 圆外</span> → <b>A∪∁<sub>U</sub>A = U</b></span>',
+      stat:'|∁ᵤA|' }
+  ];
+  const OPS3 = [
+    { k:'inter3', t:'A ∩ B ∩ C', d:'交集', rs:[7],
+      f:'<span class="setname-a">A</span> <span class="setop">∩</span> <span class="setname-b">B</span> <span class="setop">∩</span> <span class="setname-c">C</span>',
+      say:'A∩B∩C：三个集合的公共部分，元素同时属于 A、B、C。',
+      hint:'<span class="ico">💡</span><span class="num">①</span><span><span class="nw">三圆中央重叠区</span> → <b>同时属于 A、B、C</b></span>',
+      stat:'|A ∩ B ∩ C|' },
+    { k:'union3', t:'A ∪ B ∪ C', d:'并集', rs:[1,2,3,4,5,6,7],
+      f:'<span class="setname-a">A</span> <span class="setop">∪</span> <span class="setname-b">B</span> <span class="setop">∪</span> <span class="setname-c">C</span>',
+      say:'A∪B∪C：至少属于其中一个集合的全部元素。',
+      hint:'<span class="ico">💡</span><span class="num">②</span><span><span class="nw">并集 = 三圆覆盖全部</span> → <b>公共元素只写一次</b></span>',
+      stat:'|A ∪ B ∪ C|' },
+    { k:'interAB', t:'A ∩ B', d:'交集', rs:[3,7],
+      f:'<span class="setname-a">A</span> <span class="setop">∩</span> <span class="setname-b">B</span>',
+      say:'A∩B：A 与 B 的公共部分，含「只在 A、B 中」与「三者公共」两块。',
+      hint:'<span class="ico">💡</span><span class="num">③</span><span><span class="nw">A∩B 含两块区域</span> → <b>3 与 7 都要亮</b></span>',
+      stat:'|A ∩ B|' },
+    { k:'abNotC', t:'(A ∩ B) − C', d:'差集', rs:[3],
+      f:'(<span class="setname-a">A</span> <span class="setop">∩</span> <span class="setname-b">B</span>) <span class="setop">−</span> <span class="setname-c">C</span>',
+      say:'(A∩B)−C：属于 A 和 B，但不属于 C 的部分。',
+      hint:'<span class="ico">💡</span><span class="num">④</span><span><span class="nw">先交后差</span> → <b>去掉三者公共部分</b></span>',
+      stat:'|(A∩B) − C|' },
+    { k:'abUC', t:'(A ∪ B) ∩ C', d:'混合', rs:[5,6,7],
+      f:'(<span class="setname-a">A</span> <span class="setop">∪</span> <span class="setname-b">B</span>) <span class="setop">∩</span> <span class="setname-c">C</span>',
+      say:'(A∪B)∩C：先求 A∪B，再与 C 取公共部分。',
+      hint:'<span class="ico">💡</span><span class="num">⑤</span><span><span class="nw">先并后交</span> → <b>分配律的经典题型</b></span>',
+      stat:'|(A∪B) ∩ C|' },
+    { k:'compAB3', t:'∁ᵤ(A ∪ B)', d:'补集', rs:[0,4],
+      f:'<span class="setop">∁</span><sub>U</sub>(<span class="setname-a">A</span> <span class="setop">∪</span> <span class="setname-b">B</span>)',
+      say:'∁<sub>U</sub>(A∪B)：全集里既不在 A 也不在 B 的元素。',
+      hint:'<span class="ico">💡</span><span class="num">⑥</span><span><span class="nw">德摩根律</span> → <b>∁<sub>U</sub>(A∪B) = ∁<sub>U</sub>A ∩ ∁<sub>U</sub>B</b></span>',
+      stat:'|∁ᵤ(A ∪ B)|' }
+  ];
+  function ops(){ return mode === 2 ? OPS2 : OPS3; }
+  function op(){ return ops().find(o => o.k === curOp) || ops()[0]; }
+
+  /* ================= 几何与排版 ================= */
+  const UBOX = {x0:8, y0:16, x1:392, y1:388};
+  function geo(){
+    if(mode === 2) return {
+      circles:[{cx:150,cy:205,r:116,c:COLORS.A,n:'A',lx:44,ly:112},
+               {cx:250,cy:205,r:116,c:COLORS.B,n:'B',lx:356,ly:112}]
+    };
+    return {
+      circles:[{cx:146,cy:150,r:112,c:COLORS.A,n:'A',lx:46,ly:70},
+               {cx:254,cy:150,r:112,c:COLORS.B,n:'B',lx:354,ly:70},
+               {cx:200,cy:244,r:112,c:COLORS.C,n:'C',lx:200,ly:376}]
+    };
+  }
+  const ROW_CACHE = {};
+  function inRegion(r, x, y, g, pad){
+    for(const c of g.circles) if(Math.hypot(x-c.lx, y-c.ly) < 24) return false;
+    if(Math.hypot(x-22, y-32) < 20) return false;
+    for(let i=0;i<g.circles.length;i++){
+      const c=g.circles[i], d=Math.hypot(x-c.cx, y-c.cy), inside=(r>>i)&1;
+      if(inside){ if(d > c.r - pad) return false; }
+      else if(d < c.r + pad) return false;
+    }
+    return true;
+  }
+  function regionRows(r, g, pad){
+    const rows=[];
+    for(let y=UBOX.y0+18; y<=UBOX.y1-18; y+=4){
+      const runs=[]; let start=null;
+      for(let x=UBOX.x0+16; x<=UBOX.x1-16; x+=2){
+        const ok = inRegion(r, x, y, g, pad);
+        if(ok && start===null) start=x;
+        if(!ok && start!==null){ runs.push([start, x-2]); start=null; }
       }
+      if(start!==null) runs.push([start, UBOX.x1-16]);
+      const good = runs.filter(a=>a[1]-a[0] >= 10);
+      if(good.length) rows.push({y, runs:good});
     }
-    if(placed.length){ out.push(...placed); used.push(row.y); }
+    return rows;
   }
-  if(out.length<k){   // 元素较多时加密补位
+  function layoutRegionPad(r, k, g, pad){
+    const key = mode+'_'+pad;
+    if(!ROW_CACHE[key]){
+      const cache={}, maxR=1<<mode;
+      for(let i=0;i<maxR;i++) cache[i]=regionRows(i, g, pad);
+      ROW_CACHE[key]=cache;
+    }
+    const rows = ROW_CACHE[key][r] || [];
+    if(!rows.length || k<=0) return [];
+    const cy = rows.reduce((s,a)=>s+a.y,0)/rows.length;
+    const width = row => Math.max(...row.runs.map(a=>a[1]-a[0]));
+    const order = rows.slice().sort((a,b)=>
+      (-Math.min(width(a),260) + Math.abs(a.y-cy)*0.6) - (-Math.min(width(b),260) + Math.abs(b.y-cy)*0.6));
+    const used=[], out=[], MAX_STEP=30;
     for(const row of order){
       if(out.length>=k) break;
+      if(used.some(y=>Math.abs(y-row.y)<26)) continue;
+      const placed=[];
       for(const [a,b] of row.runs){
+        const w=b-a, room = Math.max(1, Math.floor((w+14)/24));
+        let n = Math.min(k-out.length-placed.length, room);
+        while(n>0){
+          const step = n>1 ? Math.min((w-8)/(n-1), MAX_STEP) : 0;
+          const sx = (a+b)/2 - step*(n-1)/2;
+          const cand=[]; for(let i=0;i<n;i++) cand.push({x:sx+i*step, y:row.y});
+          const far = p => placed.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=20)
+                         && out.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=20);
+          if(cand.every(far)){ placed.push(...cand); break; }
+          n--;
+        }
+      }
+      if(placed.length){ out.push(...placed); used.push(row.y); }
+    }
+    if(out.length<k){
+      for(const row of order){
         if(out.length>=k) break;
-        for(let x=a+6; x<=b-4; x+=16){
+        for(const [a,b] of row.runs){
           if(out.length>=k) break;
-          const p={x, y:row.y};
-          if(out.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=15)) out.push(p);
+          for(let x=a+6; x<=b-4; x+=16){
+            if(out.length>=k) break;
+            const p={x, y:row.y};
+            if(out.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=15)) out.push(p);
+          }
         }
       }
     }
+    return out;
   }
-  return out;
-}
-function layoutRegion(r, k){
-  const g=geo(); let best=[];
-  for(const pad of [17,11,7]){
-    const got = layoutRegionPad(r, k, g, pad);
-    if(got.length>best.length) best=got;
-    if(got.length>=k) break;
-  }
-  return best;
-}
-
-/* ================= 构建 SVG 骨架（只在模式 / 元素变化时重建） ================= */
-let elNodes = [], hlNodes = [];
-function buildSvg(){
-  const g=geo(), maxR=1<<mode;
-  let clips='', masks='';
-  g.circles.forEach((c,i)=>{ clips += `<clipPath id="c${i}"><circle cx="${c.cx}" cy="${c.cy}" r="${c.r}"/></clipPath>`; });
-  for(let r=0;r<maxR;r++){
-    let chain='<rect x="0" y="0" width="400" height="400" fill="#fff"/>';
-    for(let i=0;i<mode;i++) if(r & (1<<i)) chain = `<g clip-path="url(#c${i})">${chain}</g>`;
-    let black='';
-    for(let i=0;i<mode;i++) if(!(r & (1<<i)))
-      black += `<circle cx="${g.circles[i].cx}" cy="${g.circles[i].cy}" r="${g.circles[i].r}" fill="#000"/>`;
-    masks += `<mask id="mk${r}">${chain}${black}</mask>`;
-  }
-  let fill=''; g.circles.forEach(c=>{ fill += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="${c.c}" fill-opacity="0.13"/>`; });
-  let hl='';   for(let r=0;r<maxR;r++) hl += `<g id="hl${r}" mask="url(#mk${r})" opacity="0"><rect x="0" y="0" width="400" height="400" fill="#ef4444"/></g>`;
-  hl = `<g id="hlWrap" class="anim">${hl}</g>`;   // 统一在一个组上做呼吸动画，保证各区域同步
-  let line=''; g.circles.forEach(c=>{
-    line += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="none" stroke="${c.c}" stroke-width="2.5"/>
-      <text x="${c.lx}" y="${c.ly}" font-size="20" font-weight="700" fill="${c.c}" text-anchor="middle">${c.n}</text>`; });
-  document.getElementById('venn').innerHTML =
-    `<defs>${clips}${masks}</defs>
-     <rect x="8" y="16" width="384" height="372" rx="10" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
-     <text x="22" y="32" font-size="13" fill="#64748b">U</text>
-     ${fill}${hl}${line}<g id="elLayer"></g>`;
-  hlNodes = []; for(let r=0;r<maxR;r++) hlNodes.push(document.getElementById('hl'+r));
-  buildElNodes();
-  document.getElementById('legend').innerHTML =
-    g.circles.map(c=>`<span><i style="background:${c.c}"></i>集合 ${c.n}</span>`).join('')
-    + `<span><i style="background:#ef4444"></i>运算结果区域</span>`;
-}
-function buildElNodes(){
-  const layer=document.getElementById('elLayer');
-  layer.innerHTML = ELEMS.map((lab,i)=>
-    `<text class="el" id="el${i}" text-anchor="middle" dominant-baseline="middle"
-      onclick="cycle(${i})"><title>点击改变元素 ${lab} 的所属区域</title>${lab}</text>`).join('');
-  elNodes = ELEMS.map((_,i)=>document.getElementById('el'+i));
-}
-
-/* ================= 快速刷新（只改属性，不重绘整张图） ================= */
-let posCache = {ver:-1, map:{}};
-function positionsFor(r, list){
-  if(posCache.ver!==dataVer){ posCache = {ver:dataVer, map:{}}; }
-  if(!posCache.map[r] || posCache.map[r].length!==list.length)
-    posCache.map[r] = layoutRegion(r, list.length);
-  return posCache.map[r];
-}
-function update(){
-  const maxR = 1<<mode, o = op(), hit = o.rs;
-  for(let r=0;r<maxR;r++){
-    const node = hlNodes[r]; if(!node) continue;
-    node.setAttribute('opacity', hit.includes(r) ? 1 : 0);
-  }
-  const layer = document.getElementById('elLayer');
-  layer.setAttribute('display', showEl ? 'inline' : 'none');
-  if(showEl){
-    for(let r=0;r<maxR;r++){
-      const list=[]; for(let i=0;i<regions.length;i++) if(regions[i]===r) list.push(i);
-      if(!list.length) continue;
-      const pos = positionsFor(r, list), on = hit.includes(r);
-      list.forEach((idx,n)=>{
-        const node = elNodes[idx]; if(!node) return;
-        const p = pos[n] || pos[pos.length-1] || {x:200,y:200};
-        node.setAttribute('x', p.x.toFixed(1));
-        node.setAttribute('y', p.y.toFixed(1));
-        node.setAttribute('font-size', on ? 15 : 14);
-        node.setAttribute('font-weight', on ? 700 : 600);
-        node.setAttribute('style', `fill:${on?'#b91c1c':(r===0?'#94a3b8':'#334155')}`);
-      });
+  function layoutRegion(r, k){
+    const g=geo(); let best=[];
+    for(const pad of [17,11,7]){
+      const got = layoutRegionPad(r, k, g, pad);
+      if(got.length>best.length) best=got;
+      if(got.length>=k) break;
     }
+    return best;
   }
-  renderExplain();
-}
-function renderAll(){ buildSvg(); update(); }
 
-/* ================= 文本区渲染 ================= */
-function setList(n){ const out=[]; for(let i=0;i<regions.length;i++) if(regions[i] & (1<<n)) out.push(ELEMS[i]); return out; }
-function cap(arr){ return arr.length ? arr.join(', ') : '∅'; }
-function renderExplain(){
-  const o = op();
-  document.getElementById('explain').innerHTML = `
-    <div style="font-size:19px;font-weight:700;color:#b91c1c">${o.t}　<span style="font-size:13px;color:#64748b">${o.d}</span></div>
-    <p class="explain-txt">${o.say}</p>
-    <p class="hint">${showEl?'点击图中元素可改变其所属区域，图形实时更新。':'当前已隐藏元素，仅展示区域关系。'}</p>`;
-}
-function renderOpsBar(){
-  document.getElementById('ops').innerHTML = ops().map(o=>
-    `<button class="${o.k===curOp?'on':''}" onclick="setOp('${o.k}')">${o.t} <small>${o.d}</small></button>`).join('');
-}
-function renderColorBar(){
-  const names = mode===2?['A','B']:['A','B','C'];
-  document.getElementById('colorBar').innerHTML = names.map(n=>
-    `<label title="调整集合 ${n} 的颜色">集合 <b id="clr${n}" style="color:${COLORS[n]}">${n}</b>
-      <input type="color" value="${COLORS[n]}" oninput="setColor('${n}',this.value)"></label>`).join('');
-}
+  /* ================= 构建 SVG 骨架 ================= */
+  let elNodes = [], hlNodes = [];
+  function buildSvg(){
+    const g=geo(), maxR=1<<mode;
+    let clips='', masks='';
+    g.circles.forEach((c,i)=>{ clips += `<clipPath id="c${i}"><circle cx="${c.cx}" cy="${c.cy}" r="${c.r}"/></clipPath>`; });
+    for(let r=0;r<maxR;r++){
+      let chain='<rect x="0" y="0" width="400" height="400" fill="#fff"/>';
+      for(let i=0;i<mode;i++) if(r & (1<<i)) chain = `<g clip-path="url(#c${i})">${chain}</g>`;
+      let black='';
+      for(let i=0;i<mode;i++) if(!(r & (1<<i)))
+        black += `<circle cx="${g.circles[i].cx}" cy="${g.circles[i].cy}" r="${g.circles[i].r}" fill="#000"/>`;
+      masks += `<mask id="mk${r}">${chain}${black}</mask>`;
+    }
+    let fill=''; g.circles.forEach(c=>{ fill += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="${c.c}" fill-opacity="0.13"/>`; });
+    let hl=''; for(let r=0;r<maxR;r++) hl += `<g id="hl${r}" mask="url(#mk${r})" opacity="0"><rect x="0" y="0" width="400" height="400" style="fill:var(--venn-hl)"/></g>`;
+    hl = `<g id="hlWrap" class="anim">${hl}</g>`;
+    let line=''; g.circles.forEach(c=>{
+      line += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="none" stroke="${c.c}" stroke-width="2.5"/>
+        <text x="${c.lx}" y="${c.ly}" font-size="20" font-weight="700" fill="${c.c}" text-anchor="middle">${c.n}</text>`; });
+    fig.innerHTML =
+      `<defs>${clips}${masks}</defs>
+       <rect x="8" y="16" width="384" height="372" rx="10" style="fill:var(--venn-box);stroke:var(--venn-border)" stroke-width="2"/>
+       <text x="22" y="32" font-size="13" style="fill:var(--ink-3)">U</text>
+       ${fill}${hl}${line}<g id="elLayer"></g>`;
+    hlNodes = []; for(let r=0;r<maxR;r++) hlNodes.push($('hl'+r));
+    buildElNodes();
+  }
+  function buildElNodes(){
+    const layer=$('elLayer');
+    layer.innerHTML = ELEMS.map((lab,i)=>
+      `<text class="el" id="el${i}" text-anchor="middle" dominant-baseline="middle"
+        onclick="cycle(${i})"><title>点击改变元素 ${lab} 的所属区域</title>${lab}</text>`).join('');
+    elNodes = ELEMS.map((_,i)=>$('el'+i));
+  }
 
-/* ================= 交互 ================= */
-function setMode(m){
-  mode=m;
-  regions = (m===2? DEFAULT2 : DEFAULT3).slice();
-  ELEMS = Array.from({length:16},(_,i)=>String(i+1));
-  curOp = m===2?'inter':'inter3';
-  document.getElementById('m2').classList.toggle('on',m===2);
-  document.getElementById('m3').classList.toggle('on',m===3);
-  document.getElementById('cField').style.display = m===3?'block':'none';
-  stopAuto(); dataVer++; renderOpsBar(); renderColorBar(); syncInputs(); renderAll();
-}
-function setOp(k){ curOp=k; stopAuto(); renderOpsBar(); update(); }
-function cycle(i){ regions[i] = (regions[i]+1) % (1<<mode); dataVer++; update(); }
-function randomize(){
-  const maxR=1<<mode;
-  regions = regions.map(()=>Math.floor(Math.random()*maxR));
-  stopAuto(); dataVer++; syncInputs(); update();
-}
-function resetData(){
-  regions = (mode===2?DEFAULT2:DEFAULT3).slice();
-  ELEMS = Array.from({length:16},(_,i)=>String(i+1));
-  stopAuto(); dataVer++; syncInputs(); renderAll();
-}
-function toggleElements(v){ showEl=v; update(); }
-function setColor(n,v){
-  COLORS[n]=v;
-  const lab=document.getElementById('clr'+n); if(lab) lab.style.color=v;
-  buildSvg(); update();
-}
-function stopAuto(){
-  if(timer){ clearInterval(timer); timer=null; }
-  const b=document.getElementById('playBtn'); if(b){ b.textContent='▶ 自动演示'; b.classList.remove('play'); }
-}
-function autoPlay(){
-  if(timer){ stopAuto(); return; }
-  const b=document.getElementById('playBtn'); b.textContent='⏸ 停止演示'; b.classList.add('play');
-  const list=ops(); let i=list.findIndex(o=>o.k===curOp);
-  timer=setInterval(()=>{ i=(i+1)%list.length; curOp=list[i].k; renderOpsBar(); update(); },1800);
-}
+  /* ================= 快速刷新 ================= */
+  let posCache = {ver:-1, map:{}};
+  function positionsFor(r, list){
+    if(posCache.ver!==dataVer){ posCache = {ver:dataVer, map:{}}; }
+    if(!posCache.map[r] || posCache.map[r].length!==list.length)
+      posCache.map[r] = layoutRegion(r, list.length);
+    return posCache.map[r];
+  }
+  function update(){
+    const maxR = 1<<mode, o = op(), hit = o.rs;
+    for(let r=0;r<maxR;r++){
+      const node = hlNodes[r]; if(!node) continue;
+      node.setAttribute('opacity', hit.includes(r) ? 1 : 0);
+    }
+    const layer = $('elLayer');
+    layer.setAttribute('display', showEl ? 'inline' : 'none');
+    if(showEl){
+      for(let r=0;r<maxR;r++){
+        const list=[]; for(let i=0;i<regions.length;i++) if(regions[i]===r) list.push(i);
+        if(!list.length) continue;
+        const pos = positionsFor(r, list), on = hit.includes(r);
+        list.forEach((idx,n)=>{
+          const node = elNodes[idx]; if(!node) return;
+          const p = pos[n] || pos[pos.length-1] || {x:200,y:200};
+          node.setAttribute('x', p.x.toFixed(1));
+          node.setAttribute('y', p.y.toFixed(1));
+          node.setAttribute('font-size', on ? 15 : 14);
+          node.setAttribute('font-weight', on ? 700 : 600);
+          node.setAttribute('style', `fill:${on?'var(--venn-hl-on)':(r===0?'var(--ink-3)':'var(--ink)')}`);
+        });
+      }
+    }
+    updatePanels();
+  }
+  function renderAll(){ buildSvg(); update(); }
 
-/* ================= 自定义数据 ================= */
-function parseList(s){
-  const out=[];
-  s.split(/[,，、\s;；]+/).forEach(tok=>{
-    if(!tok) return;
-    const m = tok.match(/^(.+?)-(.+)$/);
-    if(m && /^-?\d+$/.test(m[1]) && /^-?\d+$/.test(m[2])){
-      for(let v=+m[1]; v<=+m[2]; v++) out.push(String(v));
-    } else out.push(tok);
+  /* ================= 文本区渲染 ================= */
+  function setList(n){ const out=[]; for(let i=0;i<regions.length;i++) if(regions[i] & (1<<n)) out.push(ELEMS[i]); return out; }
+  function cap(arr){ return arr.length ? arr.join(', ') : '∅'; }
+  function resultRegions(){ return ELEMS.map((_,i)=>i).filter(i=>op().rs.includes(regions[i])); }
+  function updatePanels(){
+    const o = op(), res = resultRegions(), nU = ELEMS.length;
+    $('formulaPill').innerHTML = o.f;
+    $('probePill').innerHTML = `|U| = <b>${nU}</b> · |A| = <b>${setList(0).length}</b> · |B| = <b>${setList(1).length}</b>${mode===3?` · |C| = <b>${setList(2).length}</b>`:''} · ${o.t} = <b>${res.length}</b>`;
+    applyKpTip(o.hint + `<span class="kp-a">当前 ${res.length} 个</span>`, res.length);
+    if(res.length===0) setAlert(`⚠ 当前运算 ${o.t} 的结果为空集 ∅，图中没有亮起的区域。`, 1800);
+    else setAlert('');
+  }
+  function renderOpsBar(){
+    $('ops').innerHTML = ops().map(o=>
+      `<button class="op-btn ${o.k===curOp?'on':''}" onclick="setOp('${o.k}')">${o.t} <small>${o.d}</small></button>`).join('');
+  }
+  function renderColorBar(){
+    const names = mode===2?['A','B']:['A','B','C'];
+    $('colorBar').innerHTML = names.map(n=>
+      `<label title="调整集合 ${n} 的颜色">集合 <b style="color:${COLORS[n]}">${n}</b>
+        <input type="color" data-n="${n}" value="${COLORS[n]}"></label>`).join('');
+    $('colorBar').querySelectorAll('input[type=color]').forEach(inp=>{
+      inp.addEventListener('input', ()=>setColor(inp.dataset.n, inp.value));
+    });
+  }
+
+  /* ================= 交互 ================= */
+  function setMode(m){
+    mode=m;
+    regions = (m===2? DEFAULT2 : DEFAULT3).slice();
+    ELEMS = Array.from({length:16},(_,i)=>String(i+1));
+    curOp = m===2?'inter':'inter3';
+    $('setModeTabs').querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('active', +b.dataset.n===m));
+    $('modeTag').textContent = m===2?'两个集合':'三个集合';
+    $('cField').style.display = m===3?'block':'none';
+    stopAuto(); dataVer++; renderOpsBar(); renderColorBar(); syncInputs(); renderAll();
+    sound.playClick(); showToast(`已切换到${m===2?'两个':'三个'}集合视角`);
+  }
+  function setOp(k, keepAuto){
+    if(!ops().some(o=>o.k===k)) return;
+    curOp=k; if(!keepAuto) stopAuto(); renderOpsBar(); update(); sound.playClick();
+  }
+  function cycle(i){ regions[i] = (regions[i]+1) % (1<<mode); dataVer++; update(); }
+  function randomize(){
+    const maxR=1<<mode;
+    regions = regions.map(()=>Math.floor(Math.random()*maxR));
+    stopAuto(); dataVer++; syncInputs(); update(); sound.playClick();
+  }
+  function toggleElements(v){ showEl=v; update(); }
+  function setColor(n,v){
+    COLORS[n]=v;
+    renderColorBar();
+    buildSvg(); update();
+  }
+
+  /* 连续演示 */
+  const auto = { active:false, playing:false, idx:0, timer:null };
+  const morphControls=$('morphControls'), morphHud=$('morphHud'), hintBar=$('hintBar');
+  function syncAutoUI(){
+    $('btnMorphPlay').textContent = auto.playing ? '⏸ 暂停演示' : '▶ 继续演示';
+    const o = ops()[auto.idx];
+    $('morphHint').innerHTML = `<b>自动演示：${o.t}（${o.d}）</b> · ${o.say}`;
+  }
+  function tickAuto(){
+    if(auto.timer) clearInterval(auto.timer);
+    auto.timer = setInterval(()=>{
+      if(!auto.playing) return;
+      auto.idx = (auto.idx+1) % ops().length;
+      setOp(ops()[auto.idx].k, true);
+      syncAutoUI();
+    }, 1700);
+  }
+  function startAuto(){
+    if(auto.active){ auto.idx=0; auto.playing=true; syncAutoUI(); return; }
+    auto.active=true; auto.playing=true;
+    auto.idx = Math.max(0, ops().findIndex(o=>o.k===curOp));
+    morphControls.style.display='flex';
+    morphHud.classList.add('show'); hintBar.style.display='none';
+    syncAutoUI(); tickAuto();
+  }
+  function stopAuto(){
+    if(auto.timer){ clearInterval(auto.timer); auto.timer=null; }
+    if(!auto.active) return;
+    auto.active=false; auto.playing=false;
+    morphHud.classList.remove('show');
+    morphControls.style.display='none'; hintBar.style.display='';
+    syncAutoUI();
+  }
+  function toggleAuto(){ if(auto.active) stopAuto(); else startAuto(); }
+
+  /* 知识点小提示 */
+  const kpHint = $('kpHint'); let kpSig = '\u0000', kpTimer = null;
+  function applyKpTip(html, resCount){
+    const cls = 'kp-hint' + (html ? ' show' : '') + (resCount === 0 ? ' down' : '');
+    const sig = cls + '|' + html;
+    if (sig === kpSig) return;
+    kpSig = sig; clearTimeout(kpTimer);
+    kpHint.className = cls; kpHint.innerHTML = html;
+    if (html) kpTimer = setTimeout(() => kpHint.classList.add('fade'), 3800);
+  }
+
+  /* 概念梳理 */
+  const STEPS = [
+    { body:'<b>交集</b> A∩B = {x ｜ x∈A <b>且</b> x∈B}。韦恩图上就是两个圆的<b>重叠区域</b>；交集一定是 A、B 各自的子集。', k:'inter' },
+    { body:'<b>并集</b> A∪B = {x ｜ x∈A <b>或</b> x∈B}。两圆覆盖的全部区域，公共元素<b>只写一次</b>；因此 |A∪B| = |A| + |B| − |A∩B|。', k:'union' },
+    { body:'<b>差集</b> A−B = {x ｜ x∈A <b>且</b> x∉B} = A∩∁<sub>U</sub>B。A 中挖去与 B 重叠的月牙形；一般 A−B ≠ B−A。', k:'diffA' },
+    { body:'<b>补集</b> ∁<sub>U</sub>A = {x ｜ x∈U <b>且</b> x∉A}。全集方框内、A 圆外（含「只在 B 里」与「框内圈外」）。满足 A∪∁<sub>U</sub>A = U，A∩∁<sub>U</sub>A = ∅。', k:'compA' },
+    { body:'<b>运算律</b>：交换律 A∩B=B∩A、A∪B=B∪A；分配律 A∩(B∪C)=(A∩B)∪(A∩C)；<b>德摩根律</b> ∁<sub>U</sub>(A∪B)=∁<sub>U</sub>A∩∁<sub>U</sub>B，∁<sub>U</sub>(A∩B)=∁<sub>U</sub>A∪∁<sub>U</sub>B。<br>点击任一步骤，即可在韦恩图中切换并高亮对应区域。', k:'union' }
+  ];
+  const derivModal = $('derivModal'); let stepsRendered = false;
+  function renderSteps(){
+    if(stepsRendered) return;
+    $('steps').innerHTML = '<div style="font-size:14px;line-height:1.95;color:var(--ink-2)">' + STEPS.map((s, i) =>
+      `<div class="sb" data-step="${i}"><b style="color:var(--cyan)">${i+1}.</b> ${s.body}</div>`).join('') + '</div>';
+    document.querySelectorAll('#steps .sb').forEach(el => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.step;
+        setOp(STEPS[idx].k);
+        document.querySelectorAll('#steps .sb').forEach(s => s.style.background = 'transparent');
+        el.style.background = 'rgba(56,189,248,.10)';
+        setTimeout(() => { el.style.background = 'transparent'; }, 1400);
+        showToast(`已在图中展示：${ops().find(o=>o.k===STEPS[idx].k).t}`);
+      });
+    });
+    stepsRendered = true;
+  }
+  function openDerivModal(){ renderSteps(); derivModal.classList.add('open'); }
+  function closeDerivModal(){ derivModal.classList.remove('open'); }
+  $('btnDeriv').addEventListener('click', openDerivModal);
+  $('derivClose').addEventListener('click', closeDerivModal);
+  derivModal.addEventListener('click', e => { if (e.target === derivModal) closeDerivModal(); });
+
+  /* 知识点总结弹窗 */
+  const kpModal = $('kpModal'), kpBody = $('kpBody'), kpModalState = $('kpModalState');
+  function kpCard(f, n, hit){ return '<div class="kp-item'+(hit?' hit':'')+'">'+(hit?'<i class="kp-tag">当前适用</i>':'')+'<div class="f">'+f+'</div>'+(n?'<div class="n">'+n+'</div>':'')+'</div>'; }
+  function kpBodyHTML(){
+    const sec1 = '<div class="kp-sec"><h3><span class="idx">一</span>四种基本运算</h3><div class="kp-grid">'
+      + kpCard('<b>交集</b> A∩B = {x｜x∈A 且 x∈B}', '两圆重叠部分；A∩A=A，A∩∅=∅', true)
+      + kpCard('<b>并集</b> A∪B = {x｜x∈A 或 x∈B}', '两圆覆盖全部；公共元素只写一次，A∪∅=A', true)
+      + kpCard('<b>补集</b> ∁<sub>U</sub>A = {x｜x∈U 且 x∉A}', '圆外、方框内；A∪∁<sub>U</sub>A=U，A∩∁<sub>U</sub>A=∅', true)
+      + kpCard('<b>差集</b> A−B = {x｜x∈A 且 x∉B}', 'A 中挖去重叠部分；A−B = A∩∁<sub>U</sub>B', true)
+      + '</div></div>';
+    let tbl = '<table class="kp-tbl"><tr><th>运算</th><th>记号</th><th>定义</th><th>韦恩图区域</th><th>常用性质</th></tr>'
+      + '<tr><td>交集</td><td><b>A∩B</b></td><td>{x｜x∈A 且 x∈B}</td><td>两圆重叠部分</td><td>A∩A=A，A∩∅=∅，(A∩B)⊆A</td></tr>'
+      + '<tr><td>并集</td><td><b>A∪B</b></td><td>{x｜x∈A 或 x∈B}</td><td>两圆覆盖的全部</td><td>公共元素只写一次；A∪∅=A</td></tr>'
+      + '<tr><td>补集</td><td><b>∁<sub>U</sub>A</b></td><td>{x｜x∈U 且 x∉A}</td><td>圆外、方框内</td><td>A∪∁<sub>U</sub>A=U，∁<sub>U</sub>(∁<sub>U</sub>A)=A</td></tr>'
+      + '<tr><td>差集</td><td><b>A−B</b></td><td>{x｜x∈A 且 x∉B}</td><td>A 中挖去重叠部分</td><td>A−B = A∩∁<sub>U</sub>B；一般 A−B ≠ B−A</td></tr></table>';
+    const sec2 = '<div class="kp-sec"><h3><span class="idx">二</span>一表梳理</h3>' + tbl + '</div>';
+    const sec3 = '<div class="kp-sec"><h3><span class="idx">三</span>运算律</h3><ul>'
+      + '<li><b>交换律：</b>A∩B=B∩A，A∪B=B∪A</li>'
+      + '<li><b>结合律：</b>(A∩B)∩C=A∩(B∩C)，并集同理</li>'
+      + '<li><b>分配律：</b>A∩(B∪C)=(A∩B)∪(A∩C)，A∪(B∩C)=(A∪B)∩(A∪C)</li>'
+      + '<li><b>德摩根律：</b>∁<sub>U</sub>(A∪B)=∁<sub>U</sub>A∩∁<sub>U</sub>B，∁<sub>U</sub>(A∩B)=∁<sub>U</sub>A∪∁<sub>U</sub>B</li>'
+      + '<li><b>容斥原理：</b>|A∪B| = |A| + |B| − |A∩B|</li></ul></div>';
+    const sec4 = '<div class="kp-sec"><h3><span class="idx">四</span>课堂使用建议与易错点</h3><ul>'
+      + '<li>先<b>关掉元素</b>讲区域关系，再打开元素讲计数。</li>'
+      + '<li>点击运算按钮让区域「亮起来」，点图中元素可改变其所属区域，图形实时更新。</li>'
+      + '<li><b>易错：</b>并集的公共元素只能写一次；补集要写清全集 U；差集不满足交换律。</li></ul>'
+      + '<div class="kp-note">两种模式：<b>两个集合</b>覆盖交、并、差、补；<b>三个集合</b>可演示混合运算与德摩根律。</div></div>';
+    return sec1+sec2+sec3+sec4;
+  }
+  function openKpModal(){
+    kpBody.innerHTML = kpBodyHTML();
+    kpModalState.textContent = `${mode===2?'两个':'三个'}集合 · ${ELEMS.length} 个元素`;
+    kpModal.classList.add('open'); kpBody.scrollTop = 0;
+  }
+  function closeKpModal(){ kpModal.classList.remove('open'); }
+  $('btnKp').addEventListener('click', openKpModal);
+  $('kpClose').addEventListener('click', closeKpModal);
+  kpModal.addEventListener('click', e => { if (e.target === kpModal) closeKpModal(); });
+
+  /* ================= 题库（集合 16 道） ================= */
+  const QUIZ_BANK = [
+    { id:1, stem:'交集 A∩B 表示的是？', formula:'A ∩ B = ?', opts:['属于 A 或属于 B 的元素','同时属于 A 和 B 的元素','属于 A 但不属于 B 的元素','全集里不属于 A 的元素'], ans:1, explain:'交集由既属于 A 又属于 B 的元素组成，对应韦恩图中两圆的重叠区域。', demo:{op:'inter',mode:2} },
+    { id:2, stem:'求并集 A∪B 时，两个集合的公共元素应该？', formula:'A ∪ B', opts:['写两次','只写一次','忽略不计','单独放到补集里'], ans:1, explain:'并集中的每个元素只出现一次，公共元素只写一次；故 |A∪B| = |A|+|B|−|A∩B|。', demo:{op:'union',mode:2} },
+    { id:3, stem:'补集 ∁<sub>U</sub>A 中的元素满足？', formula:'∁<sub>U</sub>A', opts:['x∈A 且 x∈B','x∈U 且 x∉A','x∉U','x∈A 或 x∈B'], ans:1, explain:'补集是全集 U 中不属于 A 的元素，即「框内、A 圆外」的部分。', demo:{op:'compA',mode:2} },
+    { id:4, stem:'差集 A−B 等于下列哪个式子？', formula:'A − B', opts:['A∪∁<sub>U</sub>B','A∩∁<sub>U</sub>B','B−A','A∩B'], ans:1, explain:'A−B = A∩∁<sub>U</sub>B，即 A 与 B 的补集的交集。', demo:{op:'diffA',mode:2} },
+    { id:5, stem:'下列各式一定成立的是？', formula:'A ∩ B ⊆ ?', opts:['A∩B ⊆ A','A ⊆ A∩B','A∩B = A∪B','A∩B = ∅'], ans:0, explain:'交集是任一集合的子集：A∩B ⊆ A 且 A∩B ⊆ B。', demo:{op:'inter',mode:2} },
+    { id:6, stem:'若 A⊆B，则 A∩B = ？', formula:'A ⊆ B', opts:['A','B','∅','U'], ans:0, explain:'A 是 B 的子集时，A 全部落在 B 内，交集就是较小的集合 A。', demo:{op:'inter',mode:2} },
+    { id:7, stem:'若 A⊆B，则 A∪B = ？', formula:'A ⊆ B', opts:['A','B','∅','U'], ans:1, explain:'A 是 B 的子集时，并集就是较大的集合 B。', demo:{op:'union',mode:2} },
+    { id:8, stem:'德摩根律：∁<sub>U</sub>(A∪B) = ？', formula:'∁<sub>U</sub>(A∪B)', opts:['∁<sub>U</sub>A ∪ ∁<sub>U</sub>B','∁<sub>U</sub>A ∩ ∁<sub>U</sub>B','A ∩ B','A ∪ B'], ans:1, explain:'并集的补集等于补集的交集：∁<sub>U</sub>(A∪B)=∁<sub>U</sub>A∩∁<sub>U</sub>B。', demo:{op:'compAB3',mode:3} },
+    { id:9, stem:'德摩根律：∁<sub>U</sub>(A∩B) = ？', formula:'∁<sub>U</sub>(A∩B)', opts:['∁<sub>U</sub>A ∩ ∁<sub>U</sub>B','∁<sub>U</sub>A ∪ ∁<sub>U</sub>B','A ∩ B','A ∪ B'], ans:1, explain:'交集的补集等于补集的并集：∁<sub>U</sub>(A∩B)=∁<sub>U</sub>A∪∁<sub>U</sub>B。', demo:{op:'union3',mode:3} },
+    { id:10, stem:'分配律：A∩(B∪C) = ？', formula:'A ∩ (B ∪ C)', opts:['(A∩B)∪(A∩C)','(A∪B)∩C','A∩B∩C','(A∩B)∪C'], ans:0, explain:'交集对并集满足分配律：A∩(B∪C)=(A∩B)∪(A∩C)。', demo:{op:'abUC',mode:3} },
+    { id:11, stem:'韦恩图中「两圆之外、方框之内」的区域表示？', formula:'∁<sub>U</sub>(A ∪ B)', opts:['A∩B','A∪B','∁<sub>U</sub>(A∪B)','A−B'], ans:2, explain:'两圆之外即不属于 A 也不属于 B，是 A∪B 在全集中的补集。', demo:{op:'compA',mode:2} },
+    { id:12, stem:'已知 |A|=8，|B|=7，|A∩B|=3，则 |A∪B| = ？', formula:'|A ∪ B| = ?', opts:['12','15','18','11'], ans:0, explain:'由容斥原理 |A∪B| = 8 + 7 − 3 = 12。', demo:{op:'union',mode:2} },
+    { id:13, stem:'对任意集合 A，A∩∅ = ？', formula:'A ∩ ∅', opts:['A','∅','U','{0}'], ans:1, explain:'空集不含任何元素，与任何集合的交集都是空集。', demo:{op:'inter',mode:2} },
+    { id:14, stem:'对任意集合 A，A∪∅ = ？', formula:'A ∪ ∅', opts:['A','∅','U','{0}'], ans:0, explain:'并上空集不改变原集合，∅ 是并集的单位元。', demo:{op:'union',mode:2} },
+    { id:15, stem:'∁<sub>U</sub>(∁<sub>U</sub>A) = ？', formula:'∁<sub>U</sub>(∁<sub>U</sub>A)', opts:['A','∅','U','∁<sub>U</sub>A'], ans:0, explain:'补集的补集等于原集合（在同一全集 U 下）。', demo:{op:'compA',mode:2} },
+    { id:16, stem:'三集合韦恩图中 A∩B∩C 表示？', formula:'A ∩ B ∩ C', opts:['只在 A 中的部分','三个圆共同重叠的部分','三个圆之外的部分','任意两个圆重叠的部分'], ans:1, explain:'A∩B∩C 是同时属于 A、B、C 的元素，对应三圆中央的公共区域。', demo:{op:'inter3',mode:3} },
+  ];
+
+  /* ================= 答对特效 ================= */
+  const fxCanvas = $('fxCanvas'), quizStamp = $('quizStamp');
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const fx = (() => {
+    const ctx = fxCanvas.getContext('2d');
+    const COLORS = ['#34d399','#22d3ee','#fbbf24','#a78bfa','#f472b6','#38bdf8','#fff'];
+    let parts = [], raf = 0, last = 0;
+    function fit() { const dpr = Math.min(2, window.devicePixelRatio||1), w=innerWidth, h=innerHeight; fxCanvas.width=Math.round(w*dpr); fxCanvas.height=Math.round(h*dpr); fxCanvas.style.width=w+'px'; fxCanvas.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); }
+    fit(); addEventListener('resize', () => { if (parts.length) fit(); });
+    function paper(x,y,ang,spd,power) { parts.push({kind:'paper',x,y,vx:Math.cos(ang)*spd*power,vy:Math.sin(ang)*spd*power,w:6+Math.random()*7,h:5+Math.random()*5,rot:Math.random()*6.28,vr:(Math.random()-.5)*15,color:COLORS[(Math.random()*COLORS.length)|0],life:1,decay:.5+Math.random()*.26,swing:Math.random()*6.28}); }
+    function confetti(x,y,count,power) { for (let i=0;i<count;i++) paper(x+(Math.random()-.5)*36,y+(Math.random()-.5)*10,-Math.PI/2+(Math.random()-.5)*Math.PI*.95,170+Math.random()*320,power||1); }
+    function sparks(x,y,count) { for (let i=0;i<count;i++) { const ang=Math.random()*6.28, spd=90+Math.random()*250; parts.push({kind:'spark',x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,r:1.6+Math.random()*2.6,color:COLORS[(Math.random()*COLORS.length)|0],life:1,decay:1.1+Math.random()*.9}); } }
+    function cannons(count) { const w=innerWidth,h=innerHeight; for (let i=0;i<count;i++) { const left=i%2===0; parts.push({kind:'paper',x:left?-8:w+8,y:h-16,vx:(left?1:-1)*(360+Math.random()*240),vy:-(620+Math.random()*320),w:7+Math.random()*7,h:5+Math.random()*5,rot:Math.random()*6.28,vr:(Math.random()-.5)*16,color:COLORS[(Math.random()*COLORS.length)|0],life:1,decay:.34+Math.random()*.2,swing:Math.random()*6.28}); } }
+    function tick(t) {
+      const dt = last ? Math.min(.05,(t-last)/1000) : .016; last = t;
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+      for (let i=parts.length-1;i>=0;i--) { const p=parts[i]; p.life-=p.decay*dt; if (p.life<=0) { parts.splice(i,1); continue; }
+        if (p.kind==='paper') { p.vy+=1150*dt; p.vx*=1-1.1*dt; p.vy*=1-.5*dt; p.swing+=dt*9; p.x+=(p.vx+Math.sin(p.swing)*34)*dt; p.y+=p.vy*dt; p.rot+=p.vr*dt; ctx.save(); ctx.globalAlpha=Math.min(1,p.life*1.7); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,Math.max(1,p.h*Math.abs(Math.cos(p.swing*.7)))); ctx.restore(); }
+        else { p.vy+=420*dt; p.vx*=1-2.2*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; ctx.save(); ctx.globalAlpha=Math.max(0,p.life); ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(.4,p.r*p.life),0,6.28); ctx.fill(); ctx.restore(); }
+        if (p.y>innerHeight+80) parts.splice(i,1);
+      }
+      if (!parts.length) { cancel(); return; }
+      raf = requestAnimationFrame(tick);
+    }
+    function start() { if (raf) return; fit(); fxCanvas.style.display='block'; last=0; raf=requestAnimationFrame(tick); }
+    function cancel() { if (raf) cancelAnimationFrame(raf); raf=0; last=0; parts=[]; ctx.clearRect(0,0,innerWidth,innerHeight); fxCanvas.style.display='none'; }
+    return { clear:cancel, burstAt(el,big) { if (reduceMotion||!el) return; const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+8; confetti(cx,cy,big?84:42,big?1.25:1); sparks(cx,cy,big?22:12); start(); }, finale() { if (reduceMotion) return; cannons(64); start(); [0,1,2].forEach(i=>setTimeout(()=>{ confetti(innerWidth*(.3+i*.2),innerHeight*.66,30,1.12); start(); },240*(i+1))); } };
+  })();
+  function showQuizStamp(icon, main, sub, gold) { if (!quizStamp) return; quizStamp.className='quiz-stamp'+(gold?' gold':''); quizStamp.innerHTML=`<span class="s-ico">${icon}</span><span>${main}${sub?`<span class="s-sub">${sub}</span>`:''}</span>`; void quizStamp.offsetWidth; quizStamp.classList.add('show'); }
+  function bumpBadge(el) { if (!el) return; el.classList.remove('bump','gain'); void el.offsetWidth; el.classList.add('bump','gain'); clearTimeout(el._bumpT); el._bumpT=setTimeout(()=>el.classList.remove('bump','gain'),1500); }
+
+  /* ================= 闯关 ================= */
+  const quizModal = $('quizModal'), btnQuizDemo = $('btnQuizDemo'), btnQuizNext = $('btnQuizNext'), btnBgm = $('btnBgm');
+  const state = { mode:'explore', pickedOpt:null, revealed:false, quizIndex:0, quizScore:0, quizAnswered:false, quizStreak:0 };
+  let bgmEnabled = true, quizSet = [], lastIds = [];
+  const QUIZ_SIZE = 4;
+  (function syncQuizInfo(){ $('quizBankInfo').innerHTML = `题库共 <b>${QUIZ_BANK.length}</b> 道，每轮随机抽 <b>${QUIZ_SIZE}</b> 道（选项顺序也会打乱）。<br>重点检验定义、韦恩图区域、运算律与德摩根律。`; $('quizScoreBadge').textContent=`得分 0 / ${QUIZ_SIZE}`; $('chalScore').textContent=`0 / ${QUIZ_SIZE}`; })();
+  function shuffleArr(arr) { const a=arr.slice(); for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function newQuizSet() {
+    const fresh = QUIZ_BANK.filter(q => lastIds.indexOf(q.id) === -1);
+    const pool = fresh.length >= QUIZ_SIZE ? fresh : QUIZ_BANK;
+    const picked = shuffleArr(pool).slice(0, QUIZ_SIZE);
+    lastIds = picked.map(q => q.id);
+    quizSet = picked.map(q => { const texts = shuffleArr(q.opts); return { ...q, opts: texts, ans: texts.indexOf(q.opts[q.ans]) }; });
+    state.quizIndex=0; state.quizScore=0; state.quizAnswered=false; state.quizStreak=0;
+  }
+  function syncBgmBtn() { const p=sound.isPlaying(); btnBgm.textContent=p?'🔊 音乐开':'🔇 音乐关'; btnBgm.classList.toggle('on',p); }
+  btnBgm.addEventListener('click', () => { bgmEnabled=!bgmEnabled; if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); } else sound.stopBgm(); syncBgmBtn(); });
+  function openQuizModal(){ newQuizSet(); quizModal.classList.add('open'); if (bgmEnabled) { sound.setMuted(false); sound.startBgm(); } syncBgmBtn(); renderQuizQuestion(); }
+  function closeQuizModal(){ quizModal.classList.remove('open'); fx.clear(); sound.stopBgm(); syncBgmBtn(); }
+  function renderQuizQuestion() {
+    const q = quizSet[state.quizIndex]; state.quizAnswered = false; fx.clear(); quizStamp.classList.remove('show');
+    $('quizProgress').textContent = `第 ${state.quizIndex+1} / ${quizSet.length} 题`;
+    $('quizScoreBadge').textContent = `得分 ${state.quizScore} / ${quizSet.length}`;
+    $('chalScore').textContent = `${state.quizScore} / ${quizSet.length}`;
+    $('quizStem').innerHTML = `${q.stem}<br><span class="quiz-formula">${q.formula}</span>`;
+    const explainEl = $('quizExplain'); explainEl.classList.remove('show'); explainEl.innerHTML='';
+    btnQuizDemo.style.display='none'; btnQuizNext.style.display='none';
+    const optsEl = $('quizOpts'); optsEl.innerHTML='';
+    q.opts.forEach((label,idx) => { const b=document.createElement('button'); b.className='quiz-opt'; b.innerHTML='ABCD'[idx]+'. '+label; b.addEventListener('click',()=>handleQuizPick(idx)); optsEl.appendChild(b); });
+  }
+  function handleQuizPick(pickedIdx) {
+    if (state.quizAnswered) return; state.quizAnswered = true;
+    const q = quizSet[state.quizIndex];
+    document.querySelectorAll('#quizOpts .quiz-opt').forEach((b,i) => {
+      b.disabled = true;
+      if (i === q.ans) { b.classList.add('correct'); const t=document.createElement('span'); t.className='opt-tick'; t.textContent='✓'; b.appendChild(t); }
+      else if (i === pickedIdx) b.classList.add('wrong');
+    });
+    if (pickedIdx === q.ans) {
+      state.quizScore++; state.quizStreak++;
+      const isLast = state.quizIndex === quizSet.length-1;
+      const badge = $('quizScoreBadge'); badge.textContent=`得分 ${state.quizScore} / ${quizSet.length}`;
+      $('chalScore').textContent=`${state.quizScore} / ${quizSet.length}`;
+      fx.burstAt(document.querySelectorAll('#quizOpts .quiz-opt')[q.ans], isLast); bumpBadge(badge); bumpBadge($('chalScore'));
+      if (isLast) { fx.finale(); const full=state.quizScore===quizSet.length; showQuizStamp(full?'🏆':'🎉',full?'满分通关！':'闯关完成',`总得分 ${state.quizScore} / ${quizSet.length}`,true); sound.playVictory(); showToast(full?`🏆 全对通关！${state.quizScore} / ${quizSet.length}`:`🏆 闯关完成！${state.quizScore} / ${quizSet.length}`); }
+      else { const st=state.quizStreak; showQuizStamp('✓','答对了 +1',st>=2?`🔥 连对 ${st} 题`:'保持这个节奏',false); sound.playCorrect(); showToast(st>=2?`🔥 连对 ${st} 题了！`:'🎉 回答正确！+1 分'); }
+    } else { state.quizStreak=0; sound.playWrong(); showToast('❌ 答错了，看解析后再到图中验证一下'); }
+    const explainEl = $('quizExplain'); explainEl.innerHTML = `<b>解析：</b>${q.explain}`; explainEl.classList.add('show');
+    btnQuizDemo.style.display='inline-flex'; btnQuizNext.style.display='inline-flex';
+    btnQuizNext.textContent = state.quizIndex < quizSet.length-1 ? '下一题 →' : '🔄 换一批新题';
+  }
+  $('btnOpenQuiz').addEventListener('click', openQuizModal);
+  $('btnCloseQuiz').addEventListener('click', closeQuizModal);
+  quizModal.addEventListener('click', e => { if (e.target === quizModal) closeQuizModal(); });
+  btnQuizDemo.addEventListener('click', () => {
+    const q = quizSet[state.quizIndex]; if (auto.active) stopAuto();
+    setMode(q.demo.mode); setOp(q.demo.op);
+    closeQuizModal(); showToast(`🔬 已切到${q.demo.mode===2?'两':'三'}集合并展示：${ops().find(o=>o.k===q.demo.op).t}`);
   });
-  return out;
-}
-function applyData(){
-  const elems = parseList(document.getElementById('uInput').value);
-  if(!elems.length){ alert('请填写全集 U 的元素，例如：1-16'); return; }
-  if(elems.length>26){ alert('演示建议全集不超过 26 个元素，当前 '+elems.length+' 个'); }
-  const regs = new Array(elems.length).fill(0);
-  ['aInput','bInput','cInput'].forEach((id,n)=>{
-    if(n>=mode) return;
-    parseList(document.getElementById(id).value).forEach(v=>{
-      const idx = elems.indexOf(v);
-      if(idx>=0) regs[idx] |= (1<<n);
+  btnQuizNext.addEventListener('click', () => { sound.playClick(); if (state.quizIndex < quizSet.length-1) state.quizIndex++; else newQuizSet(); renderQuizQuestion(); });
+
+  /* ================= 模式切换 / 先猜后验 ================= */
+  document.querySelectorAll('#modeTabs .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeTabs .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); state.mode = btn.dataset.mode;
+      $('predictCard').style.display = state.mode === 'predict' ? 'block' : 'none';
+      $('challengeCard').style.display = state.mode === 'challenge' ? 'block' : 'none';
+      if (state.mode === 'challenge') openQuizModal();
+      sound.playClick();
     });
   });
-  ELEMS = elems; regions = regs;
-  stopAuto(); dataVer++; renderAll();
-}
-function syncInputs(){
-  const names=['aInput','bInput','cInput'];
-  document.getElementById('uInput').value = ELEMS.join(', ');
-  for(let n=0;n<3;n++){
-    const el=document.getElementById(names[n]);
-    el.value = n<mode ? setList(n).join(', ') : '';
-  }
-}
+  const btnReveal = $('btnReveal');
+  document.querySelectorAll('#predictOpts .predict-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (state.revealed) return;
+      document.querySelectorAll('#predictOpts .predict-opt').forEach(o => o.classList.remove('picked'));
+      opt.classList.add('picked'); state.pickedOpt = Number(opt.dataset.idx);
+      btnReveal.disabled = false; btnReveal.textContent = '✨ 揭晓并连续验证';
+    });
+  });
+  btnReveal.addEventListener('click', () => {
+    state.revealed = true; if (auto.active) stopAuto();
+    const correctIdx = 3;
+    document.querySelectorAll('#predictOpts .predict-opt').forEach(o => {
+      const idx = Number(o.dataset.idx);
+      if (idx === correctIdx) o.classList.add('correct');
+      else if (idx === state.pickedOpt) o.classList.add('wrong');
+    });
+    $('predictFeedback').classList.add('show');
+    if (mode !== 2) setMode(2);
+    setOp(ops()[0].k);
+    startAuto();
+    showToast(state.pickedOpt === correctIdx ? '👏 猜想正确：补集是 A 圆外的两块' : '看看连续演示：补集 ∁ᵤA 亮起的是两块');
+  });
 
-/* ================= 初始化 ================= */
-ELEMS = Array.from({length:16},(_,i)=>String(i+1));
-regions = DEFAULT2.slice();
-document.getElementById('cField').style.display='none';
-renderOpsBar(); renderColorBar(); syncInputs(); renderAll();
+  /* ================= 按钮 / 快捷键 ================= */
+  /* 数据控制台折叠：默认收起，点击标题展开 */
+  function toggleCtrl(force){
+    const card=$('ctrlCard'), btn=$('ctrlToggle');
+    const collapsed = typeof force==='boolean' ? force : !card.classList.contains('collapsed');
+    card.classList.toggle('collapsed', collapsed);
+    btn.setAttribute('aria-expanded', String(!collapsed));
+  }
+  $('ctrlToggle').addEventListener('click', ()=>toggleCtrl());
+  $('ctrlToggle').addEventListener('keydown', e=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); e.stopPropagation(); toggleCtrl(); }
+  });
+  $('setModeTabs').querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>setMode(+b.dataset.n)));
+  $('btnApply').addEventListener('click', applyData);
+  $('btnApplyRandom').addEventListener('click', randomize);
+  $('showEl').addEventListener('change', e=>toggleElements(e.target.checked));
+  $('btnAutoSide').addEventListener('click', toggleAuto);
+  $('btnMorphPlay').addEventListener('click', () => { auto.playing=!auto.playing; syncAutoUI(); });
+  $('btnMorphReplay').addEventListener('click', () => { auto.idx=0; auto.playing=true; setOp(ops()[0].k, true); syncAutoUI(); });
+  $('btnMorphExit').addEventListener('click', stopAuto);
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (derivModal.classList.contains('open')) { closeDerivModal(); e.stopImmediatePropagation(); }
+      else if (kpModal.classList.contains('open')) { closeKpModal(); e.stopImmediatePropagation(); }
+      else if (quizModal.classList.contains('open')) closeQuizModal();
+      else if (auto.active) stopAuto();
+      return;
+    }
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault(); if (auto.active) stopAuto();
+      const list=ops(); let i=list.findIndex(o=>o.k===curOp);
+      i=(i+(e.key==='ArrowRight'?1:list.length-1))%list.length;
+      setOp(list[i].k);
+    }
+    if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); toggleAuto(); }
+  });
+
+  /* ================= 自定义数据 ================= */
+  function parseList(s){
+    const out=[];
+    s.split(/[,，、\s;；]+/).forEach(tok=>{
+      if(!tok) return;
+      const m = tok.match(/^(.+?)-(.+)$/);
+      if(m && /^-?\d+$/.test(m[1]) && /^-?\d+$/.test(m[2])){
+        for(let v=+m[1]; v<=+m[2]; v++) out.push(String(v));
+      } else out.push(tok);
+    });
+    return out;
+  }
+  function applyData(){
+    const elems = parseList($('uInput').value);
+    if(!elems.length){ alert('请填写全集 U 的元素，例如：1-16'); return; }
+    if(elems.length>26){ alert('演示建议全集不超过 26 个元素，当前 '+elems.length+' 个'); }
+    const regs = new Array(elems.length).fill(0);
+    ['aInput','bInput','cInput'].forEach((id,n)=>{
+      if(n>=mode) return;
+      parseList($(id).value).forEach(v=>{
+        const idx = elems.indexOf(v);
+        if(idx>=0) regs[idx] |= (1<<n);
+      });
+    });
+    ELEMS = elems; regions = regs;
+    stopAuto(); dataVer++; renderAll();
+    showToast(`已应用 ${elems.length} 个元素`);
+  }
+  function syncInputs(){
+    const names=['aInput','bInput','cInput'];
+    $('uInput').value = ELEMS.join(', ');
+    for(let n=0;n<3;n++){
+      const el=$(names[n]);
+      el.value = n<mode ? setList(n).join(', ') : '';
+    }
+  }
+
+  /* ================= 外部命令接口 ================= */
+  initShell({ onCommand: (action, payload) => {
+    if (action === 'setOp' && payload && typeof payload.k === 'string') setOp(payload.k);
+    if (action === 'setMode' && payload && (payload.mode === 2 || payload.mode === 3)) setMode(payload.mode);
+    if (action === 'random') randomize();
+    if (action === 'auto') toggleAuto();
+  }});
+
+  /* ================= 初始化 ================= */
+  window.setOp = setOp;
+  window.cycle = cycle;
+  ELEMS = Array.from({length:16},(_,i)=>String(i+1));
+  regions = DEFAULT2.slice();
+  $('cField').style.display='none';
+  renderOpsBar(); renderColorBar(); syncInputs(); renderAll();
+})();
 </script>
 </body>
 </html>

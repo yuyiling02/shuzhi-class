@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18.1 分式及其基本性质 · 闯关课堂</title>
+<style>
+/* SECTION: css-base */
+:root{
+  --bg0:#070b18;--bg1:#0d1330;--card:rgba(255,255,255,.045);--line:rgba(148,163,255,.22);
+  --cyan:#22d3ee;--mag:#f472b6;--lime:#a3e635;--amber:#fbbf24;--red:#fb7185;--green:#34d399;
+  --ink:#eef2ff;--sub:#9aa7d1;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{max-width:100%;}
+body{
+  font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(1100px 560px at 18% -10%,#1b2350 0%,transparent 60%),
+             radial-gradient(900px 500px at 108% 8%,#3b1d4f 0%,transparent 55%),
+             linear-gradient(160deg,var(--bg0),var(--bg1));
+  min-height:100vh;padding:14px 12px 30px;
+}
+.wrap{max-width:1000px;margin:0 auto;min-width:0;}
+.hide{display:none !important;}
+button{font-family:inherit;}
+/* SECTION: css-header-nav */
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+header h1{font-size:20px;font-weight:800;text-shadow:0 0 18px rgba(34,211,238,.5);min-width:0;}
+header .sp{flex:1;}
+nav{display:flex;gap:8px;flex-wrap:wrap;}
+.nbtn{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.04);color:var(--sub);font-weight:700;font-size:14px;cursor:pointer;transition:.2s;}
+.nbtn.on{color:#04121a;background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 16px rgba(34,211,238,.55);}
+/* SECTION: css-cards */
+.cardv{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;
+  box-shadow:0 2px 14px rgba(0,0,0,.35);margin-bottom:12px;min-width:0;}
+.hero .htitle{font-size:18px;font-weight:800;color:var(--cyan);margin-bottom:4px;}
+.hero .hsub{font-size:13px;color:var(--sub);margin-bottom:10px;}
+.mottoline{font-size:14px;font-weight:700;color:var(--amber);padding:3px 0;}
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+.cardv.lab{cursor:pointer;transition:.2s;display:flex;flex-direction:column;gap:6px;}
+.cardv.lab:hover{border-color:var(--cyan);box-shadow:0 0 18px rgba(34,211,238,.35);}
+.cardv .num{font-size:13px;font-weight:800;color:var(--mag);}
+.cardv .cname{font-size:17px;font-weight:800;}
+.cardv .cmotto{font-size:13px;color:var(--sub);}
+.cardv .cstat{font-size:13px;font-weight:800;color:var(--green);}
+.cardv .cstat.todo{color:var(--sub);}
+/* SECTION: css-lab */
+.labhead h2{font-size:18px;font-weight:800;margin-bottom:4px;}
+.motto{color:var(--amber);font-weight:700;font-size:14px;margin-bottom:10px;}
+.guess{border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+.guess .glab{font-weight:800;color:var(--mag);margin-right:6px;}
+.guess #guessPrompt{font-size:14px;color:var(--sub);}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.chip{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.04);color:var(--sub);font-weight:700;font-size:14px;cursor:pointer;transition:.2s;}
+.chip.on{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.1);box-shadow:0 0 12px rgba(34,211,238,.35);}
+.gfb{margin-top:8px;font-size:14px;font-weight:700;min-height:20px;color:var(--sub);}
+.gfb.ok{color:var(--green);} .gfb.no{color:var(--red);}
+.stage{min-height:170px;display:flex;flex-direction:column;gap:12px;justify-content:center;align-items:center;
+  padding:14px;border-radius:14px;background:rgba(2,6,23,.5);border:1px solid var(--line);margin-bottom:10px;}
+.scol{display:flex;flex-direction:column;gap:10px;align-items:center;min-width:0;}
+.frow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;min-width:0;
+  font-size:22px;font-weight:800;}
+.fl{font-weight:800;}
+.fl.lime{color:var(--lime);}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;vertical-align:middle;}
+.frac .fn{padding:1px 8px;border-bottom:2.5px solid currentColor;text-align:center;}
+.frac .fd{padding:1px 8px;text-align:center;}
+.op{font-size:26px;font-weight:900;color:var(--mag);min-width:30px;text-align:center;transition:.3s;}
+.op.hot{color:var(--lime);text-shadow:0 0 12px rgba(163,230,53,.8);}
+.blk{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 9px;
+  border-radius:9px;background:rgba(34,211,238,.12);border:1px solid var(--cyan);color:var(--cyan);
+  font-weight:800;font-size:17px;transition:.35s;user-select:none;}
+.blk.hot{border-color:var(--amber);color:var(--amber);box-shadow:0 0 14px rgba(251,191,36,.7);transform:scale(1.08);}
+.blk.cut{opacity:.35;text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:3px;transform:scale(.92);}
+.blk.keep{border-color:var(--green);color:var(--green);box-shadow:0 0 14px rgba(52,211,153,.65);animation:pulse 1s infinite alternate;}
+.blk.prod{background:rgba(163,230,53,.16);border-color:var(--lime);color:var(--lime);}
+@keyframes pulse{from{box-shadow:0 0 6px rgba(52,211,153,.4);}to{box-shadow:0 0 18px rgba(52,211,153,.85);}}
+.badge{display:inline-flex;align-items:center;min-height:34px;padding:4px 14px;border-radius:999px;font-weight:800;font-size:15px;}
+.badge.ok{color:#052e22;background:var(--green);box-shadow:0 0 18px rgba(52,211,153,.6);}
+.badge.bad{color:#3f0d17;background:var(--red);box-shadow:0 0 18px rgba(251,113,133,.6);}
+.badge.info{color:#082f49;background:var(--cyan);box-shadow:0 0 14px rgba(34,211,238,.5);}
+.pre{opacity:0;transform:translateY(6px);transition:.4s;}
+.pre.in{opacity:1;transform:none;}
+.popin{animation:pop .45s cubic-bezier(.5,1.6,.5,1);}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.flipwrap{display:inline-flex;transition:transform .3s,opacity .3s;}
+.flipwrap.spin{transform:rotateX(90deg);opacity:.2;}
+.ctrl{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:700;}
+.stp{display:flex;align-items:center;gap:6px;}
+.stp .slab{color:var(--sub);}
+.sbtn2{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--ink);font-size:20px;font-weight:800;cursor:pointer;}
+.stp .sval{min-width:26px;text-align:center;color:var(--cyan);font-size:18px;font-weight:800;}
+.btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+.bigbtn{min-height:48px;padding:12px 28px;border:none;border-radius:999px;background:var(--cyan);color:#04121a;
+  font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 0 16px rgba(34,211,238,.4);}
+.bigbtn:disabled{opacity:.5;cursor:default;}
+.bigbtn.green{background:var(--green);color:#052e22;box-shadow:0 0 16px rgba(52,211,153,.4);}
+.bigbtn.ghost{background:rgba(255,255,255,.05);color:var(--sub);border:1px solid var(--line);box-shadow:none;}
+.steps{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.step{opacity:0;transform:translateY(8px);transition:.45s;border-left:3px solid var(--cyan);
+  padding:8px 12px;background:rgba(34,211,238,.06);border-radius:0 12px 12px 0;}
+.step.show{opacity:1;transform:none;}
+.step .scap{font-size:13px;color:var(--cyan);font-weight:800;margin-bottom:4px;}
+.step .sbody .frow{font-size:17px;justify-content:flex-start;}
+.warn{border:1px dashed rgba(251,113,133,.5);background:rgba(251,113,133,.08);color:#fda4af;
+  border-radius:12px;padding:10px 12px;font-size:14px;margin-top:12px;}
+/* SECTION: css-quiz */
+.setrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-weight:700;color:var(--sub);}
+.hintline{font-size:14px;color:var(--sub);text-align:center;margin:8px 0;}
+.qmeta{font-size:14px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:6px;}
+.qmeta.tred{color:var(--red);} .qmeta.tblue{color:var(--cyan);}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);}
+.dots i.on{background:var(--amber);}
+.twrap{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.tbar{flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width .1s linear;}
+#tnum{font-size:13px;font-weight:800;color:var(--amber);min-width:34px;text-align:right;}
+.qtext{font-size:22px;font-weight:800;text-align:center;margin:10px 0 16px;line-height:1.5;min-width:0;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.opts.two{grid-template-columns:1fr 1fr;}
+.opt{min-height:52px;padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+  font-size:18px;font-weight:800;cursor:pointer;transition:.15s;color:var(--ink);min-width:0;}
+.opt:hover:not(:disabled){border-color:var(--cyan);}
+.opt.right{border-color:var(--green);background:rgba(52,211,153,.15);color:var(--green);}
+.opt.wrong{border-color:var(--red);background:rgba(251,113,133,.15);color:var(--red);animation:shake .3s;}
+.opt:disabled{cursor:default;}
+@keyframes shake{25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.fb{text-align:center;font-size:15px;font-weight:700;margin-top:12px;min-height:24px;}
+.fb.ok{color:var(--green);} .fb.no{color:var(--red);}
+.wintitle{font-size:24px;font-weight:800;text-align:center;margin-bottom:6px;}
+.starsbig{font-size:34px;color:var(--amber);text-align:center;letter-spacing:4px;margin:8px 0;word-break:break-all;}
+.wbtitle{font-size:16px;font-weight:800;color:var(--mag);margin:12px 0 8px;}
+.witem{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:rgba(2,6,23,.4);}
+.witem .wq{font-weight:800;font-size:15px;margin-bottom:4px;}
+.witem .wa{color:var(--green);font-weight:700;font-size:14px;margin-bottom:2px;}
+.witem .ww{color:var(--sub);font-size:13px;}
+.wempty{color:var(--green);font-weight:700;text-align:center;padding:8px;}
+footer{text-align:center;color:#6b7699;font-size:12px;margin-top:16px;}
+#fx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:99;}
+@media(max-width:640px){
+  header h1{font-size:17px;} .frow{font-size:18px;} .qtext{font-size:18px;}
+  .opt{font-size:16px;padding:12px;} .step .sbody .frow{font-size:15px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- SECTION: header -->
+  <header>
+    <h1>18.1 分式及其基本性质 · 闯关课堂</h1>
+    <div class="sp"></div>
+    <nav id="nav">
+      <button class="nbtn" id="navHome" type="button">🗺 地图</button>
+      <button class="nbtn" id="navL0" type="button"></button>
+      <button class="nbtn" id="navL1" type="button"></button>
+      <button class="nbtn" id="navL2" type="button"></button>
+      <button class="nbtn" id="navQuiz" type="button">★ 闯关</button>
+      <button class="nbtn" id="navSound" type="button">🔊 声音:开</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- SECTION: home -->
+    <section id="scr-home" class="screen">
+      <div class="cardv hero">
+        <div class="htitle" id="heroTitle"></div>
+        <div class="hsub">先猜一猜 → 看动画 → 分步公式 → 闯关答题</div>
+        <div id="mottoList"></div>
+      </div>
+      <div class="map" id="map"></div>
+    </section>
+
+    <!-- SECTION: lab -->
+    <section id="scr-lab" class="screen hide">
+      <div class="cardv">
+        <div class="labhead"><h2 id="labTitle"></h2><div class="motto" id="labMotto"></div></div>
+        <div class="guess">
+          <span class="glab">猜一猜</span><span id="guessPrompt"></span>
+          <div class="chips" id="guessBox"></div>
+          <div class="gfb" id="guessFb"></div>
+        </div>
+        <div class="stage" id="stage"></div>
+        <div class="ctrl" id="labCtrl"></div>
+        <div class="btnrow">
+          <button class="bigbtn" id="btnPlay" type="button">▶ 开始演示</button>
+          <button class="bigbtn ghost" id="btnReset" type="button">↺ 重置</button>
+        </div>
+        <div class="steps" id="stepsBox"></div>
+        <div class="warn" id="labWarn"></div>
+        <div class="btnrow">
+          <button class="bigbtn green" id="toQuiz" type="button">去闯关答题 →</button>
+          <button class="bigbtn ghost" id="backHome" type="button">返回地图</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: quiz -->
+    <section id="scr-quiz" class="screen hide">
+      <div class="cardv" id="qp-setup">
+        <h2>闯关答题</h2>
+        <div class="setrow"><span>模式</span>
+          <button class="chip on" id="mSolo" type="button">⭐ 单人冲星</button>
+          <button class="chip" id="mTeam" type="button">🔴🔵 红蓝对抗</button>
+        </div>
+        <div class="setrow"><span>限时</span>
+          <button class="chip" id="tglTimer" type="button">⏱ 20秒限时：关</button>
+        </div>
+        <div class="hintline">每轮 8 题，答错自动进错题本</div>
+        <button class="bigbtn" id="btnStart" type="button">开始闯关 →</button>
+      </div>
+      <div class="cardv hide" id="qp-play">
+        <div class="qmeta" id="qMeta"></div>
+        <div class="dots" id="qDots"></div>
+        <div class="twrap hide" id="twrap"><div class="tbar"><i id="tfill"></i></div><span id="tnum">20s</span></div>
+        <div class="qtext" id="qText"></div>
+        <div class="opts" id="qOpts"></div>
+        <div class="fb" id="qFb"></div>
+        <button class="bigbtn hide" id="btnNext" type="button">下一题 →</button>
+      </div>
+      <div class="cardv hide" id="qp-result">
+        <div class="wintitle" id="rTitle"></div>
+        <div class="starsbig" id="rStars"></div>
+        <div class="hintline" id="rSub"></div>
+        <div class="wbtitle">📕 错题本</div>
+        <div id="wrongBox"></div>
+        <div class="btnrow">
+          <button class="bigbtn" id="btnAgain" type="button">再来一轮</button>
+          <button class="bigbtn green hide" id="btnRetry" type="button">错题重练</button>
+          <button class="bigbtn ghost" id="btnHome" type="button">返回地图</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer id="foot"></footer>
+</div>
+<canvas id="fx"></canvas>
+
+<script>
+"use strict";
+/* SECTION: js-helpers */
+const $=id=>document.getElementById(id);
+function el(tag,cls){const d=document.createElement(tag);if(cls)d.className=cls;return d;}
+function txt(s,cls){const t=el('span','fl'+(cls?' '+cls:''));t.textContent=String(s);return t;}
+function setNode(parent,v){if(typeof v==='string'||typeof v==='number'){parent.textContent=String(v);}else{parent.appendChild(v);}}
+function frac(n,d){const f=el('span','frac');const a=el('span','fn');const b=el('span','fd');setNode(a,n);setNode(b,d);f.append(a,b);return f;}
+function row(){const r=el('div','frow');for(const k of arguments){r.appendChild(typeof k==='string'?txt(k):k);}return r;}
+function blk(s,cls){const b=el('span','blk'+(cls?' '+cls:''));b.textContent=String(s);return b;}
+function badge(s,cls){const b=el('span','badge'+(cls?' '+cls:''));b.textContent=String(s);return b;}
+function op(s){const o=el('span','op');o.textContent=s;return o;}
+function scol(){return el('div','scol pre');}
+function flipwrap(child){const w=el('span','flipwrap');w.appendChild(child);return w;}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+function reducedStr(a,b){const g=gcd(a,b);if(g<=1)return null;const na=a/g,nb=b/g;return nb===1?String(na):na+'/'+nb;}
+function appendReduced(r,a,b){const s=reducedStr(a,b);if(s){r.append(txt('='),txt(s,'lime'));}}
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+let T=[];
+const later=(fn,ms)=>T.push(setTimeout(fn,ms));
+const clearT=()=>{T.forEach(clearTimeout);T=[];};
+
+/* SECTION: js-sound */
+const sound={on:true,ctx:null,
+  beep(f,d,type){if(!this.on)return;try{this.ctx=this.ctx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type||'sine';o.frequency.value=f;
+    g.gain.setValueAtTime(.14,this.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+d);
+    o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+d);}catch(e){}},
+  ok(){this.beep(660,.12);later(()=>this.beep(880,.18),110);},
+  no(){this.beep(180,.25,'sawtooth');},
+  pop(){this.beep(430,.07,'square');},
+  win(){[523,659,784,1047].forEach((f,i)=>later(()=>this.beep(f,.16),i*120));}
+};
+
+/* SECTION: js-confetti */
+const cv=$('fx'),cx=cv.getContext('2d');let fxRun=false;
+function confetti(){
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#22d3ee','#f472b6','#a3e635','#fbbf24','#34d399','#a78bfa'];
+  const ps=[];for(let i=0;i<140;i++){ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.3,
+    vx:(Math.random()-.5)*2.2,vy:2+Math.random()*3.2,s:5+Math.random()*6,r:Math.random()*Math.PI,
+    vr:(Math.random()-.5)*.25,c:cols[i%cols.length]});}
+  const t0=performance.now();fxRun=true;
+  function loop(t){if(!fxRun)return;cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.03;p.r+=p.vr;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore();});
+    if(t-t0<2600){requestAnimationFrame(loop);}else{cx.clearRect(0,0,cv.width,cv.height);fxRun=false;}}
+  requestAnimationFrame(loop);
+}
+
+/* SECTION: js-screen-nav */
+let curScreen='home',curLab=0;
+function showScreen(name){
+  clearT();stopTick();curScreen=name;
+  ['home','lab','quiz'].forEach(k=>$('scr-'+k).classList.toggle('hide',k!==name));
+  $('navHome').classList.toggle('on',name==='home');
+  $('navQuiz').classList.toggle('on',name==='quiz');
+  for(let i=0;i<3;i++){$('navL'+i).classList.toggle('on',name==='lab'&&curLab===i);}
+  if(name==='quiz'){quizPanel('setup');}
+  window.scrollTo(0,0);
+}
+
+/* SECTION: js-home */
+const PAGE_TITLE='18.1 分式及其基本性质';
+let labsDone=[false,false,false],bestStars=0;
+function renderHome(){
+  $('heroTitle').textContent=PAGE_TITLE+' · 口诀地图';
+  const ml=$('mottoList');ml.textContent='';
+  LABS.forEach((c,i)=>{const d=el('div','mottoline');d.textContent='('+(i+1)+') '+c.motto;ml.appendChild(d);});
+  const map=$('map');map.textContent='';
+  LABS.forEach((c,i)=>{
+    const card=el('div','cardv lab');
+    const num=el('div','num');num.textContent='实验室 '+(i+1);
+    const nm=el('div','cname');nm.textContent=c.name;
+    const mo=el('div','cmotto');mo.textContent=c.motto;
+    const st=el('div','cstat'+(labsDone[i]?'':' todo'));st.textContent=labsDone[i]?'✓ 已演示':'待探索';
+    card.append(num,nm,mo,st);card.onclick=()=>openLab(i);map.appendChild(card);
+  });
+  const q=el('div','cardv lab');
+  const qn=el('div','num');qn.textContent='★ 闯关答题';
+  const qname=el('div','cname');qname.textContent='单人冲星 / 红蓝对抗';
+  const qm=el('div','cmotto');qm.textContent='8 题 · 20秒限时可选 · 错题本';
+  const qs=el('div','cstat'+(bestStars>0?'':' todo'));qs.textContent=bestStars>0?('最佳 '+bestStars+' / 8 星'):'尚未挑战';
+  q.append(qn,qname,qm,qs);q.onclick=()=>showScreen('quiz');map.appendChild(q);
+}
+
+/* SECTION: js-lab-engine */
+let guessSel=null,playing=false;
+function makeStepper(label,min,max,val,cb){
+  const w=el('div','stp');const l=el('span','slab');l.textContent=label;
+  const minus=el('button','sbtn2');minus.type='button';minus.textContent='−';
+  const v=el('span','sval');v.textContent=val;
+  const plus=el('button','sbtn2');plus.type='button';plus.textContent='＋';
+  let cur=val;
+  const upd=d=>{const nv=Math.min(max,Math.max(min,cur+d));if(nv===cur)return;cur=nv;v.textContent=cur;cb(cur);};
+  minus.onclick=()=>upd(-1);plus.onclick=()=>upd(1);
+  w.append(l,minus,v,plus);return w;
+}
+function makeChips(opts,cur,cb){
+  const w=el('div','chips');
+  opts.forEach((o,i)=>{const b=el('button','chip'+(i===cur?' on':''));b.type='button';b.textContent=o;
+    b.onclick=()=>{[...w.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');cb(i);};
+    w.appendChild(b);});
+  return w;
+}
+function buildLab(i){
+  curLab=i;const cfg=LABS[i];
+  $('labTitle').textContent=cfg.name;
+  $('labMotto').textContent='口诀：'+cfg.motto;
+  $('labWarn').textContent='⚠ 易错提醒：'+cfg.warn;
+  resetLab();
+}
+function resetLab(keepGuess){
+  clearT();playing=false;
+  const saved=keepGuess?guessSel:null;guessSel=null;
+  const cfg=LABS[curLab],st=cfg.st;
+  const g=cfg.guess(st);
+  $('guessPrompt').textContent=g.prompt;
+  const gb=$('guessBox');gb.textContent='';
+  g.opts.forEach((o,idx)=>{const b=el('button','chip');b.type='button';b.textContent=o;
+    b.onclick=()=>{guessSel=idx;[...gb.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');};
+    gb.appendChild(b);});
+  if(saved!==null&&gb.children[saved]){guessSel=saved;gb.children[saved].classList.add('on');}
+  $('guessFb').textContent='';$('guessFb').className='gfb';
+  const c=$('labCtrl');c.textContent='';cfg.controls(st,c);
+  const s=$('stage');s.textContent='';st.refs=cfg.build(st,s);
+  const sb=$('stepsBox');sb.textContent='';
+  cfg.steps(st).forEach((sp,idx)=>{const d=el('div','step');const cap=el('div','scap');
+    cap.textContent='第'+(idx+1)+'步 · '+sp.cap;const body=el('div','sbody');body.appendChild(sp.node);
+    d.append(cap,body);sb.appendChild(d);});
+  $('btnPlay').disabled=false;$('btnPlay').textContent='▶ 开始演示';
+}
+function revealSteps(n){[...$('stepsBox').children].forEach((d,i)=>d.classList.toggle('show',i<n));}
+function playLab(){
+  if(playing)return;playing=true;
+  const cfg=LABS[curLab],st=cfg.st;
+  $('btnPlay').disabled=true;$('btnPlay').textContent='演示中…';
+  cfg.play(st,()=>{
+    playing=false;$('btnPlay').disabled=false;$('btnPlay').textContent='↻ 再演示一次';
+    const g=cfg.guess(st);const fb=$('guessFb');
+    if(guessSel===null){fb.textContent='提示：下次先点上面的「猜一猜」再看演示哦！';fb.className='gfb';}
+    else if(guessSel===g.ans){fb.textContent='✔ 猜对了！你已掌握这条规律。';fb.className='gfb ok';sound.ok();}
+    else{fb.textContent='✘ 正确答案是「'+g.opts[g.ans]+'」。看看上面的分步公式。';fb.className='gfb no';sound.no();}
+    labsDone[curLab]=true;renderHome();
+  });
+}
+function openLab(i){buildLab(i);showScreen('lab');}
+
+/* SECTION: js-labs (18.1) */
+const EX1=[
+  {n:'2x',d:'4x²',nf:['2','x'],df:['2','2','x','x'],cutN:[0,1],cutD:[0,2],res:'1/(2x)',
+   fact:'4x² = 2·2·x·x',guess:['1/(2x)','1/(4x)','2/x']},
+  {n:'6a²b',d:'9ab',nf:['2','3','a','a','b'],df:['3','3','a','b'],cutN:[1,2,4],cutD:[0,2,3],res:'2a/3',
+   fact:'6a²b=2·3·a·a·b，9ab=3·3·a·b',guess:['2a/3','3a/2','2ab/3']},
+  {n:'x²−1',d:'x+1',nf:['(x+1)','(x−1)'],df:['(x+1)'],cutN:[0],cutD:[0],res:'x−1',
+   fact:'x²−1 = (x+1)(x−1)',guess:['x−1','x+1','1']}
+];
+const LABS=[
+  { name:'① 有意义条件',short:'① 有意义',motto:'分母不为零，分式才有意义',
+    warn:'判断有无意义只看分母：分母 = 0 → 无意义；与分子无关。',
+    st:{x:3,m:2},
+    guess(st){return{prompt:'代入后这个分式？',opts:['有意义','无意义'],ans:(st.x-st.m===0)?1:0};},
+    controls(st,c){
+      c.appendChild(makeStepper('x',0,6,st.x,v=>{st.x=v;resetLab();}));
+      c.appendChild(makeStepper('m',1,4,st.m,v=>{st.m=v;resetLab();}));
+    },
+    build(st,s){
+      const main=row(txt('分式'),frac('1','x−m'),txt('代入 x='+st.x+'，m='+st.m));
+      const work=row();work.classList.add('pre');
+      const res=row();res.classList.add('pre');
+      s.append(main,work,res);return{work,res};
+    },
+    play(st,done){
+      const r=st.refs,d=st.x-st.m;
+      later(()=>{r.work.classList.add('in');r.work.append(txt('代入 →'),frac('1',st.x+'−'+st.m));sound.pop();},300);
+      later(()=>{const f=frac('1',String(d));f.classList.add('popin');r.work.append(txt('→'),f);revealSteps(1);},900);
+      later(()=>{revealSteps(2);},1300);
+      later(()=>{const b=d===0?badge('无意义：分母 = 0','bad'):badge('有意义：分母 = '+d+' ≠ 0','ok');
+        b.classList.add('popin');r.res.append(b);r.res.classList.add('in');revealSteps(3);d===0?sound.no():sound.ok();},1700);
+      later(done,2200);
+    },
+    steps(st){const d=st.x-st.m;return[
+      {cap:'代入求分母',node:row(txt('分母 = x−m = '+st.x+'−'+st.m))},
+      {cap:'计算分母',node:row(txt(st.x+'−'+st.m+' = '+d))},
+      {cap:'下结论',node:row(txt(d===0?'分母 = 0 → 分式无意义':'分母 = '+d+' ≠ 0 → 分式有意义'))}
+    ];}
+  },
+  { name:'② 值为 0',short:'② 值为0',motto:'值为零：分子零，且分母非零',
+    warn:'值为 0 必须「分子 = 0 且 分母 ≠ 0」，两个条件缺一不可；只看分子是常见错误。',
+    st:{x:2,m:2},
+    guess(st){const zero=(st.x-st.m===0)&&(st.x+1!==0);return{prompt:'代入后分式的值？',opts:['值为0','值不为0'],ans:zero?0:1};},
+    controls(st,c){
+      c.appendChild(makeStepper('x',0,6,st.x,v=>{st.x=v;resetLab();}));
+      c.appendChild(makeStepper('m',1,4,st.m,v=>{st.m=v;resetLab();}));
+    },
+    build(st,s){
+      const main=row(frac('x−m','x+1'),txt('代入 x='+st.x+'，m='+st.m));
+      const work=scol();
+      const nr=row(txt('分子：x−m = '+st.x+'−'+st.m+' = '+(st.x-st.m)));
+      const dr=row(txt('分母：x+1 = '+st.x+'+1 = '+(st.x+1)));
+      work.append(nr,dr);
+      const res=row();res.classList.add('pre');
+      s.append(main,work,res);return{work,res};
+    },
+    play(st,done){
+      const r=st.refs,d1=st.x-st.m,d2=st.x+1,zero=(d1===0&&d2!==0);
+      later(()=>{r.work.classList.add('in');sound.pop();revealSteps(1);},300);
+      later(()=>{revealSteps(2);},900);
+      later(()=>{const b=zero?badge('值为 0：分子=0 且 分母≠0','ok'):badge('值不为 0：分子 = '+d1+' ≠ 0','bad');
+        b.classList.add('popin');r.res.append(b);r.res.classList.add('in');revealSteps(3);zero?sound.ok():sound.no();},1400);
+      later(done,1900);
+    },
+    steps(st){const d1=st.x-st.m,d2=st.x+1,zero=(d1===0&&d2!==0);return[
+      {cap:'检查分子',node:row(txt('分子 = x−m = '+d1+(d1===0?'（= 0 ✓）':'（≠ 0）')))},
+      {cap:'检查分母',node:row(txt('分母 = x+1 = '+d2+' ≠ 0 ✓'))},
+      {cap:'下结论',node:row(txt(zero?'两个条件同时满足 → 值为 0':'分子 ≠ 0 → 值不为 0（缺一不可）'))}
+    ];}
+  },
+  { name:'③ 约分（基本性质）',short:'③ 约分',motto:'约分先分解，同除公共因子',
+    warn:'(x²−1)/(x+1) 要先分解成 (x+1)(x−1) 再约；约分是「同除以非零整式」，不是划掉相同的项。',
+    st:{ex:0},
+    guess(st){const e=EX1[st.ex];return{prompt:'猜一猜：最简结果是？',opts:e.guess,ans:0};},
+    controls(st,c){
+      c.appendChild(makeChips(['2x/4x²','6a²b/9ab','(x²−1)/(x+1)'],st.ex,i=>{st.ex=i;resetLab();}));
+    },
+    build(st,s){
+      const e=EX1[st.ex];
+      const main=row(frac(e.n,e.d),txt('约分'));
+      const work=scol();
+      const fact=row(badge(e.fact,'info'));
+      const nr=row(txt('分子'));const dr=row(txt('分母'));
+      const nb=e.nf.map(t=>blk(t));const db=e.df.map(t=>blk(t));
+      nb.forEach(b=>nr.appendChild(b));db.forEach(b=>dr.appendChild(b));
+      work.append(fact,nr,dr);
+      const res=row();res.classList.add('pre');
+      s.append(main,work,res);return{work,res,nb,db,e};
+    },
+    play(st,done){
+      const r=st.refs,e=r.e;
+      later(()=>{r.work.classList.add('in');sound.pop();revealSteps(1);},300);
+      later(()=>{e.cutN.forEach(i=>r.nb[i].classList.add('hot'));e.cutD.forEach(i=>r.db[i].classList.add('hot'));},900);
+      later(()=>{e.cutN.forEach(i=>{r.nb[i].classList.remove('hot');r.nb[i].classList.add('cut');});
+        e.cutD.forEach(i=>{r.db[i].classList.remove('hot');r.db[i].classList.add('cut');});sound.pop();revealSteps(2);},1400);
+      later(()=>{const remN=e.nf.filter((_,i)=>!e.cutN.includes(i)).join('·')||'1';
+        const remD=e.df.filter((_,i)=>!e.cutD.includes(i)).join('·')||'1';
+        r.res.append(frac(remN,remD),txt('='),badge(e.res,'ok'));
+        r.res.classList.add('in');revealSteps(3);sound.ok();},1900);
+      later(done,2400);
+    },
+    steps(st){const e=EX1[st.ex];return[
+      {cap:'分解分子分母',node:row(txt(e.fact))},
+      {cap:'划掉公共因子',node:row(txt('分子分母同除以同一个非零整式'))},
+      {cap:'最简结果',node:row(txt(e.res))}
+    ];}
+  }
+];
+
+/* SECTION: js-bank (18.1) */
+const BANK=[
+ {type:'mc',q:'当 x=2 时，分式 1/(x−2) 怎么样？',opts:['有意义','无意义','值为0','值为1'],ans:1,why:'分母 x−2=0，分式无意义。'},
+ {type:'mc',q:'分式 1/(x−3) 有意义的条件是？',opts:['x≠3','x=3','x>3','x≠0'],ans:0,why:'分母 x−3≠0，即 x≠3。'},
+ {type:'tf',q:'分式 (x−1)/(x+1) 在 x=1 时值为 0。',ans:true,why:'分子=0 且分母=2≠0，所以值为0。'},
+ {type:'tf',q:'只要分子为 0，分式的值就一定为 0。',ans:false,why:'还必须分母≠0；若分母也为0则分式无意义。'},
+ {type:'mc',q:'分式 (x−2)/(x+2) 的值为 0，则 x=？',opts:['2','−2','0','±2'],ans:0,why:'分子 x−2=0 得 x=2，此时分母4≠0；x=−2 使分母为0，舍去。'},
+ {type:'mc',q:'约分 2x/4x² 的结果是？',opts:['1/(2x)','1/(4x)','2/x','x/2'],ans:0,why:'分子分母同除以公共因子 2x。'},
+ {type:'mc',q:'约分 6a²b/9ab 的结果是？',opts:['2a/3','3a/2','2a²/3','6a/9'],ans:0,why:'分子分母同除以 3ab，得 2a/3。'},
+ {type:'mc',q:'(x²−1)/(x+1) 约分后是？',opts:['x−1','x+1','x²−1','1'],ans:0,why:'x²−1=(x+1)(x−1)，约去公共因子 x+1。'},
+ {type:'tf',q:'约分的依据是：分子分母同乘（或除以）同一个不为零的整式，分式的值不变。',ans:true,why:'这正是分式的基本性质。'},
+ {type:'tf',q:'(x²−1)/(x+1) 可以直接划掉 x² 和 x 来约分。',ans:false,why:'要先分解因式，约去公共因式 x+1，不能直接划「项」。'},
+ {type:'mc',q:'分式 3/(2x−6) 无意义时，x=？',opts:['3','−3','0','6'],ans:0,why:'令分母 2x−6=0，解得 x=3。'},
+ {type:'tf',q:'分式 1/(x²+1) 对任意实数 x 都有意义。',ans:true,why:'x²+1≥1>0，分母永远不会为0。'},
+ {type:'mc',q:'若分式 (x−1)/(x²−1) 的值为 0，则？',opts:['不存在这样的 x','x=1','x=−1','x=0'],ans:0,why:'x=1 时分母 x²−1 也为0，分式无意义，故值不能为0。'},
+ {type:'tf',q:'分式的分母中可以含有字母，只要取值时分母不为0。',ans:true,why:'形如 A/B，B 含字母且 B≠0 的式子叫分式。'},
+ {type:'mc',q:'下列各式中是分式的是？',opts:['1/x','x/2','(x+1)/3','2x'],ans:0,why:'分母含有字母的才是分式。'},
+ {type:'tf',q:'把分式 2x/4x² 的分子分母同时减去 2x，分式的值不变。',ans:false,why:'基本性质是「同乘除」，不是「同加减」。'}
+];
+
+/* SECTION: js-quiz */
+const ROUND=8;
+const quiz={mode:'solo',timerOn:false,qs:[],i:0,ok:0,wrong:[],red:0,blue:0,answered:false,left:20,tick:null};
+function quizPanel(p){['setup','play','result'].forEach(k=>$('qp-'+k).classList.toggle('hide',k!==p));}
+function stopTick(){if(quiz.tick){clearInterval(quiz.tick);quiz.tick=null;}}
+function startRound(pool){
+  clearT();stopTick();
+  const src=pool||BANK;
+  quiz.qs=shuffle(src.slice()).slice(0,Math.min(ROUND,src.length));
+  quiz.i=0;quiz.ok=0;quiz.wrong=[];quiz.red=0;quiz.blue=0;
+  quizPanel('play');renderQ();
+}
+function correctIndex(q){return q.type==='tf'?(q.ans?0:1):q.ans;}
+function renderQ(){
+  quiz.answered=false;
+  const q=quiz.qs[quiz.i];
+  const meta=$('qMeta');
+  if(quiz.mode==='solo'){meta.className='qmeta';meta.textContent='单人冲星 · 第 '+(quiz.i+1)+'/'+quiz.qs.length+' 题 · 已答对 '+quiz.ok;}
+  else{const red=quiz.i%2===0;meta.className='qmeta '+(red?'tred':'tblue');
+    meta.textContent=(red?'🔴 红队作答':'🔵 蓝队作答')+' · 第 '+(quiz.i+1)+'/'+quiz.qs.length+' 题 · 红 '+quiz.red+' : '+quiz.blue+' 蓝';}
+  const dots=$('qDots');dots.textContent='';
+  quiz.qs.forEach((_,k)=>{dots.appendChild(el('i',k<quiz.i?'on':''));});
+  $('qText').textContent=q.q;
+  $('qFb').textContent='';$('qFb').className='fb';
+  $('btnNext').classList.add('hide');
+  const box=$('qOpts');box.textContent='';
+  const labels=q.type==='tf'?['✔ 对','✘ 错']:q.opts;
+  box.className='opts'+(q.type==='tf'?' two':'');
+  labels.forEach((t,k)=>{const b=el('button','opt');b.type='button';b.textContent=t;b.onclick=()=>answerQ(k);box.appendChild(b);});
+  if(quiz.timerOn){quiz.left=20;$('twrap').classList.remove('hide');updTimer();stopTick();
+    quiz.tick=setInterval(()=>{quiz.left-=0.1;if(quiz.left<=0){quiz.left=0;updTimer();timeoutQ();}else{updTimer();}},100);}
+  else{$('twrap').classList.add('hide');}
+}
+function updTimer(){$('tfill').style.width=(quiz.left/20*100)+'%';$('tnum').textContent=Math.ceil(quiz.left)+'s';}
+function lockQ(chosen){
+  quiz.answered=true;stopTick();
+  const q=quiz.qs[quiz.i],ci=correctIndex(q);
+  const btns=[...$('qOpts').children];btns.forEach(b=>b.disabled=true);btns[ci].classList.add('right');
+  if(chosen!==null&&chosen!==ci){btns[chosen].classList.add('wrong');}
+  return{q,ci,good:chosen===ci};
+}
+function showNextBtn(){$('btnNext').textContent=quiz.i<quiz.qs.length-1?'下一题 →':'查看成绩 ★';$('btnNext').classList.remove('hide');}
+function answerQ(k){
+  if(quiz.answered)return;
+  const{q,good}=lockQ(k);const fb=$('qFb');
+  if(good){quiz.ok++;if(quiz.mode==='team'){if(quiz.i%2===0){quiz.red++;}else{quiz.blue++;}}
+    sound.ok();fb.className='fb ok';fb.textContent='✔ 答对！'+q.why;}
+  else{quiz.wrong.push(q);sound.no();fb.className='fb no';fb.textContent='✘ '+q.why;}
+  showNextBtn();
+}
+function timeoutQ(){
+  if(quiz.answered)return;
+  const{q}=lockQ(null);quiz.wrong.push(q);sound.no();
+  const fb=$('qFb');fb.className='fb no';fb.textContent='⏰ 时间到！'+q.why;
+  showNextBtn();
+}
+function nextQ(){if(quiz.i<quiz.qs.length-1){quiz.i++;renderQ();}else{finishRound();}}
+function finishRound(){
+  stopTick();quizPanel('result');
+  const n=quiz.qs.length;
+  if(quiz.mode==='solo'){
+    $('rTitle').textContent=quiz.ok===n?'满分通关！':quiz.ok>=Math.ceil(n*.75)?'闯关成功！':'继续加油！';
+    $('rStars').textContent='★'.repeat(quiz.ok)+'☆'.repeat(n-quiz.ok);
+    $('rSub').textContent='答对 '+quiz.ok+' / '+n+' 题';
+    if(quiz.ok>=Math.ceil(n*.6)){confetti();sound.win();}
+    bestStars=Math.max(bestStars,quiz.ok);renderHome();
+  }else{
+    $('rTitle').textContent=quiz.red===quiz.blue?'平局！':(quiz.red>quiz.blue?'🔴 红队获胜！':'🔵 蓝队获胜！');
+    $('rStars').textContent='🔴 '+quiz.red+' : '+quiz.blue+' 🔵';
+    $('rSub').textContent='共 '+n+' 题 · 轮流作答';
+    confetti();sound.win();
+  }
+  const wb=$('wrongBox');wb.textContent='';
+  if(quiz.wrong.length===0){const p=el('div','wempty');p.textContent='🎉 全部答对，错题本空空的！';wb.appendChild(p);$('btnRetry').classList.add('hide');}
+  else{
+    $('btnRetry').classList.remove('hide');$('btnRetry').textContent='错题重练（'+quiz.wrong.length+'题）';
+    quiz.wrong.forEach((q,k)=>{const d=el('div','witem');
+      const t=el('div','wq');t.textContent=(k+1)+'. '+q.q;
+      const a=el('div','wa');a.textContent='正确答案：'+(q.type==='tf'?(q.ans?'对':'错'):q.opts[q.ans]);
+      const w=el('div','ww');w.textContent=q.why;
+      d.append(t,a,w);wb.appendChild(d);});
+  }
+}
+
+/* SECTION: js-init */
+function init(){
+  $('foot').textContent='人教版八年级上册 · '+PAGE_TITLE+' · 一关一法则 · 玩中学';
+  for(let i=0;i<3;i++){$('navL'+i).textContent=LABS[i].short;}
+  $('navHome').onclick=()=>showScreen('home');
+  for(let i=0;i<3;i++){$('navL'+i).onclick=()=>openLab(i);}
+  $('navQuiz').onclick=()=>showScreen('quiz');
+  $('navSound').onclick=()=>{sound.on=!sound.on;$('navSound').textContent=sound.on?'🔊 声音:开':'🔇 声音:关';};
+  $('btnPlay').onclick=()=>{resetLab(true);playLab();};
+  $('btnReset').onclick=()=>resetLab();
+  $('toQuiz').onclick=()=>showScreen('quiz');
+  $('backHome').onclick=()=>showScreen('home');
+  $('mSolo').onclick=()=>{quiz.mode='solo';$('mSolo').classList.add('on');$('mTeam').classList.remove('on');};
+  $('mTeam').onclick=()=>{quiz.mode='team';$('mTeam').classList.add('on');$('mSolo').classList.remove('on');};
+  $('tglTimer').onclick=()=>{quiz.timerOn=!quiz.timerOn;$('tglTimer').textContent='⏱ 20秒限时：'+(quiz.timerOn?'开':'关');$('tglTimer').classList.toggle('on',quiz.timerOn);};
+  $('btnStart').onclick=()=>startRound();
+  $('btnNext').onclick=nextQ;
+  $('btnAgain').onclick=()=>startRound();
+  $('btnRetry').onclick=()=>startRound(quiz.wrong.slice());
+  $('btnHome').onclick=()=>showScreen('home');
+  document.addEventListener('keydown',e=>{
+    if(curScreen==='quiz'&&!$('qp-play').classList.contains('hide')){
+      if(!quiz.answered&&['1','2','3','4'].includes(e.key)){const b=$('qOpts').children[+e.key-1];if(b){b.click();}}
+      else if(quiz.answered&&e.key===' '){e.preventDefault();nextQ();}
+    }
+  });
+  renderHome();showScreen('home');
+}
+init();
+</script>
+</body>
+</html>

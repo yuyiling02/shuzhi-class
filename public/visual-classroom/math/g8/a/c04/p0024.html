@@ -2,490 +2,291 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>16.3 乘法公式 · 数形对照图解</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16.3 乘法公式 · 几何证明</title>
 <style>
-  :root{
-    --bg:#f2f5f9; --panel:#fff; --line:#dbe3ec; --ink:#1f2c38; --sub:#66798c;
-    --blue:#3b7dd8; --blueL:#bfd9f8; --green:#1e9e74; --greenL:#c3ecdb;
-    --orange:#e08a2e; --orangeL:#fcd9a4; --red:#d9453c; --redL:#f7b8b2;
-    --purple:#6b46a8; --yellow:#ffe38c;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);padding:12px;}
-  header{text-align:center;margin-bottom:9px;}
+  :root{--blue:#3b7dd8;--blueL:#bfd9f8;--green:#1e9e74;--greenL:#c3ecdb;--orange:#e08a2e;--orangeL:#fcd9a4;--red:#d9453c;--redL:#f7b8b2;--purple:#6b46a8;--yellow:#ffe38c;--ink:#1f2c38;--sub:#66798c;--line:#dbe3ec;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f2f5f9;color:var(--ink);padding:14px 12px 30px;}
+  .wrap{max-width:960px;margin:0 auto;}
+  header{text-align:center;margin-bottom:10px;}
   header h1{font-size:21px;}
   header p{color:var(--sub);font-size:13px;margin-top:2px;}
-
-  .wrap{display:flex;gap:12px;max-width:1500px;margin:0 auto;align-items:flex-start;}
-  .stage{flex:1.62;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;}
-  svg{display:block;width:100%;height:auto;border-radius:8px;background:#fff;}
-
-  /* 公式条 */
-  #formula{border-top:2px dashed var(--line);margin-top:6px;padding-top:9px;text-align:center;}
-  .fmain{font-size:23px;font-family:"Cambria Math",Georgia,serif;font-weight:bold;letter-spacing:.5px;line-height:1.7;}
-  .fnum{font-size:16px;color:var(--sub);margin-top:3px;font-family:"Cambria Math",Georgia,serif;}
-  .tag{display:inline-block;background:#eef4fb;color:#3b5f8a;border-radius:12px;padding:2px 12px;
-       font-size:12.5px;margin-bottom:6px;}
-  /* 编号小圆点 */
-  .n{display:inline-flex;width:21px;height:21px;border-radius:50%;color:#fff;font-size:13px;
-     align-items:center;justify-content:center;font-weight:bold;margin:0 2px;vertical-align:2px;font-family:Arial;}
-  .n1{background:var(--blue);} .n2{background:var(--orange);} .n3{background:#c47a1e;} .n4{background:var(--green);}
-  .nGray{background:#8a97a5;}
-
-  .side{flex:1;min-width:420px;display:flex;flex-direction:column;gap:9px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;}
-  .card h3{font-size:13.5px;margin-bottom:8px;color:var(--purple);border-left:4px solid var(--purple);padding-left:8px;}
-  .btnrow{display:flex;gap:6px;flex-wrap:wrap;}
-  .btnrow button{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:12.5px;}
-  .btnrow button:hover{border-color:var(--purple);color:var(--purple);}
-  .btnrow button.active{background:var(--purple);color:#fff;border-color:var(--purple);}
-  .slider{margin:7px 0;}
-  .slider label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:2px;}
-  .slider label b{color:var(--purple);font-size:14px;}
-  input[type=range]{width:100%;accent-color:var(--purple);}
-  .chk{display:flex;gap:14px;font-size:12.5px;color:var(--sub);margin-top:4px;}
-  .chk label{display:flex;align-items:center;gap:4px;cursor:pointer;}
-
-  /* 面积账本 */
-  table.ledger{width:100%;border-collapse:collapse;font-size:14px;}
-  table.ledger td{padding:5px 3px;border-bottom:1px solid #eef2f7;vertical-align:middle;}
-  table.ledger td.dot{width:16px;}
-  .dotc{display:inline-block;width:11px;height:11px;border-radius:3px;}
-  table.ledger td.val{text-align:right;font-weight:bold;font-variant-numeric:tabular-nums;width:86px;}
-  table.ledger tr.sum td{border-top:2px solid var(--line);border-bottom:none;font-size:15px;color:var(--ink);}
-  table.ledger tr.sum td.val{color:var(--green);font-size:16px;}
-  .eqtip{background:#eef8f3;border:1px solid #bfe6d5;color:#126c4c;border-radius:8px;
-    padding:6px 10px;font-size:13px;margin-top:6px;text-align:center;font-weight:bold;}
-
-  /* 杨辉三角 */
-  #yh{display:flex;flex-direction:column;align-items:center;gap:3px;margin:4px 0;}
+  .modes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+  .mode{padding:9px 18px;border-radius:999px;border:2px solid var(--line);background:#fff;font-size:15px;font-weight:700;color:var(--sub);cursor:pointer;}
+  .mode.on{background:var(--purple);border-color:var(--purple);color:#fff;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.05);margin-bottom:12px;}
+  .sliders{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;font-size:14px;font-weight:700;}
+  .sliders label{display:flex;align-items:center;gap:8px;}
+  .sliders b{color:var(--purple);min-width:16px;text-align:center;}
+  .sliders input{width:130px;accent-color:var(--purple);}
+  svg{display:block;width:100%;height:auto;}
+  .caption{text-align:center;font-size:17px;font-weight:700;color:var(--ink);min-height:28px;margin:6px 0;}
+  .caption .em{color:var(--purple);}
+  .ctrl{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:6px;}
+  .ctrl button{padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:var(--ink);}
+  .ctrl button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ctrl button.play{background:var(--green);border-color:var(--green);color:#fff;}
+  .ctrl button.play.on{background:var(--orange);border-color:var(--orange);}
+  .ctrl button:disabled{opacity:.4;cursor:default;}
+  .dots{display:flex;gap:7px;justify-content:center;margin:8px 0 2px;}
+  .dots i{width:11px;height:11px;border-radius:50%;background:#cbd5e1;transition:.3s;}
+  .dots i.on{background:var(--purple);transform:scale(1.2);}
+  .formula{text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:26px;font-weight:bold;line-height:1.8;padding:8px 4px;}
+  .formula .tm{transition:opacity .4s;padding:0 2px;}
+  .formula .tm.dim{opacity:.22;}
+  .formula sup{font-size:.6em;}
+  .fnum{text-align:center;font-family:"Cambria Math",Georgia,serif;font-size:16px;color:var(--sub);min-height:22px;}
+  .fnum b{color:var(--green);}
+  .ext-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .ext-head h3{font-size:15px;color:var(--purple);}
+  .ext-head span{font-size:13px;color:var(--sub);}
+  #yh{display:flex;flex-direction:column;align-items:center;gap:3px;margin:8px 0;}
   .yh-row{display:flex;gap:5px;align-items:center;}
-  .yh-cell{width:30px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;
-    background:#f2f5f9;font-size:13px;font-weight:bold;color:#5b6b7d;}
+  .yh-cell{width:30px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:#f2f5f9;font-size:13px;font-weight:bold;color:#5b6b7d;}
   .yh-cell.hl{outline:2px solid var(--purple);}
-  .yh-cell.k1{background:var(--blueL);color:#17457c;}
-  .yh-cell.k2{background:var(--orangeL);color:#7d4a0a;}
-  .yh-cell.k4{background:var(--greenL);color:#10603f;}
-  .yh-sum{width:54px;font-size:11px;color:var(--green);font-weight:bold;}
-  .fold{font-size:12.5px;color:var(--sub);line-height:1.8;}
-  .fold b{color:var(--purple);}
-  #animrow.hidden,.hidden{display:none!important;}
-  #yh-note{font-size:12.5px;line-height:1.75;background:#f7f3fd;border-radius:7px;padding:6px 9px;margin-top:4px;color:#3c3350;}
-  #animrow{display:flex;align-items:center;gap:8px;margin-top:7px;}
-  #animrow input{flex:1;}
-  #animrow button{padding:6px 10px;border:1px solid var(--blue);background:var(--blue);color:#fff;
-    border-radius:8px;cursor:pointer;font-size:12.5px;white-space:nowrap;}
+  .yh-cell.k1{background:var(--blueL);color:#17457c;} .yh-cell.k2{background:var(--orangeL);color:#7d4a0a;} .yh-cell.k4{background:var(--greenL);color:#10603f;}
+  .yh-note{font-size:13px;line-height:1.7;background:#f7f3fd;border-radius:8px;padding:8px 10px;color:#3c3350;}
+  .hide{display:none;}
+  footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:14px;}
+  @media(max-width:640px){.formula{font-size:20px;}.caption{font-size:15px;}}
 </style>
 </head>
 <body>
-<header>
-  <h1>16.3 乘法公式 · 数形对照图解</h1>
-  <p>图里每一块的<b>颜色</b>和<b>编号</b>，都对应右边账本和下面公式里的同一项 —— 面积加起来，就是公式</p>
-</header>
-
 <div class="wrap">
-  <!-- ================= 画布 ================= -->
-  <div class="stage">
-    <svg id="svg" viewBox="0 0 800 600"></svg>
-    <div id="formula"></div>
+  <header>
+    <h1>16.3 乘法公式 · 看得见的证明</h1>
+    <p>每一块颜色对应公式里的一项 · 面积加起来，就是公式</p>
+  </header>
+
+  <div class="modes">
+    <button class="mode on" data-m="pf">平方差</button>
+    <button class="mode" data-m="he">完全平方和</button>
+    <button class="mode" data-m="cha">完全平方差</button>
   </div>
 
-  <!-- ================= 右侧 ================= -->
-  <div class="side">
-    <div class="card">
-      <h3>① 选公式</h3>
-      <div class="btnrow">
-        <button id="m-pf" class="active">平方差</button>
-        <button id="m-he">完全平方和</button>
-        <button id="m-cha">完全平方差</button>
-      </div>
-      <div class="slider"><label>边长 a <b id="v-a">3</b></label>
-        <input type="range" id="s-a" min="2" max="5" value="3" step="1"></div>
-      <div class="slider"><label>边长 b <b id="v-b">1</b></label>
-        <input type="range" id="s-b" min="1" max="4" value="1" step="1"></div>
-      <div id="animrow" class="hidden">
-        <button id="btn-play">▶ 看割补过程</button>
-        <input type="range" id="s-t" min="0" max="1000" value="1000">
-      </div>
-      <div class="chk">
-        <label><input type="checkbox" id="ck-grid">网格</label>
-        <label><input type="checkbox" id="ck-area" checked>显示面积数值</label>
-      </div>
+  <div class="card">
+    <div class="sliders">
+      <label>边长 a <input type="range" id="sa" min="2" max="5" value="3"><b id="va">3</b></label>
+      <label>边长 b <input type="range" id="sb" min="1" max="4" value="1"><b id="vb">1</b></label>
     </div>
-
-    <div class="card">
-      <h3>② 面积账本（和左边图形一一对应）</h3>
-      <table class="ledger"><tbody id="ledger"></tbody></table>
-      <div class="eqtip" id="eqtip"></div>
-    </div>
-
-    <div class="card">
-      <h3>③ 杨辉三角 · 系数密码
-        <button id="yh-fold" style="float:right;padding:2px 9px;font-size:11.5px;">收起 ▲</button></h3>
-      <div id="yh-box">
-        <div class="btnrow" style="margin-bottom:4px;">
-          <button id="yh-r2" class="active">(a+b)² = 1,2,1</button>
-          <button id="yh-r3">(a+b)³ = 1,3,3,1</button>
-          <button id="yh-sum">行和 2ⁿ</button>
-        </div>
-        <div id="yh"></div>
-        <div id="yh-note"></div>
-      </div>
-    </div>
-
-    <div class="card fold">
-      <b>阅读与思考：系数为什么长这样？</b>
-      杨辉三角出自宋代杨辉 1261 年《详解九章算法》，比欧洲帕斯卡早约 400 年。
-      每行两端是 1，中间的数 = 肩上两数之和。<br>
-      (a+b)² 就是"两个括号各取一个字母"：a·a 得 a²，a·b 与 b·a 得 <b>两个</b> ab，b·b 得 b²
-      —— 系数 1、2、1 就是这么数出来的。
+    <svg id="svg" viewBox="0 0 800 540"></svg>
+    <div class="caption" id="cap"></div>
+    <div class="dots" id="dots"></div>
+    <div class="ctrl">
+      <button id="prev">◀ 上一步</button>
+      <button id="next" class="primary">下一步 ▶</button>
+      <button id="play" class="play">▶ 自动播放</button>
+      <button id="reset">↺ 重置</button>
     </div>
   </div>
+
+  <div class="card">
+    <div class="formula" id="formula"></div>
+    <div class="fnum" id="fnum"></div>
+  </div>
+
+  <div class="card">
+    <div class="ext-head" id="extHead">
+      <h3>拓展 · 杨辉三角：系数为什么是 1, 2, 1？</h3>
+      <span id="extArrow">展开 ▼</span>
+    </div>
+    <div id="extBody" class="hide">
+      <div id="yh"></div>
+      <div class="yh-note" id="yhNote"></div>
+    </div>
+  </div>
+
+  <footer>人教版八年级上册 · 16.3 乘法公式 · 数形对照</footer>
 </div>
 
 <script>
-// ================= 基础 =================
+"use strict";
 const $=id=>document.getElementById(id);
-const svg=$('svg'), NS='http://www.w3.org/2000/svg';
-function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e;}
+const NS='http://www.w3.org/2000/svg';
+const svg=$('svg');
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const lerp=(A,B,t)=>A+(B-A)*t;
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-
-const U=48;
-let S={mode:'pf',a:3,b:1,t:1,grid:false,area:true};
-let anim=null;
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e;}
+function T(x,y,s,fill,size,op,w){const t=el('text',{x,y,'text-anchor':'middle','font-size':size||15,fill:fill||'#334155','font-weight':w||'bold','paint-order':'stroke',stroke:'#fff','stroke-width':5,opacity:op===undefined?1:op});t.textContent=s;return t;}
+function box(x,y,w,h,fill,o){o=o||{};return el('rect',{x,y,width:Math.max(0,w),height:Math.max(0,h),fill,stroke:o.stroke||'#fff','stroke-width':o.sw||2,opacity:o.op===undefined?1:o.op,'stroke-dasharray':o.dash||'none'});}
 
 const defs=el('defs',{});
-(function(){ const p=el('pattern',{id:'hatch',width:9,height:9,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},defs);
-  el('rect',{width:9,height:9,fill:'#e9eef4'},p);
-  el('line',{x1:0,y1:0,x2:0,y2:9,stroke:'#c6d0dc','stroke-width':2.6},p); })();
-const gGrid=el('g',{}), gMain=el('g',{}), gLab=el('g',{});
+(function(){const p=el('pattern',{id:'hatch',width:9,height:9,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},defs);
+el('rect',{width:9,height:9,fill:'#e9eef4'},p);el('line',{x1:0,y1:0,x2:0,y2:9,stroke:'#c6d0dc','stroke-width':2.6},p);})();
 
-function T(x,y,s,fill,size=15,op=1,w='bold'){
-  const t=el('text',{x,y,'text-anchor':'middle','font-size':size,fill,'font-weight':w,
-    'paint-order':'stroke',stroke:'#fff','stroke-width':5,opacity:op},gLab); t.textContent=s; return t;
-}
-function T2(x,y,lines,fill,size=14,op=1,lh=18){
-  const t=el('text',{x,y,'text-anchor':'middle','font-size':size,'font-weight':'bold',fill,
-    'paint-order':'stroke',stroke:'#fff','stroke-width':5,opacity:op},gLab);
-  lines.forEach((s,i)=>{const ts=el('tspan',{x,y:y+i*lh},t); ts.textContent=s;}); return t;
-}
-function badge(x,y,n,color){                      // 编号小圆点
-  el('circle',{cx:x,cy:y,r:13,fill:'#fff',stroke:color,'stroke-width':2.6},gLab);
-  const t=el('text',{x,y:y+5,'text-anchor':'middle','font-size':14,'font-weight':'bold',fill:color},gLab);
-  t.textContent=n;
-}
-function dimH(x1,x2,y,label,color,op=1){
-  el('line',{x1,y1:y,x2,y2:y,stroke:color,'stroke-width':1.6,opacity:op},gLab);
-  el('line',{x1,y1:y-5,x2:x1,y2:y+5,stroke:color,'stroke-width':1.6,opacity:op},gLab);
-  el('line',{x1:x2,y1:y-5,x2,y2:y+5,stroke:color,'stroke-width':1.6,opacity:op},gLab);
-  T((x1+x2)/2,y-8,label,color,15,op);
-}
-function dimV(y1,y2,x,label,color,op=1,anchor='end'){
-  el('line',{x1:x,y1,x2:x,y2,stroke:color,'stroke-width':1.6,opacity:op},gLab);
-  el('line',{x1:x-5,y1,x2:x+5,y2:y1,stroke:color,'stroke-width':1.6,opacity:op},gLab);
-  el('line',{x1:x-5,y1:y2,x2:x+5,y2,stroke:color,'stroke-width':1.6,opacity:op},gLab);
-  T(anchor==='end'?x-30:x+30,(y1+y2)/2,label,color,15,op);
-}
-function box(x,y,w,h,fill,opt={}){
-  return el('rect',{x,y,width:Math.max(0,w),height:Math.max(0,h),fill,
-    stroke:opt.stroke||'#fff','stroke-width':opt.sw||2,opacity:opt.op===undefined?1:opt.op,
-    'stroke-dasharray':opt.dash||'none'},gMain);
+let S={m:'pf',a:3,b:1};
+let target=0,cur=0,raf=null,playTimer=null;
+const STEPS={
+  pf:[
+    '边长为 <span class="em">a</span> 的大正方形，面积 = a²',
+    '切掉角上一个边长 <span class="em">b</span> 的小正方形（b²）',
+    '剩下的 L 形，面积 = <span class="em">a² − b²</span>',
+    '把上面那块剪下来，旋转 90° 搬到右边',
+    '拼成一个长方形：长 (a+b)，宽 (a−b)'
+  ],
+  he:[
+    '边长为 <span class="em">a+b</span> 的大正方形',
+    '左下角：边长 a 的正方形，面积 <span class="em">a²</span>',
+    '两条长方形，面积都是 <span class="em">ab</span>',
+    '右上角：边长 b 的正方形，面积 <span class="em">b²</span>',
+    '四块加起来 = 大正方形面积'
+  ],
+  cha:[
+    '边长为 <span class="em">a</span> 的大正方形，面积 a²',
+    '减掉下面一条 ab，再减掉右面一条 ab',
+    '角上 b² 被减了两次，要<span class="em">补回一个 b²</span>',
+    '剩下的蓝色正方形，边长 (a−b)',
+    '所以 (a−b)² = a² − 2ab + b²'
+  ]
+};
+const N=()=>STEPS[S.m].length-1;
+
+function ensureAnim(){if(raf==null)raf=requestAnimationFrame(tick);}
+function tick(){cur+=(target-cur)*0.16;if(Math.abs(target-cur)<0.002)cur=target;render(cur);if(cur!==target){raf=requestAnimationFrame(tick);}else{raf=null;}}
+function setTarget(n){target=clamp(n,0,N());ensureAnim();updateUI();}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;}$('play').textContent='▶ 自动播放';$('play').classList.remove('on');}
+function startPlay(){if(target>=N())setTarget(0);$('play').textContent='⏸ 暂停';$('play').classList.add('on');playTimer=setInterval(()=>{if(target<N())setTarget(target+1);else stopPlay();},1600);}
+
+function render(t){
+  svg.innerHTML='';svg.appendChild(defs);
+  if(S.m==='pf')drawPF(t);else if(S.m==='he')drawHE(t);else drawCHA(t);
 }
 
-// ================= 模式一：平方差 =================
-function drawPF(){
-  const U2=Math.min(78, 640/(S.a+S.b));
-  const {a,b}=S, W=a*U2, H=(a-b)*U2, HB=b*U2, TW=(a+b)*U2;
-  const x0=(800-TW)/2, y0=120, t=S.t;
-  const cut=clamp(t/.25,0,1), split=clamp((t-.2)/.2,0,1), mv=ease(clamp((t-.35)/.4,0,1)), res=clamp((t-.75)/.25,0,1);
-
-  // 大正方形 a²
+function drawPF(t){
+  const a=S.a,b=S.b,U=Math.min(78,620/(a+b));
+  const W=a*U,H=(a-b)*U,HB=b*U,TW=(a+b)*U;
+  const x0=(800-TW)/2,y0=120;
+  const cut=clamp(t,0,1),split=clamp(t-1,0,1),mv=ease(clamp(t-2,0,1)),res=clamp(t-3,0,1);
   box(x0,y0,W,W,'#bfd9f8',{stroke:'#8fb3d9',sw:1.5});
-  if(S.area) T(x0+W/2,y0+W/2+8,`a² = ${a*a}`,'#17457c',18,1-cut);
-  badge(x0+22,y0+22,'1','#3b7dd8');
-
-  // 右上角 b²
-  box(x0+H,y0,HB,HB,'none',{stroke:'#9aa7b4',sw:1.6,dash:'5 4',op:.6});
+  if(cut<1)T(x0+W/2,y0+W/2+8,'a² = '+(a*a),'#17457c',20,1-cut);
   box(x0+H,y0,HB,HB,'url(#hatch)',{stroke:'#9aa7b4',sw:1.6,dash:'5 4',op:cut});
-  T2(x0+H+HB/2,y0+HB/2-3,['切掉',`b²=${b*b}`],'#5b6b7d',13,.5+.5*cut,16);
-  badge(x0+H+HB+6,y0+13,'2','#8a97a5');
-
-  // 切开 L 形（虚线）
-  if(split>0) el('line',{x1:x0,y1:y0+HB,x2:x0+H,y2:y0+HB,stroke:'#6b46a8','stroke-width':2.2,
-    'stroke-dasharray':'7 5',opacity:split},gMain);
-
-  // 块①：下边 a×(a−b)
+  if(cut>0)T(x0+H+HB/2,y0+HB/2+5,'切掉 b²='+(b*b),'#5b6b7d',13,cut);
+  if(split>0)el('line',{x1:x0,y1:y0+HB,x2:x0+H,y2:y0+HB,stroke:'#6b46a8','stroke-width':2.2,'stroke-dasharray':'7 5',opacity:split});
   box(x0,y0+H,W,H,'#bfd9f8',{stroke:'#8fb3d9',sw:2});
-  if(S.area&&split>.3) T(x0+W/2,y0+H+H/2+7,`a×(a−b) = ${a*(a-b)}`,'#17457c',15,split*(1-res));
-
-  // 块②：(a−b)×b —— 旋转搬运
-  const tx=lerp(x0,x0+W+HB,mv), ty=lerp(y0,y0+H,mv), th=90*mv;
-  const g=el('g',{transform:`translate(${tx},${ty}) rotate(${th})`},gMain);
+  if(split>0.3&&res<1)T(x0+W/2,y0+H+H/2+6,'a×(a−b)='+(a*(a-b)),'#17457c',14,split*(1-res));
+  const tx=lerp(x0,x0+W+HB,mv),ty=lerp(y0,y0+H,mv),th=90*mv;
+  const g=el('g',{transform:'translate('+tx+','+ty+') rotate('+th+')'});
   el('rect',{x:0,y:0,width:H,height:HB,fill:'#9dc4ee',stroke:'#7fa6d2','stroke-width':2},g);
-  if(S.area&&split>.3){
-    const t2=el('text',{x:0,y:0,transform:`translate(${H/2},${HB/2+6}) rotate(${-th})`,
-      'text-anchor':'middle','font-size':14,'font-weight':'bold',fill:'#17457c',
-      'paint-order':'stroke',stroke:'#fff','stroke-width':5,opacity:split*(1-res*.8)},g);
-    t2.textContent=`(a−b)×b = ${(a-b)*b}`;
-  }
-
-  // 目标虚线框
-  if(mv>.02) el('rect',{x:x0,y:y0+H,width:TW,height:H,fill:'none',stroke:'#6b46a8',
-    'stroke-width':2,'stroke-dasharray':'8 6',opacity:.35+.4*mv},gMain);
-
-  // 搬运箭头
   if(mv>0.03&&mv<0.97){
-    const c1=[x0+H/2,y0+HB/2], c2=[x0+W+HB/2,y0+H+H/2];
-    const mx=(c1[0]+c2[0])/2, my=Math.min(c1[1],c2[1])-60;
-    el('path',{d:`M${c1[0]} ${c1[1]} Q${mx} ${my} ${c2[0]} ${c2[1]}`,fill:'none',
-      stroke:'#6b46a8','stroke-width':2.6,'stroke-dasharray':'9 6',opacity:Math.sin(mv*Math.PI)},gMain);
+    const c1=[x0+H/2,y0+HB/2],c2=[x0+W+HB/2,y0+H+H/2];
+    const mx=(c1[0]+c2[0])/2,my=Math.min(c1[1],c2[1])-60;
+    el('path',{d:'M'+c1[0]+' '+c1[1]+' Q'+mx+' '+my+' '+c2[0]+' '+c2[1],fill:'none',stroke:'#6b46a8','stroke-width':2.6,'stroke-dasharray':'9 6',opacity:Math.sin(mv*Math.PI)});
     T(mx,my-10,'旋转 90° 搬过来','#6b46a8',14,Math.sin(mv*Math.PI));
   }
-
-  // 拼成矩形
   if(res>0){
-    el('rect',{x:x0,y:y0+H,width:TW,height:H,fill:'none',stroke:'#6b46a8','stroke-width':3.2,opacity:res},gMain);
-    if(S.area) T(x0+TW/2,y0+W+36,
-      `拼成长方形：长 a+b = ${a+b}，宽 a−b = ${a-b}，面积 = ${(a+b)*(a-b)}`,'#6b46a8',16,res);
+    el('rect',{x:x0,y:y0+H,width:TW,height:H,fill:'none',stroke:'#6b46a8','stroke-width':3.2,opacity:res});
+    T(x0+TW/2,y0+W+36,'长 a+b='+(a+b)+'，宽 a−b='+(a-b)+'，面积='+(a+b)*(a-b),'#6b46a8',16,res);
   }
-
-  dimH(x0,x0+W,y0-14,`a = ${a}`,'#3b7dd8',1-res*.9);
-  dimV(y0,y0+W,x0-16,`a = ${a}`,'#3b7dd8',1-res*.9);
-  T(x0+H+HB/2,y0-14,`b = ${b}`,'#1e9e74',1-cut);
-  return {res};
+  T(x0+W/2,y0-14,'a = '+a,'#3b7dd8',15,1-res*0.9);
+  T(x0-30,y0+W/2,'a='+a,'#3b7dd8',14,1-res*0.9);
+  if(cut>0)T(x0+H+HB/2,y0-14,'b='+b,'#1e9e74',14,cut);
 }
 
-// ================= 模式二：完全平方和 =================
-function drawHE(){
-  const U2=Math.min(74, 470/(S.a+S.b));
-  const {a,b}=S, W=(a+b)*U2, x0=(800-W)/2, y0=80, AW=a*U2, BH=b*U2;
-
+function drawHE(t){
+  const a=S.a,b=S.b,U=Math.min(74,470/(a+b));
+  const W=(a+b)*U,x0=(800-W)/2,y0=90,AW=a*U,BH=b*U;
   box(x0,y0,W,W,'#f7fafd',{stroke:'#c3d4e6',sw:1.5});
+  const o1=clamp(t-1,0,1),o2=clamp(t-2,0,1),o3=clamp(t-3,0,1),o4=clamp(t-4,0,1);
   const P=[
-    {x:x0,   y:y0+BH, w:AW, h:AW, fill:'#bfd9f8', n:1, c:'#3b7dd8', tc:'#17457c', name:`a²=${a*a}`, note:'大正方形'},
-    {x:x0,   y:y0,    w:AW, h:BH, fill:'#fcd9a4', n:2, c:'#e08a2e', tc:'#7d4a0a', name:`ab=${a*b}`, note:'长条'},
-    {x:x0+AW,y:y0+BH, w:BH, h:AW, fill:'#f7c985', n:3, c:'#c47a1e', tc:'#7d4a0a', name:`ab=${a*b}`, note:'长条'},
-    {x:x0+AW,y:y0,    w:BH, h:BH, fill:'#c3ecdb', n:4, c:'#1e9e74', tc:'#10603f', name:`b²=${b*b}`, note:'小正方形'},
+    {x:x0,y:y0+BH,w:AW,h:AW,fill:'#bfd9f8',tc:'#17457c',name:'a²='+(a*a),o:o1},
+    {x:x0,y:y0,w:AW,h:BH,fill:'#fcd9a4',tc:'#7d4a0a',name:'ab='+(a*b),o:o2},
+    {x:x0+AW,y:y0+BH,w:BH,h:AW,fill:'#f7c985',tc:'#7d4a0a',name:'ab='+(a*b),o:o2},
+    {x:x0+AW,y:y0,w:BH,h:BH,fill:'#c3ecdb',tc:'#10603f',name:'b²='+(b*b),o:o3}
   ];
   P.forEach(d=>{
-    box(d.x,d.y,d.w,d.h,d.fill,{stroke:'#fff',sw:3});
-    badge(d.x+18,d.y+18,d.n,d.c);
-    if(S.area){
-      T(d.x+d.w/2,d.y+d.h/2+2,d.name,d.tc,15);
-      if(d.w>70) T(d.x+d.w/2,d.y+d.h/2+20,d.note,d.tc,11.5,.9,'normal');
-    }
+    box(d.x,d.y,d.w,d.h,d.fill,{stroke:'#fff',sw:3,op:d.o});
+    if(d.o>0.3)T(d.x+d.w/2,d.y+d.h/2+6,d.name,d.tc,15,d.o);
   });
-  el('rect',{x:x0,y:y0,width:W,height:W,fill:'none',stroke:'#6b46a8','stroke-width':3},gMain);
-
-  dimH(x0,x0+AW,y0-14,`a = ${a}`,'#3b7dd8');
-  dimH(x0+AW,x0+W,y0-14,`b = ${b}`,'#1e9e74');
-  dimV(y0+W,y0+BH,x0-18,`b = ${b}`,'#1e9e74');
-  dimV(y0+BH,y0,x0-18,`a = ${a}`,'#3b7dd8');
-  T(x0+W/2,y0+W+26,`边长 a+b = ${a+b}，整块面积 = (a+b)² = ${(a+b)**2}`,'#6b46a8',16);
+  el('rect',{x:x0,y:y0,width:W,height:W,fill:'none',stroke:'#6b46a8','stroke-width':3});
+  T(x0+AW/2,y0-14,'a='+a,'#3b7dd8',15);
+  T(x0+AW+BH/2,y0-14,'b='+b,'#1e9e74',15);
+  T(x0-26,y0+BH/2,'b='+b,'#1e9e74',13);
+  T(x0-26,y0+BH+AW/2,'a='+a,'#3b7dd8',13);
+  if(o4>0)T(x0+W/2,y0+W+30,'(a+b)² = '+(a+b)*(a+b),'#6b46a8',17,o4);
 }
 
-// ================= 模式三：完全平方差 =================
-function drawCHA(){
-  const U2=Math.min(84, 620/S.a);
-  const {a,b}=S, W=a*U2, x0=(800-W)/2, y0=110, H=(a-b)*U2, HB=b*U2;
-
-  // a²
+function drawCHA(t){
+  const a=S.a,b=S.b,U=Math.min(84,600/a);
+  const W=a*U,x0=(800-W)/2,y0=110,H=(a-b)*U,HB=b*U;
+  const red=clamp(t-1,0,1),back=clamp(t-2,0,1),rem=clamp(t-3,0,1),fin=clamp(t-4,0,1);
   box(x0,y0,W,W,'#bfd9f8',{stroke:'#8fb3d9',sw:1.5});
-
-  // 剩下 (a−b)²
-  box(x0,y0,H,H,'#8dbdf0',{stroke:'#5b93cc',sw:2.5});
-  badge(x0+18,y0+18,'1','#3b7dd8');
-  if(S.area){
-    T(x0+H/2,y0+H/2-3,'(a−b)²','#0f355f',15);
-    T(x0+H/2,y0+H/2+17,`= ${(a-b)*(a-b)}`,'#0f355f',14);
-  }
-
-  // 减：下边 a×b
-  box(x0,y0+H,W,HB,'#f7b8b2',{op:.95,stroke:'#d9453c',sw:2});
-  badge(x0+18,y0+H+HB/2,'2','#d9453c');
-  if(S.area) T(x0+W/2+10,y0+H+HB/2+5,`ab = ${a*b}`,'#8c1d13',15);
-
-  // 减：右边 b×a
-  box(x0+H,y0,HB,W,'#f7b8b2',{op:.95,stroke:'#d9453c',sw:2});
-  badge(x0+H+HB/2,y0+W-20,'3','#d9453c');
-  if(S.area){
-    const t=el('text',{x:x0+H+HB/2,y:y0+H/2+4,'text-anchor':'middle','font-size':15,'font-weight':'bold',
-      fill:'#8c1d13','paint-order':'stroke',stroke:'#fff','stroke-width':5},gLab);
-    t.textContent=`ab`; t.setAttribute('transform',`rotate(-90 ${x0+H+HB/2} ${y0+H/2+4})`);
-  }
-
-  // 右下角 b²：被减两次 → 补回
-  box(x0+H,y0+H,HB,HB,'#ffe38c',{stroke:'#e0a02e',sw:2.5});
-  badge(x0+H+HB/2,y0+H+24,'4','#b9770e');
-  T(x0+H+HB/2,y0+H+HB-16,`+b²=${b*b}`,'#7d5100',13);
-
-  // 说明：剩余 = a² − 2ab + b²
-  el('rect',{x:x0,y:y0,width:W,height:W,fill:'none',stroke:'#6b46a8','stroke-width':2.4},gMain);
-  dimH(x0,x0+H,y0-14,`a−b = ${a-b}`,'#5b93cc');
-  dimH(x0+H,x0+W,y0-14,`b = ${b}`,'#1e9e74');
-  dimV(y0,y0+H,x0-18,'a−b','#5b93cc');
-  dimV(y0+H,y0+W,x0-18,`b = ${b}`,'#1e9e74');
-  T(x0+W/2,y0+W+26,`蓝色剩余的这块 = a² − 2ab + b² = ${(a-b)*(a-b)}`,'#6b46a8',16);
+  box(x0,y0,H,H,'#8dbdf0',{stroke:'#5b93cc',sw:2.5,op:0.35+0.65*rem});
+  if(rem>0.3){T(x0+H/2,y0+H/2-2,'(a−b)²','#0f355f',16,rem);T(x0+H/2,y0+H/2+18,'='+(a-b)*(a-b),'#0f355f',14,rem);}
+  box(x0,y0+H,W,HB,'#f7b8b2',{stroke:'#d9453c',sw:2,op:red});
+  if(red>0.3)T(x0+W/2,y0+H+HB/2+5,'−ab='+(a*b),'#8c1d13',14,red);
+  box(x0+H,y0,HB,W,'#f7b8b2',{stroke:'#d9453c',sw:2,op:red});
+  if(red>0.3){const tt=el('text',{x:x0+H+HB/2,y:y0+H/2+4,'text-anchor':'middle','font-size':14,'font-weight':'bold',fill:'#8c1d13','paint-order':'stroke',stroke:'#fff','stroke-width':5,opacity:red,transform:'rotate(-90 '+(x0+H+HB/2)+' '+(y0+H/2+4)+')'});tt.textContent='−ab';}
+  box(x0+H,y0+H,HB,HB,'#ffe38c',{stroke:'#e0a02e',sw:2.5,op:back});
+  if(back>0.3)T(x0+H+HB/2,y0+H+HB/2+5,'+b²='+(b*b),'#7d5100',13,back);
+  el('rect',{x:x0,y:y0,width:W,height:W,fill:'none',stroke:'#6b46a8','stroke-width':2.4});
+  T(x0+H/2,y0-14,'a−b='+(a-b),'#5b93cc',14);
+  T(x0+H+HB/2,y0-14,'b='+b,'#1e9e74',14);
+  if(fin>0)T(x0+W/2,y0+W+30,'蓝色剩余 = a² − 2ab + b² = '+(a-b)*(a-b),'#6b46a8',16,fin);
 }
 
-// ================= 渲染 =================
-function render(){
-  gMain.innerHTML=''; gLab.innerHTML='';
-  gGrid.innerHTML='';
-  if(S.grid){
-    for(let x=0;x<=800;x+=U/2) el('line',{x1:x,y1:0,x2:x,y2:600,stroke:'#f0f4f9'},gGrid);
-    for(let y=0;y<=600;y+=U/2) el('line',{x1:0,y1:y,x2:800,y2:y,stroke:'#f0f4f9'},gGrid);
+function formulaHTML(){
+  const a=S.a,b=S.b,A=a*a,AB=a*b,B=b*b;
+  const tm=(s,step,color)=>'<span class="tm'+(target>=step?'':' dim')+'" style="color:'+(color||'inherit')+'">'+s+'</span>';
+  if(S.m==='pf'){
+    return tm('a²',1,'#3b7dd8')+' '+tm('−',1)+' '+tm('b²',1,'#8a97a5')+' '+tm('=',4)+' '+tm('(a+b)(a−b)',4,'#6b46a8');
   }
-  if(S.mode==='pf') drawPF(); else if(S.mode==='he') drawHE(); else drawCHA();
-  renderFormula(); renderLedger(); renderYH();
+  if(S.m==='he'){
+    return tm('(a+b)²',0,'#6b46a8')+' '+tm('=',4)+' '+tm('a²',1,'#3b7dd8')+' '+tm('+',2)+' '+tm('2ab',2,'#e08a2e')+' '+tm('+',3)+' '+tm('b²',3,'#1e9e74');
+  }
+  return tm('(a−b)²',3,'#6b46a8')+' '+tm('=',4)+' '+tm('a²',0,'#3b7dd8')+' '+tm('−',1)+' '+tm('2ab',1,'#d9453c')+' '+tm('+',2)+' '+tm('b²',2,'#b9770e');
+}
+function fnumHTML(){
+  const a=S.a,b=S.b,A=a*a,AB=a*b,B=b*b;
+  if(target<N())return '';
+  if(S.m==='pf')return A+' − '+B+' = '+(a+b)+' × '+(a-b)+' = <b>'+(a+b)*(a-b)+'</b>';
+  if(S.m==='he')return (a+b)*(a+b)+' = '+A+' + '+AB+' + '+AB+' + '+B+' = <b>'+(A+2*AB+B)+'</b>';
+  return (a-b)*(a-b)+' = '+A+' − '+AB+' − '+AB+' + '+B+' = <b>'+(A-2*AB+B)+'</b>';
+}
+function updateUI(){
+  $('cap').innerHTML=STEPS[S.m][target];
+  $('dots').innerHTML=STEPS[S.m].map((_,i)=>'<i class="'+(i<=target?'on':'')+'"></i>').join('');
+  $('formula').innerHTML=formulaHTML();
+  $('fnum').innerHTML=fnumHTML();
+  $('prev').disabled=target===0;
+  $('next').disabled=target===N();
 }
 
-// ================= 公式条 =================
-function renderFormula(){
-  const {a,b}=S; const A=a*a, AB=a*b, B=b*b;
-  let main='', num='';
-  if(S.mode==='pf'){
-    main=`<span class="tag">同一块地，两种算法</span><br>
-      <span class="n n1">1</span>a² − <span class="n nGray">2</span>b²
-      <span style="color:#8a97a5">=</span> ( a + b )( a − b )`;
-    num=`${A} − ${B} = ${a+b} × ${a-b} = <b style="color:#1e9e74">${(a+b)*(a-b)}</b>`;
-  }else if(S.mode==='he'){
-    main=`( a + b )² <span style="color:#8a97a5">=</span>
-      <span class="n n1">1</span>a² +
-      <span class="n n2">2</span>ab +
-      <span class="n n3">3</span>ab +
-      <span class="n n4">4</span>b²
-      <span style="color:#8a97a5">=</span> a² + <b style="color:#e08a2e">2ab</b> + b²`;
-    num=`${(a+b)**2} = ${A} + ${AB} + ${AB} + ${B} = <b style="color:#1e9e74">${A+2*AB+B}</b>`;
-  }else{
-    main=`( a − b )² <span style="color:#8a97a5">=</span>
-      <span class="n n1">1</span>a² − <span class="n" style="background:#d9453c">2</span>ab
-      − <span class="n" style="background:#d9453c">3</span>ab
-      + <span class="n" style="background:#b9770e">4</span>b²
-      <span style="color:#8a97a5">=</span> a² − <b style="color:#d9453c">2ab</b> + b²`;
-    num=`${(a-b)**2} = ${A} − ${AB} − ${AB} + ${B} = <b style="color:#1e9e74">${A-2*AB+B}</b>`;
-  }
-  $('formula').innerHTML=`<div class="fmain">${main}</div><div class="fnum">${num}</div>`;
+function setMode(m){
+  stopPlay();S.m=m;
+  if(m!=='he'&&S.b>=S.a)S.b=S.a-1;
+  document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  $('sb').max=m==='he'?4:S.a-1;
+  target=0;cur=0;render(0);updateUI();
 }
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$('sa').oninput=e=>{S.a=+e.target.value;$('va').textContent=S.a;if(S.m!=='he'&&S.b>=S.a){S.b=S.a-1;$('sb').value=S.b;$('vb').textContent=S.b;}$('sb').max=S.m==='he'?4:S.a-1;target=0;cur=0;render(0);updateUI();};
+$('sb').oninput=e=>{S.b=+e.target.value;$('vb').textContent=S.b;target=0;cur=0;render(0);updateUI();};
+$('next').onclick=()=>{stopPlay();setTarget(target+1);};
+$('prev').onclick=()=>{stopPlay();setTarget(target-1);};
+$('reset').onclick=()=>{stopPlay();setTarget(0);};
+$('play').onclick=()=>playTimer?stopPlay():startPlay();
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){stopPlay();setTarget(target+1);}
+  if(e.key==='ArrowLeft'){stopPlay();setTarget(target-1);}
+  if(e.key===' '){e.preventDefault();playTimer?stopPlay():startPlay();}
+});
 
-// ================= 面积账本 =================
-function renderLedger(){
-  const {a,b}=S; const A=a*a, AB=a*b, B=b*b;
-  const rows=[];
-  if(S.mode==='pf'){
-    rows.push(['#bfd9f8','① 大正方形 a²',A]);
-    rows.push(['#e9eef4','② 切掉的 b²（灰色斜线）','−'+B]);
-    rows.push(['#6b46a8','剩下的 L 形',A-B,true]);
-    $('ledger').innerHTML=rows.map(r=>`<tr${r[3]?' class="sum"':''}>
-      <td class="dot"><span class="dotc" style="background:${r[0]}"></span></td>
-      <td>${r[1]}</td><td class="val">${r[2]}</td></tr>`).join('')+
-      `<tr><td class="dot"><span class="dotc" style="background:#bfd9f8"></span></td>
-        <td>拼成矩形：(a+b)(a−b)</td><td class="val">${(a+b)*(a-b)}</td></tr>`;
-    $('eqtip').innerHTML=`a² − b² = ${A} − ${B} = <b>${A-B}</b>　＝　(${a+b})(${a-b}) = <b>${(a+b)*(a-b)}</b>`;
-    return;
-  }
-  if(S.mode==='he'){
-    rows.push(['#bfd9f8','① 大正方形 a²',A]);
-    rows.push(['#fcd9a4','② 长条 ab',AB]);
-    rows.push(['#f7c985','③ 长条 ab',AB]);
-    rows.push(['#c3ecdb','④ 小正方形 b²',B]);
-    $('ledger').innerHTML=rows.map(r=>`<tr><td class="dot"><span class="dotc" style="background:${r[0]}"></span></td>
-      <td>${r[1]}</td><td class="val">${r[2]}</td></tr>`).join('')+
-      `<tr class="sum"><td class="dot"></td><td>四块加起来 = 大正方形面积</td>
-        <td class="val">${A+2*AB+B}</td></tr>`;
-    $('eqtip').innerHTML=`(a+b)² = (${a}+${b})² = ${(a+b)**2}　＝　${A} + ${AB} + ${AB} + ${B}`;
-    return;
-  }
-  rows.push(['#8dbdf0','① 剩下的小正方形 (a−b)²',(a-b)*(a-b)]);
-  rows.push(['#f7b8b2','② 减掉下面一条 ab','−'+AB]);
-  rows.push(['#f7b8b2','③ 减掉右面一条 ab','−'+AB]);
-  rows.push(['#ffe38c','④ 角上 b² 被减两次，补回','+'+B]);
-  $('ledger').innerHTML=rows.map(r=>`<tr><td class="dot"><span class="dotc" style="background:${r[0]}"></span></td>
-    <td>${r[1]}</td><td class="val">${r[2]}</td></tr>`).join('')+
-    `<tr class="sum"><td class="dot"></td><td>合计 = (a−b)²</td><td class="val">${(a-b)*(a-b)}</td></tr>`;
-  $('eqtip').innerHTML=`(a−b)² = ${A} − ${AB} − ${AB} + ${B} = <b>${(a-b)*(a-b)}</b>`;
-}
-
-// ================= 杨辉三角 =================
-const YH=[[1]];
-for(let r=1;r<6;r++){ const prev=YH[r-1]; const row=[1];
-  for(let i=1;i<r;i++) row.push(prev[i-1]+prev[i]); row.push(1); YH.push(row); }
-let yhRow=2, yhSum=false;
+/* 杨辉三角 */
+const YH=[[1]];for(let r=1;r<5;r++){const p=YH[r-1],row=[1];for(let i=1;i<r;i++)row.push(p[i-1]+p[i]);row.push(1);YH.push(row);}
 function renderYH(){
-  const box2=$('yh'); box2.innerHTML='';
+  const box2=$('yh');box2.innerHTML='';
   YH.forEach((row,r)=>{
-    const div=document.createElement('div'); div.className='yh-row';
-    const sum=document.createElement('span'); sum.className='yh-sum';
-    sum.textContent=yhSum?`2^${r}=${2**r}`:''; div.appendChild(sum);
-    row.forEach((v,c)=>{
-      const cell=document.createElement('span'); cell.className='yh-cell'; cell.textContent=v;
-      if(r===yhRow){
-        cell.classList.add('hl');
-        if(r===2) cell.classList.add(['k1','k2','k4'][c]||'k1');
-        if(r===3) cell.classList.add((c===0||c===3)?'k1':'k2');
-      }
-      div.appendChild(cell);
-    });
+    const div=document.createElement('div');div.className='yh-row';
+    row.forEach((v,c)=>{const cell=document.createElement('span');cell.className='yh-cell';cell.textContent=v;
+      if(r===2){cell.classList.add('hl');cell.classList.add(['k1','k2','k4'][c]);}
+      div.appendChild(cell);});
     box2.appendChild(div);
   });
-  const note=$('yh-note');
-  note.innerHTML = yhRow===2
-    ? `第 3 行 <b>1 , 2 , 1</b> 正是 (a+b)² 的系数：<br>
-       1 个 a²（蓝）＋ 2 个 ab（橙）＋ 1 个 b²（绿）—— 和左边四块面积一一对应。`
-    : `第 4 行 <b>1 , 3 , 3 , 1</b> 是 (a+b)³ 的系数：a³ + 3a²b + 3ab² + b³。
-       每个数 = 肩上两数之和。`;
+  $('yhNote').innerHTML='第 3 行 <b>1, 2, 1</b> 正是 (a+b)² 的系数：1 个 a²（蓝）+ 2 个 ab（橙）+ 1 个 b²（绿），和上面四块面积一一对应。每个数 = 肩上两数之和。杨辉三角比欧洲帕斯卡早约 400 年。';
 }
-$('yh-r2').onclick=()=>{yhRow=2;$('yh-r3').classList.remove('active');$('yh-r2').classList.add('active');renderYH();};
-$('yh-r3').onclick=()=>{yhRow=3;$('yh-r2').classList.remove('active');$('yh-r3').classList.add('active');renderYH();};
-$('yh-sum').onclick=e=>{yhSum=!yhSum;e.target.classList.toggle('active');renderYH();};
-$('yh-fold').onclick=e=>{const b=$('yh-box');const hid=b.classList.toggle('hidden');e.target.textContent=hid?'展开 ▼':'收起 ▲';};
-
-// ================= 交互 =================
-function setMode(m){
-  S.mode=m;
-  ['pf','he','cha'].forEach(k=>$('m-'+k).classList.toggle('active',k===m));
-  if(m!=='he'&&S.a<2)S.a=2;
-  if(m!=='he'&&S.b>=S.a)S.b=S.a-1;
-  S.t=0; anim=null;
-  $('animrow').classList.toggle('hidden',m!=='pf');
-  $('btn-play').textContent='▶ 看割补过程';
-  syncUI(); render();
-}
-$('m-pf').onclick=()=>setMode('pf');
-$('m-he').onclick=()=>setMode('he');
-$('m-cha').onclick=()=>setMode('cha');
-function syncUI(){
-  $('s-a').value=S.a; $('s-b').value=S.b;
-  $('v-a').textContent=S.a; $('v-b').textContent=S.b;
-  $('s-b').max=S.mode==='he'?5:S.a-1;
-  $('s-a').min=S.mode==='he'?2:2;
-  $('s-t').value=Math.round(S.t*1000);
-}
-['a','b'].forEach(k=>$('s-'+k).oninput=e=>{
-  S[k]=+e.target.value;
-  if(S.mode!=='he'&&S.b>=S.a)S.b=S.a-1;
-  syncUI(); render();
-});
-$('s-t').oninput=e=>{S.t=+e.target.value/1000; anim=null; $('btn-play').textContent='▶ 看割补过程'; render();};
-$('btn-play').onclick=()=>{
-  if(anim){anim=null;$('btn-play').textContent='▶ 看割补过程';return;}
-  S.t=0; anim={t0:performance.now(),dur:3600};
-  $('btn-play').textContent='⏸ 播放中…';
-};
-$('ck-grid').onchange=e=>{S.grid=e.target.checked;render();};
-$('ck-area').onchange=e=>{S.area=e.target.checked;render();};
-
-(function loop(now){
-  if(anim){
-    const t=(now-anim.t0)/anim.dur;
-    if(t>=1){S.t=1;anim=null;$('btn-play').textContent='▶ 再看一遍';}
-    else S.t=t;
-    render();
-  }
-  requestAnimationFrame(loop);
-})(performance.now());
+$('extHead').onclick=()=>{const b=$('extBody');const hid=b.classList.toggle('hide');$('extArrow').textContent=hid?'展开 ▼':'收起 ▲';if(!hid)renderYH();};
 
 setMode('pf');
 </script>

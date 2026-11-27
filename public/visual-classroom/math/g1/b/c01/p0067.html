@@ -3,266 +3,320 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>平面向量基本定理 · 交互模型</title>
+<title>平面向量基本定理 · 试一试</title>
 <style>
   :root{
-    --ink:#1e293b;--ink-2:#475569;--muted:#94a3b8;--line:#e2e8f0;
-    --bg:#f4f6fb;--card:#ffffff;
-    --indigo:#4f46e5;--indigo-soft:#eef0ff;
-    --teal:#0d9488;--teal-soft:#e6fffa;
-    --rose:#e11d48;--rose-soft:#fff1f2;
-    --amber:#d97706;--amber-soft:#fffbeb;
-    --violet:#7c3aed;
+    --teal:#4d95c4; --teal-l:#bfe0f2; --coral:#e0714f; --coral-d:#b8502e;
+    --ink:#2f4457; --muted:#8fa1b2; --card:#f6fbfe; --bg:#e4f1fa; --line:#d2e5f2;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    background:radial-gradient(1200px 600px at 20% -10%, #e9edff 0%, rgba(233,237,255,0) 60%),var(--bg);
-    color:var(--ink);
-    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
-    min-height:100vh;padding:28px 24px 40px;
+    font-family:"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); padding:0 0 34px;
+    background:
+      linear-gradient(rgba(120,168,205,.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,168,205,.16) 1px, transparent 1px),
+      var(--bg);
+    background-size:26px 26px, 26px 26px, auto;
   }
-  .app{max-width:1220px;margin:0 auto;}
-  header{margin-bottom:20px;}
-  .tag{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:12px;letter-spacing:.06em;color:var(--indigo);
-    background:var(--indigo-soft);border:1px solid #dfe3ff;
-    padding:5px 12px;border-radius:999px;font-weight:600;
-  }
-  h1{font-size:28px;line-height:1.3;margin:12px 0 6px;letter-spacing:.01em;}
-  .sub{margin:0;color:var(--ink-2);font-size:14.5px;}
-  main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start;}
-  .stage{
-    position:relative;background:var(--card);border:1px solid var(--line);
-    border-radius:18px;box-shadow:0 10px 30px -18px rgba(30,41,59,.35);overflow:hidden;
-  }
-  .stage svg{display:block;width:100%;height:auto;touch-action:none;cursor:default;}
-  .handle-dot{transition:r .15s ease, stroke-width .15s ease;}
-  .handle:hover .handle-dot{ r: 7.5; stroke-width: 2; }
-  .hint{
-    position:absolute;left:16px;bottom:14px;font-size:12.5px;color:var(--muted);
-    background:rgba(255,255,255,.88);padding:5px 10px;border-radius:8px;border:1px solid var(--line);
-    pointer-events:none;
-  }
-  .panel{display:flex;flex-direction:column;gap:14px;max-height:660px;overflow-y:auto;padding-right:2px;}
-  .panel::-webkit-scrollbar{width:6px;}
-  .panel::-webkit-scrollbar-thumb{background:#d7dde8;border-radius:3px;}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:16px 16px 15px;box-shadow:0 8px 24px -20px rgba(30,41,59,.45);flex:none;
-  }
-  .card-title{
-    display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
-    color:var(--ink-2);letter-spacing:.04em;margin-bottom:12px;
-  }
-  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
-  .dot.indigo{background:var(--indigo);}.dot.teal{background:var(--teal);}
-  .dot.rose{background:var(--rose);}.dot.amber{background:var(--amber);}
-  .vline{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-  .vlabel{font-size:16px;color:var(--ink-2);}
-  .vval{
-    font-size:24px;font-weight:600;letter-spacing:.01em;color:var(--ink);
-    font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
-  }
-  .vval i{font-style:italic;}
-  .map{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;}
-  .chip{
-    font-size:12.5px;color:var(--ink-2);background:#f8fafc;border:1px solid var(--line);
-    padding:5px 9px;border-radius:8px;
-  }
-  .chip b{font-weight:600;}
-  .chip.indigo b{color:var(--indigo);}.chip.teal b{color:var(--teal);}.chip.rose b{color:var(--rose);}
-  .badge{
-    display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;
-    border:1px solid var(--line);margin-top:10px;
-  }
-  .badge.ok{color:var(--teal);background:var(--teal-soft);border-color:#99f6e4;}
-  .badge.warn{color:var(--amber);background:var(--amber-soft);border-color:#fde68a;}
-  .badge.bad{color:var(--rose);background:var(--rose-soft);border-color:#fecdd3;}
-  .formula{
-    font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
-    font-size:15.5px;line-height:2;color:var(--ink);word-break:break-word;
-  }
-  .formula i{font-style:italic;}
-  .formula .l1{color:#d97706;font-weight:600;}
-  .formula .l2{color:#ec4899;font-weight:600;}
-  .formula .va{color:var(--rose);font-weight:600;}
-  .formula .dim{color:var(--ink-2);}
-  .note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.75;}
-  .note b{color:var(--ink-2);font-weight:600;}
-  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0;}
-  .row-label{font-size:13px;color:var(--ink-2);}
-  .switch{
-    position:relative;width:40px;height:22px;border-radius:999px;background:#dbe1ea;
-    cursor:pointer;transition:background .2s;flex:none;
-  }
-  .switch::after{
-    content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
-    background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25);transition:transform .2s;
-  }
-  .switch.on{background:var(--indigo);}
-  .switch.on::after{transform:translateX(18px);}
-  .cust{margin-top:4px;border-top:1px dashed var(--line);padding-top:12px;}
-  .cust-label{font-size:12.5px;color:var(--ink-2);margin-bottom:8px;font-weight:700;letter-spacing:.04em;}
-  .cust-row{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
-  .cust-row .cust-lbl{
-    font-size:14px;color:var(--ink-2);width:32px;
-    font-family:"Cambria Math","Times New Roman",serif;font-style:italic;
-  }
-  .cust-row input{
-    width:64px;appearance:none;border:1px solid var(--line);border-radius:8px;
-    padding:5px 7px;font:inherit;font-size:13px;text-align:center;background:#fbfcfe;
-    color:var(--ink);font-family:"Cambria Math","Times New Roman",serif;
-  }
-  .cust-row input:focus{outline:none;border-color:var(--indigo);background:#fff;}
-  .cust-row .op{color:var(--muted);font-size:13px;}
-  .btn{
-    appearance:none;border:1px solid var(--line);background:#fbfcfe;color:var(--ink-2);
-    font:inherit;font-size:12.5px;padding:8px 6px;border-radius:9px;cursor:pointer;
-    transition:all .15s;font-family:"Cambria Math","Times New Roman",serif;
-  }
-  .btn:hover{border-color:#c7cffb;background:var(--indigo-soft);color:var(--indigo);}
-  .btn.wide{grid-column:1 / -1;width:100%;font-family:inherit;}
-  .presets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px;}
-  footer{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.8;}
-  footer b{color:var(--ink-2);font-weight:600;}
-  @media (max-width:960px){
-    main{grid-template-columns:minmax(0,1fr);}
-    .panel{max-height:none;flex-direction:row;flex-wrap:wrap;overflow:visible;}
-    .panel .card{flex:1 1 320px;}
-    h1{font-size:23px;}
+  header{background:linear-gradient(120deg,#4d95c4,#8cc5e4 52%,#bfe2f4); color:#fff;
+    padding:22px 20px 19px; text-align:center; box-shadow:0 3px 14px rgba(75,130,170,.18);}
+  header h1{font-size:26px; letter-spacing:2px; text-shadow:0 2px 6px rgba(40,90,125,.28);}
+  header p{opacity:.96; margin-top:8px; font-size:14px; letter-spacing:.5px;}
+
+  main{max-width:1340px; margin:16px auto 0; padding:0 18px;}
+  .zone{background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:14px 16px 15px; box-shadow:0 8px 24px rgba(70,120,160,.10);}
+  .layout{display:flex; gap:14px; align-items:flex-start;}
+  .stage-col{flex:1 1 auto; min-width:0;}
+
+  .statusbar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 0 9px;}
+  .chip{font-size:12.5px; background:#f2f9fe; border:1px solid #dcebf6; border-radius:8px;
+    padding:4px 9px; color:#456a82; font-family:"Cambria Math","Times New Roman",serif; white-space:nowrap;}
+  .chip b{font-weight:700; font-family:inherit;}
+  .chip.i b{color:#2f6f92;} .chip.t b{color:#0f8b80;} .chip.r b{color:#c62d54;} .chip.a b{color:#b3680a;}
+  .chip.denom{background:#fff8e8; border-color:#f0d79b; box-shadow:0 0 0 2px rgba(240,196,88,.28);}
+  .chip.denom b{color:#b3680a; font-size:14px;}
+  .badge{font-size:11.8px; font-weight:700; padding:4px 10px; border-radius:999px;
+    border:1px solid #cfe2f0; color:#2f6f92; background:#f2f9fe; white-space:nowrap;}
+  .badge.ok{color:#2e8b57; background:#eefaf2; border-color:#bfe3cd;}
+  .badge.warn{color:#a8700f; background:#fff8e8; border-color:#f2dcab;}
+  .badge.bad{color:#b04a2a; background:#fdf0ec; border-color:#eec3b3;}
+
+  .stage-wrap{position:relative; background:#fbfdff; border:1px solid #dcebf6; border-radius:14px; overflow:hidden;}
+  .stage-wrap svg{display:block; width:100%; height:auto; touch-action:none;}
+  .hint{position:absolute; left:13px; bottom:11px; font-size:12px; color:#94a7b7;
+    background:rgba(255,255,255,.9); border:1px solid #e3eef7; border-radius:8px; padding:4px 9px; pointer-events:none;}
+  .detpin{position:absolute; right:12px; bottom:11px; display:none; font-size:12.5px; color:#8a5a12;
+    background:rgba(255,250,240,.95); border:1px solid #f0d79b; border-radius:8px; padding:5px 10px;
+    font-family:"Cambria Math","Times New Roman",serif; pointer-events:none;}
+  .detpin.on{display:block;}
+  .detpin b{font-size:14.5px;}
+  .statusbar .chip, .statusbar .badge, .toolrow, .thead, .optbtn,
+  .detpin, .hint{user-select:none; -webkit-user-select:none;}
+  .handle-dot{transition:r .15s ease;}
+
+  .toolrow{display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:9px;
+    padding:7px 9px; background:#f7fcff; border:1px solid #dcebf6; border-radius:11px;}
+  .toolrow .lb{font-size:11.6px; color:#8fa1b2;}
+  .toolrow .sep{width:1px; height:16px; background:#e3eef7; margin:0 2px;}
+  .tbtn{padding:5px 9px; border:1px solid #cfe2f0; border-radius:8px; background:#f4fafd;
+    color:#557084; font:inherit; font-size:12.2px; cursor:pointer; transition:.14s;}
+  .tbtn:hover{background:#e8f3fb; border-color:#b7d7ea;}
+  .tbtn.on{background:var(--teal); border-color:var(--teal); color:#fff;}
+
+  /* ---------- 任务单 ---------- */
+  .sidepanel{flex:0 0 336px; display:flex; flex-direction:column;}
+  .ptitle{font-size:20px; font-weight:bold; letter-spacing:4px; color:#2f6f92; margin:2px 0 4px;}
+  .psub{font-size:12.5px; color:#93a6b6; margin-bottom:10px; letter-spacing:.4px; line-height:1.6;}
+
+  .task{background:#fff; border:1px solid #dbeaf5; border-radius:12px; margin-bottom:8px;
+    overflow:hidden; transition:.2s;}
+  .task.open{border-color:var(--teal); box-shadow:0 4px 14px rgba(70,120,160,.13);}
+  .task.done{background:#f7fcf9; border-color:#d6ecdf;}
+  .thead{display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:9px 12px; cursor:pointer; background:#f4fafd;}
+  .task.open .thead{background:#e9f4fc;}
+  .task.done .thead{background:#f1faf5;}
+  .tno{font-size:14px; font-weight:bold; color:#2f6f92; letter-spacing:1.5px;}
+  .task.done .tno{color:#5f9a7d;}
+  .tick{font-size:12.5px; color:#8fa1b2;}
+  .task.done .tick{color:#2e8b57; font-weight:bold;}
+  .tbody{padding:2px 12px 12px; display:none;}
+  .task.open .tbody{display:block;}
+  .tdone{display:none; padding:8px 12px; font-size:12.5px; line-height:1.7; color:#5c7d6c;}
+  .task.done .tdone{display:block;}
+
+  .tq{font-size:13.4px; line-height:1.8; color:#3b5568; margin:7px 0 8px;}
+  .tq b{color:var(--coral-d);}
+
+  .guide{background:#f2f8fd; border:1px solid #dbeaf5; border-left:3px solid #9ac9e5;
+    border-radius:8px; padding:7px 9px; margin:0 0 10px; font-size:12.1px; line-height:1.75; color:#56748a;}
+  .guide .gt{display:block; font-size:11.4px; font-weight:bold; color:#2f6f92; letter-spacing:1.2px; margin-bottom:3px;}
+  .guide .st{display:block; padding-left:1px;}
+
+  .optbtn{display:block; width:100%; text-align:left; padding:8px 11px; margin:6px 0;
+    border:1px solid #d6e7f3; border-radius:9px; background:#fbfdff; font-family:inherit;
+    font-size:13px; color:#3b5568; cursor:pointer; transition:.14s; line-height:1.5;
+    overflow-wrap:anywhere; word-break:break-word;}
+  .optbtn:hover{background:#eef7fd; border-color:#b7d7ea;}
+  .optbtn.ok{background:#eafaf1; border-color:#7ec49a; color:#20734a; font-weight:600;}
+  .optbtn.no{background:#fdf0ec; border-color:#e6a994; color:#b04a2a;}
+
+  .fb{font-size:12.2px; line-height:1.7; margin-top:8px;}
+  .fb:empty{display:none;}
+  .fb.ok{color:#2e8b57; background:#eefaf2; border-left:3px solid #7ec49a; padding:7px 9px; border-radius:6px;}
+  .fb.no{color:#a8402a; background:#fdf4f1; border-left:3px solid #e6a994; padding:7px 9px; border-radius:6px;}
+
+  .final{display:none; margin-top:10px; padding:12px 14px; border-radius:11px; text-align:center;
+    background:linear-gradient(120deg,#eaf5fc,#fdf4ef); border:1px dashed var(--teal);
+    font-size:14px; font-weight:bold; color:#b8502e; letter-spacing:.5px; line-height:1.7;}
+  .final.on{display:block;}
+  .final .fml{display:block; margin-top:4px; font-family:"Cambria Math","Times New Roman",serif;
+    font-size:17px; color:#2f6f92;}
+  .final .again{display:inline-block; margin-top:10px; padding:7px 20px; border:1px solid var(--teal);
+    border-radius:999px; background:var(--teal); color:#fff; font-family:inherit; font-size:13px;
+    font-weight:600; letter-spacing:1px; cursor:pointer; transition:.15s; box-shadow:0 4px 12px rgba(77,149,196,.28);}
+  .final .again:hover{background:#3f86b4; border-color:#3f86b4;}
+
+  @media (max-width:1060px){
+    .layout{flex-direction:column;}
+    .sidepanel{flex:auto; width:100%;}
   }
 </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="tag">人教A版 · 必修第二册 · 第六章 平面向量 · 6.3.1</div>
-    <h1>平面向量基本定理与向量的分解</h1>
-    <p class="sub">拖动向量 a 与两个基底 e₁、e₂，实时读出 λ₁、λ₂，理解「有且只有一对」</p>
-  </header>
 
-  <main>
-    <section class="stage">
-      <svg id="plane" viewBox="0 0 700 660" aria-label="平面向量分解交互图" role="img">
-        <defs>
-          <marker id="arrowAxis" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M 0 0 L 12 6 L 0 12 z" fill="#94a3b8"/>
-          </marker>
-          <marker id="arrowE1" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M 0 0 L 12 6 L 0 12 z" fill="#4f46e5"/>
-          </marker>
-          <marker id="arrowE2" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M 0 0 L 12 6 L 0 12 z" fill="#0d9488"/>
-          </marker>
-          <marker id="arrowA" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M 0 0 L 12 6 L 0 12 z" fill="#e11d48"/>
-          </marker>
-          <marker id="arrowE1c" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M 0 0 L 12 6 L 0 12 z" fill="#d97706"/>
-          </marker>
-          <marker id="arrowE2c" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M 0 0 L 12 6 L 0 12 z" fill="#ec4899"/>
-          </marker>
-        </defs>
-        <g id="gridLayer"></g>
-        <g id="obliqueLayer"></g>
-        <g id="axisLayer"></g>
-        <g id="dynLayer"></g>
-      </svg>
-      <div class="hint">拖动向量端点改变向量 ｜ 方向键调 a，Shift+方向键调 e₁，Alt+方向键调 e₂ ｜ λ 为负表示沿基底反方向</div>
-    </section>
+<header>
+  <h1>平面向量基本定理 · 试一试</h1>
+  <p>先动手试一试 —— 定理不用背，自己会浮出来</p>
+</header>
 
-    <aside class="panel">
-      <div class="card">
-        <div class="card-title"><span class="dot indigo"></span>基底 e₁、e₂（拖蓝 / 绿箭头）</div>
-        <div class="vline"><span class="vlabel">e₁ =</span><span class="vval" id="e1Val"></span></div>
-        <div class="vline" style="margin-top:4px;"><span class="vlabel">e₂ =</span><span class="vval" id="e2Val"></span></div>
-        <div class="map">
-          <span class="chip indigo">e₁×e₂ = <b id="detVal"></b></span>
-          <span class="chip teal">夹角 φ = <b id="angVal"></b></span>
+<main>
+  <section class="zone">
+    <div class="layout">
+      <div class="stage-col">
+        <div class="statusbar">
+          <span class="chip i">e₁ = <b id="e1v"></b></span>
+          <span class="chip t">e₂ = <b id="e2v"></b></span>
+          <span class="chip r">a = <b id="av"></b></span>
+          <span class="chip a">λ₁ = <b id="l1v"></b></span>
+          <span class="chip a">λ₂ = <b id="l2v"></b></span>
+          <span class="chip" id="detChip">det = <b id="detv"></b></span>
+          <span class="badge ok" id="badge"></span>
         </div>
-        <div><span class="badge ok" id="basisBadge"></span></div>
+
+        <div class="stage-wrap">
+          <svg id="plane" viewBox="0 0 880 540" aria-label="平面向量分解交互图" role="img">
+            <defs>
+              <marker id="arrowAxis" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                <path d="M 0 0 L 12 6 L 0 12 z" fill="#94a3b8"/>
+              </marker>
+              <marker id="arrowE1" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                <path d="M 0 0 L 12 6 L 0 12 z" fill="#3a7ca8"/>
+              </marker>
+              <marker id="arrowE2" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                <path d="M 0 0 L 12 6 L 0 12 z" fill="#0f8b80"/>
+              </marker>
+              <marker id="arrowA" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                <path d="M 0 0 L 12 6 L 0 12 z" fill="#e11d48"/>
+              </marker>
+              <marker id="arrowC1" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                <path d="M 0 0 L 12 6 L 0 12 z" fill="#d97706"/>
+              </marker>
+              <marker id="arrowC2" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                <path d="M 0 0 L 12 6 L 0 12 z" fill="#ec4899"/>
+              </marker>
+            </defs>
+            <g id="gridLayer"></g>
+            <g id="obliqueLayer"></g>
+            <g id="axisLayer"></g>
+            <g id="dynLayer"></g>
+          </svg>
+          <div class="hint">拖动箭头端点改变向量 ｜ 方向键调 a，Shift+方向键调 e₁，Alt+方向键调 e₂</div>
+          <div class="detpin" id="detpin">分母 det(e₁,e₂) = <b id="detpinv"></b> <span>· 不随 a 变</span></div>
+        </div>
+
+        <div class="toolrow">
+          <span class="lb">基底</span>
+          <button class="tbtn" id="pOrth">单位正交</button>
+          <button class="tbtn" id="pSlant">斜基底</button>
+          <button class="tbtn" id="pCol">e₂ ∥ e₁</button>
+          <span class="sep"></span>
+          <span class="lb">a</span>
+          <button class="tbtn" id="paRev">反向</button>
+          <button class="tbtn" id="paShort">很短</button>
+          <button class="tbtn" id="paOnE1">贴上 e₁</button>
+          <button class="tbtn" id="paOnE2">贴上 e₂</button>
+          <span class="sep"></span>
+          <button class="tbtn on" data-sw="showGrid">网格</button>
+          <button class="tbtn on" data-sw="showOblique">斜网格</button>
+          <button class="tbtn on" data-sw="showPara">平行四边形</button>
+          <button class="tbtn on" data-sw="showComp">分量</button>
+          <span class="sep"></span>
+          <button class="tbtn" id="btnReset">复位</button>
+          <button class="tbtn" id="btnRedo">全部重做</button>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-title"><span class="dot rose"></span>向量 a（拖红色箭头）</div>
-        <div class="vline"><span class="vlabel">a =</span><span class="vval" id="aVal"></span></div>
-        <div class="map">
-          <span class="chip rose">|a| = <b id="aMag"></b></span>
-        </div>
-      </div>
+      <aside class="sidepanel">
+        <div class="ptitle">试一试</div>
+        <div class="psub">先动手，再发现；五个任务做完，定理自己会浮出来。</div>
+        <div id="tasks">
 
-      <div class="card">
-        <div class="card-title"><span class="dot amber"></span>分解结果 · a = λ₁e₁ + λ₂e₂</div>
-        <div class="formula" id="decompFormula"></div>
-        <div class="note" id="decompNote"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span class="dot indigo"></span>显示与操作</div>
-        <div class="row">
-          <span class="row-label">直角坐标网格</span>
-          <div class="switch on" id="swGrid" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">基底斜坐标网格</span>
-          <div class="switch on" id="swOblique" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">分解平行四边形</span>
-          <div class="switch on" id="swPara" role="switch" tabindex="0"></div>
-        </div>
-        <div class="row">
-          <span class="row-label">分量向量 λ₁e₁、λ₂e₂</span>
-          <div class="switch on" id="swComp" role="switch" tabindex="0"></div>
-        </div>
-        <div class="cust">
-          <div class="cust-label">自定义向量</div>
-          <div class="cust-row">
-            <span class="cust-lbl">e₁</span>
-            <span class="op">(</span><input type="number" id="inE1x" value="2" step="0.1"><span class="op">,</span>
-            <input type="number" id="inE1y" value="1" step="0.1"><span class="op">)</span>
+          <!-- 任务一 -->
+          <div class="task open" data-id="1">
+            <div class="thead"><span class="tno">任务一</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">把 a 拖到几个刁钻位置：<b>反向</b>、<b>很短</b>、<b>贴住 e₁</b>、<b>贴住 e₂</b>，每换一个位置就瞄一眼 λ₁、λ₂。哪个位置会分解不出来？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 点【反向】，让 a 掉头朝左下</span>
+                <span class="st">② 点【很短】，把 a 缩短</span>
+                <span class="st">③ 点【贴上 e₁】看 λ₂ 变成 0，再点【贴上 e₂】看 λ₁ 变成 0</span>
+                <span class="st">④ 最后按住红箭头自己乱拖两圈</span>
+              </div>
+              <button class="optbtn" data-k="a">只有朝右上方的时候才分解得出来</button>
+              <button class="optbtn" data-k="b">四个位置都分解出来了——a 走遍整个平面，处处有解</button>
+              <button class="optbtn" data-k="c">贴着 e₁ 的时候不行，因为那时 λ₂ 只能取 0</button>
+              <div class="fb" id="t1fb"></div>
+            </div>
+            <div class="tdone">已发现：a 取遍整个平面都写得出来，这就是「任一向量」。</div>
           </div>
-          <div class="cust-row">
-            <span class="cust-lbl">e₂</span>
-            <span class="op">(</span><input type="number" id="inE2x" value="-1" step="0.1"><span class="op">,</span>
-            <input type="number" id="inE2y" value="2" step="0.1"><span class="op">)</span>
-          </div>
-          <div class="cust-row">
-            <span class="cust-lbl">a</span>
-            <span class="op">(</span><input type="number" id="inAx" value="3" step="0.1"><span class="op">,</span>
-            <input type="number" id="inAy" value="3" step="0.1"><span class="op">)</span>
-          </div>
-          <button class="btn wide" id="btnApply" style="margin-top:4px;">应用自定义值</button>
-        </div>
-        <div class="presets">
-          <button class="btn" data-e1x="1" data-e1y="0" data-e2x="0" data-e2y="1" data-ax="3" data-ay="2">单位正交基底</button>
-          <button class="btn" data-e1x="2" data-e1y="1" data-e2x="-1" data-e2y="2" data-ax="3" data-ay="3">斜基底</button>
-          <button class="btn" data-e1x="2" data-e1y="0" data-e2x="1" data-e2y="2" data-ax="-1" data-ay="3">负系数 λ₁&lt;0</button>
-          <button class="btn" data-e1x="2" data-e1y="1" data-e2x="4" data-e2y="2" data-ax="3" data-ay="3">共线（分解失效）</button>
-        </div>
-        <button class="btn wide" id="btnReset" style="margin-top:10px;">复位</button>
-      </div>
-    </aside>
-  </main>
 
-  <footer>
-    <b>教材原话（6.3.1 平面向量基本定理）：</b>如果 e₁、e₂ 是同一平面内的两个<b>不共线</b>向量，那么对于这一平面内的任一向量 a，<b>有且只有一对</b>实数 λ₁、λ₂，使 a = λ₁e₁ + λ₂e₂。<br>
-    代数上，λ₁、λ₂ 是方程组 x·e₁ + y·e₂ = a 的解；由克拉默法则，det(e₁,e₂) ≠ 0 时解存在且唯一：
-    λ₁ = (a×e₂)/(e₁×e₂)，λ₂ = (e₁×a)/(e₁×e₂)。<br>
-    图中两条分量 λ₁e₁、λ₂e₂ <b>都从原点 O 画出</b>，就是平行四边形的两条邻边；两条虚线把平行四边形补完整，a 与 O 是它的对角顶点。
-    分量箭头指向与基底相反时，表示对应的 λ 为<b>负数</b>（这正是定理允许的），并非分解出错。<br>
-    拖动 e₁、e₂ 使它们趋于共线，可以观察 det → 0 时 λ₁、λ₂ 剧烈变化乃至分解失效——这正是「不共线」条件不可缺的原因。
-  </footer>
-</div>
+          <!-- 任务二 -->
+          <div class="task" data-id="2">
+            <div class="thead"><span class="tno">任务二</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">a 停着不动。下面三组系数里，<b>只有一组</b>能正好拼出它。是哪一组？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 先读状态条：e₁=(2, 1)，e₂=(−1, 2)，a=(3, 3)</span>
+                <span class="st">② 三组数依次心算：λ₁e₁+λ₂e₂ 落到哪一点</span>
+                <span class="st">③ 再对照画布上那两支分量箭头的长度</span>
+              </div>
+              <button class="optbtn" data-k="a">(λ₁, λ₂) = (1.8, 0.6)</button>
+              <button class="optbtn" data-k="b">(λ₁, λ₂) = (3, 3)</button>
+              <button class="optbtn" data-k="c">(λ₁, λ₂) = (0.5, 2)</button>
+              <div class="fb" id="t2fb"></div>
+            </div>
+            <div class="tdone">已发现：一组基底只给一对系数，换一组数就拼不出来。</div>
+          </div>
+
+          <!-- 任务三 -->
+          <div class="task" data-id="3">
+            <div class="thead"><span class="tno">任务三</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">算 λ 的时候，det(e₁, e₂) 一直待在<b>分母</b>上。把 a 拖到三四个位置，盯住右下角那个数——它变了吗？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 先记下右下角 det 现在是多少</span>
+                <span class="st">② 按住红箭头，把 a 从右上拖到左下，再拖回来</span>
+                <span class="st">③ 每一步同时看：λ₁、λ₂ 变了，det 变了吗</span>
+                <span class="st">④ 再点【很短】拖一次，确认一遍</span>
+              </div>
+              <button class="optbtn" data-k="a">分母一直没动，λ 换了好几轮——基底没换，所以每个 a 只配一对 λ</button>
+              <button class="optbtn" data-k="b">分母跟着 a 走，所以同一个 a 能算出好几组 λ</button>
+              <button class="optbtn" data-k="c">分母不变，说明 λ 也不会变</button>
+              <div class="fb" id="t3fb"></div>
+            </div>
+            <div class="tdone">已发现：分母是两条基底围出的面积，a 怎么动它都不动，动的只是分子。</div>
+          </div>
+
+          <!-- 任务四 -->
+          <div class="task" data-id="4">
+            <div class="thead"><span class="tno">任务四</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">这个场景已经把 e₂ 落到 e₁ 上（det = 0）。这时 a 还能分解吗？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 看状态条：det = 0，λ₁、λ₂ 变成「—」</span>
+                <span class="st">② 把 a 拖到几个不同方向，看有没有哪个能救回来</span>
+                <span class="st">③ 也可以自己点【e₂ ∥ e₁】再对比一次</span>
+              </div>
+              <button class="optbtn" data-k="a">能，只是系数会特别大</button>
+              <button class="optbtn" data-k="b">不能，一对都找不到</button>
+              <button class="optbtn" data-k="c">能，而且仍然只有一对</button>
+              <div class="fb" id="t4fb"></div>
+            </div>
+            <div class="tdone">已发现：e₁ ∥ e₂ 时，不在那条线上的 a 无解。</div>
+          </div>
+
+          <!-- 任务五 -->
+          <div class="task" data-id="5">
+            <div class="thead"><span class="tno">任务五</span><span class="tick">›</span></div>
+            <div class="tbody">
+              <p class="tq">还停在共线的状态。现在把 a 拖到 e₁ 那条线上（点【贴上 e₁】）。这时的 λ 有几对？</p>
+              <div class="guide">
+                <span class="gt">探究指引</span>
+                <span class="st">① 保持共线不要动</span>
+                <span class="st">② 点【贴上 e₁】，让 a 正好落在那条直线</span>
+                <span class="st">③ 看状态条：λ₁、λ₂ 显示成「任取」</span>
+                <span class="st">④ 沿着直线拖 a 的端点，试着找“最正”的那一对</span>
+              </div>
+              <button class="optbtn" data-k="a">还是只有一对，和刚才一样</button>
+              <button class="optbtn" data-k="b">一对都没有</button>
+              <button class="optbtn" data-k="c">无穷多对：随便凑两个数都落在同一点</button>
+              <div class="fb" id="t5fb"></div>
+            </div>
+            <div class="tdone">已发现：共线时要么无解、要么无穷多，唯一性在这里垮掉。</div>
+          </div>
+
+        </div>
+        <div class="final" id="final">
+          e₁、e₂ 不共线 ⟹ a = λ₁e₁ + λ₂e₂ 有且只有一对 (λ₁, λ₂)
+          <span class="fml">a = λ₁e₁ + λ₂e₂　⟺　det(e₁, e₂) ≠ 0</span>
+          <button class="again" id="btnAgain">↺ 再做一次（五个任务重来）</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
 
 <script>
 (function(){
 "use strict";
-  var W = 700, H = 660, OX = 350, OY = 330, U = 46;
-  var BOUND = 6.6, MIN_LEN = 0.3, DET_EPS = 1e-9, DET_WARN = 0.35;
+  var W = 880, H = 540, OX = 440, OY = 270, U = 40;
+  var BOUND = 6.4, MIN_LEN = 0.3, DET_EPS = 1e-9, DET_WARN = 0.35;
 
   var state = {
     e1: {x: 2, y: 1},
@@ -270,15 +324,16 @@
     a:  {x: 3, y: 3},
     showGrid: true, showOblique: true, showPara: true, showComp: true
   };
-  var DEFAULTS = JSON.parse(JSON.stringify(state));
 
   var svg = document.getElementById('plane');
   var gridLayer = document.getElementById('gridLayer');
   var obliqueLayer = document.getElementById('obliqueLayer');
   var axisLayer = document.getElementById('axisLayer');
   var dynLayer = document.getElementById('dynLayer');
+  var detpin = document.getElementById('detpin');
+  var detpinv = document.getElementById('detpinv');
+  var detChip = document.getElementById('detChip');
 
-  // ---------- 数值工具 ----------
   function fmt(x){
     var v = Math.round(x * 100) / 100;
     if (Object.is(v, -0)) v = 0;
@@ -289,19 +344,18 @@
   function add(u, v){ return {x: u.x + v.x, y: u.y + v.y}; }
   function scale(u, k){ return {x: u.x * k, y: u.y * k}; }
   function mag(u){ return Math.hypot(u.x, u.y); }
-
-  // 数学坐标 -> SVG 像素
   function PX(x){ return OX + U * x; }
   function PY(y){ return OY - U * y; }
 
-  // ---------- 静态图层：直角网格与坐标轴 ----------
   function buildGrid(){
     var s = '';
     if (state.showGrid){
-      for (var i = -7; i <= 7; i++){
+      for (var i = -10; i <= 10; i++){
         var major = (i === 0);
-        s += '<line x1="' + PX(i) + '" y1="0" x2="' + PX(i) + '" y2="' + H + '" stroke="' + (major ? '#cbd5e1' : '#eef2f7') + '" stroke-width="' + (major ? 1.2 : 1) + '"/>';
-        s += '<line x1="0" y1="' + PY(i) + '" x2="' + W + '" y2="' + PY(i) + '" stroke="' + (major ? '#cbd5e1' : '#eef2f7') + '" stroke-width="' + (major ? 1.2 : 1) + '"/>';
+        s += '<line x1="' + PX(i) + '" y1="0" x2="' + PX(i) + '" y2="' + H + '" stroke="' +
+             (major ? '#cbd5e1' : '#eef2f7') + '" stroke-width="' + (major ? 1.2 : 1) + '"/>';
+        s += '<line x1="0" y1="' + PY(i) + '" x2="' + W + '" y2="' + PY(i) + '" stroke="' +
+             (major ? '#cbd5e1' : '#eef2f7') + '" stroke-width="' + (major ? 1.2 : 1) + '"/>';
       }
     }
     gridLayer.innerHTML = s;
@@ -310,31 +364,25 @@
     var s = '';
     s += '<line x1="14" y1="' + OY + '" x2="' + (W - 10) + '" y2="' + OY + '" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#arrowAxis)"/>';
     s += '<line x1="' + OX + '" y1="' + (H - 14) + '" x2="' + OX + '" y2="10" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#arrowAxis)"/>';
-    s += '<text x="' + (W - 20) + '" y="' + (OY + 20) + '" font-size="14" fill="#94a3b8" font-style="italic" font-family="Cambria Math,Times New Roman,serif">x</text>';
-    s += '<text x="' + (OX + 10) + '" y="24" font-size="14" fill="#94a3b8" font-style="italic" font-family="Cambria Math,Times New Roman,serif">y</text>';
-    s += '<text x="' + (OX - 16) + '" y="' + (OY + 18) + '" font-size="12.5" fill="#94a3b8" font-family="Cambria Math,Times New Roman,serif">O</text>';
+    s += '<text x="' + (W - 20) + '" y="' + (OY + 19) + '" font-size="13.5" fill="#94a3b8" font-style="italic" font-family="Cambria Math,Times New Roman,serif">x</text>';
+    s += '<text x="' + (OX + 9) + '" y="23" font-size="13.5" fill="#94a3b8" font-style="italic" font-family="Cambria Math,Times New Roman,serif">y</text>';
+    s += '<text x="' + (OX - 15) + '" y="' + (OY + 17) + '" font-size="12.5" fill="#94a3b8" font-family="Cambria Math,Times New Roman,serif">O</text>';
     axisLayer.innerHTML = s;
   }
-
-  // ---------- 斜坐标网格（沿 e₁、e₂ 方向） ----------
   function buildOblique(d){
     if (!state.showOblique || Math.abs(d) < DET_EPS){ obliqueLayer.innerHTML = ''; return; }
-    var e1 = state.e1, e2 = state.e2, s = '';
-    var T = 30; // 足够长以覆盖画面
+    var e1 = state.e1, e2 = state.e2, s = '', T = 30;
     for (var k = -6; k <= 6; k++){
-      // 直线 t·e1 + k·e2
       var p1 = add(scale(e1, -T), scale(e2, k));
       var p2 = add(scale(e1,  T), scale(e2, k));
-      s += '<line x1="' + PX(p1.x) + '" y1="' + PY(p1.y) + '" x2="' + PX(p2.x) + '" y2="' + PY(p2.y) + '" stroke="#dff3ef" stroke-width="1"/>';
-      // 直线 k·e1 + t·e2
+      s += '<line x1="' + PX(p1.x) + '" y1="' + PY(p1.y) + '" x2="' + PX(p2.x) + '" y2="' + PY(p2.y) + '" stroke="#e2f2f6" stroke-width="1"/>';
       var q1 = add(scale(e1, k), scale(e2, -T));
       var q2 = add(scale(e1, k), scale(e2,  T));
-      s += '<line x1="' + PX(q1.x) + '" y1="' + PY(q1.y) + '" x2="' + PX(q2.x) + '" y2="' + PY(q2.y) + '" stroke="#e8ebfa" stroke-width="1"/>';
+      s += '<line x1="' + PX(q1.x) + '" y1="' + PY(q1.y) + '" x2="' + PX(q2.x) + '" y2="' + PY(q2.y) + '" stroke="#eaf0fa" stroke-width="1"/>';
     }
     obliqueLayer.innerHTML = s;
   }
 
-  // ---------- 动态图层 ----------
   function arrow(x1, y1, x2, y2, color, width, marker, dash){
     return '<line x1="' + PX(x1) + '" y1="' + PY(y1) + '" x2="' + PX(x2) + '" y2="' + PY(y2) +
       '" stroke="' + color + '" stroke-width="' + width + '"' +
@@ -343,24 +391,33 @@
   }
   function label(txt, x, y, color, size){
     return '<text x="' + PX(x) + '" y="' + PY(y) + '" font-size="' + (size || 15) +
-      '" fill="' + color + '" font-weight="600" font-style="italic" font-family="Cambria Math,Times New Roman,serif" paint-order="stroke" stroke="#ffffff" stroke-width="3" stroke-linejoin="round">' + txt + '</text>';
+      '" fill="' + color + '" font-weight="600" font-style="italic" font-family="Cambria Math,Times New Roman,serif"' +
+      ' paint-order="stroke" stroke="#ffffff" stroke-width="3" stroke-linejoin="round">' + txt + '</text>';
   }
   function handle(v, id, color){
-    return '<g class="handle" style="cursor:grab">' +
-           '<circle cx="' + PX(v.x) + '" cy="' + PY(v.y) + '" r="20" fill="transparent" data-drag="' + id + '"/>' +
-           '<circle cx="' + PX(v.x) + '" cy="' + PY(v.y) + '" r="4.5" fill="' + color + '" stroke="#ffffff" stroke-width="1.5" class="handle-dot" style="pointer-events:none"/>' +
+    return '<g style="cursor:grab">' +
+           '<circle cx="' + PX(v.x) + '" cy="' + PY(v.y) + '" r="19" fill="transparent" data-drag="' + id + '"/>' +
+           '<circle cx="' + PX(v.x) + '" cy="' + PY(v.y) + '" r="4.5" fill="' + color +
+           '" stroke="#ffffff" stroke-width="1.5" class="handle-dot" style="pointer-events:none"/>' +
            '</g>';
   }
-  function tipLabelOffset(v){
+  function tipOffset(v){
     var m = mag(v);
     if (m < 1e-9) return {x: 0.28, y: 0.28};
-    return {x: v.x / m * 0.34, y: v.y / m * 0.34};
+    return {x: v.x / m * 0.36, y: v.y / m * 0.36};
   }
-  // 沿向量法线方向偏移，避免标签压在箭头上
   function perpOffset(v, d){
     var m = mag(v);
     if (m < 1e-9) return {x: 0, y: d};
     return {x: -v.y / m * d, y: v.x / m * d};
+  }
+  /* 两个向量是否同向重合（差角小于约 1°） */
+  function sameDir(u, v){
+    var mu = mag(u), mv = mag(v);
+    if (mu < 1e-6 || mv < 1e-6) return false;
+    var cr = det(u, v) / (mu * mv);
+    var dt = (u.x * v.x + u.y * v.y) / (mu * mv);
+    return Math.abs(cr) < 0.018 && dt > 0.98;
   }
 
   function render(){
@@ -369,99 +426,83 @@
     var ok = Math.abs(d) > DET_EPS;
     var l1 = ok ? det(a, e2) / d : NaN;
     var l2 = ok ? det(e1, a) / d : NaN;
+    /* 基底共线、且 a 也落在那条基线上 —— 无穷多组 */
+    var multi = !ok && Math.abs(det(e1, a)) <= 0.05 * mag(e1) * Math.max(mag(a), 1e-6);
 
-    buildOblique(d);
+    buildGrid(); buildAxis(); buildOblique(d);
 
     var s = '';
-    if (ok){
-      var p1 = scale(e1, l1);          // 分量 λ₁e₁ 的终点
-      var p2 = scale(e2, l2);          // 分量 λ₂e₂ 的终点
-      if (state.showPara){
-        // 平行四边形的另外两条边：p1 → a ← p2
-        s += arrow(p1.x, p1.y, a.x, a.y, '#94a3b8', 1.3, null, '5,5');
-        s += arrow(p2.x, p2.y, a.x, a.y, '#94a3b8', 1.3, null, '5,5');
-      }
-      if (state.showComp){
-        // 两条分量都从 O 出发 —— 用琥珀 / 品红与基底（蓝/绿）区分；先画白色描边再画彩线，避免被基底遮挡
-        s += arrow(0, 0, p1.x, p1.y, '#ffffff', 4.6, null);
-        s += arrow(0, 0, p1.x, p1.y, '#d97706', 2.6, 'arrowE1c');
-        s += arrow(0, 0, p2.x, p2.y, '#ffffff', 4.6, null);
-        s += arrow(0, 0, p2.x, p2.y, '#ec4899', 2.6, 'arrowE2c');
-        var o1 = perpOffset(p1, 0.40), o2 = perpOffset(p2, -0.40);
-        var m1 = scale(p1, 0.55), m2 = scale(p2, 0.55);
-        s += label('λ₁e₁', m1.x + o1.x, m1.y + o1.y, '#d97706', 14);
-        s += label('λ₂e₂', m2.x + o2.x, m2.y + o2.y, '#ec4899', 14);
+    /* 基底共线时，画一条"基底所在的直线"，看清 a 是否落在上面 */
+    if (!ok){
+      var mL = mag(e1);
+      if (mL > 1e-9){
+        var kL = 11 / mL;
+        s += arrow(-e1.x * kL, -e1.y * kL, e1.x * kL, e1.y * kL, '#c3d0dc', 1.6, null, '8,6');
       }
     }
-    // 基底与目标向量
-    s += arrow(0, 0, e1.x, e1.y, '#4f46e5', 3, 'arrowE1');
-    s += arrow(0, 0, e2.x, e2.y, '#0d9488', 3, 'arrowE2');
-    s += arrow(0, 0, a.x, a.y, '#e11d48', 3.4, 'arrowA');
-    var t1 = tipLabelOffset(e1), t2 = tipLabelOffset(e2), ta = tipLabelOffset(a);
-    s += label('e₁', e1.x + t1.x, e1.y + t1.y, '#4f46e5', 16);
-    s += label('e₂', e2.x + t2.x, e2.y + t2.y, '#0d9488', 16);
-    s += label('a', a.x + ta.x, a.y + ta.y, '#e11d48', 17);
-    // 拖动手柄
-    s += handle(e1, 'e1', '#4f46e5');
-    s += handle(e2, 'e2', '#0d9488');
+    if (ok){
+      var p1 = scale(e1, l1), p2 = scale(e2, l2);
+      var has1 = Math.abs(l1) > 0.02, has2 = Math.abs(l2) > 0.02;  /* 系数为 0 的分量不画 */
+      if (state.showPara){
+        if (has2) s += arrow(p1.x, p1.y, a.x, a.y, '#94a3b8', 1.3, null, '5,5');
+        if (has1) s += arrow(p2.x, p2.y, a.x, a.y, '#94a3b8', 1.3, null, '5,5');
+      }
+      if (state.showComp){
+        if (has1){
+          s += arrow(0, 0, p1.x, p1.y, '#ffffff', 4.6, null);
+          s += arrow(0, 0, p1.x, p1.y, '#d97706', 2.6, 'arrowC1');
+          var u1 = tipOffset(p1), o1 = perpOffset(p1, has2 ? -0.62 : 0.62);
+          s += label('λ₁e₁', p1.x + u1.x*1.6 + o1.x, p1.y + u1.y*1.6 + o1.y, '#d97706', 13.5);
+        }
+        if (has2){
+          s += arrow(0, 0, p2.x, p2.y, '#ffffff', 4.6, null);
+          s += arrow(0, 0, p2.x, p2.y, '#ec4899', 2.6, 'arrowC2');
+          var u2 = tipOffset(p2), o2 = perpOffset(p2, has1 ? 0.62 : -0.62);
+          s += label('λ₂e₂', p2.x + u2.x*1.6 + o2.x, p2.y + u2.y*1.6 + o2.y, '#ec4899', 13.5);
+        }
+      }
+    }
+    s += arrow(0, 0, e1.x, e1.y, '#3a7ca8', 3, 'arrowE1');
+    if (ok) s += arrow(0, 0, e2.x, e2.y, '#0f8b80', 3, 'arrowE2');
+    else s += arrow(0, 0, e2.x, e2.y, '#0f8b80', 1.8, 'arrowE2', '6,5');
+    /* a 与某条基底重合时改用虚线，露出下面的基底，看得出"它正压在这条线上" */
+    var aDash = sameDir(a, e1) || sameDir(a, e2) ? '9,5' : null;
+    s += arrow(0, 0, a.x, a.y, '#e11d48', 3.4, 'arrowA', aDash);
+    var t1 = tipOffset(e1), t2 = tipOffset(e2), ta = tipOffset(a);
+    var s1 = perpOffset(e1, 0.30), s2 = perpOffset(e2, -0.30);
+    var sa = perpOffset(a, 0.48);
+    s += label('e₁', e1.x + t1.x + s1.x, e1.y + t1.y + s1.y, '#3a7ca8', 16);
+    s += label('e₂', e2.x + t2.x + s2.x, e2.y + t2.y + s2.y, '#0f8b80', 16);
+    s += label('a', a.x + ta.x * 1.5 + sa.x, a.y + ta.y * 1.5 + sa.y, '#e11d48', 17);
+    s += handle(e1, 'e1', '#3a7ca8');
+    s += handle(e2, 'e2', '#0f8b80');
     s += handle(a, 'a', '#e11d48');
     dynLayer.innerHTML = s;
 
-    // ---------- 面板 ----------
-    document.getElementById('e1Val').innerHTML = vecTxt(e1);
-    document.getElementById('e2Val').innerHTML = vecTxt(e2);
-    document.getElementById('aVal').innerHTML = vecTxt(a);
-    document.getElementById('aMag').textContent = fmt(mag(a));
-    document.getElementById('detVal').textContent = fmt(d);
-    var cos = (e1.x * e2.x + e1.y * e2.y) / (mag(e1) * mag(e2));
-    cos = Math.max(-1, Math.min(1, cos));
-    document.getElementById('angVal').textContent = fmt(Math.acos(cos) * 180 / Math.PI) + '°';
+    document.getElementById('e1v').textContent = vecTxt(e1);
+    document.getElementById('e2v').textContent = vecTxt(e2);
+    document.getElementById('av').textContent = vecTxt(a);
+    document.getElementById('l1v').textContent = ok ? fmt(l1) : (multi ? '任取' : '—');
+    document.getElementById('l2v').textContent = ok ? fmt(l2) : (multi ? '任取' : '—');
+    document.getElementById('detv').textContent = fmt(d);
+    detpinv.textContent = fmt(d);
 
-    var badge = document.getElementById('basisBadge');
-    if (!ok){
+    var badge = document.getElementById('badge');
+    if (!ok && multi){
+      badge.className = 'badge warn';
+      badge.textContent = 'e₁ ∥ e₂ · a 在基底线上，无穷多组';
+    } else if (!ok){
       badge.className = 'badge bad';
-      badge.textContent = 'e₁ ∥ e₂ · 两向量共线，不能作为基底';
+      badge.textContent = 'e₁ ∥ e₂ · 一个都分解不出来';
     } else if (Math.abs(d) < DET_WARN){
       badge.className = 'badge warn';
-      badge.textContent = 'e₁、e₂ 近乎共线 · 系数 λ 对微小扰动极敏感';
+      badge.textContent = '近乎共线 · 系数抖得厉害';
     } else {
       badge.className = 'badge ok';
-      badge.textContent = 'e₁ ✕ e₂ ≠ 0 · 不共线，可作基底';
+      badge.textContent = '不共线 · 可以作基底';
     }
-
-    var F = document.getElementById('decompFormula');
-    var N = document.getElementById('decompNote');
-    if (!ok){
-      F.innerHTML = '<span class="va">a</span> 在 e₁、e₂ 下<span style="color:var(--rose);font-weight:600;">无法分解</span>';
-      N.innerHTML = 'det(e₁,e₂) = 0，方程组 x·e₁ + y·e₂ = <i>a</i> 无解或有无穷多解——' +
-        '<b>「不共线」是定理成立的前提</b>。把 e₂ 稍微拖离 e₁ 的方向，分解立即恢复唯一。';
-    } else {
-      F.innerHTML =
-        '<span class="va">a</span> = <span class="l1">λ₁</span>e₁ + <span class="l2">λ₂</span>e₂<br>' +
-        '<span class="va">' + vecTxt(a) + '</span> = <span class="l1">' + fmt(l1) + '</span>·' + vecTxt(e1) +
-        ' + <span class="l2">' + fmt(l2) + '</span>·' + vecTxt(e2) + '<br>' +
-        '<span class="dim">λ₁ = (a×e₂)/(e₁×e₂) = </span><span class="l1">' + fmt(l1) + '</span>' +
-        '<span class="dim">，λ₂ = (e₁×a)/(e₁×e₂) = </span><span class="l2">' + fmt(l2) + '</span>';
-      var chk = add(scale(e1, l1), scale(e2, l2));
-      var exact = Math.abs(chk.x - a.x) < 1e-9 && Math.abs(chk.y - a.y) < 1e-9;
-      var sign = '';
-      if (l1 < 0) sign += 'λ₁ &lt; 0，分量 λ₁e₁ 沿 e₁ 的<b>反方向</b>；';
-      if (l2 < 0) sign += 'λ₂ &lt; 0，分量 λ₂e₂ 沿 e₂ 的<b>反方向</b>；';
-      N.innerHTML = '验证：λ₁e₁ + λ₂e₂ = ' + vecTxt(chk) + (exact ? '，与 a <b>完全一致</b> ✓' : ' ≈ a') +
-        '。<br>' + (sign ? sign + '<br>' : '') +
-        '无论 a 怎么拖，这对 <b>(λ₁, λ₂) 始终唯一确定</b>——这就是「有且只有一对」。';
-    }
-
-    // 同步自定义输入框
-    document.getElementById('inE1x').value = fmt(e1.x);
-    document.getElementById('inE1y').value = fmt(e1.y);
-    document.getElementById('inE2x').value = fmt(e2.x);
-    document.getElementById('inE2y').value = fmt(e2.y);
-    document.getElementById('inAx').value = fmt(a.x);
-    document.getElementById('inAy').value = fmt(a.y);
   }
 
-  // ---------- 交互 ----------
   var pt = svg.createSVGPoint();
   function toMath(evt){
     pt.x = evt.clientX; pt.y = evt.clientY;
@@ -489,7 +530,7 @@
     if (!dragging) return;
     var m = toMath(evt);
     var v = clampVec({x: snap(m.x), y: snap(m.y)});
-    if (dragging !== 'a' && mag(v) < MIN_LEN) return; // 基底不能是零向量
+    if (dragging !== 'a' && mag(v) < MIN_LEN) return;
     state[dragging].x = v.x;
     state[dragging].y = v.y;
     render();
@@ -513,63 +554,218 @@
     render();
   });
 
-  // 开关
-  function bindSwitch(id, key){
-    var el = document.getElementById(id);
-    function toggle(){
-      state[key] = !state[key];
-      el.classList.toggle('on', state[key]);
-      if (key === 'showGrid') buildGrid();
+  Array.prototype.forEach.call(document.querySelectorAll('[data-sw]'), function(b){
+    b.addEventListener('click', function(){
+      var k = b.getAttribute('data-sw');
+      state[k] = !state[k];
+      b.classList.toggle('on', state[k]);
       render();
-    }
-    el.addEventListener('click', toggle);
-    el.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
     });
-  }
-  bindSwitch('swGrid', 'showGrid');
-  bindSwitch('swOblique', 'showOblique');
-  bindSwitch('swPara', 'showPara');
-  bindSwitch('swComp', 'showComp');
-
-  // 自定义
-  function readInput(id){
-    var v = parseFloat(document.getElementById(id).value);
-    return isFinite(v) ? v : 0;
-  }
-  document.getElementById('btnApply').addEventListener('click', function(){
-    var e1 = clampVec({x: readInput('inE1x'), y: readInput('inE1y')});
-    var e2 = clampVec({x: readInput('inE2x'), y: readInput('inE2y')});
-    var a  = clampVec({x: readInput('inAx'),  y: readInput('inAy')});
-    if (mag(e1) < MIN_LEN || mag(e2) < MIN_LEN){
-      alert('基底向量 e₁、e₂ 不能是零向量（长度过小）。');
-      return;
-    }
-    state.e1 = e1; state.e2 = e2; state.a = a;
-    render();
   });
 
-  // 预设
-  Array.prototype.forEach.call(document.querySelectorAll('.presets .btn'), function(btn){
-    btn.addEventListener('click', function(){
-      state.e1 = {x: +btn.dataset.e1x, y: +btn.dataset.e1y};
-      state.e2 = {x: +btn.dataset.e2x, y: +btn.dataset.e2y};
-      state.a  = {x: +btn.dataset.ax,  y: +btn.dataset.ay};
-      render();
+  function applyScene(e1, e2, a){
+    state.e1 = {x: e1[0], y: e1[1]};
+    state.e2 = {x: e2[0], y: e2[1]};
+    state.a  = {x: a[0],  y: a[1]};
+    render();
+  }
+  document.getElementById('pOrth').addEventListener('click', function(){ applyScene([1,0],[0,1],[3,3]); });
+  document.getElementById('pSlant').addEventListener('click', function(){ applyScene([2,1],[-1,2],[3,3]); });
+  document.getElementById('pCol').addEventListener('click', function(){ applyScene([2,1],[1.6,0.8],[3,3]); });
+
+  /* a 的位置芯片：只动 a，不动基底；反向、很短都保留上一次的方向 */
+  document.getElementById('paRev').addEventListener('click', function(){
+    state.a = {x: -state.a.x, y: -state.a.y}; render();
+  });
+  document.getElementById('paShort').addEventListener('click', function(){
+    var m = mag(state.a);
+    if (m < 1e-6){ state.a = {x: 0.6, y: 0.6}; }
+    else { var k = 0.6 / m; state.a = {x: state.a.x * k, y: state.a.y * k}; }  /* 只缩短，不改方向 */
+    render();
+  });
+  document.getElementById('paOnE1').addEventListener('click', function(){
+    state.a = {x: state.e1.x * 1.5, y: state.e1.y * 1.5}; render();
+  });
+  document.getElementById('paOnE2').addEventListener('click', function(){
+    state.a = {x: state.e2.x * 1.5, y: state.e2.y * 1.5}; render();
+  });
+
+  /* ---------- 任务链 ---------- */
+  var NTASK = 5;
+  var doneArr = [false, false, false, false, false];
+  var SCENE = {
+    1: {e1:[2,1], e2:[-1,2],    a:[3,3],   grid:true,  obl:true},
+    2: {e1:[2,1], e2:[-1,2],    a:[3,3],   grid:true,  obl:false},
+    3: {e1:[2,1], e2:[-1,2],    a:[3,3],   grid:false, obl:false},
+    4: {e1:[2,1], e2:[1.6,0.8], a:[3,3],   grid:false, obl:false},
+    5: {e1:[2,1], e2:[1.6,0.8], a:[3,1.5], grid:false, obl:false}
+  };
+
+  function q(sel){ return document.querySelector(sel); }
+  function curTask(){
+    for (var i = 0; i < NTASK; i++){ if (!doneArr[i]) return i + 1; }
+    return NTASK;
+  }
+  function setDenom(on){
+    detpin.classList.toggle('on', on);
+    detChip.classList.toggle('denom', on);
+  }
+
+  function goScene(n){
+    var sc = SCENE[n];
+    if (!sc) return;
+    state.e1 = {x: sc.e1[0], y: sc.e1[1]};
+    state.e2 = {x: sc.e2[0], y: sc.e2[1]};
+    state.a  = {x: sc.a[0],  y: sc.a[1]};
+    state.showGrid = sc.grid;
+    state.showOblique = sc.obl;
+    state.showPara = true;
+    state.showComp = true;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-sw]'), function(b){
+      b.classList.toggle('on', state[b.getAttribute('data-sw')]);
+    });
+    setDenom(n === 3);
+    render();
+  }
+
+  function activate(n){
+    var card = document.querySelector('.task[data-id="' + n + '"]');
+    if (!card) return;
+    var all = document.querySelectorAll('.task');
+    for (var i = 0; i < all.length; i++) all[i].classList.remove('open');
+    card.classList.add('open');
+    card.classList.remove('done');
+    goScene(n);
+  }
+
+  function complete(n, text){
+    var wasDone = doneArr[n - 1];
+    doneArr[n - 1] = true;
+    var card = document.querySelector('.task[data-id="' + n + '"]');
+    card.classList.remove('open');
+    card.classList.add('done');
+    if (text) card.querySelector('.tdone').textContent = '已发现：' + text;
+    card.querySelector('.tick').textContent = '✓';
+
+    var next = 0, allDone = true;
+    for (var i = n; i < NTASK; i++){
+      if (!doneArr[i]){ next = i + 1; break; }
+    }
+    for (var j = 0; j < NTASK; j++){ if (!doneArr[j]) allDone = false; }
+    if (allDone){
+      q('#final').classList.add('on');
+      if (q('#final').scrollIntoView) q('#final').scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    } else if (!wasDone && next){
+      activate(next);
+    }
+  }
+
+  /* 点选项即判定：选错出解析，选对打勾顺延 */
+  function bindChoice(n, correct, fbId, okMsg, badMsgs, doneMsg){
+    var body = document.querySelector('.task[data-id="' + n + '"] .tbody');
+    body.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('.optbtn') : null;
+      if (!b) return;
+      var fb = q(fbId);
+      var k = b.getAttribute('data-k');
+      var btns = body.querySelectorAll('.optbtn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('no');
+      if (k === correct){
+        b.classList.add('ok');
+        fb.className = 'fb ok';
+        fb.textContent = okMsg;
+        complete(n, doneMsg);
+      } else {
+        b.classList.add('no');
+        fb.className = 'fb no';
+        fb.textContent = (badMsgs[k] || '回到模型上再拖一遍。');
+      }
+    });
+  }
+
+  /* ---- 任务一 ---- */
+  bindChoice(1, 'b', '#t1fb',
+    '对。四个位置都拼得出来，只是系数换了符号、变了大小。',
+    {
+      a: '看起来只有右上方“正着走”的，是因为那里 λ 都是正的。把 a 拖到左下：λ₁、λ₂ 变成负数，等式照样成立。',
+      c: 'λ₂ = 0 也是一个实数，0 个 e₂ ＋ 1.5 个 e₁ 正好到 a。「一对」允许其中一个为 0，不是失败。'
+    },
+    'a 取遍整个平面都写得出来，这就是「任一向量」。');
+
+  /* ---- 任务二 ---- */
+  bindChoice(2, 'a', '#t2fb',
+    '对：1.8 个 e₁ 加 0.6 个 e₂ 正好落在 a。',
+    {
+      b: '这是单位正交基底下的坐标。现在 e₁、e₂ 是斜的，(3,3) 早跑过头了——点一下【单位正交】对比，a 一动没动，系数却全变了。',
+      c: '0.5 个 e₁ 只走一小截，2 个 e₂ 又拐去左上，两支接起来离 a 还差一截。看画布上那两支分量箭头的长度对不对得上。'
+    },
+    '一组基底只给一对系数，换一组数就拼不出来。');
+
+  /* ---- 任务三 ---- */
+  bindChoice(3, 'a', '#t3fb',
+    '对。分母从头到尾没动过，变的只有分子——分子里装着 a。',
+    {
+      b: '分母只由 e₁、e₂ 决定，跟 a 一点关系都没有。右下角那个数，你拖 a 的时候动过吗？',
+      c: 'λ 明明在变，拖的时候数字跳得厉害。不变的是分母，变的是分子——分子里含着 a。'
+    },
+    '分母是两条基底围出的面积，a 怎么动它都不动，动的只是分子。');
+
+  /* ---- 任务四 ---- */
+  bindChoice(4, 'b', '#t4fb',
+    '对。det = 0 就是拿 0 去除，除不出来；λ 那一栏只会显示「—」。',
+    {
+      a: 'det = 0 不是“很小”，是“等于零”——那是除以 0，不是除以一个很小的数。λ 那栏直接显示「—」，就是它算不出来。',
+      c: '两条基底挤在同一条线上，合起来只能拼出那条线上的向量。a 一离开那条线，一对都没有，谈不上“只有一对”。'
+    },
+    'e₁ ∥ e₂ 时，不在那条线上的 a 无解。');
+
+  /* ---- 任务五 ---- */
+  bindChoice(5, 'c', '#t5fb',
+    '对。e₂ 和 e₁ 同方向，两个数随便配，只要终点落在同一点就成——无穷多对。',
+    {
+      a: '沿那条线拖 a 的端点试试：λ 一直在「任取」，怎么配都落到同一点，找不出“最正”的那一对。',
+      b: 'a 明明就落在基底线上，不是没解，而是解太多了——这正是共线带来的另一种坏情况。'
+    },
+    '共线时要么无解、要么无穷多，唯一性在这里垮掉。');
+
+  /* 卡片点击：已完成的可回看，未完成的进入 */
+  Array.prototype.forEach.call(document.querySelectorAll('.task'), function(card){
+    card.querySelector('.thead').addEventListener('click', function(){
+      var id = parseInt(card.getAttribute('data-id'), 10);
+      if (card.classList.contains('open')){ card.classList.remove('open'); return; }
+      if (doneArr[id - 1]){ card.classList.add('open'); return; }
+      activate(id);
     });
   });
 
   document.getElementById('btnReset').addEventListener('click', function(){
-    state.e1 = {x: DEFAULTS.e1.x, y: DEFAULTS.e1.y};
-    state.e2 = {x: DEFAULTS.e2.x, y: DEFAULTS.e2.y};
-    state.a  = {x: DEFAULTS.a.x,  y: DEFAULTS.a.y};
-    render();
+    goScene(curTask());
   });
 
-  buildGrid();
-  buildAxis();
+  /* 全部重做：清空进度、选项与解析，回到任务一 */
+  function resetAll(){
+    for (var i = 0; i < NTASK; i++) doneArr[i] = false;
+    var cards = document.querySelectorAll('.task');
+    for (var j = 0; j < cards.length; j++){
+      var c = cards[j];
+      c.classList.remove('done', 'open');
+      c.querySelector('.tick').textContent = '›';
+      var btns = c.querySelectorAll('.optbtn');
+      for (var k = 0; k < btns.length; k++) btns[k].classList.remove('ok', 'no');
+      var fb = c.querySelector('.fb');
+      if (fb){ fb.className = 'fb'; fb.textContent = ''; }
+    }
+    q('#final').classList.remove('on');
+    activate(1);
+    if (q('#tasks').scrollIntoView) q('#tasks').scrollIntoView({block: 'nearest', behavior: 'smooth'});
+  }
+  document.getElementById('btnAgain').addEventListener('click', resetAll);
+  document.getElementById('btnRedo').addEventListener('click', resetAll);
+
+  setDenom(false);
   render();
 })();
 </script>
 </body>
 </html>
+<!-- （注：内容由AI生成） -->
